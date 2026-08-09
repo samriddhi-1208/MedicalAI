@@ -1,19 +1,20 @@
 // Complete realistic dummy dataset for MedGuardian AI
 
 export const INITIAL_USER_PROFILE = {
-  name: "Laxmi Manapure",
-  email: "laxmi.manapure@example.com",
-  phone: "9173737949",
-  age: 20,
+  name: "New Patient",
+  email: "",
+  phone: "",
+  birthDate: "",
+  age: "",
   gender: "Female",
-  bloodGroup: "B+",
-  height: "168 cm",
-  weight: "64 kg",
-  primaryPhysician: "Dr. Rajesh Kumar, MD (Civil Hospital)",
-  emergencyPhone: "108 / 0522-2239001",
-  chronicConditions: ["None"],
-  allergies: ["None"],
-  avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300"
+  bloodGroup: "O+",
+  height: "",
+  weight: "",
+  primaryPhysician: "",
+  emergencyPhone: "108",
+  chronicConditions: [],
+  allergies: [],
+  avatar: ""
 };
 
 export const MOCK_REPORTS = [

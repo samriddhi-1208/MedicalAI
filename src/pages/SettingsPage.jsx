@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User, Bell, Lock, Save, Download, Trash2, ShieldCheck, HeartPulse } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
@@ -9,6 +9,11 @@ export const SettingsPage = () => {
   const { userProfile, updateUserProfile, clearAllData } = useHealthData();
   const [activeTab, setActiveTab] = useState('profile');
   const [profileForm, setProfileForm] = useState(userProfile);
+
+  // Automatically keep form synced with latest registered/logged in patient profile
+  useEffect(() => {
+    setProfileForm(userProfile);
+  }, [userProfile]);
 
   const handleProfileSave = (e) => {
     e.preventDefault();
@@ -58,6 +63,7 @@ export const SettingsPage = () => {
                   type="text"
                   value={profileForm.name || ''}
                   onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
+                  placeholder="Patient Name"
                   className="med-input text-xs"
                 />
               </div>
@@ -68,6 +74,7 @@ export const SettingsPage = () => {
                   type="tel"
                   value={profileForm.phone || ''}
                   onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
+                  placeholder="Phone Number"
                   className="med-input text-xs"
                 />
               </div>
@@ -90,6 +97,7 @@ export const SettingsPage = () => {
                   type="number"
                   value={profileForm.age || ''}
                   onChange={(e) => setProfileForm({ ...profileForm, age: e.target.value })}
+                  placeholder="20"
                   className="med-input text-xs"
                 />
               </div>
