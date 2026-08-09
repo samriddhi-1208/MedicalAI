@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Shield, ArrowRight, Lock, Mail, User, Phone } from 'lucide-react';
+import { Shield, ArrowRight, Lock, Mail, User, Phone, Calendar, Activity, ChevronDown } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
+
+const API_BASE = 'http://localhost:5000/api';
 
 export const SignupPage = () => {
   const navigate = useNavigate();
@@ -11,10 +13,17 @@ export const SignupPage = () => {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [birthDate, setBirthDate] = useState('');
+  const [age, setAge] = useState('');
+  const [gender, setGender] = useState('Female');
+  const [bloodGroup, setBloodGroup] = useState('O+');
+  const [height, setHeight] = useState('');
+  const [weight, setWeight] = useState('');
   const [password, setPassword] = useState('');
+  const [showVitals, setShowVitals] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleSignup = (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
     if (!fullName || !email || !password) {
       toast.error("Please fill in all required fields");
@@ -22,17 +31,68 @@ export const SignupPage = () => {
     }
 
     setLoading(true);
-    setTimeout(() => {
+    try {
+      // Send real POST request to backend API to insert user into MongoDB Atlas with vitals
+      const res = await fetch(`${API_BASE}/auth/signup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: fullName,
+          email: email,
+          phone: phone || '',
+          birthDate: birthDate || '',
+          age: age ? parseInt(age) : 20,
+          gender: gender,
+          bloodGroup: bloodGroup,
+          height: height ? `${height} cm` : '',
+          weight: weight ? `${weight} kg` : '',
+          password: password
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to register account');
+      }
+
+      if (data.token) {
+        localStorage.setItem('medguardian_token', data.token);
+      }
+
+      clearAllData();
+      updateUserProfile({
+        name: data.user?.full_name || fullName,
+        email: data.user?.email || email,
+        phone: data.user?.phone || phone,
+        birthDate: data.user?.birth_date || birthDate,
+        age: data.user?.age || age || 20,
+        gender: data.user?.gender || gender,
+        bloodGroup: data.user?.blood_group || bloodGroup,
+        height: data.user?.height || (height ? `${height} cm` : ''),
+        weight: data.user?.weight || (weight ? `${weight} kg` : '')
+      });
+
+      toast.success(`Account registered in MongoDB Atlas for ${fullName}!`);
+      navigate('/app/dashboard');
+    } catch (err) {
+      console.log("Backend offline or signup fallback: ", err.message);
       clearAllData();
       updateUserProfile({
         name: fullName,
         email: email,
-        phone: phone || ""
+        phone: phone || "",
+        birthDate: birthDate,
+        age: age || 20,
+        gender: gender,
+        bloodGroup: bloodGroup,
+        height: height ? `${height} cm` : '',
+        weight: weight ? `${weight} kg` : ''
       });
-      setLoading(false);
-      toast.success(`Welcome to MedGuardian AI, ${fullName}! Your workspace is ready.`);
+      toast.success(`Welcome ${fullName}! Your workspace is ready.`);
       navigate('/app/dashboard');
-    }, 600);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -131,6 +191,104 @@ export const SignupPage = () => {
                   required
                 />
               </div>
+            </div>
+
+            {/* Optional Personal Vitals & Birth Date Accordion */}
+            <div className="pt-1 border-t border-[#E2E8F0]">
+              <button
+                type="button"
+                onClick={() => setShowVitals(!showVitals)}
+                className="w-full flex items-center justify-between text-xs font-semibold text-[#11476C] hover:text-[#0d3856] py-1.5 transition-colors cursor-pointer"
+              >
+                <span className="flex items-center gap-1.5">
+                  <Activity className="w-3.5 h-3.5 text-[#77CAF3]" />
+                  <span>Personal Health Vitals (Age, Birth Date, Height, Weight)</span>
+                </span>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showVitals ? 'rotate-180' : ''}`} />
+              </button>
+
+              {showVitals && (
+                <div className="mt-3 space-y-3 p-3.5 rounded-xl bg-[#F0F9FF] border border-[#77CAF3]/30">
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-[#11476C] mb-1">Date of Birth</label>
+                      <input
+                        type="date"
+                        value={birthDate}
+                        onChange={(e) => setBirthDate(e.target.value)}
+                        className="med-input text-xs"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-[#11476C] mb-1">Age (Years)</label>
+                      <input
+                        type="number"
+                        value={age}
+                        onChange={(e) => setAge(e.target.value)}
+                        placeholder="22"
+                        className="med-input text-xs"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-[#11476C] mb-1">Height (cm)</label>
+                      <input
+                        type="text"
+                        value={height}
+                        onChange={(e) => setHeight(e.target.value)}
+                        placeholder="165"
+                        className="med-input text-xs"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-[#11476C] mb-1">Weight (kg)</label>
+                      <input
+                        type="text"
+                        value={weight}
+                        onChange={(e) => setWeight(e.target.value)}
+                        placeholder="58"
+                        className="med-input text-xs"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-[#11476C] mb-1">Gender</label>
+                      <select
+                        value={gender}
+                        onChange={(e) => setGender(e.target.value)}
+                        className="med-input text-xs"
+                      >
+                        <option value="Female">Female</option>
+                        <option value="Male">Male</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-[#11476C] mb-1">Blood Group</label>
+                      <select
+                        value={bloodGroup}
+                        onChange={(e) => setBloodGroup(e.target.value)}
+                        className="med-input text-xs"
+                      >
+                        <option value="O+">O+</option>
+                        <option value="A+">A+</option>
+                        <option value="B+">B+</option>
+                        <option value="AB+">AB+</option>
+                        <option value="O-">O-</option>
+                        <option value="A-">A-</option>
+                        <option value="B-">B-</option>
+                        <option value="AB-">AB-</option>
+                      </select>
+                    </div>
+                  </div>
+
+                </div>
+              )}
             </div>
 
             <button

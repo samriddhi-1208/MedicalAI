@@ -1,16 +1,26 @@
+const mongoose = require('mongoose');
 const SOSEvent = require('../models/SOSEvent');
 const EmergencyContact = require('../models/EmergencyContact');
 const User = require('../models/User');
 const sosAlertService = require('../services/sosAlertService');
 
+// Helper to safely find user from req without Mongoose ObjectId CastError
+async function getUserFromReq(req) {
+  const userId = req.user?.id;
+  if (userId && mongoose.Types.ObjectId.isValid(userId)) {
+    const found = await User.findById(userId);
+    if (found) return found;
+  }
+  if (req.user?.email) {
+    const foundByEmail = await User.findOne({ email: req.user.email.toLowerCase() });
+    if (foundByEmail) return foundByEmail;
+  }
+  return await User.findOne();
+}
+
 exports.triggerSOS = async (req, res, next) => {
   try {
-    const userId = req.user?.id;
-    let user = userId ? await User.findById(userId) : null;
-    if (!user) {
-      user = await User.findOne();
-    }
-
+    const user = await getUserFromReq(req);
     if (!user) {
       return res.status(404).json({ error: "User profile not found" });
     }
@@ -36,12 +46,7 @@ exports.triggerSOS = async (req, res, next) => {
 
 exports.getContacts = async (req, res, next) => {
   try {
-    const userId = req.user?.id;
-    let user = userId ? await User.findById(userId) : null;
-    if (!user) {
-      user = await User.findOne();
-    }
-
+    const user = await getUserFromReq(req);
     if (!user) {
       return res.json([]);
     }
@@ -55,12 +60,7 @@ exports.getContacts = async (req, res, next) => {
 
 exports.addContact = async (req, res, next) => {
   try {
-    const userId = req.user?.id;
-    let user = userId ? await User.findById(userId) : null;
-    if (!user) {
-      user = await User.findOne();
-    }
-
+    const user = await getUserFromReq(req);
     if (!user) {
       return res.status(404).json({ error: "User profile not found" });
     }

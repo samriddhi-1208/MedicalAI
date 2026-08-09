@@ -11,6 +11,11 @@ import {
 const HealthDataContext = createContext();
 const API_BASE = 'http://localhost:5000/api';
 
+function getAuthHeaders() {
+  const token = localStorage.getItem('medguardian_token');
+  return token ? { 'Authorization': `Bearer ${token}` } : {};
+}
+
 export const HealthDataProvider = ({ children }) => {
   const [reports, setReports] = useState(() => {
     const saved = localStorage.getItem('medguardian_reports');
@@ -81,9 +86,10 @@ export const HealthDataProvider = ({ children }) => {
         const res = await fetch(`${API_BASE}/health`);
         if (res.ok) {
           setBackendActive(true);
+          const headers = getAuthHeaders();
           
           // Fetch live reports
-          const rRes = await fetch(`${API_BASE}/reports`);
+          const rRes = await fetch(`${API_BASE}/reports`, { headers });
           if (rRes.ok) {
             const data = await rRes.json();
             if (Array.isArray(data)) {
@@ -94,7 +100,7 @@ export const HealthDataProvider = ({ children }) => {
           }
 
           // Fetch live medicines
-          const mRes = await fetch(`${API_BASE}/medicines`);
+          const mRes = await fetch(`${API_BASE}/medicines`, { headers });
           if (mRes.ok) {
             const data = await mRes.json();
             if (Array.isArray(data)) {
@@ -105,7 +111,7 @@ export const HealthDataProvider = ({ children }) => {
           }
 
           // Fetch live emergency contacts
-          const cRes = await fetch(`${API_BASE}/sos/contacts`);
+          const cRes = await fetch(`${API_BASE}/sos/contacts`, { headers });
           if (cRes.ok) {
             const data = await cRes.json();
             if (Array.isArray(data)) {
@@ -125,7 +131,6 @@ export const HealthDataProvider = ({ children }) => {
   const activeReport = reports.find(r => r.id === activeReportId) || (reports.length > 0 ? reports[0] : null);
 
   const toggleMedicineTaken = async (id) => {
-    // Optimistic UI update
     setMedicines(prev => prev.map(m => {
       if (m.id === id) {
         const nextState = !m.taken;
@@ -146,7 +151,10 @@ export const HealthDataProvider = ({ children }) => {
 
     try {
       if (backendActive) {
-        await fetch(`${API_BASE}/medicines/${id}/take`, { method: 'PUT' });
+        await fetch(`${API_BASE}/medicines/${id}/take`, { 
+          method: 'PUT',
+          headers: getAuthHeaders()
+        });
       }
     } catch (err) {
       console.log("Local sync fallback");
@@ -169,7 +177,7 @@ export const HealthDataProvider = ({ children }) => {
       if (backendActive) {
         await fetch(`${API_BASE}/medicines`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
           body: JSON.stringify(newMed)
         });
       }
@@ -184,7 +192,10 @@ export const HealthDataProvider = ({ children }) => {
 
     try {
       if (backendActive) {
-        await fetch(`${API_BASE}/medicines/${id}`, { method: 'DELETE' });
+        await fetch(`${API_BASE}/medicines/${id}`, { 
+          method: 'DELETE',
+          headers: getAuthHeaders()
+        });
       }
     } catch (err) {
       console.log("Local sync fallback");
@@ -201,6 +212,7 @@ export const HealthDataProvider = ({ children }) => {
         formData.append('title', newReport.title);
         await fetch(`${API_BASE}/reports/upload`, {
           method: 'POST',
+          headers: getAuthHeaders(),
           body: formData
         });
       }
@@ -239,7 +251,7 @@ export const HealthDataProvider = ({ children }) => {
       if (backendActive) {
         await fetch(`${API_BASE}/sos/trigger`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
           body: JSON.stringify({
             latitude: 28.6139,
             longitude: 77.2090,
@@ -277,7 +289,7 @@ export const HealthDataProvider = ({ children }) => {
       if (backendActive) {
         await fetch(`${API_BASE}/sos/contacts`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
           body: JSON.stringify(contact)
         });
       }

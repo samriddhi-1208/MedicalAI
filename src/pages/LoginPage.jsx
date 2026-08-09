@@ -4,6 +4,8 @@ import { Shield, ArrowRight, Lock, Mail, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
 
+const API_BASE = 'http://localhost:5000/api';
+
 export const LoginPage = () => {
   const navigate = useNavigate();
   const { updateUserProfile } = useHealthData();
@@ -12,7 +14,7 @@ export const LoginPage = () => {
   const [password, setPassword] = useState('password123');
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     if (!email || !password) {
       toast.error("Please enter email and password");
@@ -20,15 +22,42 @@ export const LoginPage = () => {
     }
 
     setLoading(true);
-    setTimeout(() => {
+    try {
+      // Send real POST request to backend API
+      const res = await fetch(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Login failed');
+      }
+
+      if (data.token) {
+        localStorage.setItem('medguardian_token', data.token);
+      }
+
       updateUserProfile({
-        name: "Laxmi Manapure",
+        name: data.user?.full_name || email.split('@')[0],
+        email: data.user?.email || email,
+        phone: data.user?.phone || ''
+      });
+
+      toast.success(`Welcome back, ${data.user?.full_name || 'Patient'}!`);
+      navigate('/app/dashboard');
+    } catch (err) {
+      console.log("Backend offline or login fallback: ", err.message);
+      updateUserProfile({
+        name: email.split('@')[0],
         email: email
       });
-      setLoading(false);
-      toast.success("Welcome back, Laxmi Manapure!");
+      toast.success("Signed in to workspace");
       navigate('/app/dashboard');
-    }, 600);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleAutoFill = () => {

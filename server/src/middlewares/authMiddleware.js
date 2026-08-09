@@ -4,7 +4,7 @@ const config = require('../config');
 module.exports = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
-    req.user = { id: 1, email: "samriddhi@example.com", name: "Samriddhi Tiwari" };
+    req.user = { email: "laxmi.manapure@example.com" };
     return next();
   }
 
@@ -14,7 +14,7 @@ module.exports = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (err) {
-    req.user = { id: 1, email: "samriddhi@example.com", name: "Samriddhi Tiwari" };
+    req.user = { email: "laxmi.manapure@example.com" };
     next();
   }
 };

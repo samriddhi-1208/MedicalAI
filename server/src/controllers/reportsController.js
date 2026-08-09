@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Report = require('../models/Report');
 const ReportValue = require('../models/ReportValue');
 const ReportSummary = require('../models/ReportSummary');
@@ -6,14 +7,23 @@ const sosAlertService = require('../services/sosAlertService');
 const EmergencyContact = require('../models/EmergencyContact');
 const User = require('../models/User');
 
+// Helper to safely find user from req without Mongoose ObjectId CastError
+async function getUserFromReq(req) {
+  const userId = req.user?.id;
+  if (userId && mongoose.Types.ObjectId.isValid(userId)) {
+    const found = await User.findById(userId);
+    if (found) return found;
+  }
+  if (req.user?.email) {
+    const foundByEmail = await User.findOne({ email: req.user.email.toLowerCase() });
+    if (foundByEmail) return foundByEmail;
+  }
+  return await User.findOne();
+}
+
 exports.getReports = async (req, res, next) => {
   try {
-    const userId = req.user?.id;
-    let user = userId ? await User.findById(userId) : null;
-    if (!user) {
-      user = await User.findOne();
-    }
-
+    const user = await getUserFromReq(req);
     if (!user) {
       return res.json([]);
     }
@@ -49,11 +59,7 @@ exports.getReports = async (req, res, next) => {
 exports.uploadReport = async (req, res, next) => {
   try {
     const file = req.file || { originalname: "CBC_Lab_Report_2026.pdf", size: 2400000, mimetype: "application/pdf" };
-    const userId = req.user?.id;
-    let user = userId ? await User.findById(userId) : null;
-    if (!user) {
-      user = await User.findOne();
-    }
+    const user = await getUserFromReq(req);
 
     if (!user) {
       return res.status(404).json({ error: "User profile not found" });

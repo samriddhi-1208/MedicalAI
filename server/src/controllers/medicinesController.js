@@ -1,15 +1,25 @@
+const mongoose = require('mongoose');
 const Medicine = require('../models/Medicine');
 const MedicineLog = require('../models/MedicineLog');
 const User = require('../models/User');
 
+// Helper to safely find user from req without Mongoose ObjectId CastError
+async function getUserFromReq(req) {
+  const userId = req.user?.id;
+  if (userId && mongoose.Types.ObjectId.isValid(userId)) {
+    const found = await User.findById(userId);
+    if (found) return found;
+  }
+  if (req.user?.email) {
+    const foundByEmail = await User.findOne({ email: req.user.email.toLowerCase() });
+    if (foundByEmail) return foundByEmail;
+  }
+  return await User.findOne();
+}
+
 exports.getMedicines = async (req, res, next) => {
   try {
-    const userId = req.user?.id;
-    let user = userId ? await User.findById(userId) : null;
-    if (!user) {
-      user = await User.findOne();
-    }
-
+    const user = await getUserFromReq(req);
     if (!user) {
       return res.json([]);
     }
@@ -23,12 +33,7 @@ exports.getMedicines = async (req, res, next) => {
 
 exports.addMedicine = async (req, res, next) => {
   try {
-    const userId = req.user?.id;
-    let user = userId ? await User.findById(userId) : null;
-    if (!user) {
-      user = await User.findOne();
-    }
-
+    const user = await getUserFromReq(req);
     if (!user) {
       return res.status(404).json({ error: "User profile not found" });
     }
@@ -54,7 +59,10 @@ exports.addMedicine = async (req, res, next) => {
 exports.logTaken = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const med = await Medicine.findById(id);
+    let med = null;
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      med = await Medicine.findById(id);
+    }
     if (med) {
       med.pills_remaining = Math.max(0, med.pills_remaining - 1);
       await med.save();
@@ -76,7 +84,9 @@ exports.logTaken = async (req, res, next) => {
 exports.deleteMedicine = async (req, res, next) => {
   try {
     const { id } = req.params;
-    await Medicine.findByIdAndDelete(id);
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      await Medicine.findByIdAndDelete(id);
+    }
     res.json({ success: true });
   } catch (error) {
     next(error);
