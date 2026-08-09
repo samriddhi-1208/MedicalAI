@@ -5,9 +5,6 @@ import {
   MOCK_REPORTS, 
   MOCK_MEDICINES, 
   MOCK_EMERGENCY_CONTACTS, 
-  MOCK_SOS_LOGS, 
-  MOCK_NOTIFICATIONS, 
-  INITIAL_USER_PROFILE,
   MOCK_BIOMARKER_HISTORIES 
 } from '../data/mockData';
 
@@ -25,7 +22,9 @@ export const HealthDataProvider = ({ children }) => {
     }
     return []; // 100% EMPTY by default for new accounts
   });
+  
   const [activeReportId, setActiveReportId] = useState(null);
+  
   const [medicines, setMedicines] = useState(() => {
     const saved = localStorage.getItem('medguardian_medicines');
     if (saved) {
@@ -36,19 +35,42 @@ export const HealthDataProvider = ({ children }) => {
     }
     return []; // 100% EMPTY by default for new accounts
   });
-  const [emergencyContacts, setEmergencyContacts] = useState(MOCK_EMERGENCY_CONTACTS);
+  
+  const [emergencyContacts, setEmergencyContacts] = useState(() => {
+    const saved = localStorage.getItem('medguardian_contacts');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      } catch (e) {}
+    }
+    return []; // 100% EMPTY by default for new accounts
+  });
+  
   const [sosLogs, setSosLogs] = useState([]);
   const [notifications, setNotifications] = useState([]);
+  
   const [userProfile, setUserProfile] = useState(() => {
     const saved = localStorage.getItem('medguardian_user_profile');
     if (saved) {
       try { 
         const parsed = JSON.parse(saved);
-        return { ...INITIAL_USER_PROFILE, ...parsed };
+        if (parsed && parsed.email) return parsed;
       } catch (e) {}
     }
-    return INITIAL_USER_PROFILE;
+    return {
+      name: "New Patient",
+      email: "",
+      phone: "",
+      age: 20,
+      gender: "Female",
+      bloodGroup: "O+",
+      height: "165 cm",
+      weight: "60 kg",
+      primaryPhysician: "Unassigned Physician"
+    };
   });
+  
   const [biomarkerHistories, setBiomarkerHistories] = useState(MOCK_BIOMARKER_HISTORIES);
   const [backendActive, setBackendActive] = useState(false);
 
@@ -64,8 +86,10 @@ export const HealthDataProvider = ({ children }) => {
           const rRes = await fetch(`${API_BASE}/reports`);
           if (rRes.ok) {
             const data = await rRes.json();
-            if (data.reports && data.reports.length > 0) {
-              setReports(prev => [...data.reports, ...prev.filter(pr => !data.reports.some(dr => dr.id === pr.id))]);
+            if (Array.isArray(data)) {
+              setReports(data);
+            } else if (data.reports && Array.isArray(data.reports)) {
+              setReports(data.reports);
             }
           }
 
@@ -73,8 +97,21 @@ export const HealthDataProvider = ({ children }) => {
           const mRes = await fetch(`${API_BASE}/medicines`);
           if (mRes.ok) {
             const data = await mRes.json();
-            if (data.medicines && data.medicines.length > 0) {
+            if (Array.isArray(data)) {
+              setMedicines(data);
+            } else if (data.medicines && Array.isArray(data.medicines)) {
               setMedicines(data.medicines);
+            }
+          }
+
+          // Fetch live emergency contacts
+          const cRes = await fetch(`${API_BASE}/sos/contacts`);
+          if (cRes.ok) {
+            const data = await cRes.json();
+            if (Array.isArray(data)) {
+              setEmergencyContacts(data);
+            } else if (data.contacts && Array.isArray(data.contacts)) {
+              setEmergencyContacts(data.contacts);
             }
           }
         }
@@ -85,7 +122,7 @@ export const HealthDataProvider = ({ children }) => {
     syncBackend();
   }, []);
 
-  const activeReport = reports.find(r => r.id === activeReportId) || reports[0];
+  const activeReport = reports.find(r => r.id === activeReportId) || (reports.length > 0 ? reports[0] : null);
 
   const toggleMedicineTaken = async (id) => {
     // Optimistic UI update
@@ -109,7 +146,7 @@ export const HealthDataProvider = ({ children }) => {
 
     try {
       if (backendActive) {
-        await fetch(`${API_BASE}/medicines/${id}/toggle`, { method: 'PATCH' });
+        await fetch(`${API_BASE}/medicines/${id}/take`, { method: 'PUT' });
       }
     } catch (err) {
       console.log("Local sync fallback");
@@ -233,6 +270,7 @@ export const HealthDataProvider = ({ children }) => {
       ...contact
     };
     setEmergencyContacts(prev => [...prev, created]);
+    localStorage.setItem('medguardian_contacts', JSON.stringify([...emergencyContacts, created]));
     toast.success(`Added ${contact.name} to emergency contacts`);
 
     try {
@@ -249,7 +287,11 @@ export const HealthDataProvider = ({ children }) => {
   };
 
   const deleteEmergencyContact = (id) => {
-    setEmergencyContacts(prev => prev.filter(c => c.id !== id));
+    setEmergencyContacts(prev => {
+      const updated = prev.filter(c => c.id !== id);
+      localStorage.setItem('medguardian_contacts', JSON.stringify(updated));
+      return updated;
+    });
     toast.success("Emergency contact removed");
   };
 
@@ -257,8 +299,10 @@ export const HealthDataProvider = ({ children }) => {
     setReports(MOCK_REPORTS);
     setActiveReportId("rep-2026-001");
     setMedicines(MOCK_MEDICINES);
+    setEmergencyContacts(MOCK_EMERGENCY_CONTACTS);
     localStorage.setItem('medguardian_reports', JSON.stringify(MOCK_REPORTS));
     localStorage.setItem('medguardian_medicines', JSON.stringify(MOCK_MEDICINES));
+    localStorage.setItem('medguardian_contacts', JSON.stringify(MOCK_EMERGENCY_CONTACTS));
     toast.success("Loaded sample medical reports & prescription data for preview");
   };
 
@@ -266,9 +310,11 @@ export const HealthDataProvider = ({ children }) => {
     setReports([]);
     setActiveReportId(null);
     setMedicines([]);
+    setEmergencyContacts([]);
     localStorage.removeItem('medguardian_reports');
     localStorage.removeItem('medguardian_medicines');
-    toast("Cleared reports. Ready for your personal uploads!", { icon: '✨' });
+    localStorage.removeItem('medguardian_contacts');
+    toast("Workspace reset. Ready for your personal data!", { icon: '✨' });
   };
 
   const markNotificationsRead = () => {

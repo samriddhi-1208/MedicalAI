@@ -6,7 +6,7 @@ import { useHealthData } from '../context/HealthDataContext';
 
 export const SignupPage = () => {
   const navigate = useNavigate();
-  const { updateUserProfile } = useHealthData();
+  const { updateUserProfile, clearAllData } = useHealthData();
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -23,13 +23,14 @@ export const SignupPage = () => {
 
     setLoading(true);
     setTimeout(() => {
+      clearAllData();
       updateUserProfile({
         name: fullName,
         email: email,
         phone: phone || "9173737949"
       });
       setLoading(false);
-      toast.success(`Account created successfully for ${fullName}!`);
+      toast.success(`Welcome to MedGuardian AI, ${fullName}! Your workspace is ready.`);
       navigate('/app/dashboard');
     }, 600);
   };
