@@ -10,7 +10,8 @@ import {
   Wifi,
   Mic,
   Volume2,
-  MoreHorizontal
+  MoreHorizontal,
+  LogOut
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../../context/HealthDataContext';
@@ -18,12 +19,21 @@ import { useHealthData } from '../../context/HealthDataContext';
 export const Header = ({ collapsed }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { userProfile, notifications } = useHealthData();
+  const { userProfile, notifications, clearAllData } = useHealthData();
   
   const [profileOpen, setProfileOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [moreToolsOpen, setMoreToolsOpen] = useState(false);
   const [language, setLanguage] = useState('EN'); // 'EN' | 'HI' | 'GU'
+
+  const handleSignOut = () => {
+    setProfileOpen(false);
+    localStorage.removeItem('medguardian_token');
+    localStorage.removeItem('medguardian_user_profile');
+    clearAllData();
+    toast.success("Signed out successfully. Returning to Create Account...");
+    navigate('/signup');
+  };
 
   const getPageTitle = (path) => {
     switch (path) {
@@ -167,8 +177,8 @@ export const Header = ({ collapsed }) => {
                 }}
                 className="w-full text-left px-3 py-2 rounded-lg hover:bg-[#F8FAFC] flex items-center justify-between text-[#0F172A] font-medium"
               >
-                <span className="flex items-center gap-2"><Globe className="w-3.5 h-3.5 text-[#1D4ED8]" /> Language</span>
-                <span className="text-xs font-bold text-[#1D4ED8]">{language}</span>
+                <span className="flex items-center gap-2"><Globe className="w-3.5 h-3.5 text-[#11476C]" /> Language</span>
+                <span className="text-xs font-bold text-[#11476C]">{language}</span>
               </button>
 
               <button
@@ -178,7 +188,7 @@ export const Header = ({ collapsed }) => {
                 }}
                 className="w-full text-left px-3 py-2 rounded-lg hover:bg-[#F8FAFC] flex items-center gap-2 text-[#0F172A] font-medium"
               >
-                <Mic className="w-3.5 h-3.5 text-[#1D4ED8]" /> Voice Search (અવાજથી બોલો)
+                <Mic className="w-3.5 h-3.5 text-[#11476C]" /> Voice Search (અવાજથી બોલો)
               </button>
 
               <button
@@ -222,7 +232,7 @@ export const Header = ({ collapsed }) => {
           >
             <Bell className="w-4.5 h-4.5" />
             {notifications.length > 0 && (
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#1D4ED8] rounded-full" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#11476C] rounded-full" />
             )}
           </button>
 
@@ -230,7 +240,7 @@ export const Header = ({ collapsed }) => {
             <div className="absolute right-0 mt-2 w-72 bg-[#FFFFFF] border border-[#E2E8F0] rounded-xl shadow-lg z-50 p-3 text-xs space-y-2">
               <div className="flex items-center justify-between font-semibold text-[#0F172A] border-b border-[#E2E8F0] pb-2">
                 <span>Notifications</span>
-                <span className="text-[#1D4ED8] font-normal cursor-pointer">Mark read</span>
+                <span className="text-[#11476C] font-normal cursor-pointer">Mark read</span>
               </div>
               <p className="text-[#475569] py-2">No unread notifications.</p>
             </div>
@@ -241,26 +251,30 @@ export const Header = ({ collapsed }) => {
         <div className="relative">
           <button
             onClick={() => setProfileOpen(!profileOpen)}
-            className="flex items-center gap-1.5 p-1 rounded-lg hover:bg-[#F8FAFC]"
+            className="flex items-center gap-1.5 p-1 rounded-lg hover:bg-[#F8FAFC] cursor-pointer"
           >
-            <div className="w-8 h-8 rounded-full bg-[#EFF6FF] text-[#1D4ED8] font-semibold text-xs flex items-center justify-center border border-[#BFDBFE]">
+            <div className="w-8 h-8 rounded-full bg-[#F0F9FF] text-[#11476C] font-semibold text-xs flex items-center justify-center border border-[#77CAF3]/40 shadow-2xs">
               {userProfile.name ? userProfile.name.charAt(0) : 'P'}
             </div>
             <ChevronDown className="w-3.5 h-3.5 text-[#475569] hidden sm:block" />
           </button>
 
           {profileOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-[#FFFFFF] border border-[#E2E8F0] rounded-xl shadow-lg z-50 py-1 text-xs">
+            <div className="absolute right-0 mt-2 w-52 bg-[#FFFFFF] border border-[#E2E8F0] rounded-xl shadow-xl z-50 py-1.5 text-xs">
               <div className="px-4 py-2.5 border-b border-[#E2E8F0]">
-                <p className="font-semibold text-[#0F172A]">{userProfile.name}</p>
-                <p className="text-[#475569] text-[11px] truncate">{userProfile.email}</p>
+                <p className="font-bold text-[#11476C]">{userProfile.name}</p>
+                <p className="text-[#64748B] text-[11px] truncate">{userProfile.email || 'patient@example.com'}</p>
               </div>
-              <Link to="/app/settings" onClick={() => setProfileOpen(false)} className="block px-4 py-2 font-medium text-[#0F172A] hover:bg-[#F8FAFC]">
+              <Link to="/app/settings" onClick={() => setProfileOpen(false)} className="block px-4 py-2 font-semibold text-[#0F172A] hover:bg-[#F8FAFC]">
                 Profile & Vitals
               </Link>
-              <Link to="/login" onClick={() => setProfileOpen(false)} className="block px-4 py-2 font-medium text-[#DC2626] hover:bg-[#FEE2E2]">
-                Sign Out
-              </Link>
+              <button
+                onClick={handleSignOut}
+                className="w-full text-left px-4 py-2 font-bold text-[#DC2626] hover:bg-[#FEE2E2] flex items-center gap-2 cursor-pointer"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Sign Out (Create Account)</span>
+              </button>
             </div>
           )}
         </div>
