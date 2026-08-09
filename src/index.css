@@ -1,0 +1,336 @@
+/* MedGuardian AI — Professional Healthcare Portal Stylesheet */
+/* Strict Inter Typography & Clean Responsive Layout System */
+
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --color-primary: #1D4ED8;
+  --color-primary-hover: #1E40AF;
+  --color-primary-light: #EFF6FF;
+
+  --color-secondary: #0D9488;
+  --color-secondary-light: #CCFBF1;
+
+  --color-status-normal: #16A34A;
+  --color-status-normalBg: #DCFCE7;
+  --color-status-warning: #D97706;
+  --color-status-warningBg: #FEF3C7;
+  --color-status-critical: #DC2626;
+  --color-status-criticalBg: #FEE2E2;
+
+  --color-sos: #EF4444;
+  --color-sos-glow: #FCA5A5;
+
+  --color-neutral-text: #0F172A;
+  --color-neutral-subtext: #475569;
+  --color-neutral-border: #E2E8F0;
+  --color-neutral-bg: #F8FAFC;
+  --color-neutral-surface: #FFFFFF;
+}
+
+:root {
+  --navy: #11476C;
+  --primary-blue: #1D4ED8;
+  --primary-hover: #1E40AF;
+  --primary-light: #EFF6FF;
+
+  --status-normal: #16A34A;
+  --status-normalBg: #DCFCE7;
+  --status-warning: #D97706;
+  --status-warningBg: #FEF3C7;
+  --status-critical: #DC2626;
+  --status-criticalBg: #FEE2E2;
+
+  --sos-red: #EF4444;
+  --neutral-text: #0F172A;
+  --neutral-subtext: #475569;
+  --neutral-border: #E2E8F0;
+  --neutral-bg: #F8FAFC;
+  --neutral-surface: #FFFFFF;
+}
+
+/* Global Reset & Layout Safety */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--neutral-bg);
+  color: var(--neutral-text);
+  line-height: 1.6;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Soft Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F8FAFC;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 9999px;
+}
+
+/* SOS Pulsing Animation */
+@keyframes sos-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(253, 164, 175, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(253, 164, 175, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(253, 164, 175, 0);
+  }
+}
+
+.animate-sos-pulse {
+  animation: sos-pulse 2s infinite;
+}
+
+/* Professional Healthcare Inter Typography Hierarchy */
+main h1, .page-title {
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--navy);
+  letter-spacing: -0.015em;
+}
+@media (min-width: 640px) {
+  main h1, .page-title {
+    font-size: 32px;
+  }
+}
+
+main h2, .section-heading {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--navy);
+}
+@media (min-width: 640px) {
+  main h2, .section-heading {
+    font-size: 24px;
+  }
+}
+
+main h3, .card-heading {
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--navy);
+}
+@media (min-width: 640px) {
+  main h3, .card-heading {
+    font-size: 18px;
+  }
+}
+
+p, .body-text {
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--neutral-subtext);
+}
+@media (min-width: 640px) {
+  p, .body-text {
+    font-size: 16px;
+  }
+}
+
+label, .nav-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--neutral-text);
+}
+
+.helper-text, .caption-text {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--neutral-subtext);
+  line-height: 1.5;
+}
+
+/* Card System with 24-32px Padding & Subtle Shadow */
+.med-card {
+  background-color: var(--neutral-surface);
+  border: 1px solid var(--neutral-border);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+@media (min-width: 640px) {
+  .med-card {
+    padding: 28px;
+  }
+}
+
+/* Shorter Clean Buttons with 14-16px Text & Balanced Horizontal Padding */
+.med-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s ease-in-out;
+  white-space: nowrap;
+}
+@media (min-width: 640px) {
+  .med-btn {
+    font-size: 15px;
+    padding: 10px 20px;
+  }
+}
+
+.med-btn-primary {
+  background-color: var(--primary-blue);
+  color: #FFFFFF;
+}
+.med-btn-primary:hover {
+  background-color: var(--primary-hover);
+  box-shadow: 0 2px 8px rgba(29, 78, 216, 0.2);
+}
+
+.med-btn-secondary {
+  background-color: var(--neutral-surface);
+  color: var(--navy);
+  border-color: var(--neutral-border);
+}
+.med-btn-secondary:hover {
+  background-color: #F8FAFC;
+  border-color: #CBD5E1;
+}
+
+.med-btn-sos {
+  background-color: var(--sos-red);
+  color: #FFFFFF;
+  font-weight: 600;
+  animation: sos-pulse 2s infinite;
+}
+.med-btn-sos:hover {
+  background-color: #DC2626;
+}
+
+.med-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.med-badge-normal {
+  background-color: var(--status-normalBg);
+  color: var(--status-normal);
+}
+.med-badge-warning {
+  background-color: var(--status-warningBg);
+  color: var(--status-warning);
+}
+.med-badge-critical {
+  background-color: var(--status-criticalBg);
+  color: var(--status-critical);
+}
+.med-badge-info {
+  background-color: var(--primary-light);
+  color: var(--primary-blue);
+}
+
+/* Clean Data Tables */
+.med-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.med-table th {
+  background-color: #F8FAFC;
+  color: var(--neutral-subtext);
+  font-weight: 600;
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 2px solid var(--neutral-border);
+}
+.med-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--neutral-border);
+  color: var(--neutral-text);
+}
+.med-table tr:hover td {
+  background-color: #F8FAFC;
+}
+
+/* Form Controls & Full-Width Input Styling */
+.med-form-group {
+  margin-bottom: 20px;
+  width: 100%;
+}
+.med-form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--neutral-text);
+  margin-bottom: 6px;
+}
+
+.med-input,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="tel"],
+input[type="number"],
+select,
+textarea {
+  display: block;
+  width: 100% !important;
+  padding: 10px 14px;
+  border: 1px solid var(--neutral-border);
+  border-radius: 8px;
+  font-size: 15px;
+  font-family: inherit;
+  background-color: var(--neutral-surface);
+  color: var(--neutral-text);
+  box-sizing: border-box;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.med-input:focus,
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="tel"]:focus,
+input[type="number"]:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.15);
+}
+
+/* Chrome & Browser Autofill Override */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: var(--neutral-text) !important;
+  -webkit-box-shadow: 0 0 0px 1000px #FFFFFF inset !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
