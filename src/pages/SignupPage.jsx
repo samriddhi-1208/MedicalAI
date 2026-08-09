@@ -27,7 +27,7 @@ export const SignupPage = () => {
       updateUserProfile({
         name: fullName,
         email: email,
-        phone: phone || "9173737949"
+        phone: phone || ""
       });
       setLoading(false);
       toast.success(`Welcome to MedGuardian AI, ${fullName}! Your workspace is ready.`);
@@ -73,7 +73,7 @@ export const SignupPage = () => {
                   type="text"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Samriddhi Tiwari"
+                  placeholder="e.g. Sarah Jenkins"
                   className="med-input w-full block"
                   required
                 />
@@ -91,7 +91,7 @@ export const SignupPage = () => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="tiwari.samriddhi12@gmail.com"
+                  placeholder="patient@example.com"
                   className="med-input w-full block"
                   required
                 />
@@ -109,7 +109,7 @@ export const SignupPage = () => {
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="9173737949"
+                  placeholder="+1 (555) 000-0000"
                   className="med-input w-full block"
                 />
               </div>
