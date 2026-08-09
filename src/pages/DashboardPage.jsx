@@ -13,7 +13,11 @@ import {
   Edit2,
   CheckCircle2,
   Mic,
-  MicOff
+  MicOff,
+  FileCheck,
+  ShieldAlert,
+  Clock,
+  HeartPulse
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
@@ -29,7 +33,6 @@ export const DashboardPage = () => {
     reports, 
     medicines, 
     toggleMedicineTaken, 
-    triggerSOS, 
     loadDemoData,
     clearAllData
   } = useHealthData();
@@ -39,9 +42,18 @@ export const DashboardPage = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isListening, setIsListening] = useState(false);
 
+  // Dynamic time-of-day greeting
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good Morning";
+    if (hour < 17) return "Good Afternoon";
+    return "Good Evening";
+  };
+
   const saveName = () => {
     if (tempName.trim()) {
       updateUserProfile({ name: tempName.trim() });
+      toast.success("Patient name updated!");
     }
     setIsEditingName(false);
   };
@@ -54,15 +66,15 @@ export const DashboardPage = () => {
         return;
       }
       const summaryText = reports.length > 0
-        ? `Namaste ${userProfile.name}. Your total cholesterol level is 224 milligrams per deciliter. Hemoglobin is 11.2. Blood sugar levels are stable.`
-        : `Namaste ${userProfile.name}. Welcome to MedGuardian AI. Please upload your scanned medical report to view your health summary.`;
+        ? `Namaste ${userProfile.name}. Your latest health report has been analyzed. Total cholesterol is 224 milligrams per deciliter. Hemoglobin is 11.2. Blood sugar levels remain stable.`
+        : `Namaste ${userProfile.name}. Welcome to MedGuardian AI. Your personal health workspace is ready. Please upload your medical lab report to parse your biomarkers.`;
       
       const utterance = new SpeechSynthesisUtterance(summaryText);
       utterance.rate = 0.9;
       utterance.onend = () => setIsSpeaking(false);
       setIsSpeaking(true);
       window.speechSynthesis.speak(utterance);
-      toast.success("Playing audio summary...");
+      toast.success("Playing AI audio summary...");
     } else {
       toast.error("Audio playback not supported in browser.");
     }
@@ -117,7 +129,7 @@ export const DashboardPage = () => {
   };
 
   const shareOnWhatsApp = () => {
-    const text = encodeURIComponent(`🏥 MedGuardian AI Summary for ${userProfile.name}: Managed via MedGuardian AI.`);
+    const text = encodeURIComponent(`🏥 MedGuardian AI Patient Workspace for ${userProfile.name}:\nStatus: Active\nReports Tracked: ${reports.length}\nManaged via MedGuardian AI Assistant.`);
     window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
     toast.success("Opening WhatsApp...");
   };
@@ -125,38 +137,39 @@ export const DashboardPage = () => {
   const pendingMeds = medicines.filter(m => !m.taken);
 
   return (
-    <div className="space-y-8 pb-12">
+    <div className="space-y-8 pb-12 font-sans">
       
-      {/* Patient Greeting Card with 28px Padding */}
-      <Card className="p-7 bg-[#FFFFFF] border border-[#E2E8F0] shadow-xs rounded-xl space-y-6">
+      {/* Patient Greeting Hero Section */}
+      <Card className="p-7 bg-[#FFFFFF] border border-[#E2E8F0] shadow-md shadow-slate-200/40 rounded-2xl space-y-6">
         
         {/* Top Badges Row */}
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-3 flex-wrap">
             {reports.length > 0 ? (
-              <Badge variant="warning">Attention Needed • 1 High Biomarker</Badge>
+              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#B45309] bg-[#FEF3C7] px-3.5 py-1 rounded-full border border-[#FDE68A]">
+                <ShieldAlert className="w-3.5 h-3.5" /> Attention Needed • 1 Biomarker Borderline
+              </span>
             ) : (
-              <Badge variant="info">Fresh Account • Ready for Uploads</Badge>
+              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#11476C] bg-[#F0F9FF] px-3.5 py-1 rounded-full border border-[#77CAF3]/40">
+                <HeartPulse className="w-3.5 h-3.5 text-[#77CAF3]" /> Personal Workspace Ready
+              </span>
             )}
-            <span className="inline-flex items-center gap-1.5 text-xs text-[#16A34A] font-medium bg-[#DCFCE7] px-3 py-1 rounded-full border border-[#BBF7D0]">
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#16A34A] bg-[#DCFCE7] px-3.5 py-1 rounded-full border border-[#BBF7D0]">
               <CheckCircle2 className="w-3.5 h-3.5" /> Ayushman Bharat (PM-JAY) Supported
-            </span>
-            <span className="text-xs font-normal text-[#475569]">
-              {reports.length > 0 ? 'Last Test Date: July 28, 2026' : 'Personal Medical Workspace'}
             </span>
           </div>
 
           {reports.length > 0 && (
             <button
               onClick={clearAllData}
-              className="text-xs font-medium text-[#475569] hover:text-[#DC2626] hover:underline"
+              className="text-xs font-semibold text-[#64748B] hover:text-[#DC2626] hover:underline cursor-pointer"
             >
-              Clear Data (Reset)
+              Reset Workspace
             </button>
           )}
         </div>
 
-        {/* 32px Semibold Page Title / Greeting */}
+        {/* Dynamic Title / Greeting */}
         <div className="space-y-2">
           {isEditingName ? (
             <div className="flex items-center gap-3 my-1">
@@ -164,27 +177,33 @@ export const DashboardPage = () => {
                 type="text"
                 value={tempName}
                 onChange={(e) => setTempName(e.target.value)}
-                className="med-input text-lg font-medium max-w-md"
+                className="med-input text-lg font-semibold max-w-md"
                 autoFocus
               />
               <button
                 onClick={saveName}
-                className="med-btn med-btn-primary py-2 px-4 text-sm font-medium"
+                className="px-4 py-2 rounded-xl bg-[#11476C] text-white text-xs font-semibold hover:bg-[#0d3856] shadow-xs cursor-pointer"
               >
                 Save
+              </button>
+              <button
+                onClick={() => setIsEditingName(false)}
+                className="px-3 py-2 rounded-xl bg-[#F1F5F9] text-[#475569] text-xs font-semibold hover:bg-[#E2E8F0] cursor-pointer"
+              >
+                Cancel
               </button>
             </div>
           ) : (
             <div className="flex items-center gap-3 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl font-semibold text-[#11476C] tracking-tight leading-snug">
-                Good Morning, {userProfile.name}
+              <h1 className="text-2.5xl sm:text-3xl font-bold text-[#11476C] tracking-tight leading-snug">
+                {getGreeting()}, {userProfile.name}
               </h1>
               <button
                 onClick={() => {
                   setTempName(userProfile.name);
                   setIsEditingName(true);
                 }}
-                className="px-2.5 py-1 rounded-lg bg-[#F8FAFC] text-[#11476C] hover:bg-[#E2E8F0] text-xs font-medium transition-colors inline-flex items-center gap-1 border border-[#E2E8F0]"
+                className="px-2.5 py-1 rounded-lg bg-[#F8FAFC] text-[#11476C] hover:bg-[#E2E8F0] text-xs font-semibold transition-colors inline-flex items-center gap-1.5 border border-[#E2E8F0] cursor-pointer"
                 title="Edit Patient Name"
               >
                 <Edit2 className="w-3 h-3 text-[#11476C]" /> Edit Name
@@ -192,60 +211,61 @@ export const DashboardPage = () => {
             </div>
           )}
 
-          {/* 16px Regular Body Text */}
-          <p className="text-base font-normal text-[#475569] max-w-3xl leading-relaxed">
+          <p className="text-base font-medium text-[#475569] max-w-3xl leading-relaxed">
             {reports.length > 0 
-              ? `Your overall AI Health Score is 84/100. Blood sugar levels remain stable, while cholesterol requires dietary fiber adjustments.`
-              : `Welcome ${userProfile.name}! Upload your scanned medical report (PDF or Image) to parse your biomarkers and view AI explanations.`
+              ? `Your overall AI Health Score is 84/100. Hemoglobin level is 11.2 g/dL and cholesterol requires dietary fiber adjustments.`
+              : `Welcome to your AI clinical portal. Upload your scanned medical report (PDF or Image) to parse your biomarkers automatically.`
             }
           </p>
         </div>
 
-        {/* Important Actions Row */}
-        <div className="flex items-center justify-between gap-4 pt-4 border-t border-[#E2E8F0] flex-wrap">
+        {/* Feature Tools & Action Bar */}
+        <div className="flex items-center justify-between gap-4 pt-5 border-t border-[#E2E8F0] flex-wrap">
           
-          {/* Left Secondary Tools */}
-          <div className="flex items-center gap-3 flex-wrap">
+          {/* Multilingual Voice & Communication Badges */}
+          <div className="flex items-center gap-2.5 flex-wrap">
+            
             <button
               onClick={startVoiceInput}
-              className={`px-3.5 py-2 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all border ${
+              className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer border shadow-2xs ${
                 isListening
                   ? 'bg-[#EF4444] text-white border-[#DC2626] animate-pulse'
-                  : 'bg-[#F8FAFC] text-[#11476C] hover:bg-[#E2E8F0] border-[#E2E8F0]'
+                  : 'bg-[#F0F9FF] text-[#11476C] hover:bg-[#E0F2FE] border-[#77CAF3]/40'
               }`}
             >
-              {isListening ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5 text-[#11476C]" />}
+              {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4 text-[#11476C]" />}
               <span>{isListening ? 'Listening...' : 'Voice Input (અવાજથી બોલો)'}</span>
             </button>
 
             <button
               onClick={speakAudioSummary}
-              className={`px-3.5 py-2 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all border ${
+              className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer border shadow-2xs ${
                 isSpeaking
-                  ? 'bg-[#EF4444] text-white'
-                  : 'bg-[#F8FAFC] text-[#11476C] hover:bg-[#E2E8F0] border-[#E2E8F0]'
+                  ? 'bg-[#EF4444] text-white border-[#DC2626]'
+                  : 'bg-[#F8FAFC] text-[#11476C] hover:bg-[#F1F5F9] border-[#E2E8F0]'
               }`}
             >
-              <Volume2 className="w-3.5 h-3.5 text-[#11476C]" />
+              <Volume2 className="w-4 h-4 text-[#11476C]" />
               <span>{isSpeaking ? 'Stop Audio' : 'Audio Summary (સાંભળો)'}</span>
             </button>
 
             <button
               onClick={shareOnWhatsApp}
-              className="px-3.5 py-2 rounded-lg bg-[#DCFCE7] text-[#16A34A] text-xs font-medium hover:bg-[#BBF7D0] flex items-center gap-1.5 border border-[#BBF7D0]"
+              className="px-3.5 py-2 rounded-xl bg-[#DCFCE7] text-[#16A34A] text-xs font-semibold hover:bg-[#BBF7D0] flex items-center gap-2 border border-[#BBF7D0] shadow-2xs cursor-pointer transition-colors"
             >
-              <Share2 className="w-3.5 h-3.5" />
+              <Share2 className="w-4 h-4" />
               <span>Share via WhatsApp</span>
             </button>
+
           </div>
 
-          {/* Right Primary Actions */}
+          {/* Primary Action Buttons */}
           <div className="flex items-center gap-3 flex-wrap">
             <Button
               variant="primary"
               size="md"
               icon={Upload}
-              className="py-2.5 px-5 text-sm font-medium"
+              className="py-2.5 px-6 text-sm font-semibold rounded-xl bg-[#11476C] hover:bg-[#0d3856] shadow-md shadow-[#11476C]/15"
               onClick={() => navigate('/app/upload')}
             >
               Upload Blood Report
@@ -256,42 +276,41 @@ export const DashboardPage = () => {
                 variant="secondary"
                 size="md"
                 icon={Sparkles}
-                className="py-2.5 px-5 text-sm font-medium"
+                className="py-2.5 px-5 text-sm font-semibold rounded-xl bg-[#F0F9FF] text-[#11476C] border-[#77CAF3]/50 hover:bg-[#E0F2FE]"
                 onClick={loadDemoData}
               >
-                Load Demo Preview Data
+                Load Sample Preview
               </Button>
             )}
-
-            <Button
-              variant="sos"
-              size="md"
-              icon={Siren}
-              className="py-2.5 px-5 text-sm font-medium"
-              onClick={() => triggerSOS("Manual Dashboard SOS Button")}
-            >
-              Emergency SOS
-            </Button>
           </div>
 
         </div>
 
       </Card>
 
-      {/* Empty State Card */}
+      {/* Sleek Empty State Card */}
       {reports.length === 0 && (
-        <Card className="p-10 text-center border-dashed border-[#E2E8F0] bg-[#FFFFFF] space-y-6 rounded-xl">
-          <div className="w-14 h-14 rounded-2xl bg-[#EFF6FF] text-[#1D4ED8] flex items-center justify-center mx-auto border border-[#BFDBFE]">
-            <FolderOpen className="w-7 h-7 text-[#1D4ED8]" />
+        <Card className="p-10 text-center border-2 border-dashed border-[#CBD5E1] bg-[#FFFFFF] space-y-6 rounded-2xl shadow-xs">
+          <div className="w-16 h-16 rounded-2xl bg-[#F0F9FF] text-[#11476C] flex items-center justify-center mx-auto border border-[#77CAF3]/40 shadow-sm">
+            <FolderOpen className="w-8 h-8 text-[#11476C]" />
           </div>
 
           <div className="max-w-lg mx-auto space-y-2">
-            <h2 className="text-2xl font-semibold text-[#11476C]">
+            <h2 className="text-2xl font-bold text-[#11476C]">
               No Medical Reports Uploaded Yet
             </h2>
-            <p className="text-base font-normal text-[#475569] leading-relaxed">
-              Upload a scanned PDF or photo of your lab test result to parse your biomarkers automatically.
+            <p className="text-sm font-medium text-[#64748B] leading-relaxed">
+              Drag & drop or upload a scanned PDF or photo of your lab test result to parse your biomarkers automatically.
             </p>
+          </div>
+
+          <div className="flex items-center justify-center gap-2 text-xs font-semibold text-[#475569] flex-wrap">
+            <span className="px-3 py-1 rounded-full bg-[#F8FAFC] border border-[#E2E8F0] flex items-center gap-1.5">
+              <FileCheck className="w-3.5 h-3.5 text-[#16A34A]" /> Supported Formats: PDF, PNG, JPG
+            </span>
+            <span className="px-3 py-1 rounded-full bg-[#F0F9FF] border border-[#77CAF3]/30 text-[#11476C] flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-[#77CAF3]" /> AI Biomarker Parsing Engine Active
+            </span>
           </div>
 
           <div className="flex justify-center gap-4 pt-2 flex-wrap">
@@ -299,7 +318,7 @@ export const DashboardPage = () => {
               variant="primary"
               size="md"
               icon={Upload}
-              className="py-2.5 px-6 text-sm font-medium"
+              className="py-3 px-7 text-sm font-semibold rounded-xl bg-[#11476C] hover:bg-[#0d3856] shadow-md shadow-[#11476C]/20"
               onClick={() => navigate('/app/upload')}
             >
               Upload Your First Report
@@ -309,7 +328,7 @@ export const DashboardPage = () => {
               variant="secondary"
               size="md"
               icon={Sparkles}
-              className="py-2.5 px-6 text-sm font-medium"
+              className="py-3 px-6 text-sm font-semibold rounded-xl border-[#E2E8F0] hover:bg-[#F8FAFC]"
               onClick={loadDemoData}
             >
               Load Sample Demo Data
@@ -324,52 +343,52 @@ export const DashboardPage = () => {
           {/* Vital Metrics Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             
-            <Card className="p-6 space-y-2 bg-[#FFFFFF]">
-              <div className="flex items-center justify-between text-xs text-[#475569] font-medium uppercase tracking-wider">
+            <Card className="p-6 space-y-2 bg-[#FFFFFF] border border-[#E2E8F0] rounded-2xl shadow-xs">
+              <div className="flex items-center justify-between text-xs text-[#64748B] font-semibold uppercase tracking-wider">
                 <span>Total Cholesterol</span>
                 <Badge variant="warning">Borderline</Badge>
               </div>
               <div className="flex items-baseline justify-between pt-1">
-                <span className="text-2xl font-semibold text-[#11476C]">224 <span className="text-xs font-normal text-[#475569]">mg/dL</span></span>
-                <span className="text-xs text-[#B45309] font-medium">224 mg/dL</span>
+                <span className="text-2.5xl font-bold text-[#11476C]">224 <span className="text-xs font-normal text-[#64748B]">mg/dL</span></span>
+                <span className="text-xs text-[#B45309] font-semibold">224 mg/dL</span>
               </div>
-              <p className="text-xs text-[#475569]">Ref Range: &lt; 200 mg/dL</p>
+              <p className="text-xs text-[#64748B]">Ref Range: &lt; 200 mg/dL</p>
             </Card>
 
-            <Card className="p-6 space-y-2 bg-[#FFFFFF]">
-              <div className="flex items-center justify-between text-xs text-[#475569] font-medium uppercase tracking-wider">
+            <Card className="p-6 space-y-2 bg-[#FFFFFF] border border-[#E2E8F0] rounded-2xl shadow-xs">
+              <div className="flex items-center justify-between text-xs text-[#64748B] font-semibold uppercase tracking-wider">
                 <span>Hemoglobin</span>
                 <Badge variant="warning">Borderline</Badge>
               </div>
               <div className="flex items-baseline justify-between pt-1">
-                <span className="text-2xl font-semibold text-[#11476C]">11.2 <span className="text-xs font-normal text-[#475569]">g/dL</span></span>
-                <span className="text-xs text-[#B45309] font-medium">11.2 g/dL</span>
+                <span className="text-2.5xl font-bold text-[#11476C]">11.2 <span className="text-xs font-normal text-[#64748B]">g/dL</span></span>
+                <span className="text-xs text-[#B45309] font-semibold">11.2 g/dL</span>
               </div>
-              <p className="text-xs text-[#475569]">Ref Range: 12.0 - 15.5 g/dL</p>
+              <p className="text-xs text-[#64748B]">Ref Range: 12.0 - 15.5 g/dL</p>
             </Card>
 
-            <Card className="p-6 space-y-2 bg-[#FFFFFF]">
-              <div className="flex items-center justify-between text-xs text-[#475569] font-medium uppercase tracking-wider">
+            <Card className="p-6 space-y-2 bg-[#FFFFFF] border border-[#E2E8F0] rounded-2xl shadow-xs">
+              <div className="flex items-center justify-between text-xs text-[#64748B] font-semibold uppercase tracking-wider">
                 <span>HbA1c Sugar</span>
                 <Badge variant="normal">Normal</Badge>
               </div>
               <div className="flex items-baseline justify-between pt-1">
-                <span className="text-2xl font-semibold text-[#11476C]">5.8 <span className="text-xs font-normal text-[#475569]">%</span></span>
-                <span className="text-xs text-[#16A34A] font-medium">5.8 %</span>
+                <span className="text-2.5xl font-bold text-[#11476C]">5.8 <span className="text-xs font-normal text-[#64748B]">%</span></span>
+                <span className="text-xs text-[#16A34A] font-semibold">5.8 %</span>
               </div>
-              <p className="text-xs text-[#475569]">Ref Range: &lt; 5.7 %</p>
+              <p className="text-xs text-[#64748B]">Ref Range: &lt; 5.7 %</p>
             </Card>
 
-            <Card className="p-6 space-y-2 bg-[#FFFFFF]">
-              <div className="flex items-center justify-between text-xs text-[#475569] font-medium uppercase tracking-wider">
+            <Card className="p-6 space-y-2 bg-[#FFFFFF] border border-[#E2E8F0] rounded-2xl shadow-xs">
+              <div className="flex items-center justify-between text-xs text-[#64748B] font-semibold uppercase tracking-wider">
                 <span>Blood Pressure</span>
                 <Badge variant="normal">Normal</Badge>
               </div>
               <div className="flex items-baseline justify-between pt-1">
-                <span className="text-2xl font-semibold text-[#11476C]">122/80 <span className="text-xs font-normal text-[#475569]">mmHg</span></span>
-                <span className="text-xs text-[#16A34A] font-medium">Normal</span>
+                <span className="text-2.5xl font-bold text-[#11476C]">122/80 <span className="text-xs font-normal text-[#64748B]">mmHg</span></span>
+                <span className="text-xs text-[#16A34A] font-semibold">Normal</span>
               </div>
-              <p className="text-xs text-[#475569]">Ref Range: 120/80 mmHg</p>
+              <p className="text-xs text-[#64748B]">Ref Range: 120/80 mmHg</p>
             </Card>
 
           </div>
@@ -378,17 +397,17 @@ export const DashboardPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
             {/* Recent Reports Table */}
-            <Card className="lg:col-span-2 p-7 space-y-4 bg-[#FFFFFF]">
+            <Card className="lg:col-span-2 p-7 space-y-4 bg-[#FFFFFF] border border-[#E2E8F0] rounded-2xl shadow-xs">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-lg font-semibold text-[#11476C]">Recent Medical Reports</h3>
-                  <p className="text-xs text-[#475569]">Structured by MedGuardian AI OCR Engine</p>
+                  <h3 className="text-lg font-bold text-[#11476C]">Recent Medical Reports</h3>
+                  <p className="text-xs font-medium text-[#64748B]">Structured by MedGuardian AI OCR Engine</p>
                 </div>
                 <Button
                   variant="outline"
                   size="sm"
                   icon={Plus}
-                  className="font-medium"
+                  className="font-semibold text-xs border-[#E2E8F0]"
                   onClick={() => navigate('/app/upload')}
                 >
                   Upload New
@@ -410,14 +429,14 @@ export const DashboardPage = () => {
                   <tbody>
                     {reports.map((report) => (
                       <tr key={report.id}>
-                        <td className="font-semibold text-[#11476C] flex items-center gap-2">
-                          <FileText className="w-4 h-4 text-[#1D4ED8] shrink-0" />
+                        <td className="font-bold text-[#11476C] flex items-center gap-2">
+                          <FileText className="w-4 h-4 text-[#11476C] shrink-0" />
                           <span>{report.title}</span>
                         </td>
-                        <td className="text-[#475569]">{report.labName}</td>
-                        <td className="text-[#475569]">{report.date}</td>
+                        <td className="text-[#64748B] font-medium">{report.labName}</td>
+                        <td className="text-[#64748B] font-medium">{report.date}</td>
                         <td>
-                          <span className="px-2.5 py-0.5 rounded-full bg-[#EFF6FF] text-[#1D4ED8] text-xs font-medium border border-[#BFDBFE]">
+                          <span className="px-2.5 py-0.5 rounded-full bg-[#F0F9FF] text-[#11476C] text-xs font-semibold border border-[#77CAF3]/30">
                             {report.ocrConfidence}
                           </span>
                         </td>
@@ -428,7 +447,7 @@ export const DashboardPage = () => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="font-medium text-[#1D4ED8]"
+                            className="font-semibold text-[#11476C] hover:bg-[#F0F9FF]"
                             onClick={() => navigate('/app/analysis')}
                           >
                             View Analysis
@@ -442,15 +461,15 @@ export const DashboardPage = () => {
             </Card>
 
             {/* Medicines Widget */}
-            <Card className="p-7 space-y-4 bg-[#FFFFFF]">
+            <Card className="p-7 space-y-4 bg-[#FFFFFF] border border-[#E2E8F0] rounded-2xl shadow-xs">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-lg font-semibold text-[#11476C] flex items-center gap-2">
-                    <Pill className="w-4.5 h-4.5 text-[#1D4ED8]" /> Today's Medications
+                  <h3 className="text-lg font-bold text-[#11476C] flex items-center gap-2">
+                    <Pill className="w-4.5 h-4.5 text-[#11476C]" /> Today's Medications
                   </h3>
-                  <p className="text-xs text-[#475569]">{pendingMeds.length} pending doses for today</p>
+                  <p className="text-xs font-medium text-[#64748B]">{pendingMeds.length} pending doses for today</p>
                 </div>
-                <Link to="/app/medicines" className="text-xs font-medium text-[#1D4ED8] hover:underline">
+                <Link to="/app/medicines" className="text-xs font-semibold text-[#11476C] hover:underline">
                   Manage
                 </Link>
               </div>
@@ -459,23 +478,23 @@ export const DashboardPage = () => {
                 {medicines.map((med) => (
                   <div
                     key={med.id}
-                    className={`p-3.5 rounded-lg border flex items-center justify-between ${
+                    className={`p-3.5 rounded-xl border flex items-center justify-between transition-colors ${
                       med.taken ? 'bg-[#F8FAFC] border-[#E2E8F0] opacity-60' : 'bg-[#FFFFFF] border-[#E2E8F0]'
                     }`}
                   >
                     <div>
-                      <p className={`text-sm font-semibold ${med.taken ? 'line-through text-[#475569]' : 'text-[#11476C]'}`}>
+                      <p className={`text-sm font-bold ${med.taken ? 'line-through text-[#64748B]' : 'text-[#11476C]'}`}>
                         {med.name}
                       </p>
-                      <p className="text-xs text-[#475569]">{med.dosage} • {med.time}</p>
+                      <p className="text-xs font-medium text-[#64748B]">{med.dosage} • {med.time}</p>
                     </div>
 
                     <button
                       onClick={() => toggleMedicineTaken(med.id)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
                         med.taken
                           ? 'bg-[#DCFCE7] text-[#16A34A]'
-                          : 'bg-[#EFF6FF] text-[#1D4ED8] hover:bg-[#BFDBFE]'
+                          : 'bg-[#F0F9FF] text-[#11476C] hover:bg-[#E0F2FE]'
                       }`}
                     >
                       {med.taken ? 'Logged ✓' : 'Take Now'}
