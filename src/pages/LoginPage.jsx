@@ -8,10 +8,10 @@ const API_BASE = 'http://localhost:5000/api';
 
 export const LoginPage = () => {
   const navigate = useNavigate();
-  const { updateUserProfile } = useHealthData();
+  const { userProfile, updateUserProfile } = useHealthData();
 
-  // Load saved email ONLY if previously logged in on THIS specific device/laptop
-  const savedLocalEmail = localStorage.getItem('medguardian_last_user_email') || '';
+  // Retrieve actual registered patient email from local storage or context profile
+  const savedLocalEmail = localStorage.getItem('medguardian_last_user_email') || (userProfile && userProfile.email ? userProfile.email : '');
 
   const [email, setEmail] = useState(savedLocalEmail);
   const [password, setPassword] = useState('');
@@ -32,7 +32,7 @@ export const LoginPage = () => {
 
     setLoading(true);
     try {
-      // Save last email ONLY on this device's browser local storage
+      // Save last user email ONLY on this device's browser local storage
       localStorage.setItem('medguardian_last_user_email', email);
 
       // Send real POST request to backend API
@@ -81,10 +81,14 @@ export const LoginPage = () => {
   };
 
   const handleQuickAutoFill = () => {
-    const targetEmail = savedLocalEmail || "patient@example.com";
-    setEmail(targetEmail);
-    setPassword("password123");
-    toast.success(`Auto-filled login credentials for ${targetEmail}`);
+    if (savedLocalEmail) {
+      setEmail(savedLocalEmail);
+      setPassword("password123");
+      toast.success(`Auto-filled saved credentials for ${savedLocalEmail}`);
+    } else {
+      toast.error("No registered account found on this device. Please Create an Account first!");
+      navigate('/signup');
+    }
   };
 
   return (
@@ -112,15 +116,21 @@ export const LoginPage = () => {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-[#FFFFFF] border border-[#E2E8F0] py-8 px-6 shadow-xl shadow-slate-200/50 rounded-2xl sm:px-8 space-y-5">
           
-          {/* Quick Auto-Fill Credentials Button for existing & demo users */}
-          <button
-            type="button"
-            onClick={handleQuickAutoFill}
-            className="w-full py-2.5 px-4 rounded-xl bg-[#F0F9FF] hover:bg-[#E0F2FE] text-[#11476C] text-xs font-semibold border border-[#77CAF3]/40 flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
-          >
-            <Sparkles className="w-4 h-4 text-[#77CAF3]" />
-            <span>⚡ Auto-Fill Credentials ({savedLocalEmail || 'patient@example.com'})</span>
-          </button>
+          {/* Quick Auto-Fill Credentials Button */}
+          {savedLocalEmail ? (
+            <button
+              type="button"
+              onClick={handleQuickAutoFill}
+              className="w-full py-2.5 px-4 rounded-xl bg-[#F0F9FF] hover:bg-[#E0F2FE] text-[#11476C] text-xs font-semibold border border-[#77CAF3]/40 flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
+            >
+              <Sparkles className="w-4 h-4 text-[#77CAF3]" />
+              <span>⚡ Auto-Fill Registered Account ({savedLocalEmail})</span>
+            </button>
+          ) : (
+            <div className="p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] text-xs font-medium text-[#64748B] text-center">
+              First time on this device? <Link to="/signup" className="text-[#11476C] font-bold hover:underline">Create an Account</Link> to save your profile
+            </div>
+          )}
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="med-form-group">
@@ -134,7 +144,7 @@ export const LoginPage = () => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="patient@example.com"
+                  placeholder="Enter your registered email"
                   className="med-input w-full block"
                   required
                 />
