@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Shield, ArrowRight, Lock, Mail, Sparkles } from 'lucide-react';
+import { Shield, ArrowRight, Lock, Mail, UserCheck } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
 
@@ -10,9 +10,18 @@ export const LoginPage = () => {
   const navigate = useNavigate();
   const { updateUserProfile } = useHealthData();
 
-  const [email, setEmail] = useState('');
+  // Load saved email ONLY if previously logged in on THIS specific device/laptop
+  const savedLocalEmail = localStorage.getItem('medguardian_last_user_email') || '';
+
+  const [email, setEmail] = useState(savedLocalEmail);
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (savedLocalEmail) {
+      setEmail(savedLocalEmail);
+    }
+  }, [savedLocalEmail]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -23,6 +32,9 @@ export const LoginPage = () => {
 
     setLoading(true);
     try {
+      // Save last email ONLY on this device's browser local storage
+      localStorage.setItem('medguardian_last_user_email', email);
+
       // Send real POST request to backend API
       const res = await fetch(`${API_BASE}/auth/login`, {
         method: 'POST',
@@ -42,13 +54,21 @@ export const LoginPage = () => {
       updateUserProfile({
         name: data.user?.full_name || email.split('@')[0],
         email: data.user?.email || email,
-        phone: data.user?.phone || ''
+        phone: data.user?.phone || '',
+        birthDate: data.user?.birth_date || '',
+        age: data.user?.age || '',
+        gender: data.user?.gender || 'Female',
+        bloodGroup: data.user?.blood_group || 'O+',
+        height: data.user?.height || '',
+        weight: data.user?.weight || '',
+        primaryPhysician: data.user?.primary_physician || ''
       });
 
       toast.success(`Welcome back, ${data.user?.full_name || 'Patient'}!`);
       navigate('/app/dashboard');
     } catch (err) {
       console.log("Backend offline or login fallback: ", err.message);
+      localStorage.setItem('medguardian_last_user_email', email);
       updateUserProfile({
         name: email.split('@')[0],
         email: email
@@ -58,12 +78,6 @@ export const LoginPage = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleAutoFill = () => {
-    setEmail("patient@example.com");
-    setPassword("password123");
-    toast.success("Demo credentials loaded!");
   };
 
   return (
@@ -91,15 +105,13 @@ export const LoginPage = () => {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-[#FFFFFF] border border-[#E2E8F0] py-8 px-6 shadow-xl shadow-slate-200/50 rounded-2xl sm:px-8 space-y-6">
           
-          {/* Quick Auto-Fill Demo Button */}
-          <button
-            type="button"
-            onClick={handleAutoFill}
-            className="w-full py-2.5 px-4 rounded-xl bg-[#F0F9FF] hover:bg-[#E0F2FE] text-[#11476C] text-xs font-semibold border border-[#77CAF3]/40 flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
-          >
-            <Sparkles className="w-4 h-4 text-[#77CAF3]" />
-            <span>Auto-Fill Demo Credentials (patient@example.com)</span>
-          </button>
+          {/* Saved device banner (only shows if user previously logged in on THIS specific device) */}
+          {savedLocalEmail && (
+            <div className="p-3 rounded-xl bg-[#F0F9FF] border border-[#77CAF3]/30 text-xs font-semibold text-[#11476C] flex items-center gap-2">
+              <UserCheck className="w-4 h-4 text-[#16A34A] shrink-0" />
+              <span>Saved login session found for <strong>{savedLocalEmail}</strong></span>
+            </div>
+          )}
 
           <form onSubmit={handleLogin} className="space-y-5">
             <div className="med-form-group">

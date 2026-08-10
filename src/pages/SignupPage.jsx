@@ -32,6 +32,9 @@ export const SignupPage = () => {
 
     setLoading(true);
     try {
+      // Save last user email ONLY on this device's browser
+      localStorage.setItem('medguardian_last_user_email', email);
+
       // Send real POST request to backend API to insert user into MongoDB Atlas with vitals
       const res = await fetch(`${API_BASE}/auth/signup`, {
         method: 'POST',
@@ -72,10 +75,11 @@ export const SignupPage = () => {
         weight: data.user?.weight || (weight ? `${weight} kg` : '')
       });
 
-      toast.success(`Account registered in MongoDB Atlas for ${fullName}!`);
+      toast.success(`Account registered for ${fullName}!`);
       navigate('/app/dashboard');
     } catch (err) {
       console.log("Backend offline or signup fallback: ", err.message);
+      localStorage.setItem('medguardian_last_user_email', email);
       clearAllData();
       updateUserProfile({
         name: fullName,
@@ -133,7 +137,7 @@ export const SignupPage = () => {
                   type="text"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  placeholder="e.g. Sarah Jenkins"
+                  placeholder="Full Name"
                   className="med-input w-full block"
                   required
                 />
@@ -169,7 +173,7 @@ export const SignupPage = () => {
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+1 (555) 000-0000"
+                  placeholder="Phone Number"
                   className="med-input w-full block"
                 />
               </div>
