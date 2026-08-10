@@ -19,12 +19,11 @@ import { useHealthData } from '../../context/HealthDataContext';
 export const Header = ({ collapsed }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { userProfile, notifications, clearAllData } = useHealthData();
+  const { userProfile, notifications, clearAllData, language, setLanguage } = useHealthData();
   
   const [profileOpen, setProfileOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [moreToolsOpen, setMoreToolsOpen] = useState(false);
-  const [language, setLanguage] = useState('EN'); // 'EN' | 'HI' | 'GU'
 
   const handleSignOut = () => {
     setProfileOpen(false);
@@ -78,10 +77,10 @@ export const Header = ({ collapsed }) => {
   const cycleLanguage = () => {
     if (language === 'EN') {
       setLanguage('HI');
-      toast.success("Switched to Hindi");
+      toast.success("Switched to Hindi (हिंदी)");
     } else if (language === 'HI') {
       setLanguage('GU');
-      toast.success("Switched to Gujarati");
+      toast.success("Switched to Gujarati (ગુજરાતી)");
     } else {
       setLanguage('EN');
       toast.success("Switched to English");
@@ -161,7 +160,7 @@ export const Header = ({ collapsed }) => {
         <div className="relative">
           <button
             onClick={() => setMoreToolsOpen(!moreToolsOpen)}
-            className="p-2 rounded-lg text-[#475569] hover:bg-[#F8FAFC] hover:text-[#0F172A] border border-[#E2E8F0] flex items-center gap-1 text-xs font-medium"
+            className="p-2 rounded-lg text-[#475569] hover:bg-[#F8FAFC] hover:text-[#0F172A] border border-[#E2E8F0] flex items-center gap-1 text-xs font-medium cursor-pointer"
             title="Patient Tools & Language"
           >
             <MoreHorizontal className="w-4 h-4" />
@@ -175,10 +174,12 @@ export const Header = ({ collapsed }) => {
                   cycleLanguage();
                   setMoreToolsOpen(false);
                 }}
-                className="w-full text-left px-3 py-2 rounded-lg hover:bg-[#F8FAFC] flex items-center justify-between text-[#0F172A] font-medium"
+                className="w-full text-left px-3 py-2 rounded-lg hover:bg-[#F8FAFC] flex items-center justify-between text-[#0F172A] font-medium cursor-pointer"
               >
                 <span className="flex items-center gap-2"><Globe className="w-3.5 h-3.5 text-[#11476C]" /> Language</span>
-                <span className="text-xs font-bold text-[#11476C]">{language}</span>
+                <span className="text-xs font-bold text-[#11476C]">
+                  {language === 'HI' ? 'Hindi (हिंदी)' : language === 'GU' ? 'Gujarati (ગુજ)' : 'English (EN)'}
+                </span>
               </button>
 
               <button
@@ -186,9 +187,10 @@ export const Header = ({ collapsed }) => {
                   startVoiceInput();
                   setMoreToolsOpen(false);
                 }}
-                className="w-full text-left px-3 py-2 rounded-lg hover:bg-[#F8FAFC] flex items-center gap-2 text-[#0F172A] font-medium"
+                className="w-full text-left px-3 py-2 rounded-lg hover:bg-[#F8FAFC] flex items-center gap-2 text-[#0F172A] font-medium cursor-pointer"
               >
-                <Mic className="w-3.5 h-3.5 text-[#11476C]" /> Voice Search (અવાજથી બોલો)
+                <Mic className="w-3.5 h-3.5 text-[#11476C]" /> 
+                {language === 'HI' ? 'Voice Search (आवाज से बोलें)' : language === 'GU' ? 'Voice Search (અવાજથી બોલો)' : 'Voice Search'}
               </button>
 
               <button
@@ -197,7 +199,7 @@ export const Header = ({ collapsed }) => {
                   navigate('/app/sos');
                   setMoreToolsOpen(false);
                 }}
-                className="w-full text-left px-3 py-2 rounded-lg hover:bg-[#FEE2E2] flex items-center gap-2 text-[#DC2626] font-medium"
+                className="w-full text-left px-3 py-2 rounded-lg hover:bg-[#FEE2E2] flex items-center gap-2 text-[#DC2626] font-medium cursor-pointer"
               >
                 <PhoneCall className="w-3.5 h-3.5 text-[#EF4444]" /> 108 Ambulance Helpline
               </button>
@@ -207,7 +209,7 @@ export const Header = ({ collapsed }) => {
                   handleShareWhatsApp();
                   setMoreToolsOpen(false);
                 }}
-                className="w-full text-left px-3 py-2 rounded-lg hover:bg-[#DCFCE7] flex items-center gap-2 text-[#16A34A] font-medium"
+                className="w-full text-left px-3 py-2 rounded-lg hover:bg-[#DCFCE7] flex items-center gap-2 text-[#16A34A] font-medium cursor-pointer"
               >
                 <Share2 className="w-3.5 h-3.5" /> Share via WhatsApp
               </button>
@@ -218,7 +220,7 @@ export const Header = ({ collapsed }) => {
         {/* Emergency SOS Button */}
         <button
           onClick={() => navigate('/app/sos')}
-          className="med-btn med-btn-sos text-xs sm:text-sm py-1.5 px-3 sm:px-4 font-semibold shrink-0"
+          className="med-btn med-btn-sos text-xs sm:text-sm py-1.5 px-3 sm:px-4 font-semibold shrink-0 cursor-pointer"
         >
           <Siren className="w-4 h-4" /> <span>Emergency SOS</span>
         </button>
@@ -227,7 +229,7 @@ export const Header = ({ collapsed }) => {
         <div className="relative">
           <button
             onClick={() => setNotifOpen(!notifOpen)}
-            className="p-2 rounded-lg text-[#475569] hover:bg-[#F8FAFC] relative border border-[#E2E8F0]"
+            className="p-2 rounded-lg text-[#475569] hover:bg-[#F8FAFC] relative border border-[#E2E8F0] cursor-pointer"
             aria-label="Notifications"
           >
             <Bell className="w-4.5 h-4.5" />

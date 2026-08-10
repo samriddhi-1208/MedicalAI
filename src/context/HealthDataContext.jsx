@@ -17,6 +17,15 @@ function getAuthHeaders() {
 }
 
 export const HealthDataProvider = ({ children }) => {
+  const [language, setLanguageState] = useState(() => {
+    return localStorage.getItem('medguardian_language') || 'EN';
+  });
+
+  const setLanguage = (newLang) => {
+    setLanguageState(newLang);
+    localStorage.setItem('medguardian_language', newLang);
+  };
+
   const [reports, setReports] = useState(() => {
     const saved = localStorage.getItem('medguardian_reports');
     if (saved) {
@@ -341,6 +350,8 @@ export const HealthDataProvider = ({ children }) => {
 
   return (
     <HealthDataContext.Provider value={{
+      language,
+      setLanguage,
       reports: Array.isArray(reports) ? reports : [],
       activeReportId,
       setActiveReportId,

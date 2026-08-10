@@ -35,7 +35,8 @@ export const DashboardPage = () => {
     medicines, 
     toggleMedicineTaken, 
     loadDemoData,
-    clearAllData
+    clearAllData,
+    language
   } = useHealthData();
 
   const [isEditingName, setIsEditingName] = useState(false);
@@ -43,13 +44,36 @@ export const DashboardPage = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isListening, setIsListening] = useState(false);
 
-  // Dynamic time-of-day greeting
+  // Dynamic time-of-day greeting based on selected language (EN, HI, GU)
   const getGreeting = () => {
     const hour = new Date().getHours();
+    if (language === 'HI') {
+      if (hour < 12) return "शुभ प्रभात";
+      if (hour < 17) return "शुभ दोपहर";
+      return "शुभ संध्या";
+    }
+    if (language === 'GU') {
+      if (hour < 12) return "સુપ્રભાત";
+      if (hour < 17) return "શુભ બપોર";
+      return "શુભ સંધ્યા";
+    }
     if (hour < 12) return "Good Morning";
     if (hour < 17) return "Good Afternoon";
     return "Good Evening";
   };
+
+  // Dynamic button labels based on selected language
+  const voiceLabel = language === 'HI' 
+    ? 'आवाज से बोलें (Voice Search)' 
+    : language === 'GU' 
+    ? 'અવાજથી બોલો (Voice Search)' 
+    : 'Voice Search';
+
+  const audioLabel = language === 'HI'
+    ? 'ऑडियो सारांश (सुनें)'
+    : language === 'GU'
+    ? 'ઓડિયો સારાંશ (સાંભળો)'
+    : 'Audio Summary (Listen)';
 
   const saveName = () => {
     if (tempName.trim()) {
@@ -70,16 +94,29 @@ export const DashboardPage = () => {
         setIsSpeaking(false);
         return;
       }
-      const summaryText = latestReport
-        ? `Namaste ${userProfile.name}. ${latestReport.aiSummary || `Your report ${latestReport.title} has been parsed with AI accuracy.`}`
-        : `Namaste ${userProfile.name}. Welcome to MedGuardian AI. Your personal health workspace is ready. Please upload your medical lab report to parse your biomarkers.`;
+
+      let summaryText = "";
+      if (language === 'HI') {
+        summaryText = latestReport
+          ? `नमस्ते ${userProfile.name}. आपकी हालिया मेडिकल रिपोर्ट का विश्लेषण कर लिया गया है।`
+          : `नमस्ते ${userProfile.name}. मेडीगार्डियन एआई में आपका स्वागत है। अपनी लैब रिपोर्ट अपलोड करें।`;
+      } else if (language === 'GU') {
+        summaryText = latestReport
+          ? `નમસ્તે ${userProfile.name}. તમારા તાજેતરના તબીબી અહેવાલનું પૃથ્થકરણ કરવામાં આવ્યું છે.`
+          : `નમસ્તે ${userProfile.name}. મેડીગાર્ડિયન એઆઈમાં આપનું સ્વાગત છે. તમારો લેબ રિપોર્ટ અપલોડ કરો.`;
+      } else {
+        summaryText = latestReport
+          ? `Namaste ${userProfile.name}. ${latestReport.aiSummary || `Your report ${latestReport.title} has been parsed with AI accuracy.`}`
+          : `Namaste ${userProfile.name}. Welcome to MedGuardian AI. Your personal health workspace is ready. Please upload your medical lab report to parse your biomarkers.`;
+      }
       
       const utterance = new SpeechSynthesisUtterance(summaryText);
+      utterance.lang = language === 'GU' ? 'gu-IN' : language === 'HI' ? 'hi-IN' : 'en-IN';
       utterance.rate = 0.9;
       utterance.onend = () => setIsSpeaking(false);
       setIsSpeaking(true);
       window.speechSynthesis.speak(utterance);
-      toast.success("Playing AI audio summary...");
+      toast.success(`Playing AI audio summary (${language})...`);
     } else {
       toast.error("Audio playback not supported in browser.");
     }
@@ -95,7 +132,7 @@ export const DashboardPage = () => {
     const recognition = new SpeechRecognition();
     recognition.continuous = false;
     recognition.interimResults = false;
-    recognition.lang = 'gu-IN';
+    recognition.lang = language === 'GU' ? 'gu-IN' : language === 'HI' ? 'hi-IN' : 'en-IN';
 
     recognition.onstart = () => {
       setIsListening(true);
@@ -244,7 +281,7 @@ export const DashboardPage = () => {
               }`}
             >
               {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4 text-[#11476C]" />}
-              <span>{isListening ? 'Listening...' : 'Voice Input (અવાજથી બોલો)'}</span>
+              <span>{isListening ? 'Listening...' : voiceLabel}</span>
             </button>
 
             <button
@@ -256,7 +293,7 @@ export const DashboardPage = () => {
               }`}
             >
               <Volume2 className="w-4 h-4 text-[#11476C]" />
-              <span>{isSpeaking ? 'Stop Audio' : 'Audio Summary (સાંભળો)'}</span>
+              <span>{isSpeaking ? 'Stop Audio' : audioLabel}</span>
             </button>
 
             <button
