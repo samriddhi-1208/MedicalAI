@@ -10,8 +10,8 @@ export const LoginPage = () => {
   const navigate = useNavigate();
   const { updateUserProfile } = useHealthData();
 
-  const [email, setEmail] = useState('laxmi.manapure@example.com');
-  const [password, setPassword] = useState('password123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e) => {
@@ -61,7 +61,7 @@ export const LoginPage = () => {
   };
 
   const handleAutoFill = () => {
-    setEmail("laxmi.manapure@example.com");
+    setEmail("patient@example.com");
     setPassword("password123");
     toast.success("Demo credentials loaded!");
   };
@@ -95,10 +95,10 @@ export const LoginPage = () => {
           <button
             type="button"
             onClick={handleAutoFill}
-            className="w-full py-2.5 px-4 rounded-xl bg-[#F0F9FF] hover:bg-[#E0F2FE] text-[#11476C] text-xs font-semibold border border-[#77CAF3]/40 flex items-center justify-center gap-2 transition-all shadow-xs"
+            className="w-full py-2.5 px-4 rounded-xl bg-[#F0F9FF] hover:bg-[#E0F2FE] text-[#11476C] text-xs font-semibold border border-[#77CAF3]/40 flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
           >
             <Sparkles className="w-4 h-4 text-[#77CAF3]" />
-            <span>Auto-Fill Demo Credentials (Laxmi Manapure)</span>
+            <span>Auto-Fill Demo Credentials (patient@example.com)</span>
           </button>
 
           <form onSubmit={handleLogin} className="space-y-5">
@@ -113,7 +113,7 @@ export const LoginPage = () => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@example.com"
+                  placeholder="patient@example.com"
                   className="med-input w-full block"
                   required
                 />
