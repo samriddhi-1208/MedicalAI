@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Shield, ArrowRight, Lock, Mail, UserCheck } from 'lucide-react';
+import { Shield, ArrowRight, Lock, Mail, UserCheck, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
 
@@ -80,6 +80,13 @@ export const LoginPage = () => {
     }
   };
 
+  const handleQuickAutoFill = () => {
+    const targetEmail = savedLocalEmail || "patient@example.com";
+    setEmail(targetEmail);
+    setPassword("password123");
+    toast.success(`Auto-filled login credentials for ${targetEmail}`);
+  };
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 font-sans">
       
@@ -103,17 +110,19 @@ export const LoginPage = () => {
 
       {/* Card Form */}
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-[#FFFFFF] border border-[#E2E8F0] py-8 px-6 shadow-xl shadow-slate-200/50 rounded-2xl sm:px-8 space-y-6">
+        <div className="bg-[#FFFFFF] border border-[#E2E8F0] py-8 px-6 shadow-xl shadow-slate-200/50 rounded-2xl sm:px-8 space-y-5">
           
-          {/* Saved device banner (only shows if user previously logged in on THIS specific device) */}
-          {savedLocalEmail && (
-            <div className="p-3 rounded-xl bg-[#F0F9FF] border border-[#77CAF3]/30 text-xs font-semibold text-[#11476C] flex items-center gap-2">
-              <UserCheck className="w-4 h-4 text-[#16A34A] shrink-0" />
-              <span>Saved login session found for <strong>{savedLocalEmail}</strong></span>
-            </div>
-          )}
+          {/* Quick Auto-Fill Credentials Button for existing & demo users */}
+          <button
+            type="button"
+            onClick={handleQuickAutoFill}
+            className="w-full py-2.5 px-4 rounded-xl bg-[#F0F9FF] hover:bg-[#E0F2FE] text-[#11476C] text-xs font-semibold border border-[#77CAF3]/40 flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
+          >
+            <Sparkles className="w-4 h-4 text-[#77CAF3]" />
+            <span>⚡ Auto-Fill Credentials ({savedLocalEmail || 'patient@example.com'})</span>
+          </button>
 
-          <form onSubmit={handleLogin} className="space-y-5">
+          <form onSubmit={handleLogin} className="space-y-4">
             <div className="med-form-group">
               <label htmlFor="email" className="block text-sm font-semibold text-[#0F172A] mb-1.5">Email Address</label>
               <div className="relative w-full">
@@ -158,7 +167,7 @@ export const LoginPage = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 px-4 rounded-xl bg-[#11476C] hover:bg-[#0d3856] active:bg-[#0a2940] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-md shadow-[#11476C]/20 transition-all cursor-pointer"
+              className="w-full py-3.5 px-4 rounded-xl bg-[#11476C] hover:bg-[#0d3856] active:bg-[#0a2940] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-md shadow-[#11476C]/20 transition-all cursor-pointer mt-1"
             >
               {loading ? (
                 <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
