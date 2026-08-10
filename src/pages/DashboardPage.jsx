@@ -17,7 +17,8 @@ import {
   FileCheck,
   ShieldAlert,
   Clock,
-  HeartPulse
+  HeartPulse,
+  Activity
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
@@ -58,6 +59,10 @@ export const DashboardPage = () => {
     setIsEditingName(false);
   };
 
+  // Get active report & biomarkers
+  const latestReport = reports.length > 0 ? reports[0] : null;
+  const extractedBiomarkers = latestReport?.biomarkers || [];
+
   const speakAudioSummary = () => {
     if ('speechSynthesis' in window) {
       if (isSpeaking) {
@@ -65,8 +70,8 @@ export const DashboardPage = () => {
         setIsSpeaking(false);
         return;
       }
-      const summaryText = reports.length > 0
-        ? `Namaste ${userProfile.name}. Your latest health report has been analyzed. Total cholesterol is 224 milligrams per deciliter. Hemoglobin is 11.2. Blood sugar levels remain stable.`
+      const summaryText = latestReport
+        ? `Namaste ${userProfile.name}. ${latestReport.aiSummary || `Your report ${latestReport.title} has been parsed with AI accuracy.`}`
         : `Namaste ${userProfile.name}. Welcome to MedGuardian AI. Your personal health workspace is ready. Please upload your medical lab report to parse your biomarkers.`;
       
       const utterance = new SpeechSynthesisUtterance(summaryText);
@@ -145,9 +150,14 @@ export const DashboardPage = () => {
         {/* Top Badges Row */}
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-3 flex-wrap">
-            {reports.length > 0 ? (
-              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#B45309] bg-[#FEF3C7] px-3.5 py-1 rounded-full border border-[#FDE68A]">
-                <ShieldAlert className="w-3.5 h-3.5" /> Attention Needed • 1 Biomarker Borderline
+            {latestReport ? (
+              <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-1 rounded-full border ${
+                latestReport.statusType === 'warning'
+                  ? 'text-[#B45309] bg-[#FEF3C7] border-[#FDE68A]'
+                  : 'text-[#166534] bg-[#DCFCE7] border-[#BBF7D0]'
+              }`}>
+                {latestReport.statusType === 'warning' ? <ShieldAlert className="w-3.5 h-3.5" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
+                {latestReport.status} • {extractedBiomarkers.length} Parameters Parsed
               </span>
             ) : (
               <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#11476C] bg-[#F0F9FF] px-3.5 py-1 rounded-full border border-[#77CAF3]/40">
@@ -212,8 +222,8 @@ export const DashboardPage = () => {
           )}
 
           <p className="text-base font-medium text-[#475569] max-w-3xl leading-relaxed">
-            {reports.length > 0 
-              ? `Your overall AI Health Score is 84/100. Hemoglobin level is 11.2 g/dL and cholesterol requires dietary fiber adjustments.`
+            {latestReport 
+              ? (latestReport.aiSummary || `Your report "${latestReport.title}" has been structured. Total ${extractedBiomarkers.length} biomarker test parameters parsed.`)
               : `Welcome to your AI clinical portal. Upload your scanned medical report (PDF or Image) to parse your biomarkers automatically.`
             }
           </p>
@@ -337,59 +347,35 @@ export const DashboardPage = () => {
         </Card>
       )}
 
-      {/* Populated Dashboard Metrics & Tables */}
+      {/* Populated Dashboard Metrics & Tables — 100% Dynamic Extracted Biomarkers */}
       {reports.length > 0 && (
         <>
-          {/* Vital Metrics Grid */}
+          {/* Dynamic Vital Metrics Grid from Extracted Report Biomarkers */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             
-            <Card className="p-6 space-y-2 bg-[#FFFFFF] border border-[#E2E8F0] rounded-2xl shadow-xs">
-              <div className="flex items-center justify-between text-xs text-[#64748B] font-semibold uppercase tracking-wider">
-                <span>Total Cholesterol</span>
-                <Badge variant="warning">Borderline</Badge>
-              </div>
-              <div className="flex items-baseline justify-between pt-1">
-                <span className="text-2.5xl font-bold text-[#11476C]">224 <span className="text-xs font-normal text-[#64748B]">mg/dL</span></span>
-                <span className="text-xs text-[#B45309] font-semibold">224 mg/dL</span>
-              </div>
-              <p className="text-xs text-[#64748B]">Ref Range: &lt; 200 mg/dL</p>
-            </Card>
+            {extractedBiomarkers.slice(0, 4).map((bm, index) => {
+              const isWarning = bm.statusType === 'warning' || bm.status === 'High' || bm.status === 'Low' || bm.status === 'Borderline' || bm.status === 'Elevated';
 
-            <Card className="p-6 space-y-2 bg-[#FFFFFF] border border-[#E2E8F0] rounded-2xl shadow-xs">
-              <div className="flex items-center justify-between text-xs text-[#64748B] font-semibold uppercase tracking-wider">
-                <span>Hemoglobin</span>
-                <Badge variant="warning">Borderline</Badge>
-              </div>
-              <div className="flex items-baseline justify-between pt-1">
-                <span className="text-2.5xl font-bold text-[#11476C]">11.2 <span className="text-xs font-normal text-[#64748B]">g/dL</span></span>
-                <span className="text-xs text-[#B45309] font-semibold">11.2 g/dL</span>
-              </div>
-              <p className="text-xs text-[#64748B]">Ref Range: 12.0 - 15.5 g/dL</p>
-            </Card>
+              return (
+                <Card key={bm.id || index} className="p-6 space-y-2 bg-[#FFFFFF] border border-[#E2E8F0] rounded-2xl shadow-xs hover:border-[#77CAF3] transition-all">
+                  <div className="flex items-center justify-between text-xs text-[#64748B] font-semibold uppercase tracking-wider">
+                    <span className="truncate max-w-[140px]">{bm.name}</span>
+                    <Badge variant={isWarning ? "warning" : "normal"}>{bm.status}</Badge>
+                  </div>
 
-            <Card className="p-6 space-y-2 bg-[#FFFFFF] border border-[#E2E8F0] rounded-2xl shadow-xs">
-              <div className="flex items-center justify-between text-xs text-[#64748B] font-semibold uppercase tracking-wider">
-                <span>HbA1c Sugar</span>
-                <Badge variant="normal">Normal</Badge>
-              </div>
-              <div className="flex items-baseline justify-between pt-1">
-                <span className="text-2.5xl font-bold text-[#11476C]">5.8 <span className="text-xs font-normal text-[#64748B]">%</span></span>
-                <span className="text-xs text-[#16A34A] font-semibold">5.8 %</span>
-              </div>
-              <p className="text-xs text-[#64748B]">Ref Range: &lt; 5.7 %</p>
-            </Card>
+                  <div className="flex items-baseline justify-between pt-1">
+                    <span className="text-2.5xl font-bold text-[#11476C]">
+                      {bm.value} <span className="text-xs font-medium text-[#64748B]">{bm.unit}</span>
+                    </span>
+                    <span className={`text-xs font-semibold ${isWarning ? 'text-[#B45309]' : 'text-[#16A34A]'}`}>
+                      {bm.status}
+                    </span>
+                  </div>
 
-            <Card className="p-6 space-y-2 bg-[#FFFFFF] border border-[#E2E8F0] rounded-2xl shadow-xs">
-              <div className="flex items-center justify-between text-xs text-[#64748B] font-semibold uppercase tracking-wider">
-                <span>Blood Pressure</span>
-                <Badge variant="normal">Normal</Badge>
-              </div>
-              <div className="flex items-baseline justify-between pt-1">
-                <span className="text-2.5xl font-bold text-[#11476C]">122/80 <span className="text-xs font-normal text-[#64748B]">mmHg</span></span>
-                <span className="text-xs text-[#16A34A] font-semibold">Normal</span>
-              </div>
-              <p className="text-xs text-[#64748B]">Ref Range: 120/80 mmHg</p>
-            </Card>
+                  <p className="text-xs font-medium text-[#64748B]">Ref Bounds: {bm.refRange} {bm.unit}</p>
+                </Card>
+              );
+            })}
 
           </div>
 
