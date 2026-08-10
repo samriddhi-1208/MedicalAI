@@ -20,8 +20,14 @@ import { Modal } from '../components/ui/Modal';
 import { getMatchedMedicalCare } from '../utils/clinicalMatcher';
 
 export const EmergencySOSPage = () => {
-  const { reports = [], emergencyContacts = [], sosLogs = [], triggerSOS, addEmergencyContact } = useHealthData();
-  const matchedCare = getMatchedMedicalCare(reports || []);
+  const healthData = useHealthData() || {};
+  const reports = healthData.reports || [];
+  const emergencyContacts = healthData.emergencyContacts || [];
+  const sosLogs = healthData.sosLogs || [];
+  const triggerSOS = healthData.triggerSOS;
+  const addEmergencyContact = healthData.addEmergencyContact;
+
+  const matchedCare = getMatchedMedicalCare(reports);
 
   const [sosModalOpen, setSosModalOpen] = useState(false);
   const [countdown, setCountdown] = useState(5);
@@ -39,12 +45,14 @@ export const EmergencySOSPage = () => {
     if (sosModalOpen && countdown > 0) {
       timer = setInterval(() => setCountdown(c => c - 1), 1000);
     } else if (sosModalOpen && countdown === 0) {
-      if (triggerSOS) triggerSOS("Manual High-Priority Emergency SOS");
+      if (typeof triggerSOS === 'function') {
+        triggerSOS("Manual High-Priority Emergency SOS");
+      }
       setSosModalOpen(false);
       toast.error("🚨 EMERGENCY SOS DISPATCHED TO ALL CONTACTS!", { duration: 5000 });
     }
     return () => clearInterval(timer);
-  }, [sosModalOpen, countdown, triggerSOS]);
+  }, [sosModalOpen, countdown]);
 
   const handleStartSOS = () => {
     setCountdown(5);
@@ -59,7 +67,9 @@ export const EmergencySOSPage = () => {
   const handleAddContactSubmit = (e) => {
     e.preventDefault();
     if (!newContact.name || !newContact.phone) return;
-    if (addEmergencyContact) addEmergencyContact(newContact);
+    if (typeof addEmergencyContact === 'function') {
+      addEmergencyContact(newContact);
+    }
     setAddContactModalOpen(false);
     setNewContact({ name: '', relation: 'Family', phone: '', email: '' });
   };
@@ -77,7 +87,7 @@ export const EmergencySOSPage = () => {
       email: matchedCare?.email || 'dr.rajesh@civilhospital.in',
       isPrimary: true
     },
-    ...safeContacts.filter(c => !c.isPrimary || c.name !== matchedCare?.doctorName)
+    ...safeContacts.filter(c => c && typeof c === 'object' && (!c.isPrimary || c.name !== matchedCare?.doctorName))
   ];
 
   return (
