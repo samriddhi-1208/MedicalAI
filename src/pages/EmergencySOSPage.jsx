@@ -20,8 +20,8 @@ import { Modal } from '../components/ui/Modal';
 import { getMatchedMedicalCare } from '../utils/clinicalMatcher';
 
 export const EmergencySOSPage = () => {
-  const { reports, emergencyContacts, sosLogs, triggerSOS, addEmergencyContact } = useHealthData();
-  const matchedCare = getMatchedMedicalCare(reports);
+  const { reports = [], emergencyContacts = [], sosLogs = [], triggerSOS, addEmergencyContact } = useHealthData();
+  const matchedCare = getMatchedMedicalCare(reports || []);
 
   const [sosModalOpen, setSosModalOpen] = useState(false);
   const [countdown, setCountdown] = useState(5);
@@ -39,7 +39,7 @@ export const EmergencySOSPage = () => {
     if (sosModalOpen && countdown > 0) {
       timer = setInterval(() => setCountdown(c => c - 1), 1000);
     } else if (sosModalOpen && countdown === 0) {
-      triggerSOS("Manual High-Priority Emergency SOS");
+      if (triggerSOS) triggerSOS("Manual High-Priority Emergency SOS");
       setSosModalOpen(false);
       toast.error("🚨 EMERGENCY SOS DISPATCHED TO ALL CONTACTS!", { duration: 5000 });
     }
@@ -59,22 +59,25 @@ export const EmergencySOSPage = () => {
   const handleAddContactSubmit = (e) => {
     e.preventDefault();
     if (!newContact.name || !newContact.phone) return;
-    addEmergencyContact(newContact);
+    if (addEmergencyContact) addEmergencyContact(newContact);
     setAddContactModalOpen(false);
     setNewContact({ name: '', relation: 'Family', phone: '', email: '' });
   };
+
+  const safeContacts = Array.isArray(emergencyContacts) ? emergencyContacts : [];
+  const safeLogs = Array.isArray(sosLogs) ? sosLogs : [];
 
   // Combine matched specialist doctor with saved emergency contacts dynamically
   const dynamicContacts = [
     {
       id: 'dynamic-matched-doc',
-      name: matchedCare.doctorName,
-      relation: `${matchedCare.doctorRole} (${matchedCare.hospitalName})`,
-      phone: matchedCare.phone,
-      email: matchedCare.email,
+      name: matchedCare?.doctorName || 'Dr. Rajesh Kumar, MD',
+      relation: `${matchedCare?.doctorRole || 'Primary Physician'} (${matchedCare?.hospitalName || 'Civil Hospital'})`,
+      phone: matchedCare?.phone || '+91 98765 43210',
+      email: matchedCare?.email || 'dr.rajesh@civilhospital.in',
       isPrimary: true
     },
-    ...emergencyContacts.filter(c => !c.isPrimary || c.name !== matchedCare.doctorName)
+    ...safeContacts.filter(c => !c.isPrimary || c.name !== matchedCare?.doctorName)
   ];
 
   return (
@@ -109,7 +112,7 @@ export const EmergencySOSPage = () => {
             </div>
             <div>
               <h2 className="text-base font-bold text-[#11476C]">Matched Clinical Specialty & Hospital</h2>
-              <p className="text-xs font-medium text-[#64748B]">Emergency dispatch target based on diagnosed health condition: <strong className="text-[#11476C]">{matchedCare.condition}</strong></p>
+              <p className="text-xs font-medium text-[#64748B]">Emergency dispatch target based on diagnosed health condition: <strong className="text-[#11476C]">{matchedCare?.condition || 'General Internal Medicine'}</strong></p>
             </div>
           </div>
           <span className="px-3 py-1 rounded-full bg-[#DCFCE7] text-[#166534] text-xs font-bold border border-[#BBF7D0]">
@@ -122,16 +125,16 @@ export const EmergencySOSPage = () => {
             <div className="flex items-center gap-2 text-xs font-bold text-[#11476C]">
               <Stethoscope className="w-4 h-4 text-[#16A34A]" /> Matched Consulting Specialist:
             </div>
-            <p className="text-sm font-bold text-[#0F172A]">{matchedCare.doctorName}</p>
-            <p className="text-xs text-[#64748B] font-medium">{matchedCare.doctorRole} ({matchedCare.phone})</p>
+            <p className="text-sm font-bold text-[#0F172A]">{matchedCare?.doctorName}</p>
+            <p className="text-xs text-[#64748B] font-medium">{matchedCare?.doctorRole} ({matchedCare?.phone})</p>
           </div>
 
           <div className="p-4 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] space-y-1.5">
             <div className="flex items-center gap-2 text-xs font-bold text-[#11476C]">
               <Building2 className="w-4 h-4 text-[#11476C]" /> Matched Specialty Emergency Hospital:
             </div>
-            <p className="text-sm font-bold text-[#0F172A]">{matchedCare.hospitalName}</p>
-            <p className="text-xs text-[#64748B] font-medium">{matchedCare.specialty} • {matchedCare.address}</p>
+            <p className="text-sm font-bold text-[#0F172A]">{matchedCare?.hospitalName}</p>
+            <p className="text-xs text-[#64748B] font-medium">{matchedCare?.specialty} • {matchedCare?.address}</p>
           </div>
         </div>
       </Card>
@@ -215,7 +218,7 @@ export const EmergencySOSPage = () => {
       <Card className="p-7 space-y-4 bg-[#FFFFFF] border border-[#E2E8F0] rounded-2xl shadow-xs">
         <h2 className="text-lg font-bold text-[#11476C]">Emergency SOS Dispatch History</h2>
 
-        {sosLogs.length === 0 ? (
+        {safeLogs.length === 0 ? (
           <p className="text-xs font-medium text-[#64748B] py-4 text-center">No emergency SOS alerts triggered.</p>
         ) : (
           <div className="overflow-x-auto">
@@ -229,7 +232,7 @@ export const EmergencySOSPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {sosLogs.map((log) => (
+                {safeLogs.map((log) => (
                   <tr key={log.id}>
                     <td className="font-mono text-[#64748B]">{log.timestamp}</td>
                     <td className="font-bold text-[#EF4444]">{log.triggerType}</td>
