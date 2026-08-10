@@ -32,8 +32,9 @@ export const SignupPage = () => {
 
     setLoading(true);
     try {
-      // Save last user email ONLY on this device's browser
+      // Save last user email & password ONLY on this device's browser
       localStorage.setItem('medguardian_last_user_email', email);
+      localStorage.setItem('medguardian_last_user_pass', password);
 
       // Send real POST request to backend API to insert user into MongoDB Atlas with vitals
       const res = await fetch(`${API_BASE}/auth/signup`, {
@@ -80,6 +81,7 @@ export const SignupPage = () => {
     } catch (err) {
       console.log("Backend offline or signup fallback: ", err.message);
       localStorage.setItem('medguardian_last_user_email', email);
+      localStorage.setItem('medguardian_last_user_pass', password);
       clearAllData();
       updateUserProfile({
         name: fullName,
@@ -314,8 +316,8 @@ export const SignupPage = () => {
           <div className="text-center pt-3 border-t border-[#E2E8F0]">
             <p className="text-xs font-medium text-[#475569]">
               Already have an account?{' '}
-              <Link to="/login" className="font-bold text-[#11476C] hover:text-[#77CAF3] hover:underline ml-1">
-                Sign In
+              <Link to="/signup" className="font-bold text-[#11476C] hover:text-[#77CAF3] hover:underline ml-1">
+                Create Account
               </Link>
             </p>
           </div>

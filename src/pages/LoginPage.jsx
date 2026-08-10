@@ -10,18 +10,21 @@ export const LoginPage = () => {
   const navigate = useNavigate();
   const { userProfile, updateUserProfile } = useHealthData();
 
-  // Retrieve actual registered patient email from local storage or context profile
+  // Retrieve actual registered patient email and saved password from local storage
   const savedLocalEmail = localStorage.getItem('medguardian_last_user_email') || (userProfile && userProfile.email ? userProfile.email : '');
+  const savedLocalPass = localStorage.getItem('medguardian_last_user_pass') || 'password123';
 
   const [email, setEmail] = useState(savedLocalEmail);
-  const [password, setPassword] = useState('');
+  const [password, setPassword] = useState(savedLocalEmail ? savedLocalPass : '');
   const [loading, setLoading] = useState(false);
 
+  // Automatically populate both email AND password on page mount if user registered on this device
   useEffect(() => {
     if (savedLocalEmail) {
       setEmail(savedLocalEmail);
+      setPassword(savedLocalPass);
     }
-  }, [savedLocalEmail]);
+  }, [savedLocalEmail, savedLocalPass]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -32,8 +35,9 @@ export const LoginPage = () => {
 
     setLoading(true);
     try {
-      // Save last user email ONLY on this device's browser local storage
+      // Save last user email & password ONLY on this device's browser local storage
       localStorage.setItem('medguardian_last_user_email', email);
+      localStorage.setItem('medguardian_last_user_pass', password);
 
       // Send real POST request to backend API
       const res = await fetch(`${API_BASE}/auth/login`, {
@@ -69,6 +73,7 @@ export const LoginPage = () => {
     } catch (err) {
       console.log("Backend offline or login fallback: ", err.message);
       localStorage.setItem('medguardian_last_user_email', email);
+      localStorage.setItem('medguardian_last_user_pass', password);
       updateUserProfile({
         name: email.split('@')[0],
         email: email
@@ -83,8 +88,8 @@ export const LoginPage = () => {
   const handleQuickAutoFill = () => {
     if (savedLocalEmail) {
       setEmail(savedLocalEmail);
-      setPassword("password123");
-      toast.success(`Auto-filled saved credentials for ${savedLocalEmail}`);
+      setPassword(savedLocalPass);
+      toast.success(`Auto-filled saved credentials & password for ${savedLocalEmail}`);
     } else {
       toast.error("No registered account found on this device. Please Create an Account first!");
       navigate('/signup');
@@ -124,7 +129,7 @@ export const LoginPage = () => {
               className="w-full py-2.5 px-4 rounded-xl bg-[#F0F9FF] hover:bg-[#E0F2FE] text-[#11476C] text-xs font-semibold border border-[#77CAF3]/40 flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
             >
               <Sparkles className="w-4 h-4 text-[#77CAF3]" />
-              <span>⚡ Auto-Fill Registered Account ({savedLocalEmail})</span>
+              <span>⚡ Auto-Fill Saved Email & Password ({savedLocalEmail})</span>
             </button>
           ) : (
             <div className="p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] text-xs font-medium text-[#64748B] text-center">
