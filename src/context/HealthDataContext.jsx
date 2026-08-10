@@ -94,7 +94,7 @@ export const HealthDataProvider = ({ children }) => {
             const data = await rRes.json();
             if (Array.isArray(data)) {
               setReports(data);
-            } else if (data.reports && Array.isArray(data.reports)) {
+            } else if (data && Array.isArray(data.reports)) {
               setReports(data.reports);
             }
           }
@@ -105,7 +105,7 @@ export const HealthDataProvider = ({ children }) => {
             const data = await mRes.json();
             if (Array.isArray(data)) {
               setMedicines(data);
-            } else if (data.medicines && Array.isArray(data.medicines)) {
+            } else if (data && Array.isArray(data.medicines)) {
               setMedicines(data.medicines);
             }
           }
@@ -116,7 +116,7 @@ export const HealthDataProvider = ({ children }) => {
             const data = await cRes.json();
             if (Array.isArray(data)) {
               setEmergencyContacts(data);
-            } else if (data.contacts && Array.isArray(data.contacts)) {
+            } else if (data && Array.isArray(data.contacts)) {
               setEmergencyContacts(data.contacts);
             }
           }
@@ -128,10 +128,10 @@ export const HealthDataProvider = ({ children }) => {
     syncBackend();
   }, []);
 
-  const activeReport = reports.find(r => r.id === activeReportId) || (reports.length > 0 ? reports[0] : null);
+  const activeReport = (Array.isArray(reports) ? reports : []).find(r => r.id === activeReportId) || (reports && reports.length > 0 ? reports[0] : null);
 
   const toggleMedicineTaken = async (id) => {
-    setMedicines(prev => prev.map(m => {
+    setMedicines(prev => (Array.isArray(prev) ? prev : []).map(m => {
       if (m.id === id) {
         const nextState = !m.taken;
         if (nextState) {
@@ -170,7 +170,7 @@ export const HealthDataProvider = ({ children }) => {
       color: 'cyan',
       ...newMed
     };
-    setMedicines(prev => [created, ...prev]);
+    setMedicines(prev => [created, ...(Array.isArray(prev) ? prev : [])]);
     toast.success(`Added ${newMed.name} to medication schedule`);
 
     try {
@@ -187,7 +187,7 @@ export const HealthDataProvider = ({ children }) => {
   };
 
   const deleteMedicine = async (id) => {
-    setMedicines(prev => prev.filter(m => m.id !== id));
+    setMedicines(prev => (Array.isArray(prev) ? prev : []).filter(m => m.id !== id));
     toast.success("Medication removed from schedule");
 
     try {
@@ -203,7 +203,7 @@ export const HealthDataProvider = ({ children }) => {
   };
 
   const addReport = async (newReport) => {
-    setReports(prev => [newReport, ...prev]);
+    setReports(prev => [newReport, ...(Array.isArray(prev) ? prev : [])]);
     setActiveReportId(newReport.id);
 
     try {
@@ -222,28 +222,29 @@ export const HealthDataProvider = ({ children }) => {
   };
 
   const triggerSOS = async (locationText = "28.6139° N, 77.2090° E (Current GPS)") => {
+    const safeC = Array.isArray(emergencyContacts) ? emergencyContacts : [];
     const newLog = {
       id: `sos-log-${Date.now().toString().slice(-4)}`,
       timestamp: new Date().toLocaleString(),
       triggerType: "Manual Emergency SOS Triggered",
       location: locationText,
       status: "Dispatched",
-      dispatchedTo: emergencyContacts.map(c => c.name),
+      dispatchedTo: safeC.map(c => c.name),
       responseDelaySec: 1.2,
       notes: "Emergency SOS broadcasted via encrypted channel. Emergency contacts notified via Email and SMS."
     };
-    setSosLogs(prev => [newLog, ...prev]);
+    setSosLogs(prev => [newLog, ...(Array.isArray(prev) ? prev : [])]);
     
     const alertNotif = {
       id: `n-sos-${Date.now()}`,
       title: "🚨 EMERGENCY SOS DISPATCHED",
-      message: `Alert sent to ${emergencyContacts.length} emergency contacts with live GPS coordinates.`,
+      message: `Alert sent to ${safeC.length} emergency contacts with live GPS coordinates.`,
       time: "Just now",
       unread: true,
       type: "critical",
       link: "/app/sos"
     };
-    setNotifications(prev => [alertNotif, ...prev]);
+    setNotifications(prev => [alertNotif, ...(Array.isArray(prev) ? prev : [])]);
 
     confetti({ particleCount: 80, spread: 70, origin: { y: 0.5 } });
 
@@ -281,8 +282,12 @@ export const HealthDataProvider = ({ children }) => {
       isPrimary: false,
       ...contact
     };
-    setEmergencyContacts(prev => [...prev, created]);
-    localStorage.setItem('medguardian_contacts', JSON.stringify([...emergencyContacts, created]));
+    setEmergencyContacts(prev => {
+      const safeP = Array.isArray(prev) ? prev : [];
+      const updated = [...safeP, created];
+      localStorage.setItem('medguardian_contacts', JSON.stringify(updated));
+      return updated;
+    });
     toast.success(`Added ${contact.name} to emergency contacts`);
 
     try {
@@ -300,7 +305,8 @@ export const HealthDataProvider = ({ children }) => {
 
   const deleteEmergencyContact = (id) => {
     setEmergencyContacts(prev => {
-      const updated = prev.filter(c => c.id !== id);
+      const safeP = Array.isArray(prev) ? prev : [];
+      const updated = safeP.filter(c => c.id !== id);
       localStorage.setItem('medguardian_contacts', JSON.stringify(updated));
       return updated;
     });
@@ -330,25 +336,25 @@ export const HealthDataProvider = ({ children }) => {
   };
 
   const markNotificationsRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, unread: false })));
+    setNotifications(prev => (Array.isArray(prev) ? prev : []).map(n => ({ ...n, unread: false })));
   };
 
   return (
     <HealthDataContext.Provider value={{
-      reports,
+      reports: Array.isArray(reports) ? reports : [],
       activeReportId,
       setActiveReportId,
       activeReport,
-      medicines,
+      medicines: Array.isArray(medicines) ? medicines : [],
       toggleMedicineTaken,
       addMedicine,
       deleteMedicine,
-      emergencyContacts,
+      emergencyContacts: Array.isArray(emergencyContacts) ? emergencyContacts : [],
       addEmergencyContact,
       deleteEmergencyContact,
-      sosLogs,
+      sosLogs: Array.isArray(sosLogs) ? sosLogs : [],
       triggerSOS,
-      notifications,
+      notifications: Array.isArray(notifications) ? notifications : [],
       markNotificationsRead,
       userProfile,
       updateUserProfile,
