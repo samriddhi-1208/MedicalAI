@@ -77,17 +77,25 @@ export const EmergencySOSPage = () => {
   const safeContacts = Array.isArray(emergencyContacts) ? emergencyContacts : [];
   const safeLogs = Array.isArray(sosLogs) ? sosLogs : [];
 
+  const matchedDocName = matchedCare?.doctorName || 'Dr. Rajesh Kumar, MD';
+  const matchedDocRole = matchedCare?.doctorRole || 'Primary Physician';
+  const matchedHospName = matchedCare?.hospitalName || 'District Civil Hospital';
+  const matchedPhone = matchedCare?.phone || '+91 98765 43210';
+  const matchedEmail = matchedCare?.email || 'dr.rajesh@civilhospital.in';
+
   // Combine matched specialist doctor with saved emergency contacts dynamically
+  const userFilteredContacts = safeContacts.filter(c => c && typeof c === 'object' && c.name !== matchedDocName);
+
   const dynamicContacts = [
     {
       id: 'dynamic-matched-doc',
-      name: matchedCare?.doctorName || 'Dr. Rajesh Kumar, MD',
-      relation: `${matchedCare?.doctorRole || 'Primary Physician'} (${matchedCare?.hospitalName || 'Civil Hospital'})`,
-      phone: matchedCare?.phone || '+91 98765 43210',
-      email: matchedCare?.email || 'dr.rajesh@civilhospital.in',
+      name: matchedDocName,
+      relation: `${matchedDocRole} (${matchedHospName})`,
+      phone: matchedPhone,
+      email: matchedEmail,
       isPrimary: true
     },
-    ...safeContacts.filter(c => c && typeof c === 'object' && (!c.isPrimary || c.name !== matchedCare?.doctorName))
+    ...userFilteredContacts
   ];
 
   return (
@@ -135,16 +143,16 @@ export const EmergencySOSPage = () => {
             <div className="flex items-center gap-2 text-xs font-bold text-[#11476C]">
               <Stethoscope className="w-4 h-4 text-[#16A34A]" /> Matched Consulting Specialist:
             </div>
-            <p className="text-sm font-bold text-[#0F172A]">{matchedCare?.doctorName}</p>
-            <p className="text-xs text-[#64748B] font-medium">{matchedCare?.doctorRole} ({matchedCare?.phone})</p>
+            <p className="text-sm font-bold text-[#0F172A]">{matchedDocName}</p>
+            <p className="text-xs text-[#64748B] font-medium">{matchedDocRole} ({matchedPhone})</p>
           </div>
 
           <div className="p-4 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] space-y-1.5">
             <div className="flex items-center gap-2 text-xs font-bold text-[#11476C]">
               <Building2 className="w-4 h-4 text-[#11476C]" /> Matched Specialty Emergency Hospital:
             </div>
-            <p className="text-sm font-bold text-[#0F172A]">{matchedCare?.hospitalName}</p>
-            <p className="text-xs text-[#64748B] font-medium">{matchedCare?.specialty} • {matchedCare?.address}</p>
+            <p className="text-sm font-bold text-[#0F172A]">{matchedHospName}</p>
+            <p className="text-xs text-[#64748B] font-medium">{matchedCare?.specialty || 'General Emergency'} • {matchedCare?.address || 'District Hospital Circle'}</p>
           </div>
         </div>
       </Card>
@@ -184,19 +192,19 @@ export const EmergencySOSPage = () => {
         <h2 className="text-lg font-bold text-[#11476C]">Configured Emergency Contacts ({dynamicContacts.length})</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {dynamicContacts.map((contact) => (
-            <Card key={contact.id} className="p-5 space-y-3 bg-[#FFFFFF] border border-[#E2E8F0] rounded-2xl shadow-xs">
+          {dynamicContacts.map((contact, idx) => (
+            <Card key={contact.id || idx} className="p-5 space-y-3 bg-[#FFFFFF] border border-[#E2E8F0] rounded-2xl shadow-xs">
               <div className="flex justify-between items-start">
                 <div>
-                  <h3 className="text-sm font-bold text-[#11476C]">{contact.name}</h3>
-                  <p className="text-xs font-semibold text-[#16A34A]">{contact.relation}</p>
+                  <h3 className="text-sm font-bold text-[#11476C]">{contact.name || 'Emergency Contact'}</h3>
+                  <p className="text-xs font-semibold text-[#16A34A]">{contact.relation || 'Contact'}</p>
                 </div>
                 {contact.isPrimary && <Badge variant="normal">Matched Doctor</Badge>}
               </div>
 
               <div className="text-xs text-[#64748B] font-medium space-y-1.5">
-                <p className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 text-[#11476C]" /> {contact.phone}</p>
-                <p className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 text-[#11476C]" /> {contact.email}</p>
+                <p className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 text-[#11476C]" /> {contact.phone || '108'}</p>
+                <p className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 text-[#11476C]" /> {contact.email || 'sos@emergency.in'}</p>
               </div>
 
               <div className="flex gap-2 pt-2 border-t border-[#E2E8F0]">
@@ -205,7 +213,7 @@ export const EmergencySOSPage = () => {
                   size="sm"
                   className="flex-1 py-2 text-xs font-semibold bg-[#F0F9FF] border-[#77CAF3]/40 text-[#11476C]"
                   icon={Phone}
-                  onClick={() => toast.success(`Calling ${contact.name}...`)}
+                  onClick={() => toast.success(`Calling ${contact.name || 'Contact'}...`)}
                 >
                   Call
                 </Button>
@@ -214,7 +222,7 @@ export const EmergencySOSPage = () => {
                   size="sm"
                   className="flex-1 py-2 text-xs font-semibold border-[#E2E8F0]"
                   icon={Send}
-                  onClick={() => toast.success(`SMS test payload sent to ${contact.phone}`)}
+                  onClick={() => toast.success(`SMS test payload sent to ${contact.phone || 'Contact'}`)}
                 >
                   Test SMS
                 </Button>
@@ -242,12 +250,12 @@ export const EmergencySOSPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {safeLogs.map((log) => (
-                  <tr key={log.id}>
-                    <td className="font-mono text-[#64748B]">{log.timestamp}</td>
-                    <td className="font-bold text-[#EF4444]">{log.triggerType}</td>
-                    <td className="text-[#475569]">{log.location}</td>
-                    <td><Badge variant="critical">{log.status}</Badge></td>
+                {safeLogs.map((log, idx) => (
+                  <tr key={log.id || idx}>
+                    <td className="font-mono text-[#64748B]">{log.timestamp || 'N/A'}</td>
+                    <td className="font-bold text-[#EF4444]">{log.triggerType || 'SOS Trigger'}</td>
+                    <td className="text-[#475569]">{log.location || 'Current GPS'}</td>
+                    <td><Badge variant="critical">{log.status || 'Dispatched'}</Badge></td>
                   </tr>
                 ))}
               </tbody>
