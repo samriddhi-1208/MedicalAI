@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { ArrowRight, Menu, X, Activity, User, LogOut } from 'lucide-react';
+import { ArrowRight, Menu, X, Activity, User, LogOut, UserPlus } from 'lucide-react';
 import { useHealthData } from '../../context/HealthDataContext';
 
 export const Navbar = () => {
@@ -17,6 +17,13 @@ export const Navbar = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const handleCreateNewAccount = () => {
+    if (isAuthenticated) {
+      logout();
+    }
+    navigate('/signup');
+  };
 
   return (
     <header className={`sticky top-0 z-50 transition-all duration-200 ${
@@ -59,23 +66,22 @@ export const Navbar = () => {
         <div className="hidden md:flex items-center gap-3">
           {isAuthenticated && userProfile ? (
             <>
-              {userProfile.profileCompleted ? (
-                <button
-                  onClick={() => navigate('/app/dashboard')}
-                  className="py-2 px-4.5 text-xs sm:text-sm font-semibold rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white flex items-center gap-2 cursor-pointer shadow-xs transition-all"
-                >
-                  <span>Dashboard ({userProfile.name ? userProfile.name.split(' ')[0] : 'User'})</span>
-                  <ArrowRight className="w-4 h-4 text-[#0D9488]" />
-                </button>
-              ) : (
-                <button
-                  onClick={() => navigate('/complete-profile')}
-                  className="py-2 px-4.5 text-xs sm:text-sm font-semibold rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white flex items-center gap-2 cursor-pointer shadow-xs transition-all"
-                >
-                  <span>Complete Profile</span>
-                  <ArrowRight className="w-4 h-4 text-[#0D9488]" />
-                </button>
-              )}
+              <button
+                onClick={() => navigate('/app/dashboard')}
+                className="py-2 px-4 text-xs sm:text-sm font-semibold rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white flex items-center gap-2 cursor-pointer shadow-xs transition-all"
+              >
+                <span>Dashboard ({userProfile.name ? userProfile.name.split(' ')[0] : 'User'})</span>
+                <ArrowRight className="w-4 h-4 text-[#0D9488]" />
+              </button>
+
+              <button
+                onClick={handleCreateNewAccount}
+                className="py-2 px-3.5 text-xs font-semibold rounded-xl bg-slate-100 hover:bg-slate-200 text-[#0F172A] flex items-center gap-1.5 cursor-pointer border border-slate-200 transition-colors"
+                title="Register a new account"
+              >
+                <UserPlus className="w-3.5 h-3.5 text-[#0D9488]" />
+                <span>Create Account</span>
+              </button>
 
               <button
                 onClick={logout}
@@ -152,16 +158,28 @@ export const Navbar = () => {
 
           <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">
             {isAuthenticated && userProfile ? (
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  navigate(userProfile.profileCompleted ? '/app/dashboard' : '/complete-profile');
-                }}
-                className="w-full py-2.5 font-semibold text-white bg-[#0F172A] rounded-xl flex items-center justify-center gap-2"
-              >
-                <span>{userProfile.profileCompleted ? `Dashboard (${userProfile.name?.split(' ')[0]})` : 'Complete Profile'}</span>
-                <ArrowRight className="w-4 h-4 text-[#0D9488]" />
-              </button>
+              <>
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    navigate('/app/dashboard');
+                  }}
+                  className="w-full py-2.5 font-semibold text-white bg-[#0F172A] rounded-xl flex items-center justify-center gap-2"
+                >
+                  <span>Dashboard ({userProfile.name ? userProfile.name.split(' ')[0] : 'User'})</span>
+                  <ArrowRight className="w-4 h-4 text-[#0D9488]" />
+                </button>
+
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    handleCreateNewAccount();
+                  }}
+                  className="w-full text-center py-2.5 font-semibold text-slate-800 border border-slate-200 rounded-xl"
+                >
+                  Create New Account
+                </button>
+              </>
             ) : (
               <>
                 <Link 
