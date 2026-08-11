@@ -22,12 +22,9 @@ export const LoginPage = () => {
 
     setLoading(true);
     try {
-      const user = await login(email, password);
-      if (user && user.profileCompleted) {
-        navigate('/app/dashboard');
-      } else {
-        navigate('/complete-profile');
-      }
+      await login(email, password);
+      // Navigate directly to Patient Dashboard
+      navigate('/app/dashboard');
     } catch (err) {
       toast.error(err.message || "Invalid email or password.");
     } finally {
