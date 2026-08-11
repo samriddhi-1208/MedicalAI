@@ -80,7 +80,7 @@ export const LandingPage = () => {
     {
       step: "01",
       title: "Create Account",
-      description: "Sign up securely to create your private, encrypted healthcare workspace."
+      description: "Sign up securely to create your private, account-isolated healthcare workspace."
     },
     {
       step: "02",
@@ -178,7 +178,7 @@ export const LandingPage = () => {
                 </div>
                 <div>
                   <span className="block font-bold text-sm text-[#0F172A]">Private & Secure</span>
-                  <span>Encrypted user storage</span>
+                  <span>Account-isolated storage</span>
                 </div>
               </div>
 
@@ -249,7 +249,7 @@ export const LandingPage = () => {
                   <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 space-y-2 text-emerald-950">
                     <div className="flex items-center justify-between font-bold text-xs text-emerald-900">
                       <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-emerald-600" /> 3. AI-Extracted Health Data</span>
-                      <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold">Sample Preview</span>
+                      <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold">Illustration / Example</span>
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 text-[11px] pt-1">
@@ -268,7 +268,7 @@ export const LandingPage = () => {
 
                 <div className="pt-2 flex items-center justify-between text-xs text-slate-500 border-t border-slate-100">
                   <span className="flex items-center gap-1.5 font-medium">
-                    <Shield className="w-3.5 h-3.5 text-[#0D9488]" /> Encrypted Patient Records
+                    <Shield className="w-3.5 h-3.5 text-[#0D9488]" /> Account-Isolated Patient Records
                   </span>
                   <Link to="/signup" className="text-[#0D9488] font-bold hover:underline">
                     Get Started Free →

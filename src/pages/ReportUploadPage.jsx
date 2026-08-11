@@ -178,7 +178,7 @@ export const ReportUploadPage = () => {
           )}
         </div>
 
-        {/* Step-by-Step Processing State UI */}
+        {/* Step-by-Step Processing Progress Timeline */}
         {uploading && (
           <div className="space-y-3 p-5 rounded-2xl bg-slate-50 border border-slate-200">
             <div className="flex justify-between text-xs font-bold text-[#0F172A]">
@@ -200,7 +200,7 @@ export const ReportUploadPage = () => {
         {/* Submit Actions */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
           <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
-            <ShieldCheck className="w-4 h-4 text-[#0D9488]" /> Encrypted 256-Bit Storage
+            <ShieldCheck className="w-4 h-4 text-[#0D9488]" /> Protected Account Storage
           </div>
 
           <div className="flex items-center gap-3 w-full sm:w-auto">

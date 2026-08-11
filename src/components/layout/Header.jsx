@@ -102,7 +102,7 @@ export const Header = ({ collapsed }) => {
         </div>
 
         <span className="hidden xl:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-[#059669] text-xs font-semibold border border-emerald-200">
-          <ShieldCheck className="w-3.5 h-3.5" /> Encrypted Session
+          <ShieldCheck className="w-3.5 h-3.5" /> Authenticated Session
         </span>
       </div>
 
@@ -206,7 +206,7 @@ export const Header = ({ collapsed }) => {
             <div className="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 py-2 text-xs">
               <div className="px-4 py-2.5 border-b border-slate-100">
                 <p className="font-bold text-[#0F172A] text-sm">{userProfile?.name || 'Patient'}</p>
-                <p className="text-slate-500 text-[11px] truncate font-medium">{userProfile?.email || 'patient@example.com'}</p>
+                <p className="text-slate-500 text-[11px] truncate font-medium">{userProfile?.email || ''}</p>
               </div>
               <Link to="/app/settings" onClick={() => setProfileOpen(false)} className="block px-4 py-2.5 font-semibold text-slate-800 hover:bg-slate-50">
                 Profile & Vitals
