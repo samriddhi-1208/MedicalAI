@@ -20,12 +20,36 @@ export const HealthDataProvider = ({ children }) => {
     localStorage.setItem('medguardian_language', newLang);
   };
 
-  const [token, setToken] = useState(() => localStorage.getItem('medguardian_token') || null);
-  
+  // Initialize token and profile - auto-purge any old cached demo sessions from browser localStorage
+  const [token, setToken] = useState(() => {
+    const storedToken = localStorage.getItem('medguardian_token');
+    const storedProfile = localStorage.getItem('medguardian_user_profile');
+    if (storedProfile) {
+      try {
+        const parsed = JSON.parse(storedProfile);
+        if (parsed.email === 'laxmi12345@gmail.com' || parsed.email === 'laxmi.manapure@example.com' || parsed.email === 'patient@example.com') {
+          localStorage.removeItem('medguardian_token');
+          localStorage.removeItem('medguardian_user_profile');
+          return null;
+        }
+      } catch (e) {}
+    }
+    return storedToken || null;
+  });
+
   const [userProfile, setUserProfile] = useState(() => {
     try {
       const saved = localStorage.getItem('medguardian_user_profile');
-      return saved ? JSON.parse(saved) : null;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.email === 'laxmi12345@gmail.com' || parsed.email === 'laxmi.manapure@example.com' || parsed.email === 'patient@example.com') {
+          localStorage.removeItem('medguardian_token');
+          localStorage.removeItem('medguardian_user_profile');
+          return null;
+        }
+        return parsed;
+      }
+      return null;
     } catch (e) {
       return null;
     }
@@ -55,7 +79,7 @@ export const HealthDataProvider = ({ children }) => {
       try {
         const headers = { 'Authorization': `Bearer ${storedToken}` };
         
-        // 1. Try to verify session & sync profile from database
+        // Try to verify session & sync profile from database
         const profileRes = await fetch(`${API_BASE}/auth/me`, { headers });
         if (profileRes.ok) {
           const profileData = await profileRes.json();
@@ -83,21 +107,21 @@ export const HealthDataProvider = ({ children }) => {
           setUserProfile(syncedUser);
           localStorage.setItem('medguardian_user_profile', JSON.stringify(syncedUser));
 
-          // 2. Fetch authenticated user's reports
+          // Fetch authenticated user's reports
           const rRes = await fetch(`${API_BASE}/reports`, { headers });
           if (rRes.ok) {
             const rData = await rRes.json();
             setReports(Array.isArray(rData) ? rData : []);
           }
 
-          // 3. Fetch authenticated user's medicines
+          // Fetch authenticated user's medicines
           const mRes = await fetch(`${API_BASE}/medicines`, { headers });
           if (mRes.ok) {
             const mData = await mRes.json();
             setMedicines(Array.isArray(mData) ? mData : []);
           }
 
-          // 4. Fetch authenticated user's emergency contacts
+          // Fetch authenticated user's emergency contacts
           const cRes = await fetch(`${API_BASE}/sos/contacts`, { headers });
           if (cRes.ok) {
             const cData = await cRes.json();
@@ -109,7 +133,6 @@ export const HealthDataProvider = ({ children }) => {
           logout();
         }
       } catch (err) {
-        // Network error (e.g. backend server offline or CORS) -> keep local session active!
         console.log("[AUTH] Server sync note (offline or network error):", err.message);
       }
     }
@@ -119,7 +142,7 @@ export const HealthDataProvider = ({ children }) => {
     }
   }, [token]);
 
-  // Auth Action: Sign In -> ALWAYS navigates directly to Dashboard
+  // Auth Action: Sign In
   const login = async (email, password) => {
     let userObj = null;
     let authToken = null;
@@ -178,7 +201,6 @@ export const HealthDataProvider = ({ children }) => {
       };
     }
 
-    // Store token and profile locally BEFORE state updates so navigation guards work instantly
     localStorage.setItem('medguardian_token', authToken);
     localStorage.setItem('medguardian_user_profile', JSON.stringify(userObj));
     setToken(authToken);
