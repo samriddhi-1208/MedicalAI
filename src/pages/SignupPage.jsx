@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowRight, Lock, Mail, User, Activity, Eye, EyeOff } from 'lucide-react';
+import { ArrowRight, Lock, Mail, User, Activity, Eye, EyeOff, Check, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
 
@@ -15,6 +15,15 @@ export const SignupPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Live password complexity conditions
+  const hasLength = password.length >= 8;
+  const hasUpper = /[A-Z]/.test(password);
+  const hasLower = /[a-z]/.test(password);
+  const hasNumber = /[0-9]/.test(password);
+  const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+
+  const isPasswordValid = hasLength && hasUpper && hasLower && hasNumber && hasSpecial;
+
   const handleSignup = async (e) => {
     e.preventDefault();
 
@@ -28,8 +37,8 @@ export const SignupPage = () => {
       return;
     }
 
-    if (password.length < 6) {
-      toast.error("Password must be at least 6 characters long.");
+    if (!isPasswordValid) {
+      toast.error("Password must meet all complexity requirements: 1 uppercase, 1 lowercase, 1 number, 1 special character, and min 8 characters.");
       return;
     }
 
@@ -124,7 +133,7 @@ export const SignupPage = () => {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="At least 6 characters"
+                  placeholder="Min 8 chars (e.g. SecureP@ss123)"
                   className="med-input w-full block pr-10"
                   required
                 />
@@ -136,6 +145,35 @@ export const SignupPage = () => {
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
+
+              {/* Password Requirement Live Checklist */}
+              {password && (
+                <div className="mt-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200 text-[11px] space-y-1.5">
+                  <p className="font-bold text-[#0F172A] mb-1">Password Criteria:</p>
+                  <div className="grid grid-cols-2 gap-x-2 gap-y-1 font-medium">
+                    <span className={`flex items-center gap-1 ${hasUpper ? 'text-emerald-700 font-bold' : 'text-slate-500'}`}>
+                      {hasUpper ? <Check className="w-3 h-3 text-emerald-600" /> : <X className="w-3 h-3 text-rose-500" />}
+                      1 Uppercase (A-Z)
+                    </span>
+                    <span className={`flex items-center gap-1 ${hasLower ? 'text-emerald-700 font-bold' : 'text-slate-500'}`}>
+                      {hasLower ? <Check className="w-3 h-3 text-emerald-600" /> : <X className="w-3 h-3 text-rose-500" />}
+                      1 Lowercase (a-z)
+                    </span>
+                    <span className={`flex items-center gap-1 ${hasNumber ? 'text-emerald-700 font-bold' : 'text-slate-500'}`}>
+                      {hasNumber ? <Check className="w-3 h-3 text-emerald-600" /> : <X className="w-3 h-3 text-rose-500" />}
+                      1 Number (0-9)
+                    </span>
+                    <span className={`flex items-center gap-1 ${hasSpecial ? 'text-emerald-700 font-bold' : 'text-slate-500'}`}>
+                      {hasSpecial ? <Check className="w-3 h-3 text-emerald-600" /> : <X className="w-3 h-3 text-rose-500" />}
+                      1 Special (!@#$%)
+                    </span>
+                  </div>
+                  <div className={`pt-1 border-t border-slate-200 flex items-center gap-1 ${hasLength ? 'text-emerald-700 font-bold' : 'text-slate-500'}`}>
+                    {hasLength ? <Check className="w-3 h-3 text-emerald-600" /> : <X className="w-3 h-3 text-rose-500" />}
+                    At least 8 characters long
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="med-form-group">

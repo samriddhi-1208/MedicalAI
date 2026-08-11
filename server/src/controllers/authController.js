@@ -24,8 +24,17 @@ exports.signup = async (req, res, next) => {
       return res.status(400).json({ error: "Name, email, and password are required." });
     }
 
-    if (password.length < 6) {
-      return res.status(400).json({ error: "Password must be at least 6 characters long." });
+    // Password Complexity Validation: 1 Uppercase, 1 Lowercase, 1 Number, 1 Special Char, Min 8 Chars
+    const hasLength = password.length >= 8;
+    const hasUpper = /[A-Z]/.test(password);
+    const hasLower = /[a-z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+
+    if (!hasLength || !hasUpper || !hasLower || !hasNumber || !hasSpecial) {
+      return res.status(400).json({ 
+        error: "Password must contain at least 8 characters, 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character." 
+      });
     }
 
     const existing = await User.findOne({ email: email.toLowerCase() });
@@ -123,7 +132,20 @@ exports.updateProfile = async (req, res, next) => {
     }
 
     if (req.body.password) {
-      req.body.password_hash = await bcrypt.hash(req.body.password, 10);
+      const { password } = req.body;
+      const hasLength = password.length >= 8;
+      const hasUpper = /[A-Z]/.test(password);
+      const hasLower = /[a-z]/.test(password);
+      const hasNumber = /[0-9]/.test(password);
+      const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+
+      if (!hasLength || !hasUpper || !hasLower || !hasNumber || !hasSpecial) {
+        return res.status(400).json({ 
+          error: "Password must contain at least 8 characters, 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character." 
+        });
+      }
+
+      req.body.password_hash = await bcrypt.hash(password, 10);
       delete req.body.password;
     }
 
