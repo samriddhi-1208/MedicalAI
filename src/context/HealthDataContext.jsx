@@ -48,17 +48,17 @@ export const HealthDataProvider = ({ children }) => {
         setLoadingAuth(true);
         const headers = { 'Authorization': `Bearer ${storedToken}` };
         
-        // 1. Verify token & get user profile
+        // Verify token & get user profile from database
         const profileRes = await fetch(`${API_BASE}/auth/me`, { headers });
         if (profileRes.ok) {
           const profileData = await profileRes.json();
           setUserProfile({
             id: profileData.id || profileData._id,
-            name: profileData.full_name || profileData.name || 'Patient',
+            name: profileData.full_name || profileData.name,
             email: profileData.email,
             phone: profileData.phone || '',
             dateOfBirth: profileData.date_of_birth || '',
-            age: profileData.age || 20,
+            age: profileData.age || 0,
             gender: profileData.gender || 'Female',
             height: profileData.height || '',
             heightUnit: profileData.height_unit || 'cm',
@@ -70,24 +70,24 @@ export const HealthDataProvider = ({ children }) => {
             country: profileData.country || 'India',
             occupation: profileData.occupation || '',
             primaryPhysician: profileData.primary_physician || '',
-            profileCompleted: true
+            profileCompleted: !!profileData.profile_completed
           });
 
-          // 2. Fetch authenticated user's reports ONLY
+          // Fetch authenticated user's reports
           const rRes = await fetch(`${API_BASE}/reports`, { headers });
           if (rRes.ok) {
             const rData = await rRes.json();
             setReports(Array.isArray(rData) ? rData : []);
           }
 
-          // 3. Fetch authenticated user's medicines ONLY
+          // Fetch authenticated user's medicines
           const mRes = await fetch(`${API_BASE}/medicines`, { headers });
           if (mRes.ok) {
             const mData = await mRes.json();
             setMedicines(Array.isArray(mData) ? mData : []);
           }
 
-          // 4. Fetch authenticated user's emergency contacts ONLY
+          // Fetch authenticated user's emergency contacts
           const cRes = await fetch(`${API_BASE}/sos/contacts`, { headers });
           if (cRes.ok) {
             const cData = await cRes.json();
@@ -96,28 +96,28 @@ export const HealthDataProvider = ({ children }) => {
 
           setToken(storedToken);
         } else {
-          // Token exists locally from client session
-          const storedEmail = localStorage.getItem('medguardian_user_email') || 'patient@example.com';
-          const storedName = localStorage.getItem('medguardian_user_name') || storedEmail.split('@')[0];
-          setUserProfile({
-            id: 'usr-' + Date.now(),
-            name: storedName,
-            email: storedEmail,
-            profileCompleted: true
-          });
-          setToken(storedToken);
+          // Token is invalid/expired - clear authentication completely
+          console.warn("[AUTH] Session expired or server rejected token. Clearing auth state.");
+          localStorage.removeItem('medguardian_token');
+          localStorage.removeItem('medguardian_user_email');
+          localStorage.removeItem('medguardian_user_name');
+          setToken(null);
+          setUserProfile(null);
+          setReports([]);
+          setMedicines([]);
+          setEmergencyContacts([]);
         }
       } catch (err) {
-        console.log("Auth session note:", err.message);
-        const storedEmail = localStorage.getItem('medguardian_user_email') || 'patient@example.com';
-        const storedName = localStorage.getItem('medguardian_user_name') || storedEmail.split('@')[0];
-        setUserProfile({
-          id: 'usr-' + Date.now(),
-          name: storedName,
-          email: storedEmail,
-          profileCompleted: true
-        });
-        setToken(storedToken);
+        console.warn("[AUTH] Backend server unreachable during token verification:", err.message);
+        // Clear token if backend rejected authentication
+        localStorage.removeItem('medguardian_token');
+        localStorage.removeItem('medguardian_user_email');
+        localStorage.removeItem('medguardian_user_name');
+        setToken(null);
+        setUserProfile(null);
+        setReports([]);
+        setMedicines([]);
+        setEmergencyContacts([]);
       } finally {
         setLoadingAuth(false);
       }
@@ -126,72 +126,44 @@ export const HealthDataProvider = ({ children }) => {
     initAuth();
   }, [token]);
 
-  // Auth Action: Sign In -> ALWAYS navigates directly to Dashboard
+  // Auth Action: Sign In
   const login = async (email, password) => {
-    let userObj = null;
-    const fallbackToken = 'token-' + Date.now();
+    const res = await fetch(`${API_BASE}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
 
-    try {
-      const res = await fetch(`${API_BASE}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        localStorage.setItem('medguardian_token', data.token);
-        localStorage.setItem('medguardian_user_email', data.user.email);
-        localStorage.setItem('medguardian_user_name', data.user.full_name || email.split('@')[0]);
-        setToken(data.token);
-        
-        userObj = {
-          id: data.user.id || data.user._id,
-          name: data.user.full_name || email.split('@')[0],
-          email: data.user.email,
-          phone: data.user.phone || '',
-          dateOfBirth: data.user.date_of_birth || '',
-          age: data.user.age || 20,
-          gender: data.user.gender || 'Female',
-          height: data.user.height || '',
-          heightUnit: data.user.height_unit || 'cm',
-          weight: data.user.weight || '',
-          weightUnit: data.user.weight_unit || 'kg',
-          bloodGroup: data.user.blood_group || 'Not Known',
-          city: data.user.city || '',
-          state: data.user.state || '',
-          country: data.user.country || 'India',
-          occupation: data.user.occupation || '',
-          primaryPhysician: data.user.primary_physician || '',
-          profileCompleted: true
-        };
-      } else {
-        const data = await res.json();
-        // If 401 error returned from server, check message
-        if (data.error && data.error.includes("Invalid")) {
-          throw new Error(data.error);
-        }
-      }
-    } catch (err) {
-      if (err.message.includes("Invalid")) {
-        throw err;
-      }
-      console.log("Login network note:", err.message);
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || "Invalid email or password.");
     }
 
-    if (!userObj) {
-      localStorage.setItem('medguardian_token', fallbackToken);
-      localStorage.setItem('medguardian_user_email', email);
-      localStorage.setItem('medguardian_user_name', email.split('@')[0]);
-      setToken(fallbackToken);
-
-      userObj = {
-        id: 'usr-' + Date.now(),
-        name: email.split('@')[0],
-        email: email,
-        profileCompleted: true
-      };
-    }
+    localStorage.setItem('medguardian_token', data.token);
+    localStorage.setItem('medguardian_user_email', data.user.email);
+    localStorage.setItem('medguardian_user_name', data.user.full_name || email.split('@')[0]);
+    setToken(data.token);
+    
+    const userObj = {
+      id: data.user.id || data.user._id,
+      name: data.user.full_name || email.split('@')[0],
+      email: data.user.email,
+      phone: data.user.phone || '',
+      dateOfBirth: data.user.date_of_birth || '',
+      age: data.user.age || 0,
+      gender: data.user.gender || 'Female',
+      height: data.user.height || '',
+      heightUnit: data.user.height_unit || 'cm',
+      weight: data.user.weight || '',
+      weightUnit: data.user.weight_unit || 'kg',
+      bloodGroup: data.user.blood_group || 'Not Known',
+      city: data.user.city || '',
+      state: data.user.state || '',
+      country: data.user.country || 'India',
+      occupation: data.user.occupation || '',
+      primaryPhysician: data.user.primary_physician || '',
+      profileCompleted: !!data.user.profile_completed
+    };
 
     setUserProfile(userObj);
     toast.success(`Welcome back, ${userObj.name}!`);
@@ -204,59 +176,34 @@ export const HealthDataProvider = ({ children }) => {
       throw new Error("Passwords do not match. Please re-enter your password.");
     }
 
-    let userObj = null;
-    const fallbackToken = 'token-' + Date.now();
+    const res = await fetch(`${API_BASE}/auth/signup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password })
+    });
 
-    try {
-      const res = await fetch(`${API_BASE}/auth/signup`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password })
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        localStorage.setItem('medguardian_token', data.token);
-        localStorage.setItem('medguardian_user_email', data.user.email);
-        localStorage.setItem('medguardian_user_name', name);
-        setToken(data.token);
-        
-        userObj = {
-          id: data.user.id || data.user._id,
-          name: data.user.full_name || name,
-          email: data.user.email || email,
-          profileCompleted: false
-        };
-      } else {
-        const data = await res.json();
-        if (data.error) throw new Error(data.error);
-      }
-    } catch (err) {
-      if (err.message.includes("already exists") || err.message.includes("required") || err.message.includes("Password must contain")) {
-        throw err;
-      }
-      console.log("Signup network note:", err.message);
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || "Registration failed.");
     }
 
-    if (!userObj) {
-      localStorage.setItem('medguardian_token', fallbackToken);
-      localStorage.setItem('medguardian_user_email', email);
-      localStorage.setItem('medguardian_user_name', name);
-      setToken(fallbackToken);
-
-      userObj = {
-        id: 'usr-' + Date.now(),
-        name: name,
-        email: email,
-        profileCompleted: false
-      };
-    }
+    localStorage.setItem('medguardian_token', data.token);
+    localStorage.setItem('medguardian_user_email', data.user.email);
+    localStorage.setItem('medguardian_user_name', name);
+    setToken(data.token);
+    
+    const userObj = {
+      id: data.user.id || data.user._id,
+      name: data.user.full_name || name,
+      email: data.user.email || email,
+      profileCompleted: false
+    };
 
     setUserProfile(userObj);
     setReports([]);
     setMedicines([]);
     setEmergencyContacts([]);
-    toast.success(`Account created successfully!`);
+    toast.success(`Account created successfully! Please complete your health profile.`);
     return userObj;
   };
 
@@ -279,29 +226,33 @@ export const HealthDataProvider = ({ children }) => {
       profile_completed: true
     };
 
-    try {
-      await fetch(`${API_BASE}/auth/profile`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-        body: JSON.stringify(payload)
-      });
-    } catch (err) {}
+    const res = await fetch(`${API_BASE}/auth/profile`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+      body: JSON.stringify(payload)
+    });
 
+    if (!res.ok) {
+      const errData = await res.json();
+      throw new Error(errData.error || "Failed to update profile.");
+    }
+
+    const updated = await res.json();
     setUserProfile(prev => ({
       ...prev,
-      name: profileData.name,
-      dateOfBirth: profileData.dateOfBirth,
-      age: profileData.age,
-      gender: profileData.gender,
-      height: profileData.height,
-      heightUnit: profileData.heightUnit,
-      weight: profileData.weight,
-      weightUnit: profileData.weightUnit,
-      bloodGroup: profileData.bloodGroup,
-      city: profileData.city,
-      state: profileData.state,
-      country: profileData.country,
-      occupation: profileData.occupation,
+      name: updated.full_name || profileData.name,
+      dateOfBirth: updated.date_of_birth || profileData.dateOfBirth,
+      age: updated.age || profileData.age,
+      gender: updated.gender || profileData.gender,
+      height: updated.height || profileData.height,
+      heightUnit: updated.height_unit || profileData.heightUnit,
+      weight: updated.weight || profileData.weight,
+      weightUnit: updated.weight_unit || profileData.weightUnit,
+      bloodGroup: updated.blood_group || profileData.bloodGroup,
+      city: updated.city || profileData.city,
+      state: updated.state || profileData.state,
+      country: updated.country || profileData.country,
+      occupation: updated.occupation || profileData.occupation,
       profileCompleted: true
     }));
   };
@@ -368,16 +319,6 @@ export const HealthDataProvider = ({ children }) => {
         return;
       }
     } catch (err) {}
-
-    const created = {
-      id: `med-${Date.now()}`,
-      taken: false,
-      pillsRemaining: parseInt(newMed.totalPills) || 30,
-      totalPills: parseInt(newMed.totalPills) || 30,
-      ...newMed
-    };
-    setMedicines(prev => [created, ...prev]);
-    toast.success(`Added ${newMed.name} to medication schedule`);
   };
 
   const deleteMedicine = async (id) => {
@@ -405,10 +346,6 @@ export const HealthDataProvider = ({ children }) => {
         return;
       }
     } catch (err) {}
-
-    const created = { id: `c-${Date.now()}`, ...contact };
-    setEmergencyContacts(prev => [...prev, created]);
-    toast.success(`Added ${contact.name} to emergency contacts`);
   };
 
   const deleteEmergencyContact = (id) => {
@@ -440,15 +377,37 @@ export const HealthDataProvider = ({ children }) => {
   };
 
   const updateUserProfile = async (updates) => {
-    setUserProfile(prev => ({ ...prev, ...updates }));
-    toast.success("Profile updated");
-    try {
-      await fetch(`${API_BASE}/auth/profile`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-        body: JSON.stringify(updates)
-      });
-    } catch (err) {}
+    const res = await fetch(`${API_BASE}/auth/profile`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+      body: JSON.stringify(updates)
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || "Failed to update profile");
+    }
+
+    const updated = await res.json();
+    setUserProfile(prev => ({
+      ...prev,
+      name: updated.full_name || prev.name,
+      phone: updated.phone ?? prev.phone,
+      dateOfBirth: updated.date_of_birth ?? prev.dateOfBirth,
+      age: updated.age ?? prev.age,
+      gender: updated.gender ?? prev.gender,
+      height: updated.height ?? prev.height,
+      heightUnit: updated.height_unit ?? prev.heightUnit,
+      weight: updated.weight ?? prev.weight,
+      weightUnit: updated.weight_unit ?? prev.weightUnit,
+      bloodGroup: updated.blood_group ?? prev.bloodGroup,
+      city: updated.city ?? prev.city,
+      state: updated.state ?? prev.state,
+      country: updated.country ?? prev.country,
+      occupation: updated.occupation ?? prev.occupation,
+      primaryPhysician: updated.primary_physician ?? prev.primaryPhysician,
+      profileCompleted: true
+    }));
   };
 
   return (

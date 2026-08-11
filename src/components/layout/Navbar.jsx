@@ -57,15 +57,25 @@ export const Navbar = () => {
 
         {/* Desktop Action CTAs */}
         <div className="hidden md:flex items-center gap-3">
-          {isAuthenticated ? (
+          {isAuthenticated && userProfile ? (
             <>
-              <button
-                onClick={() => navigate('/app/dashboard')}
-                className="py-2 px-4.5 text-xs sm:text-sm font-semibold rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white flex items-center gap-2 cursor-pointer shadow-xs transition-all"
-              >
-                <span>Dashboard ({userProfile?.name?.split(' ')[0] || 'User'})</span>
-                <ArrowRight className="w-4 h-4 text-[#0D9488]" />
-              </button>
+              {userProfile.profileCompleted ? (
+                <button
+                  onClick={() => navigate('/app/dashboard')}
+                  className="py-2 px-4.5 text-xs sm:text-sm font-semibold rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white flex items-center gap-2 cursor-pointer shadow-xs transition-all"
+                >
+                  <span>Dashboard ({userProfile.name ? userProfile.name.split(' ')[0] : 'User'})</span>
+                  <ArrowRight className="w-4 h-4 text-[#0D9488]" />
+                </button>
+              ) : (
+                <button
+                  onClick={() => navigate('/complete-profile')}
+                  className="py-2 px-4.5 text-xs sm:text-sm font-semibold rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white flex items-center gap-2 cursor-pointer shadow-xs transition-all"
+                >
+                  <span>Complete Profile</span>
+                  <ArrowRight className="w-4 h-4 text-[#0D9488]" />
+                </button>
+              )}
 
               <button
                 onClick={logout}
@@ -141,15 +151,15 @@ export const Navbar = () => {
           </a>
 
           <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">
-            {isAuthenticated ? (
+            {isAuthenticated && userProfile ? (
               <button
                 onClick={() => {
                   setMobileMenuOpen(false);
-                  navigate('/app/dashboard');
+                  navigate(userProfile.profileCompleted ? '/app/dashboard' : '/complete-profile');
                 }}
                 className="w-full py-2.5 font-semibold text-white bg-[#0F172A] rounded-xl flex items-center justify-center gap-2"
               >
-                <span>Dashboard ({userProfile?.name?.split(' ')[0]})</span>
+                <span>{userProfile.profileCompleted ? `Dashboard (${userProfile.name?.split(' ')[0]})` : 'Complete Profile'}</span>
                 <ArrowRight className="w-4 h-4 text-[#0D9488]" />
               </button>
             ) : (
