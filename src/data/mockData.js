@@ -1,4 +1,4 @@
-// Complete realistic dataset for MedicalAI
+// Realistic dataset for MedicalAI Patient Portal
 
 export const INITIAL_USER_PROFILE = {
   name: "New Patient",
@@ -21,176 +21,70 @@ export const MOCK_REPORTS = [
   {
     id: "rep-2026-001",
     title: "Complete Blood Count (CBC) Report",
-    labName: "Apex Clinical Laboratories",
-    doctorName: "Dr. Aris Thorne, MD",
-    date: "2026-07-28",
+    labName: "Diagnostic Pathology & Clinical Laboratories",
+    doctorName: "Consulting Care Physician",
+    date: "2026-08-11",
     status: "Attention Needed",
     statusType: "warning",
-    score: 86,
-    fileSize: "2.4 MB",
+    score: 92,
+    fileSize: "5.8 MB",
     fileType: "PDF",
-    ocrConfidence: "99.1%",
-    aiSummary: "Your recent Complete Blood Count (CBC) report shows Hemoglobin at 11.4 g/dL (Slightly Low) and Total Leucocyte Count (WBC) at 6000 cell/cu.mm (Normal). Red cell indices (MCV 66.9 fL, MCH 22.0 pg) demonstrate mild microcytic features.",
+    ocrConfidence: "99.4%",
+    aiSummary: "Your Complete Blood Count (CBC) report shows Haemoglobin at 13.8 g/dL (Normal) and Total WBC Count at 8740 /uL (Normal). RDW CV is 15.1% (High), Neutrophils are 74.8% (High), and Lymphocytes are 18.4% (Low).",
     keyFindings: [
-      "Hemoglobin is 11.4 g/dL (Reference female range: 12.0 - 15.5 g/dL).",
-      "Total Leucocyte Count (WBC) is optimal at 6000 cell/cu.mm.",
-      "RBC Count is 5.19 mill/cu.mm (Normal).",
-      "MCV (66.9 fL) and MCH (22.0 pg) show mild microcytic hypochromic features."
+      "Haemoglobin (Hb) is 13.8 g/dL (Normal reference range: 12.0 - 15.0 g/dL).",
+      "Total WBC Count is optimal at 8740 /uL (Reference: 4000 - 10000 /uL).",
+      "RDW CV is 15.1% (High, reference: 11.5 - 14.0%).",
+      "Neutrophils are elevated at 74.8% (Reference: 50 - 62%).",
+      "Lymphocytes are 18.4% (Low, reference: 20 - 40%)."
     ],
     recommendations: {
       lifestyle: [
-        "Include iron-rich foods (spinach, lentils, beetroot) paired with Vitamin C to support hemoglobin synthesis.",
-        "Maintain 2.5 Liters of daily fluid hydration."
+        "Maintain proper daily hydration (2.5 Liters of water).",
+        "Ensure adequate rest and balanced antioxidant-rich nutrition."
       ],
       medical: [
-        "Schedule a follow-up consultation with Dr. Aris Thorne in 4 weeks.",
-        "Consider serum ferritin & iron profile evaluation."
+        "Schedule a routine follow-up consultation with your care physician regarding elevated Neutrophils and RDW CV."
       ],
       questionsForDoctor: [
-        "Would mild dietary iron supplementation be beneficial for my microcytic RBC indices?"
+        "Are the elevated Neutrophils (74.8%) suggestive of recent mild physical stress or reactive inflammation?"
       ]
     },
     biomarkers: [
-      { id: "b1", name: "Hemoglobin (Hb)", value: 11.4, unit: "g/dL", refRange: "12.0 - 15.5", status: "Slightly Low", statusType: "warning", trend: "down", category: "Hematology", notes: "Mild microcytic tendency." },
-      { id: "b3", name: "WBC (Total Leucocyte)", value: 6000, unit: "cell/cu.mm", refRange: "4000 - 11000", status: "Normal", statusType: "normal", trend: "stable", category: "Hematology", notes: "Normal immune response." },
-      { id: "b2", name: "RBC Count", value: 5.19, unit: "mill/cu.mm", refRange: "3.80 - 5.20", status: "Normal", statusType: "normal", trend: "stable", category: "Hematology", notes: "Optimal RBC count." },
-      { id: "b4", name: "HCT / PCV", value: 34.7, unit: "%", refRange: "36.0 - 46.0", status: "Borderline Low", statusType: "warning", trend: "down", category: "Hematology", notes: "Packed cell volume." },
-      { id: "b5", name: "MCV", value: 66.9, unit: "fL", refRange: "80.0 - 100.0", status: "Low", statusType: "warning", trend: "down", category: "Hematology", notes: "Microcytic red cell index." },
-      { id: "b6", name: "MCH", value: 22.0, unit: "pg", refRange: "27.0 - 32.0", status: "Low", statusType: "warning", trend: "down", category: "Hematology", notes: "Hypochromic cell index." },
-      { id: "b7", name: "Platelet Count", value: 2.85, unit: "lakh/cu.mm", refRange: "1.50 - 4.50", status: "Normal", statusType: "normal", trend: "stable", category: "Hematology", notes: "Normal blood clotting platelets." }
-    ]
-  },
-  {
-    id: "rep-2026-002",
-    title: "Thyroid Function Panel & Metabolic Assessment",
-    labName: "MetroDiagnostics Center",
-    doctorName: "Dr. Elena Rostova",
-    date: "2026-05-12",
-    status: "Optimal",
-    statusType: "normal",
-    score: 95,
-    fileSize: "1.8 MB",
-    fileType: "PDF",
-    ocrConfidence: "99.2%",
-    aiSummary: "Your thyroid gland function is fully balanced with TSH, Free T3, and Free T4 within ideal physiological boundaries. Electrolyte levels demonstrate excellent renal homeostasis.",
-    keyFindings: [
-      "TSH (Thyroid Stimulating Hormone) is 2.1 mIU/L (Normal: 0.4 - 4.0 mIU/L).",
-      "Free T4 is 1.3 ng/dL (Normal: 0.8 - 1.8 ng/dL)."
-    ],
-    recommendations: {
-      lifestyle: ["Maintain current balanced iodine and mineral intake.", "Stay well-hydrated."],
-      medical: ["Routine annual thyroid follow-up scheduled for May 2027."],
-      questionsForDoctor: ["Are any seasonal electrolyte adjustments needed?"]
-    },
-    biomarkers: [
-      { id: "b11", name: "TSH", value: 2.1, unit: "mIU/L", refRange: "0.4 - 4.0", status: "Normal", statusType: "normal", trend: "stable", category: "Endocrine" },
-      { id: "b12", name: "Free T3", value: 3.1, unit: "pg/mL", refRange: "2.3 - 4.2", status: "Normal", statusType: "normal", trend: "stable", category: "Endocrine" },
-      { id: "b13", name: "Free T4", value: 1.3, unit: "ng/dL", refRange: "0.8 - 1.8", status: "Normal", statusType: "normal", trend: "stable", category: "Endocrine" }
+      { id: "b1", name: "Haemoglobin (Hb)", value: 13.8, unit: "g/dL", refRange: "12.0 - 15.0", status: "Normal", statusType: "normal", category: "Hematology", notes: "Optimal hemoglobin level." },
+      { id: "b2", name: "RBC Count", value: 4.92, unit: "million/uL", refRange: "4.5 - 5.5", status: "Normal", statusType: "normal", category: "Hematology", notes: "Optimal red blood cell count." },
+      { id: "b3", name: "Hematocrit (HCT)", value: 43.2, unit: "%", refRange: "40.0 - 54.0", status: "Normal", statusType: "normal", category: "Hematology", notes: "Normal packed cell volume." },
+      { id: "b4", name: "MCV", value: 87.9, unit: "fL", refRange: "83.0 - 101.0", status: "Normal", statusType: "normal", category: "Hematology", notes: "Normal mean corpuscular volume." },
+      { id: "b5", name: "MCH", value: 28.1, unit: "pg", refRange: "27.0 - 32.0", status: "Normal", statusType: "normal", category: "Hematology", notes: "Normal corpuscular hemoglobin." },
+      { id: "b6", name: "MCHC", value: 31.9, unit: "g/dL", refRange: "31.5 - 34.5", status: "Normal", statusType: "normal", category: "Hematology", notes: "Normal corpuscular hemoglobin concentration." },
+      { id: "b7", name: "RDW CV", value: 15.1, unit: "%", refRange: "11.5 - 14.0", status: "High", statusType: "warning", category: "Hematology", notes: "Elevated red cell distribution width." },
+      { id: "b8", name: "Total WBC Count", value: 8740, unit: "/uL", refRange: "4000 - 10000", status: "Normal", statusType: "normal", category: "Hematology", notes: "Normal total white blood cell count." },
+      { id: "b9", name: "Neutrophils", value: 74.8, unit: "%", refRange: "50 - 62", status: "High", statusType: "warning", category: "Hematology", notes: "Slightly elevated neutrophil percentage." },
+      { id: "b10", name: "Lymphocytes", value: 18.4, unit: "%", refRange: "20 - 40", status: "Low", statusType: "warning", category: "Hematology", notes: "Slightly low lymphocyte percentage." }
     ]
   }
 ];
 
 export const MOCK_BIOMARKER_HISTORIES = {
-  "Hemoglobin": [
-    { date: "Jan 2026", value: 10.8, targetMin: 12.0, targetMax: 15.5 },
-    { date: "Feb 2026", value: 10.9, targetMin: 12.0, targetMax: 15.5 },
-    { date: "Mar 2026", value: 11.0, targetMin: 12.0, targetMax: 15.5 },
-    { date: "Apr 2026", value: 11.1, targetMin: 12.0, targetMax: 15.5 },
-    { date: "May 2026", value: 11.2, targetMin: 12.0, targetMax: 15.5 },
-    { date: "Jun 2026", value: 11.3, targetMin: 12.0, targetMax: 15.5 },
-    { date: "Jul 2026", value: 11.4, targetMin: 12.0, targetMax: 15.5 }
+  "Haemoglobin (Hb)": [
+    { date: "May 2026", value: 13.2, targetMin: 12.0, targetMax: 15.0 },
+    { date: "Jun 2026", value: 13.5, targetMin: 12.0, targetMax: 15.0 },
+    { date: "Jul 2026", value: 13.6, targetMin: 12.0, targetMax: 15.0 },
+    { date: "Aug 2026", value: 13.8, targetMin: 12.0, targetMax: 15.0 }
   ],
-  "WBC Count": [
-    { date: "Jan 2026", value: 6500, targetMin: 4000, targetMax: 11000 },
-    { date: "Feb 2026", value: 6400, targetMin: 4000, targetMax: 11000 },
-    { date: "Mar 2026", value: 6200, targetMin: 4000, targetMax: 11000 },
-    { date: "Apr 2026", value: 6100, targetMin: 4000, targetMax: 11000 },
-    { date: "May 2026", value: 6000, targetMin: 4000, targetMax: 11000 },
-    { date: "Jun 2026", value: 6000, targetMin: 4000, targetMax: 11000 },
-    { date: "Jul 2026", value: 6000, targetMin: 4000, targetMax: 11000 }
+  "Total WBC Count": [
+    { date: "May 2026", value: 8100, targetMin: 4000, targetMax: 10000 },
+    { date: "Jun 2026", value: 8300, targetMin: 4000, targetMax: 10000 },
+    { date: "Jul 2026", value: 8500, targetMin: 4000, targetMax: 10000 },
+    { date: "Aug 2026", value: 8740, targetMin: 4000, targetMax: 10000 }
   ]
 };
 
-export const MOCK_MEDICINES = [
-  {
-    id: "med-1",
-    name: "Ferrous Ascorbate (Iron)",
-    dosage: "100 mg",
-    form: "Tablet",
-    frequency: "Once Daily",
-    timeSlot: "Morning",
-    time: "08:00 AM",
-    purpose: "Hemoglobin Support",
-    taken: true,
-    pillsRemaining: 18,
-    totalPills: 30,
-    color: "emerald",
-    instructions: "Take with Vitamin C fruit juice post breakfast"
-  },
-  {
-    id: "med-2",
-    name: "Vitamin D3 (Cholecalciferol)",
-    dosage: "2000 IU",
-    form: "Softgel",
-    frequency: "Once Daily",
-    timeSlot: "Morning",
-    time: "08:30 AM",
-    purpose: "Bone & Immune Support",
-    taken: true,
-    pillsRemaining: 45,
-    totalPills: 60,
-    color: "amber",
-    instructions: "Take after breakfast with healthy fats"
-  }
-];
+export const MOCK_MEDICINES = [];
 
-export const MOCK_HOSPITALS = [
-  {
-    id: "hosp-1",
-    name: "District Civil Hospital & Trauma Centre",
-    type: "Government District Hospital (PM-JAY Empaneled)",
-    distanceKm: 1.2,
-    etaMins: 4,
-    rating: 4.8,
-    reviewsCount: 420,
-    address: "Station Road, Near Bus Stand, District HQ",
-    phone: "108 / 0522-2239001",
-    emergencyOpen: true,
-    icuAvailable: 14,
-    specialties: ["General Medicine", "Trauma ICU", "Maternal Care (102)", "Emergency Surgery"],
-    lat: 28.6145,
-    lng: 77.2095,
-    ayushmanBharat: true
-  },
-  {
-    id: "hosp-2",
-    name: "Sanjeevani Multispecialty Hospital & Diagnostic Centre",
-    type: "Private Community Hospital (Cashless Insurance)",
-    distanceKm: 2.8,
-    etaMins: 8,
-    rating: 4.7,
-    reviewsCount: 318,
-    address: "Main Market Road, Sector 4",
-    phone: "+91 98765 43210",
-    emergencyOpen: true,
-    icuAvailable: 6,
-    specialties: ["Internal Medicine", "Hematology", "Pathology", "Pediatrics"],
-    lat: 28.6210,
-    lng: 77.2180,
-    ayushmanBharat: true
-  }
-];
+export const MOCK_HOSPITALS = [];
 
 export const MOCK_EMERGENCY_CONTACTS = [
-  {
-    id: "c-1",
-    name: "Dr. Aris Thorne",
-    relation: "Primary Physician (Civil Hospital)",
-    phone: "+91 98765 43210",
-    email: "dr.aris@civilhospital.in",
-    isPrimary: true,
-    notifyOnSOS: true
-  },
   {
     id: "c-2",
     name: "National Emergency Ambulance (108)",
@@ -209,7 +103,7 @@ export const MOCK_NOTIFICATIONS = [
     id: "n-1",
     title: "CBC Report Parsed Successfully",
     message: "Your Complete Blood Count (CBC) report has been structured with 100% accuracy.",
-    time: "10 mins ago",
+    time: "Just now",
     unread: true,
     type: "report",
     link: "/app/analysis"
