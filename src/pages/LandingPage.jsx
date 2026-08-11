@@ -5,21 +5,16 @@ import {
   Upload, 
   FileText, 
   BrainCircuit, 
-  Clock, 
   Pill, 
   Siren, 
   ArrowRight,
-  CheckCircle2,
   ChevronDown,
   Activity,
-  HeartPulse,
-  Lock,
-  Stethoscope,
   Sparkles,
-  Search,
   Building2,
   ShieldCheck,
-  Check
+  Check,
+  ArrowDown
 } from 'lucide-react';
 import { Navbar } from '../components/layout/Navbar';
 import { Footer } from '../components/layout/Footer';
@@ -52,12 +47,12 @@ export const LandingPage = () => {
     {
       icon: FileText,
       title: "AI Medical Report Analysis",
-      description: "Upload scanned lab tests (PDF, JPG, PNG). Our OCR & AI engine extracts test parameters, units, and reference ranges into structured JSON."
+      description: "Upload scanned lab tests (PDF, JPG, PNG). MedicalAI reads report text and extracts key parameters into your private patient portal."
     },
     {
       icon: BrainCircuit,
       title: "Biomarker Parameter Extraction",
-      description: "Automatically parses lab values such as Hemoglobin, WBCs, RBCs, Glucose, and Thyroid metrics without manual data entry."
+      description: "Automatically identifies lab values such as Hemoglobin, WBCs, RBCs, Glucose, and Thyroid metrics without manual data entry."
     },
     {
       icon: Activity,
@@ -67,7 +62,7 @@ export const LandingPage = () => {
     {
       icon: Building2,
       title: "24/7 Hospital & Specialist Finder",
-      description: "Locate empaneled government district hospitals, CHCs, and Ayushman Bharat PM-JAY centers near your GPS location."
+      description: "Locate empaneled government district hospitals, CHCs, and Ayushman Bharat PM-JAY centers near your location."
     },
     {
       icon: Pill,
@@ -90,12 +85,12 @@ export const LandingPage = () => {
     {
       step: "02",
       title: "Upload Report",
-      description: "Upload paper photos or PDF lab results directly to the secure backend processor."
+      description: "Upload paper photos or PDF lab results directly to your secure account."
     },
     {
       step: "03",
-      title: "AI Parameter Extraction",
-      description: "AI extracts lab values, measurement units, and reference bounds into structured JSON data."
+      title: "AI Analysis",
+      description: "AI extracts lab values, measurement units, and standard reference ranges."
     },
     {
       step: "04",
@@ -107,7 +102,7 @@ export const LandingPage = () => {
   const faqs = [
     {
       question: "How does MedicalAI process my medical reports?",
-      answer: "MedicalAI uses an AI and Optical Character Recognition (OCR) pipeline. When you upload a PDF or image report, our backend extracts the text, identifies test names, values, and reference ranges, and structures the findings into your private database."
+      answer: "When you upload a PDF or image report, MedicalAI extracts text, identifies test names, measured values, and reference ranges, and organizes the findings into your private patient dashboard."
     },
     {
       question: "Will unauthenticated visitors or other users see my health data?",
@@ -127,7 +122,7 @@ export const LandingPage = () => {
     <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] font-sans antialiased">
       <Navbar />
 
-      {/* Hero Section - Pure Product Focus (No Fake Patient Data) */}
+      {/* Hero Section - Pure Patient Focus */}
       <section className="py-16 md:py-24 bg-white border-b border-slate-200 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
@@ -137,7 +132,7 @@ export const LandingPage = () => {
               
               <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-teal-50 text-[#0D9488] text-xs font-semibold border border-teal-200">
                 <ShieldCheck className="w-3.5 h-3.5 text-[#0D9488]" />
-                <span>AI-Powered Medical Report Intelligence</span>
+                <span>AI-Powered Medical Report Analysis</span>
               </div>
 
               <h1 className="text-4xl sm:text-5xl lg:text-5.5xl font-extrabold text-[#0F172A] tracking-tight leading-[1.15]">
@@ -174,68 +169,106 @@ export const LandingPage = () => {
               {/* Trust Indicators */}
               <div className="grid grid-cols-3 gap-6 pt-6 border-t border-slate-100 text-xs text-slate-600">
                 <div>
-                  <span className="block font-bold text-sm text-[#0F172A]">Instant OCR</span>
-                  <span>PDF & paper report extraction</span>
+                  <span className="block font-bold text-sm text-[#0F172A]">Instant Analysis</span>
+                  <span>PDF & photo report reading</span>
                 </div>
                 <div>
-                  <span className="block font-bold text-sm text-[#0F172A]">Structured JSON</span>
-                  <span>Parameter & bound parsing</span>
+                  <span className="block font-bold text-sm text-[#0F172A]">AI-Extracted Data</span>
+                  <span>Biomarker & reference parsing</span>
                 </div>
                 <div>
-                  <span className="block font-bold text-sm text-[#0F172A]">256-Bit Encrypted</span>
-                  <span>Private database storage</span>
+                  <span className="block font-bold text-sm text-[#0F172A]">Private & Secure</span>
+                  <span>Encrypted user storage</span>
                 </div>
               </div>
 
             </div>
 
-            {/* Hero Right Product Capability Preview (Generic Showcase) */}
+            {/* Hero Right Patient-Facing Product Demonstration Flow */}
             <div className="lg:col-span-5">
-              <Card className="p-6 space-y-5 bg-white border border-slate-200 shadow-xl shadow-slate-200/50 rounded-2xl">
+              <Card className="p-6 space-y-4 bg-white border border-slate-200 shadow-xl shadow-slate-200/50 rounded-2xl">
                 
+                {/* Header Badge */}
                 <div className="flex items-center justify-between border-b border-slate-100 pb-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-[#0F172A] text-white flex items-center justify-center font-bold">
                       <BrainCircuit className="w-5 h-5 text-[#0D9488]" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-bold text-[#0F172A]">MedicalAI OCR Pipeline</h3>
-                      <p className="text-xs text-slate-500 font-medium">Automated Structured Extraction</p>
+                      <h3 className="text-sm font-bold text-[#0F172A]">AI-Powered Medical Report Analysis</h3>
+                      <p className="text-xs text-slate-500 font-medium">Patient Analysis Workflow</p>
                     </div>
                   </div>
-                  <span className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold border border-slate-200">
-                    SaaS Engine
+                  <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-bold border border-emerald-200 flex items-center gap-1">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> Secure AI Analysis
                   </span>
                 </div>
 
-                <div className="space-y-3 text-xs">
-                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-                    <div className="flex items-center justify-between font-bold text-[#0F172A]">
-                      <span className="flex items-center gap-1.5"><FileText className="w-4 h-4 text-[#0D9488]" /> Input Document:</span>
-                      <span className="text-slate-500 text-[11px]">PDF / PNG / JPG</span>
+                {/* Patient Flow Diagram */}
+                <div className="space-y-2.5 text-xs">
+                  
+                  {/* Step 1: Medical Report */}
+                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 text-[#0F172A] flex items-center justify-center font-bold">
+                        <FileText className="w-4 h-4 text-[#0D9488]" />
+                      </div>
+                      <div>
+                        <span className="font-bold text-[#0F172A] block text-xs">1. Medical Report</span>
+                        <span className="text-[11px] text-slate-500 font-medium">Scanned PDF or photo lab result</span>
+                      </div>
                     </div>
-                    <p className="text-slate-600 font-medium text-[11px]">Raw lab report file uploaded by patient</p>
+                    <span className="text-[11px] font-bold text-slate-500">PDF / Photo</span>
                   </div>
 
-                  <div className="p-3.5 rounded-xl bg-slate-900 text-white space-y-2 font-mono text-[11px]">
-                    <div className="flex justify-between text-[#0D9488] font-bold">
-                      <span>Structured JSON Output:</span>
-                      <span>100% Parsed</span>
-                    </div>
-                    <p className="text-slate-300 font-normal">
-                      &#123; "biomarkers": [ &#123; "name": "Hemoglobin", "status": "Extracted" &#125; ] &#125;
-                    </p>
+                  {/* Flow Arrow */}
+                  <div className="flex justify-center text-slate-400">
+                    <ArrowDown className="w-4 h-4 text-[#0D9488]" />
                   </div>
 
-                  <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 space-y-1 text-emerald-900">
-                    <span className="font-bold flex items-center gap-1"><Check className="w-3.5 h-3.5 text-emerald-600" /> Patient Privacy Guaranteed</span>
-                    <p className="text-[11px] font-normal">Records are saved strictly under your private authenticated user account.</p>
+                  {/* Step 2: AI Analysis */}
+                  <div className="p-3.5 rounded-xl bg-[#0F172A] text-white flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-slate-800 text-white flex items-center justify-center font-bold">
+                        <Sparkles className="w-4 h-4 text-[#0D9488]" />
+                      </div>
+                      <div>
+                        <span className="font-bold block text-xs text-white">2. AI Analysis</span>
+                        <span className="text-[11px] text-slate-300 font-normal">Extracting test names, values & reference bounds</span>
+                      </div>
+                    </div>
+                    <span className="text-[11px] font-bold text-[#0D9488]">Report Analyzed</span>
                   </div>
+
+                  {/* Flow Arrow */}
+                  <div className="flex justify-center text-slate-400">
+                    <ArrowDown className="w-4 h-4 text-[#0D9488]" />
+                  </div>
+
+                  {/* Step 3: Extracted Health Information */}
+                  <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 space-y-2 text-emerald-950">
+                    <div className="flex items-center justify-between font-bold text-xs text-emerald-900">
+                      <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-emerald-600" /> 3. AI-Extracted Health Data</span>
+                      <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold">Sample Preview</span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-[11px] pt-1">
+                      <div className="p-2 rounded-lg bg-white border border-emerald-200/80">
+                        <span className="text-slate-500 block text-[10px]">Test Parameter:</span>
+                        <strong className="text-[#0F172A] font-bold">Hemoglobin / Glucose</strong>
+                      </div>
+                      <div className="p-2 rounded-lg bg-white border border-emerald-200/80">
+                        <span className="text-slate-500 block text-[10px]">Clinical Summary:</span>
+                        <strong className="text-[#0F172A] font-bold">Plain-Language Insights</strong>
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
 
                 <div className="pt-2 flex items-center justify-between text-xs text-slate-500 border-t border-slate-100">
                   <span className="flex items-center gap-1.5 font-medium">
-                    <Shield className="w-3.5 h-3.5 text-[#0D9488]" /> REST API Connected
+                    <Shield className="w-3.5 h-3.5 text-[#0D9488]" /> Encrypted Patient Records
                   </span>
                   <Link to="/signup" className="text-[#0D9488] font-bold hover:underline">
                     Get Started Free →
