@@ -35,11 +35,10 @@ export const LandingPage = () => {
     }
   };
 
-  const handleSignInClick = () => {
-    if (isAuthenticated) {
-      navigate('/app/dashboard');
-    } else {
-      navigate('/login');
+  const handleHowItWorksClick = () => {
+    const el = document.getElementById('how-it-works');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
@@ -160,9 +159,9 @@ export const LandingPage = () => {
                   size="md"
                   icon={ArrowRight}
                   className="py-3.5 px-6 text-sm font-semibold rounded-xl bg-slate-50 border-slate-200 text-[#0F172A] hover:bg-slate-100 cursor-pointer"
-                  onClick={handleSignInClick}
+                  onClick={handleHowItWorksClick}
                 >
-                  {isAuthenticated ? "Open Dashboard" : "Sign In"}
+                  How It Works
                 </Button>
               </div>
 

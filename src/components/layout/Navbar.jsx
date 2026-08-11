@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { ArrowRight, Menu, X, Activity, User, LogOut, UserPlus } from 'lucide-react';
-import { useHealthData } from '../../context/HealthDataContext';
+import { Link, useNavigate } from 'react-router-dom';
+import { ArrowRight, Menu, X, Activity } from 'lucide-react';
 
 export const Navbar = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const { isAuthenticated, userProfile, logout } = useHealthData();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -17,13 +14,6 @@ export const Navbar = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  const handleCreateNewAccount = () => {
-    if (isAuthenticated) {
-      logout();
-    }
-    navigate('/signup');
-  };
 
   return (
     <header className={`sticky top-0 z-50 transition-all duration-200 ${
@@ -62,53 +52,22 @@ export const Navbar = () => {
           </a>
         </nav>
 
-        {/* Desktop Action CTAs */}
+        {/* Desktop Action CTAs — ALWAYS Pure Public "Sign In" and "Create Account" */}
         <div className="hidden md:flex items-center gap-3">
-          {isAuthenticated && userProfile ? (
-            <>
-              <button
-                onClick={() => navigate('/app/dashboard')}
-                className="py-2 px-4 text-xs sm:text-sm font-semibold rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white flex items-center gap-2 cursor-pointer shadow-xs transition-all"
-              >
-                <span>Dashboard ({userProfile.name ? userProfile.name.split(' ')[0] : 'User'})</span>
-                <ArrowRight className="w-4 h-4 text-[#0D9488]" />
-              </button>
+          <Link 
+            to="/login" 
+            className="text-sm font-semibold text-slate-700 hover:text-[#0F172A] px-3 py-2 rounded-lg hover:bg-slate-100 transition-colors"
+          >
+            Sign In
+          </Link>
 
-              <button
-                onClick={handleCreateNewAccount}
-                className="py-2 px-3.5 text-xs font-semibold rounded-xl bg-slate-100 hover:bg-slate-200 text-[#0F172A] flex items-center gap-1.5 cursor-pointer border border-slate-200 transition-colors"
-                title="Register a new account"
-              >
-                <UserPlus className="w-3.5 h-3.5 text-[#0D9488]" />
-                <span>Create Account</span>
-              </button>
-
-              <button
-                onClick={logout}
-                className="p-2 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer"
-                title="Sign Out"
-              >
-                <LogOut className="w-4 h-4" />
-              </button>
-            </>
-          ) : (
-            <>
-              <Link 
-                to="/login" 
-                className="text-sm font-semibold text-slate-700 hover:text-[#0F172A] px-3 py-2 rounded-lg hover:bg-slate-100 transition-colors"
-              >
-                Sign In
-              </Link>
-
-              <Link
-                to="/signup"
-                className="py-2 px-4.5 text-xs sm:text-sm font-semibold rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white flex items-center gap-2 cursor-pointer shadow-xs transition-all"
-              >
-                <span>Create Account</span> 
-                <ArrowRight className="w-4 h-4 text-[#0D9488]" />
-              </Link>
-            </>
-          )}
+          <Link
+            to="/signup"
+            className="py-2 px-4.5 text-xs sm:text-sm font-semibold rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white flex items-center gap-2 cursor-pointer shadow-xs transition-all"
+          >
+            <span>Create Account</span> 
+            <ArrowRight className="w-4 h-4 text-[#0D9488]" />
+          </Link>
         </div>
 
         {/* Mobile Hamburger Button */}
@@ -157,48 +116,21 @@ export const Navbar = () => {
           </a>
 
           <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">
-            {isAuthenticated && userProfile ? (
-              <>
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    navigate('/app/dashboard');
-                  }}
-                  className="w-full py-2.5 font-semibold text-white bg-[#0F172A] rounded-xl flex items-center justify-center gap-2"
-                >
-                  <span>Dashboard ({userProfile.name ? userProfile.name.split(' ')[0] : 'User'})</span>
-                  <ArrowRight className="w-4 h-4 text-[#0D9488]" />
-                </button>
-
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    handleCreateNewAccount();
-                  }}
-                  className="w-full text-center py-2.5 font-semibold text-slate-800 border border-slate-200 rounded-xl"
-                >
-                  Create New Account
-                </button>
-              </>
-            ) : (
-              <>
-                <Link 
-                  to="/login" 
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="w-full text-center py-2.5 font-semibold text-slate-800 border border-slate-200 rounded-xl"
-                >
-                  Sign In
-                </Link>
-                <Link
-                  to="/signup"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="w-full py-2.5 font-semibold text-white bg-[#0F172A] rounded-xl flex items-center justify-center gap-2 text-center"
-                >
-                  <span>Create Account</span>
-                  <ArrowRight className="w-4 h-4 text-[#0D9488]" />
-                </Link>
-              </>
-            )}
+            <Link 
+              to="/login" 
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full text-center py-2.5 font-semibold text-slate-800 border border-slate-200 rounded-xl"
+            >
+              Sign In
+            </Link>
+            <Link
+              to="/signup"
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full py-2.5 font-semibold text-white bg-[#0F172A] rounded-xl flex items-center justify-center gap-2 text-center"
+            >
+              <span>Create Account</span>
+              <ArrowRight className="w-4 h-4 text-[#0D9488]" />
+            </Link>
           </div>
         </div>
       )}
