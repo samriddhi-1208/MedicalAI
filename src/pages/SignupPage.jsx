@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Shield, ArrowRight, Lock, Mail, User, Phone, Calendar, Activity, ChevronDown } from 'lucide-react';
+import { ArrowRight, Lock, Mail, User, Phone, Activity, ChevronDown, Eye, EyeOff } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
 
@@ -20,6 +20,7 @@ export const SignupPage = () => {
   const [height, setHeight] = useState('');
   const [weight, setWeight] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [showVitals, setShowVitals] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -102,37 +103,37 @@ export const SignupPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 font-sans">
+    <div className="min-h-screen bg-slate-50 text-[#0F172A] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 font-sans antialiased">
       
       {/* Brand Header */}
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center space-y-3">
         <Link to="/" className="inline-flex items-center gap-3 transition-transform hover:scale-105">
-          <div className="w-11 h-11 rounded-2xl bg-[#11476C] text-white flex items-center justify-center font-bold shadow-md shadow-[#11476C]/15">
-            <Shield className="w-6 h-6 text-[#77CAF3]" />
+          <div className="w-11 h-11 rounded-2xl bg-[#0F172A] text-white flex items-center justify-center font-bold shadow-md">
+            <Activity className="w-6 h-6 text-[#0D9488]" />
           </div>
-          <span className="font-extrabold text-2xl text-[#11476C] tracking-tight">
-            MedGuardian <span className="text-[#77CAF3]">AI</span>
+          <span className="font-extrabold text-2xl text-[#0F172A] tracking-tight">
+            Medical<span className="text-[#0D9488]">AI</span>
           </span>
         </Link>
-        <h2 className="text-2.5xl font-bold text-[#11476C] tracking-tight">
+        <h2 className="text-2.5xl font-extrabold text-[#0F172A] tracking-tight">
           Create Your Patient Account
         </h2>
-        <p className="text-sm font-medium text-[#475569]">
+        <p className="text-xs font-medium text-slate-500">
           Get started with instant medical report OCR parsing & emergency protection
         </p>
       </div>
 
       {/* Card Form */}
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-[#FFFFFF] border border-[#E2E8F0] py-8 px-6 shadow-xl shadow-slate-200/50 rounded-2xl sm:px-8 space-y-6">
+        <div className="bg-white border border-slate-200 py-8 px-6 shadow-xl shadow-slate-200/50 rounded-2xl sm:px-8 space-y-6">
           
           <form onSubmit={handleSignup} className="space-y-4">
             
             <div className="med-form-group">
-              <label htmlFor="fullName" className="block text-sm font-semibold text-[#0F172A] mb-1.5">Full Name</label>
+              <label htmlFor="fullName" className="block text-xs font-bold text-[#0F172A] mb-1.5">Full Name</label>
               <div className="relative w-full">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#64748B]">
-                  <User className="w-4.5 h-4.5 text-[#11476C]" />
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <User className="w-4.5 h-4.5 text-[#0F172A]" />
                 </div>
                 <input
                   id="fullName"
@@ -147,10 +148,10 @@ export const SignupPage = () => {
             </div>
 
             <div className="med-form-group">
-              <label htmlFor="email" className="block text-sm font-semibold text-[#0F172A] mb-1.5">Email Address</label>
+              <label htmlFor="email" className="block text-xs font-bold text-[#0F172A] mb-1.5">Email Address</label>
               <div className="relative w-full">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#64748B]">
-                  <Mail className="w-4.5 h-4.5 text-[#11476C]" />
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <Mail className="w-4.5 h-4.5 text-[#0F172A]" />
                 </div>
                 <input
                   id="email"
@@ -165,10 +166,10 @@ export const SignupPage = () => {
             </div>
 
             <div className="med-form-group">
-              <label htmlFor="phone" className="block text-sm font-semibold text-[#0F172A] mb-1.5">Phone Number (Optional)</label>
+              <label htmlFor="phone" className="block text-xs font-bold text-[#0F172A] mb-1.5">Phone Number (Optional)</label>
               <div className="relative w-full">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#64748B]">
-                  <Phone className="w-4.5 h-4.5 text-[#11476C]" />
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <Phone className="w-4.5 h-4.5 text-[#0F172A]" />
                 </div>
                 <input
                   id="phone"
@@ -182,43 +183,50 @@ export const SignupPage = () => {
             </div>
 
             <div className="med-form-group">
-              <label htmlFor="password" className="block text-sm font-semibold text-[#0F172A] mb-1.5">Password</label>
+              <label htmlFor="password" className="block text-xs font-bold text-[#0F172A] mb-1.5">Password</label>
               <div className="relative w-full">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#64748B]">
-                  <Lock className="w-4.5 h-4.5 text-[#11476C]" />
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <Lock className="w-4.5 h-4.5 text-[#0F172A]" />
                 </div>
                 <input
                   id="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••••••"
-                  className="med-input w-full block"
+                  className="med-input w-full block pr-10"
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-700 cursor-pointer"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
 
             {/* Optional Personal Vitals & Birth Date Accordion */}
-            <div className="pt-1 border-t border-[#E2E8F0]">
+            <div className="pt-1 border-t border-slate-100">
               <button
                 type="button"
                 onClick={() => setShowVitals(!showVitals)}
-                className="w-full flex items-center justify-between text-xs font-semibold text-[#11476C] hover:text-[#0d3856] py-1.5 transition-colors cursor-pointer"
+                className="w-full flex items-center justify-between text-xs font-bold text-[#0F172A] hover:text-[#0D9488] py-1.5 transition-colors cursor-pointer"
               >
                 <span className="flex items-center gap-1.5">
-                  <Activity className="w-3.5 h-3.5 text-[#77CAF3]" />
+                  <Activity className="w-3.5 h-3.5 text-[#0D9488]" />
                   <span>Personal Health Vitals (Age, Birth Date, Height, Weight)</span>
                 </span>
                 <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showVitals ? 'rotate-180' : ''}`} />
               </button>
 
               {showVitals && (
-                <div className="mt-3 space-y-3 p-3.5 rounded-xl bg-[#F0F9FF] border border-[#77CAF3]/30">
+                <div className="mt-3 space-y-3 p-3.5 rounded-xl bg-slate-50 border border-slate-200">
                   
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-semibold text-[#11476C] mb-1">Date of Birth</label>
+                      <label className="block text-xs font-bold text-[#0F172A] mb-1">Date of Birth</label>
                       <input
                         type="date"
                         value={birthDate}
@@ -227,7 +235,7 @@ export const SignupPage = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-[#11476C] mb-1">Age (Years)</label>
+                      <label className="block text-xs font-bold text-[#0F172A] mb-1">Age (Years)</label>
                       <input
                         type="number"
                         value={age}
@@ -240,7 +248,7 @@ export const SignupPage = () => {
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-semibold text-[#11476C] mb-1">Height (cm)</label>
+                      <label className="block text-xs font-bold text-[#0F172A] mb-1">Height (cm)</label>
                       <input
                         type="text"
                         value={height}
@@ -250,7 +258,7 @@ export const SignupPage = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-[#11476C] mb-1">Weight (kg)</label>
+                      <label className="block text-xs font-bold text-[#0F172A] mb-1">Weight (kg)</label>
                       <input
                         type="text"
                         value={weight}
@@ -263,7 +271,7 @@ export const SignupPage = () => {
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-semibold text-[#11476C] mb-1">Gender</label>
+                      <label className="block text-xs font-bold text-[#0F172A] mb-1">Gender</label>
                       <select
                         value={gender}
                         onChange={(e) => setGender(e.target.value)}
@@ -275,7 +283,7 @@ export const SignupPage = () => {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-[#11476C] mb-1">Blood Group</label>
+                      <label className="block text-xs font-bold text-[#0F172A] mb-1">Blood Group</label>
                       <select
                         value={bloodGroup}
                         onChange={(e) => setBloodGroup(e.target.value)}
@@ -300,24 +308,24 @@ export const SignupPage = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 px-4 rounded-xl bg-[#11476C] hover:bg-[#0d3856] active:bg-[#0a2940] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-md shadow-[#11476C]/20 transition-all cursor-pointer mt-2"
+              className="w-full py-3.5 px-4 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-md shadow-slate-900/10 transition-all cursor-pointer mt-2"
             >
               {loading ? (
                 <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
               ) : (
                 <>
-                  <span>Register & Proceed</span>
-                  <ArrowRight className="w-4 h-4 text-[#77CAF3]" />
+                  <span>Register Account & Proceed</span>
+                  <ArrowRight className="w-4 h-4 text-[#0D9488]" />
                 </>
               )}
             </button>
           </form>
 
-          <div className="text-center pt-3 border-t border-[#E2E8F0]">
-            <p className="text-xs font-medium text-[#475569]">
+          <div className="text-center pt-3 border-t border-slate-100">
+            <p className="text-xs font-medium text-slate-500">
               Already have an account?{' '}
-              <Link to="/signup" className="font-bold text-[#11476C] hover:text-[#77CAF3] hover:underline ml-1">
-                Create Account
+              <Link to="/login" className="font-bold text-[#0F172A] hover:underline ml-1">
+                Sign In
               </Link>
             </p>
           </div>

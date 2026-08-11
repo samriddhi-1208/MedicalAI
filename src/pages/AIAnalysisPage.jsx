@@ -1,22 +1,20 @@
 import React, { useState } from 'react';
 import { 
-  FileText, 
   BrainCircuit, 
+  AlertTriangle, 
+  CheckCircle2, 
+  TrendingUp, 
   Download, 
-  Printer, 
-  TrendingDown,
-  TrendingUp,
-  History,
-  CheckCircle2,
-  AlertTriangle,
-  Stethoscope,
-  Utensils,
+  Share2, 
+  FileText, 
   Sparkles,
-  HelpCircle,
-  Activity,
-  Filter,
+  Stethoscope,
+  Info,
+  Calendar,
+  Building,
+  User,
   ShieldCheck,
-  ChevronRight
+  Filter
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
@@ -25,295 +23,211 @@ import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 
 export const AIAnalysisPage = () => {
-  const { activeReport, reports, setActiveReportId } = useHealthData();
-  const [activeTab, setActiveTab] = useState('lifestyle');
-  const [historyOpen, setHistoryOpen] = useState(false);
-  const [filterMode, setFilterMode] = useState('all'); // 'all' | 'warning' | 'normal'
+  const { reports, userProfile } = useHealthData();
+  const [activeTab, setActiveTab] = useState('summary');
+  const [biomarkerFilter, setBiomarkerFilter] = useState('all'); // 'all' | 'warning' | 'normal'
 
-  const report = activeReport || reports[0];
+  const activeReport = (Array.isArray(reports) && reports.length > 0) ? reports[0] : null;
 
-  if (!report) {
-    return (
-      <Card className="p-10 text-center bg-white space-y-4 rounded-2xl border border-[#E2E8F0] shadow-xs">
-        <div className="w-14 h-14 rounded-2xl bg-[#F0F9FF] text-[#11476C] flex items-center justify-center mx-auto border border-[#77CAF3]/40">
-          <BrainCircuit className="w-7 h-7 text-[#11476C]" />
-        </div>
-        <h3 className="text-xl font-bold text-[#11476C]">No Diagnostic Reports Available</h3>
-        <p className="text-xs font-medium text-[#64748B]">Please upload a lab report to view AI biomarker explanations.</p>
-      </Card>
-    );
-  }
+  const handlePrint = () => {
+    window.print();
+  };
 
-  // Filter biomarkers based on status mode
-  const filteredBiomarkers = (report.biomarkers || []).filter(bm => {
-    if (filterMode === 'warning') return bm.statusType === 'warning' || bm.status === 'High' || bm.status === 'Low' || bm.status === 'Borderline';
-    if (filterMode === 'normal') return bm.statusType === 'normal' || bm.status === 'Normal' || bm.status === 'Optimal';
+  const handleShare = () => {
+    const text = encodeURIComponent(`🏥 MedicalAI Clinical Analysis Summary for ${userProfile.name}:\nReport: ${activeReport?.title || 'Lab Panel'}\nStatus: ${activeReport?.status || 'Analyzed'}`);
+    window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+    toast.success("Opening WhatsApp share...");
+  };
+
+  const allBiomarkers = Array.isArray(activeReport?.biomarkers) ? activeReport.biomarkers : [];
+
+  const filteredBiomarkers = allBiomarkers.filter(b => {
+    if (biomarkerFilter === 'warning') {
+      return b.statusType === 'warning' || b.status === 'High' || b.status === 'Low' || b.status === 'Borderline';
+    }
+    if (biomarkerFilter === 'normal') {
+      return b.statusType === 'normal' || b.status === 'Optimal' || b.status === 'Normal';
+    }
     return true;
   });
 
-  const warningCount = (report.biomarkers || []).filter(bm => bm.statusType === 'warning' || bm.status === 'High' || bm.status === 'Low' || bm.status === 'Borderline').length;
+  const warningCount = allBiomarkers.filter(b => b.statusType === 'warning' || b.status === 'High' || b.status === 'Low' || b.status === 'Borderline').length;
+
+  if (!activeReport) {
+    return (
+      <div className="space-y-6 pb-12 font-sans">
+        <Card className="p-12 text-center bg-white border border-slate-200 rounded-2xl shadow-xs space-y-4 max-w-2xl mx-auto my-12">
+          <div className="w-16 h-16 rounded-2xl bg-slate-100 text-[#0F172A] flex items-center justify-center mx-auto border border-slate-200">
+            <BrainCircuit className="w-8 h-8 text-[#0D9488]" />
+          </div>
+          <h2 className="text-2xl font-extrabold text-[#0F172A]">No Medical Reports Analyzed Yet</h2>
+          <p className="text-sm font-normal text-slate-600">Please upload your scanned medical report (PDF or Image) to generate an AI diagnostic summary.</p>
+        </Card>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-7 pb-12 font-sans">
+    <div className="space-y-6 pb-12 font-sans antialiased">
       
-      {/* Top Header Card */}
-      <Card className="p-7 bg-[#FFFFFF] border border-[#E2E8F0] rounded-2xl shadow-md shadow-slate-200/40 space-y-5">
-        
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <span className="px-3 py-1 rounded-full bg-[#FEF3C7] text-[#B45309] text-xs font-bold border border-[#FDE68A] flex items-center gap-1.5">
-                <AlertTriangle className="w-3.5 h-3.5" /> {report.status}
-              </span>
-              <span className="px-3 py-1 rounded-full bg-[#F0F9FF] text-[#11476C] text-xs font-semibold border border-[#77CAF3]/30">
-                OCR Accuracy: {report.ocrConfidence}
-              </span>
-              <span className="text-xs font-semibold text-[#16A34A] bg-[#DCFCE7] px-3 py-1 rounded-full border border-[#BBF7D0]">
-                AI Score: {report.score}/100
-              </span>
-            </div>
-
-            <h1 className="text-2.5xl sm:text-3xl font-bold text-[#11476C] tracking-tight leading-snug">
-              {report.title}
-            </h1>
-
-            <p className="text-xs font-medium text-[#64748B] flex items-center gap-3 flex-wrap">
-              <span>Lab: <strong className="text-[#0F172A]">{report.labName}</strong></span>
-              <span>•</span>
-              <span>Physician: <strong className="text-[#0F172A]">{report.doctorName}</strong></span>
-              <span>•</span>
-              <span>Date: <strong className="text-[#0F172A]">{report.date}</strong></span>
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2.5">
-            <button
-              onClick={() => setHistoryOpen(!historyOpen)}
-              className="px-4 py-2.5 rounded-xl bg-[#F0F9FF] text-[#11476C] border border-[#77CAF3]/40 text-xs font-bold hover:bg-[#E0F2FE] flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
-            >
-              <History className="w-4 h-4 text-[#11476C]" />
-              <span>Past Reports ({reports.length})</span>
-            </button>
-
-            <Button
-              variant="outline"
-              size="sm"
-              icon={Printer}
-              className="rounded-xl border-[#E2E8F0] text-xs font-semibold"
-              onClick={() => window.print()}
-            >
-              Print Report
-            </Button>
-
-            <Button
-              variant="primary"
-              size="sm"
-              icon={Download}
-              className="rounded-xl bg-[#11476C] hover:bg-[#0d3856] text-xs font-semibold shadow-md shadow-[#11476C]/15"
-              onClick={() => toast.success("Exporting structured report PDF...")}
-            >
-              Download PDF
-            </Button>
-          </div>
+      {/* Header & Actions Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2.5xl font-extrabold text-[#0F172A] tracking-tight flex items-center gap-2.5">
+            <BrainCircuit className="w-7 h-7 text-[#0D9488]" /> AI Diagnostic Report Analysis
+          </h1>
+          <p className="text-xs font-normal text-slate-500 mt-0.5">
+            Structured biomarker parsing, clinical risk flags, and plain-language summaries
+          </p>
         </div>
 
-        {/* History Selector Drawer */}
-        {historyOpen && (
-          <div className="p-4 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl space-y-3 pt-3">
-            <p className="text-xs font-bold text-[#11476C] uppercase tracking-wider">Select Past Medical Report:</p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {reports.map((r) => (
-                <button
-                  key={r.id}
-                  onClick={() => {
-                    setActiveReportId(r.id);
-                    setHistoryOpen(false);
-                    toast.success(`Loaded report: ${r.title}`);
-                  }}
-                  className={`p-3.5 rounded-xl border text-left text-xs transition-all cursor-pointer ${
-                    r.id === report.id
-                      ? 'bg-[#F0F9FF] border-[#77CAF3] text-[#11476C] font-bold shadow-xs'
-                      : 'bg-white border-[#E2E8F0] text-[#475569] hover:bg-[#F8FAFC]'
-                  }`}
-                >
-                  <p className="truncate font-bold text-[#11476C]">{r.title}</p>
-                  <p className="text-[11px] font-medium text-[#64748B] mt-0.5">{r.date} • {r.labName}</p>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            icon={Download} 
+            className="rounded-xl border-slate-200 text-xs font-semibold"
+            onClick={handlePrint}
+          >
+            Download Summary
+          </Button>
 
-      </Card>
+          <Button 
+            variant="primary" 
+            size="sm" 
+            icon={Share2} 
+            className="rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-xs font-semibold"
+            onClick={handleShare}
+          >
+            Share Findings
+          </Button>
+        </div>
+      </div>
 
-      {/* AI Plain-Language Explanation Card */}
-      <Card className="p-7 bg-[#FFFFFF] border border-[#E2E8F0] rounded-2xl shadow-md shadow-slate-200/30 space-y-5">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#F0F9FF] text-[#11476C] flex items-center justify-center border border-[#77CAF3]/40">
-              <BrainCircuit className="w-5 h-5 text-[#11476C]" />
+      {/* Report Patient Baseline Metadata Banner */}
+      <Card className="p-6 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-slate-100 text-[#0F172A] flex items-center justify-center font-bold border border-slate-200">
+              <FileText className="w-5 h-5 text-[#0D9488]" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-[#11476C]">AI Clinical Summary & Plain-Language Explanation</h2>
-              <p className="text-xs font-medium text-[#64748B]">Synthesized from extracted lab parameters using MedGuardian AI</p>
+              <h2 className="text-lg font-extrabold text-[#0F172A]">{activeReport.title}</h2>
+              <p className="text-xs text-slate-500 font-medium">{activeReport.labName} • Reference #{activeReport.id}</p>
             </div>
           </div>
-          <span className="px-3 py-1 rounded-full bg-[#F0F9FF] text-[#11476C] text-xs font-bold border border-[#77CAF3]/30 hidden sm:inline-flex items-center gap-1">
-            <Sparkles className="w-3.5 h-3.5 text-[#77CAF3]" /> Plain Language
-          </span>
+
+          <div className="flex items-center gap-3 flex-wrap">
+            <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-800 text-xs font-bold border border-slate-200">
+              OCR Confidence: {activeReport.ocrConfidence}
+            </span>
+            <Badge variant={activeReport.statusType}>{activeReport.status}</Badge>
+          </div>
         </div>
 
-        <div className="p-5 rounded-2xl bg-[#F0F9FF]/70 border border-[#77CAF3]/30 text-sm font-medium text-[#0F172A] leading-relaxed shadow-2xs">
-          {report.aiSummary}
-        </div>
-
-        {/* Structured Findings Grid */}
-        <div className="space-y-2.5 pt-2">
-          <h3 className="text-xs font-bold text-[#11476C] uppercase tracking-wider">Key Clinical Observations:</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-            {report.keyFindings.map((finding, idx) => {
-              const isWarning = finding.toLowerCase().includes('cholesterol') || finding.toLowerCase().includes('low') || finding.toLowerCase().includes('high');
-              return (
-                <div 
-                  key={idx} 
-                  className={`p-4 rounded-xl border text-xs font-semibold leading-relaxed flex items-start gap-3 transition-all ${
-                    isWarning 
-                      ? 'bg-[#FFFBEB] border-[#FDE68A] text-[#B45309]' 
-                      : 'bg-[#F0FDF4] border-[#BBF7D0] text-[#166534]'
-                  }`}
-                >
-                  {isWarning ? (
-                    <AlertTriangle className="w-4 h-4 text-[#D97706] shrink-0 mt-0.5" />
-                  ) : (
-                    <CheckCircle2 className="w-4 h-4 text-[#16A34A] shrink-0 mt-0.5" />
-                  )}
-                  <span>{finding}</span>
-                </div>
-              );
-            })}
+        {/* 4 Patient Details Metadata Chips */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+            <span className="text-slate-500 font-medium block">Patient Name:</span>
+            <strong className="text-[#0F172A] font-bold text-sm">{userProfile.name}</strong>
+          </div>
+          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+            <span className="text-slate-500 font-medium block">Age / Gender / Blood:</span>
+            <strong className="text-[#0F172A] font-bold text-sm">{userProfile.age || 28} yrs • {userProfile.gender || 'Female'} • {userProfile.bloodGroup || 'O+'}</strong>
+          </div>
+          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+            <span className="text-slate-500 font-medium block">Date Uploaded:</span>
+            <strong className="text-[#0F172A] font-bold text-sm">{activeReport.date}</strong>
+          </div>
+          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+            <span className="text-slate-500 font-medium block">Attention Flags:</span>
+            <strong className="text-amber-800 font-bold text-sm">{warningCount} Parameters</strong>
           </div>
         </div>
       </Card>
 
-      {/* Structured Biomarker Matrix Table with Range Progress Bar */}
-      <Card className="p-7 bg-[#FFFFFF] border border-[#E2E8F0] rounded-2xl shadow-md shadow-slate-200/30 space-y-5">
-        
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E2E8F0] pb-4">
+      {/* AI Summary Banner Card */}
+      <Card className="p-6 bg-slate-900 text-white rounded-2xl shadow-md space-y-3">
+        <div className="flex items-center gap-2 text-xs font-bold text-[#0D9488] uppercase tracking-wider">
+          <Sparkles className="w-4 h-4 text-[#0D9488]" /> AI Clinical Assessment Summary
+        </div>
+        <p className="text-base text-slate-200 leading-relaxed font-normal">
+          {activeReport.aiSummary || "Your medical lab panel has been parsed and structured into plain language for easy patient review."}
+        </p>
+      </Card>
+
+      {/* Biomarkers Table with Interactive Category Filters */}
+      <Card className="p-7 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-lg font-bold text-[#11476C]">Structured Biomarker Panel</h2>
-            <p className="text-xs font-medium text-[#64748B]">Extracted blood parameter metrics with clinical reference bounds</p>
+            <h3 className="text-lg font-extrabold text-[#0F172A]">Extracted Laboratory Biomarkers</h3>
+            <p className="text-xs font-normal text-slate-500">Structured parameters matched against standard clinical reference intervals</p>
           </div>
 
-          {/* Filter Pills */}
-          <div className="flex items-center gap-2 flex-wrap">
+          {/* Biomarker Filter Pills */}
+          <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold">
             <button
-              onClick={() => setFilterMode('all')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                filterMode === 'all'
-                  ? 'bg-[#11476C] text-white shadow-2xs'
-                  : 'bg-[#F8FAFC] text-[#475569] border border-[#E2E8F0] hover:bg-[#F1F5F9]'
+              onClick={() => setBiomarkerFilter('all')}
+              className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
+                biomarkerFilter === 'all' ? 'bg-[#0F172A] text-white' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              All Markers ({report.biomarkers.length})
+              All ({allBiomarkers.length})
             </button>
-
             <button
-              onClick={() => setFilterMode('warning')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                filterMode === 'warning'
-                  ? 'bg-[#D97706] text-white shadow-2xs'
-                  : 'bg-[#FEF3C7] text-[#B45309] border border-[#FDE68A] hover:bg-[#FDE68A]'
+              onClick={() => setBiomarkerFilter('warning')}
+              className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
+                biomarkerFilter === 'warning' ? 'bg-amber-700 text-white' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               Attention Needed ({warningCount})
             </button>
-
             <button
-              onClick={() => setFilterMode('normal')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                filterMode === 'normal'
-                  ? 'bg-[#16A34A] text-white shadow-2xs'
-                  : 'bg-[#DCFCE7] text-[#166534] border border-[#BBF7D0] hover:bg-[#BBF7D0]'
+              onClick={() => setBiomarkerFilter('normal')}
+              className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
+                biomarkerFilter === 'normal' ? 'bg-emerald-700 text-white' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              Normal ({report.biomarkers.length - warningCount})
+              Normal ({allBiomarkers.length - warningCount})
             </button>
           </div>
         </div>
 
+        {/* Data Table */}
         <div className="overflow-x-auto">
           <table className="med-table">
             <thead>
               <tr>
-                <th className="rounded-l-xl">Biomarker</th>
-                <th>Category</th>
+                <th>Test Biomarker</th>
                 <th>Measured Value</th>
-                <th>Reference Bounds</th>
+                <th>Standard Reference Range</th>
                 <th>Status Indicator</th>
-                <th className="rounded-r-xl text-right">Trend Direction</th>
+                <th>Diagnostic Interpretation</th>
               </tr>
             </thead>
             <tbody>
-              {filteredBiomarkers.map((bm) => {
-                const isHigh = bm.status === 'High' || bm.trend === 'up';
-                const isLow = bm.status === 'Low' || bm.status === 'Borderline' || bm.trend === 'down';
-                const isNormal = bm.status === 'Normal' || bm.status === 'Optimal';
-
+              {filteredBiomarkers.map((b, idx) => {
+                const isWarning = b.statusType === 'warning' || b.status === 'High' || b.status === 'Low' || b.status === 'Borderline';
                 return (
-                  <tr key={bm.id} className="hover:bg-[#F8FAFC] transition-colors">
-                    
-                    <td className="font-bold text-[#11476C] text-sm">
-                      {bm.name}
+                  <tr key={b.id || idx} className={isWarning ? 'bg-amber-50/40' : ''}>
+                    <td className="font-bold text-[#0F172A]">
+                      {b.name}
+                      <span className="block text-[11px] font-normal text-slate-500">{b.category} Panel</span>
                     </td>
-
+                    <td className="font-extrabold text-base text-[#0F172A]">
+                      {b.value} <span className="text-xs font-normal text-slate-500">{b.unit}</span>
+                    </td>
+                    <td className="text-slate-600 font-medium">
+                      {b.refRange} {b.unit}
+                    </td>
                     <td>
-                      <span className="px-2.5 py-1 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] text-[#64748B] text-xs font-semibold">
-                        {bm.category}
-                      </span>
+                      <Badge variant={isWarning ? 'warning' : 'normal'}>
+                        {b.status}
+                      </Badge>
                     </td>
-
-                    <td className="font-mono font-bold text-[#0F172A] text-sm">
-                      {bm.value} <span className="text-xs font-medium text-[#64748B]">{bm.unit}</span>
+                    <td className="text-xs text-slate-600 leading-relaxed font-normal">
+                      {b.notes || (isWarning ? 'Requires clinical review with physician.' : 'Optimal range.')}
                     </td>
-
-                    <td className="text-[#64748B] font-mono text-xs font-medium">
-                      {bm.refRange} {bm.unit}
-                    </td>
-
-                    <td>
-                      {isHigh && (
-                        <span className="px-3 py-1 rounded-full bg-[#FEE2E2] text-[#DC2626] text-xs font-bold border border-[#FCA5A5] inline-flex items-center gap-1">
-                          <AlertTriangle className="w-3 h-3" /> High
-                        </span>
-                      )}
-                      {isLow && !isHigh && (
-                        <span className="px-3 py-1 rounded-full bg-[#FEF3C7] text-[#B45309] text-xs font-bold border border-[#FDE68A] inline-flex items-center gap-1">
-                          <AlertTriangle className="w-3 h-3" /> {bm.status}
-                        </span>
-                      )}
-                      {isNormal && (
-                        <span className="px-3 py-1 rounded-full bg-[#DCFCE7] text-[#16A34A] text-xs font-bold border border-[#BBF7D0] inline-flex items-center gap-1">
-                          <CheckCircle2 className="w-3 h-3" /> {bm.status}
-                        </span>
-                      )}
-                    </td>
-
-                    <td className="text-right">
-                      {bm.trend === 'up' ? (
-                        <span className="text-[#D97706] font-bold inline-flex items-center gap-1 text-xs">
-                          <TrendingUp className="w-3.5 h-3.5 text-[#D97706]" /> High
-                        </span>
-                      ) : bm.trend === 'down' ? (
-                        <span className="text-[#11476C] font-bold inline-flex items-center gap-1 text-xs">
-                          <TrendingDown className="w-3.5 h-3.5 text-[#77CAF3]" /> Low
-                        </span>
-                      ) : (
-                        <span className="text-[#16A34A] text-xs font-bold inline-flex items-center gap-1">
-                          <CheckCircle2 className="w-3 h-3 text-[#16A34A]" /> Stable
-                        </span>
-                      )}
-                    </td>
-
                   </tr>
                 );
               })}
@@ -322,77 +236,67 @@ export const AIAnalysisPage = () => {
         </div>
       </Card>
 
-      {/* AI Clinical Recommendations Cards */}
-      <Card className="p-7 bg-[#FFFFFF] border border-[#E2E8F0] rounded-2xl shadow-md shadow-slate-200/30 space-y-5">
-        
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E2E8F0] pb-4">
-          <div>
-            <h2 className="text-lg font-bold text-[#11476C]">AI Actionable Clinical Recommendations</h2>
-            <p className="text-xs font-medium text-[#64748B]">Personalized advice based on your extracted lab parameters</p>
-          </div>
-
-          <div className="flex gap-2 flex-wrap">
-            <button
-              onClick={() => setActiveTab('lifestyle')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                activeTab === 'lifestyle' 
-                  ? 'bg-[#11476C] text-white shadow-2xs' 
-                  : 'bg-[#F8FAFC] text-[#475569] border border-[#E2E8F0] hover:bg-[#F1F5F9]'
-              }`}
-            >
-              🥗 Dietary & Lifestyle
-            </button>
-
-            <button
-              onClick={() => setActiveTab('medical')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                activeTab === 'medical' 
-                  ? 'bg-[#11476C] text-white shadow-2xs' 
-                  : 'bg-[#F8FAFC] text-[#475569] border border-[#E2E8F0] hover:bg-[#F1F5F9]'
-              }`}
-            >
-              🩺 Clinical Follow-Up
-            </button>
-
-            <button
-              onClick={() => setActiveTab('doctor')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                activeTab === 'doctor' 
-                  ? 'bg-[#11476C] text-white shadow-2xs' 
-                  : 'bg-[#F8FAFC] text-[#475569] border border-[#E2E8F0] hover:bg-[#F1F5F9]'
-              }`}
-            >
-              💬 Questions for Doctor
-            </button>
-          </div>
+      {/* 3 Clinical Recommendation Tabs */}
+      <Card className="p-7 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-6">
+        <div className="border-b border-slate-200 pb-3 flex gap-6 text-sm font-bold text-slate-600 overflow-x-auto">
+          <button
+            onClick={() => setActiveTab('summary')}
+            className={`pb-3 border-b-2 transition-colors cursor-pointer whitespace-nowrap ${
+              activeTab === 'summary' ? 'border-[#0F172A] text-[#0F172A]' : 'border-transparent hover:text-slate-900'
+            }`}
+          >
+            Dietary Guidance
+          </button>
+          <button
+            onClick={() => setActiveTab('lifestyle')}
+            className={`pb-3 border-b-2 transition-colors cursor-pointer whitespace-nowrap ${
+              activeTab === 'lifestyle' ? 'border-[#0F172A] text-[#0F172A]' : 'border-transparent hover:text-slate-900'
+            }`}
+          >
+            Lifestyle & Exercise
+          </button>
+          <button
+            onClick={() => setActiveTab('questions')}
+            className={`pb-3 border-b-2 transition-colors cursor-pointer whitespace-nowrap ${
+              activeTab === 'questions' ? 'border-[#0F172A] text-[#0F172A]' : 'border-transparent hover:text-slate-900'
+            }`}
+          >
+            Questions for Your Doctor
+          </button>
         </div>
 
-        <div className="space-y-3">
-          {activeTab === 'lifestyle' && report.recommendations.lifestyle.map((item, idx) => (
-            <div key={idx} className="p-4 rounded-xl bg-[#F0F9FF]/80 border border-[#77CAF3]/30 text-xs font-semibold text-[#11476C] flex items-start gap-3 shadow-2xs">
-              <Utensils className="w-4.5 h-4.5 text-[#11476C] shrink-0 mt-0.5" />
-              <span className="leading-relaxed">{item}</span>
-            </div>
-          ))}
+        {activeTab === 'summary' && (
+          <div className="space-y-3 text-xs font-normal text-slate-600 leading-relaxed">
+            <h4 className="font-bold text-sm text-[#0F172A]">Recommended Dietary Adjustments:</h4>
+            <ul className="list-disc pl-5 space-y-2">
+              <li>Increase soluble fiber intake (oats, legumes, leafy greens) to help manage cholesterol levels.</li>
+              <li>Reduce saturated fats and processed sodium intake.</li>
+              <li>Maintain regular hydration with 2.5 to 3 liters of water daily.</li>
+            </ul>
+          </div>
+        )}
 
-          {activeTab === 'medical' && report.recommendations.medical.map((item, idx) => (
-            <div key={idx} className="p-4 rounded-xl bg-[#F0FDF4] border border-[#BBF7D0] text-xs font-semibold text-[#166534] flex items-start gap-3 shadow-2xs">
-              <Stethoscope className="w-4.5 h-4.5 text-[#16A34A] shrink-0 mt-0.5" />
-              <span className="leading-relaxed">{item}</span>
-            </div>
-          ))}
+        {activeTab === 'lifestyle' && (
+          <div className="space-y-3 text-xs font-normal text-slate-600 leading-relaxed">
+            <h4 className="font-bold text-sm text-[#0F172A]">Recommended Lifestyle Modifications:</h4>
+            <ul className="list-disc pl-5 space-y-2">
+              <li>Engage in 30 minutes of moderate aerobic exercise (brisk walking, swimming, cycling) 5 days per week.</li>
+              <li>Ensure 7-8 hours of restful sleep daily for metabolic recovery.</li>
+              <li>Schedule a routine follow-up blood panel in 60-90 days to track biomarker trends.</li>
+            </ul>
+          </div>
+        )}
 
-          {activeTab === 'doctor' && (report.recommendations.questionsForDoctor || [
-            "Should I consider low-dose iron supplementation for mild anemia?",
-            "Is statin therapy warranted for LDL levels, or can we attempt lifestyle modification for 60 days?"
-          ]).map((item, idx) => (
-            <div key={idx} className="p-4 rounded-xl bg-[#FFFBEB] border border-[#FDE68A] text-xs font-semibold text-[#B45309] flex items-start gap-3 shadow-2xs">
-              <HelpCircle className="w-4.5 h-4.5 text-[#D97706] shrink-0 mt-0.5" />
-              <span className="leading-relaxed">{item}</span>
-            </div>
-          ))}
-        </div>
-
+        {activeTab === 'questions' && (
+          <div className="space-y-3 text-xs font-normal text-slate-600 leading-relaxed">
+            <h4 className="font-bold text-sm text-[#0F172A]">Key Questions to Ask During Your Visit:</h4>
+            <ul className="list-disc pl-5 space-y-2">
+              <li>"Are my current lipid levels concerning enough to warrant therapeutic intervention?"</li>
+              <li>"Should I schedule a re-test in 8 weeks to check if dietary changes improve my levels?"</li>
+              <li>"Do any of these test findings interact with my current prescription medications?"</li>
+            </ul>
+          </div>
+        )}
       </Card>
 
     </div>

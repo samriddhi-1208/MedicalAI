@@ -1,48 +1,142 @@
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Shield, ArrowRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Shield, ArrowRight, Menu, X, Activity } from 'lucide-react';
 
 export const Navbar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 15);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
-    <header className="bg-[#FFFFFF] border-b border-[#E2E8F0] sticky top-0 z-40">
+    <header className={`sticky top-0 z-50 transition-all duration-200 ${
+      scrolled 
+        ? 'bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs' 
+        : 'bg-white border-b border-slate-100'
+    }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         
         {/* Brand Logo */}
-        <Link to="/" className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-lg bg-[#11476C] flex items-center justify-center text-white font-bold shadow-sm">
-            <Shield className="w-5 h-5 text-[#77CAF3]" />
+        <Link to="/" className="flex items-center gap-3 group">
+          <div className="w-9 h-9 rounded-xl bg-[#0F172A] flex items-center justify-center text-white font-bold shadow-xs group-hover:bg-[#1E293B] transition-colors">
+            <Activity className="w-5 h-5 text-[#0D9488]" />
           </div>
           <div className="flex flex-col">
-            <span className="font-extrabold text-lg text-[#11476C] tracking-tight leading-none font-heading">
-              MedGuardian <span className="text-[#77CAF3]">AI</span>
+            <span className="font-extrabold text-lg text-[#0F172A] tracking-tight leading-none">
+              Medical<span className="text-[#0D9488]">AI</span>
             </span>
-            <span className="text-[10px] text-[#475569] font-medium">Clinical Patient Portal</span>
+            <span className="text-[10px] text-slate-500 font-medium tracking-wide">Clinical Intelligence</span>
           </div>
         </Link>
 
-        {/* Navigation Links */}
-        <nav className="hidden md:flex items-center gap-6 text-sm font-semibold text-[#11476C]">
-          <a href="#features" className="hover:text-[#77CAF3] transition-colors">Services</a>
-          <a href="#how-it-works" className="hover:text-[#77CAF3] transition-colors">How it Works</a>
-          <a href="#faq" className="hover:text-[#77CAF3] transition-colors">FAQ & Safety</a>
+        {/* Desktop Navigation Links */}
+        <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-700">
+          <Link to="/" className="hover:text-[#0D9488] transition-colors">
+            Home
+          </Link>
+          <a href="#features" className="hover:text-[#0D9488] transition-colors">
+            Services & Features
+          </a>
+          <a href="#how-it-works" className="hover:text-[#0D9488] transition-colors">
+            How It Works
+          </a>
+          <a href="#faq" className="hover:text-[#0D9488] transition-colors">
+            FAQ
+          </a>
         </nav>
 
-        {/* Action Buttons */}
-        <div className="flex items-center gap-3">
-          <Link to="/login" className="text-sm font-semibold text-[#11476C] hover:text-[#77CAF3] px-3 py-2">
+        {/* Desktop Action CTAs */}
+        <div className="hidden md:flex items-center gap-3">
+          <Link 
+            to="/login" 
+            className="text-sm font-semibold text-slate-700 hover:text-[#0F172A] px-3 py-2 rounded-lg hover:bg-slate-100 transition-colors"
+          >
             Sign In
           </Link>
+
           <button
             onClick={() => navigate('/app/dashboard')}
-            className="med-btn med-btn-primary"
+            className="med-btn med-btn-primary py-2 px-4.5 text-xs sm:text-sm font-semibold rounded-xl"
           >
-            <span>Patient Dashboard</span> <ArrowRight className="w-4 h-4 text-[#77CAF3]" />
+            <span>Patient Dashboard</span> 
+            <ArrowRight className="w-4 h-4 text-[#0D9488]" />
+          </button>
+        </div>
+
+        {/* Mobile Hamburger Button */}
+        <div className="flex md:hidden items-center gap-2">
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="p-2 rounded-lg text-slate-700 hover:bg-slate-100 transition-colors"
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
 
       </div>
+
+      {/* Mobile Navigation Drawer */}
+      {mobileMenuOpen && (
+        <div className="md:hidden bg-white border-b border-slate-200 px-4 pt-3 pb-6 space-y-3 font-sans text-sm animate-in fade-in slide-in-from-top-2 duration-150">
+          <Link 
+            to="/" 
+            onClick={() => setMobileMenuOpen(false)}
+            className="block px-3 py-2 font-semibold text-slate-800 hover:bg-slate-50 rounded-lg"
+          >
+            Home
+          </Link>
+          <a 
+            href="#features" 
+            onClick={() => setMobileMenuOpen(false)}
+            className="block px-3 py-2 font-semibold text-slate-800 hover:bg-slate-50 rounded-lg"
+          >
+            Services & Features
+          </a>
+          <a 
+            href="#how-it-works" 
+            onClick={() => setMobileMenuOpen(false)}
+            className="block px-3 py-2 font-semibold text-slate-800 hover:bg-slate-50 rounded-lg"
+          >
+            How It Works
+          </a>
+          <a 
+            href="#faq" 
+            onClick={() => setMobileMenuOpen(false)}
+            className="block px-3 py-2 font-semibold text-slate-800 hover:bg-slate-50 rounded-lg"
+          >
+            FAQ
+          </a>
+
+          <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">
+            <Link 
+              to="/login" 
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full text-center py-2.5 font-semibold text-slate-800 border border-slate-200 rounded-xl"
+            >
+              Sign In
+            </Link>
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                navigate('/app/dashboard');
+              }}
+              className="w-full py-2.5 font-semibold text-white bg-[#0F172A] rounded-xl flex items-center justify-center gap-2"
+            >
+              <span>Patient Dashboard</span>
+              <ArrowRight className="w-4 h-4 text-[#0D9488]" />
+            </button>
+          </div>
+        </div>
+      )}
     </header>
   );
 };

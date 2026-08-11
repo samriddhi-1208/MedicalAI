@@ -11,18 +11,18 @@ export const Button = ({
   disabled = false,
   ...props
 }) => {
-  const base = "med-btn";
+  const base = "med-btn cursor-pointer";
   
   const variants = {
     primary: "med-btn-primary",
     secondary: "med-btn-secondary",
-    skyblue: "med-btn-skyblue",
-    teal: "med-btn-skyblue",
-    emerald: "med-btn-skyblue",
+    teal: "med-btn-teal",
+    skyblue: "med-btn-teal",
+    emerald: "med-btn-teal",
     danger: "med-btn-sos",
     sos: "med-btn-sos",
     outline: "med-btn-secondary",
-    ghost: "bg-transparent text-[#11476C] hover:bg-[#F8FAFC]",
+    ghost: "bg-transparent text-slate-700 hover:bg-slate-100",
     glass: "med-btn-secondary"
   };
 

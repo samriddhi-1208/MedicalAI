@@ -6,27 +6,33 @@
 @theme {
   --font-sans: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 
-  --color-navy: #11476C;
-  --color-sky-blue: #77CAF3;
-  --color-peach: #FAD6A5;
-  --color-pink: #F6B3C4;
-  --color-lavender: #BBAEE3;
+  --color-navy: #0F172A;
+  --color-navy-dark: #0A2540;
+  --color-navy-muted: #1E293B;
+  
+  --color-teal: #0D9488;
+  --color-teal-dark: #0F766E;
+  --color-teal-light: #CCFBF1;
+  --color-teal-subtle: #F0FDF4;
 
-  --color-primary: #11476C;
-  --color-primary-hover: #0d3856;
-  --color-primary-light: #F0F9FF;
+  --color-blue-muted: #2563EB;
+  --color-blue-soft: #EFF6FF;
+
+  --color-primary: #0F172A;
+  --color-primary-hover: #1E293B;
+  --color-primary-light: #F8FAFC;
 
   --color-secondary: #0D9488;
   --color-secondary-light: #CCFBF1;
 
-  --color-status-normal: #16A34A;
-  --color-status-normalBg: #DCFCE7;
+  --color-status-normal: #059669;
+  --color-status-normalBg: #D1FAE5;
   --color-status-warning: #D97706;
   --color-status-warningBg: #FEF3C7;
   --color-status-critical: #DC2626;
   --color-status-criticalBg: #FEE2E2;
 
-  --color-sos: #EF4444;
+  --color-sos: #DC2626;
   --color-sos-glow: #FCA5A5;
 
   --color-neutral-text: #0F172A;
@@ -37,24 +43,23 @@
 }
 
 :root {
-  --navy: #11476C;
-  --sky-blue: #77CAF3;
-  --peach: #FAD6A5;
-  --pink: #F6B3C4;
-  --lavender: #BBAEE3;
+  --navy: #0F172A;
+  --navy-dark: #0A2540;
+  --teal: #0D9488;
+  --teal-light: #CCFBF1;
 
-  --primary-blue: #11476C;
-  --primary-hover: #0d3856;
-  --primary-light: #F0F9FF;
+  --primary-blue: #0F172A;
+  --primary-hover: #1E293B;
+  --primary-light: #F8FAFC;
 
-  --status-normal: #16A34A;
-  --status-normalBg: #DCFCE7;
+  --status-normal: #059669;
+  --status-normalBg: #D1FAE5;
   --status-warning: #D97706;
   --status-warningBg: #FEF3C7;
   --status-critical: #DC2626;
   --status-criticalBg: #FEE2E2;
 
-  --sos-red: #EF4444;
+  --sos-red: #DC2626;
   --neutral-text: #0F172A;
   --neutral-subtext: #475569;
   --neutral-border: #E2E8F0;
@@ -65,6 +70,10 @@
 /* Global Reset & Layout Safety */
 *, *::before, *::after {
   box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 html, body {
@@ -94,22 +103,35 @@ html, body {
   background: #CBD5E1;
   border-radius: 9999px;
 }
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
 
 /* SOS Pulsing Animation */
 @keyframes sos-pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6);
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.5);
   }
   70% {
-    box-shadow: 0 0 0 12px rgba(239, 68, 68, 0);
+    box-shadow: 0 0 0 10px rgba(220, 38, 38, 0);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
   }
 }
 
 .animate-sos-pulse {
   animation: sos-pulse 2s infinite;
+}
+
+/* Micro-Interactions & Hover Lift */
+.card-hover-lift {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+}
+.card-hover-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px -4px rgba(15, 23, 42, 0.08);
+  border-color: #CBD5E1;
 }
 
 /* Professional Healthcare Typography Hierarchy */
@@ -180,13 +202,13 @@ label, .nav-label {
   line-height: 1.5;
 }
 
-/* Card System with 24-32px Padding & Modern Soft Shadow */
+/* Card System with Clean Padding & Modern Soft Shadow */
 .med-card {
   background-color: var(--neutral-surface);
   border: 1px solid var(--neutral-border);
   border-radius: 16px;
   padding: 24px;
-  box-shadow: 0 4px 20px -2px rgba(17, 71, 108, 0.05);
+  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.05), 0 1px 2px -1px rgba(15, 23, 42, 0.05);
 }
 @media (min-width: 640px) {
   .med-card {
@@ -218,22 +240,31 @@ label, .nav-label {
 }
 
 .med-btn-primary {
-  background-color: var(--navy);
+  background-color: #0F172A;
   color: #FFFFFF;
 }
 .med-btn-primary:hover {
-  background-color: var(--primary-hover);
-  box-shadow: 0 4px 12px rgba(17, 71, 108, 0.25);
+  background-color: #1E293B;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.2);
 }
 
 .med-btn-secondary {
   background-color: var(--neutral-surface);
-  color: var(--navy);
+  color: #0F172A;
   border-color: var(--neutral-border);
 }
 .med-btn-secondary:hover {
   background-color: #F8FAFC;
   border-color: #CBD5E1;
+}
+
+.med-btn-teal {
+  background-color: #0D9488;
+  color: #FFFFFF;
+}
+.med-btn-teal:hover {
+  background-color: #0F766E;
+  box-shadow: 0 4px 14px rgba(13, 148, 136, 0.25);
 }
 
 .med-btn-sos {
@@ -243,7 +274,7 @@ label, .nav-label {
   animation: sos-pulse 2s infinite;
 }
 .med-btn-sos:hover {
-  background-color: #DC2626;
+  background-color: #B91C1C;
 }
 
 .med-badge {
@@ -268,8 +299,8 @@ label, .nav-label {
   color: var(--status-critical);
 }
 .med-badge-info {
-  background-color: var(--primary-light);
-  color: var(--navy);
+  background-color: #EFF6FF;
+  color: #1D4ED8;
 }
 
 /* Clean Data Tables */
@@ -348,8 +379,8 @@ input[type="number"]:focus,
 select:focus,
 textarea:focus {
   outline: none;
-  border-color: var(--navy);
-  box-shadow: 0 0 0 3.5px rgba(119, 202, 243, 0.4);
+  border-color: #0F172A;
+  box-shadow: 0 0 0 3.5px rgba(13, 148, 136, 0.2);
 }
 
 /* Chrome & Browser Autofill Override */

@@ -31,11 +31,12 @@ export const MedicineReminderPage = () => {
     instructions: 'Take after meals with water'
   });
 
-  const takenCount = medicines.filter(m => m.taken).length;
-  const totalCount = medicines.length;
+  const safeMedicines = Array.isArray(medicines) ? medicines : [];
+  const takenCount = safeMedicines.filter(m => m.taken).length;
+  const totalCount = safeMedicines.length;
   const adherencePercent = totalCount > 0 ? Math.round((takenCount / totalCount) * 100) : 0;
 
-  const lowRefills = medicines.filter(m => m.pillsRemaining <= 5);
+  const lowRefills = safeMedicines.filter(m => m.pillsRemaining <= 5);
 
   const handleAddSubmit = (e) => {
     e.preventDefault();
@@ -56,56 +57,57 @@ export const MedicineReminderPage = () => {
   };
 
   return (
-    <div className="space-y-6 pb-10">
+    <div className="space-y-6 pb-10 font-sans antialiased">
       
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-extrabold text-slate-900">Medication Reminders & Adherence</h2>
-          <p className="text-xs text-slate-500 mt-0.5">Manage your daily prescription schedule & refill warnings</p>
+          <h1 className="text-2.5xl font-extrabold text-[#0F172A] tracking-tight">Medication Schedule & Adherence</h1>
+          <p className="text-xs font-normal text-slate-500 mt-0.5">Track daily doses, logged prescriptions, and pharmacy refill alerts</p>
         </div>
 
         <Button
           variant="primary"
           size="md"
           icon={Plus}
+          className="bg-[#0F172A] hover:bg-[#1E293B] text-xs font-semibold rounded-xl cursor-pointer"
           onClick={() => setIsAddModalOpen(true)}
         >
           Add New Medication
         </Button>
       </div>
 
-      {/* Adherence Card */}
+      {/* Adherence Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         
-        <Card className="p-5 bg-sky-50 border-sky-200 flex items-center justify-between">
+        <Card className="p-5 bg-slate-900 text-white border border-slate-800 flex items-center justify-between rounded-2xl shadow-xs">
           <div>
-            <p className="text-xs font-semibold text-slate-600 uppercase">Today's Adherence Rate</p>
-            <p className="text-3xl font-extrabold text-sky-900 mt-1">{adherencePercent}%</p>
-            <p className="text-xs text-sky-700 font-medium mt-1">{takenCount} of {totalCount} doses logged</p>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Today's Adherence Rate</p>
+            <p className="text-3.5xl font-extrabold text-white mt-1">{adherencePercent}%</p>
+            <p className="text-xs text-slate-300 font-medium mt-1">{takenCount} of {totalCount} doses logged</p>
           </div>
-          <div className="w-12 h-12 rounded-full bg-white text-sky-600 flex items-center justify-center font-bold text-lg border border-sky-200">
+          <div className="w-12 h-12 rounded-2xl bg-white/10 text-emerald-400 flex items-center justify-center font-bold text-lg border border-white/10">
             ✓
           </div>
         </Card>
 
-        <Card className="p-5 md:col-span-2 bg-white border border-slate-200 flex flex-col justify-between">
+        <Card className="p-5 md:col-span-2 bg-white border border-slate-200 flex flex-col justify-between rounded-2xl shadow-xs">
           <div className="flex justify-between items-center">
-            <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5 uppercase">
-              <AlertCircle className="w-4 h-4 text-amber-600" /> Refill Alerts ({lowRefills.length})
+            <span className="text-xs font-bold text-[#0F172A] flex items-center gap-1.5 uppercase tracking-wider">
+              <AlertCircle className="w-4 h-4 text-amber-700" /> Pharmacy Refill Warnings ({lowRefills.length})
             </span>
-            <Badge variant="warning">Pharmacy Alert</Badge>
+            <Badge variant="warning">Low Supply</Badge>
           </div>
 
           {lowRefills.length > 0 ? (
-            <div className="space-y-1 mt-2">
+            <div className="space-y-1 mt-2 text-xs">
               {lowRefills.map(m => (
-                <p key={m.id} className="text-xs text-slate-700">
-                  ⚠️ <strong className="text-slate-900">{m.name}</strong>: Only <span className="text-amber-700 font-bold">{m.pillsRemaining} tablets</span> left in bottle.
+                <p key={m.id} className="text-slate-700">
+                  ⚠️ <strong className="text-[#0F172A]">{m.name}</strong>: Only <span className="text-amber-800 font-bold">{m.pillsRemaining} tablets</span> remaining in bottle.
                 </p>
               ))}
             </div>
           ) : (
-            <p className="text-xs text-slate-500 mt-2">All prescribed medicine supplies are currently sufficient for over 7 days.</p>
+            <p className="text-xs text-slate-500 font-medium mt-2">All prescribed medication supplies are currently sufficient for over 7 days.</p>
           )}
         </Card>
 
@@ -113,41 +115,41 @@ export const MedicineReminderPage = () => {
 
       {/* Medicines List */}
       <div className="space-y-4">
-        <h3 className="text-base font-bold text-slate-900">Configured Medication Schedule</h3>
+        <h3 className="text-base font-extrabold text-[#0F172A]">Prescription Schedule</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {medicines.map((med) => (
-            <Card key={med.id} className="p-5 space-y-3 bg-white">
+          {safeMedicines.map((med) => (
+            <Card key={med.id} className="p-5 space-y-3 bg-white border border-slate-200 rounded-2xl shadow-xs">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center shrink-0 border border-teal-200">
-                    <Pill className="w-4 h-4" />
+                  <div className="w-9 h-9 rounded-xl bg-slate-100 text-[#0F172A] flex items-center justify-center shrink-0 border border-slate-200">
+                    <Pill className="w-4.5 h-4.5 text-[#0D9488]" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-slate-900">{med.name}</h4>
-                    <p className="text-xs text-slate-500">{med.dosage} • {med.form}</p>
+                    <h4 className="text-sm font-bold text-[#0F172A]">{med.name}</h4>
+                    <p className="text-xs text-slate-500 font-medium">{med.dosage} • {med.form}</p>
                   </div>
                 </div>
 
                 <button
                   onClick={() => deleteMedicine(med.id)}
-                  className="p-1 text-slate-400 hover:text-red-600 rounded"
+                  className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
                   title="Remove medicine"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
 
-              <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-700 space-y-1">
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-700 space-y-1">
                 <p className="flex justify-between">
                   <span className="text-slate-500">Scheduled Time:</span>
-                  <strong className="text-sky-800 flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {med.time} ({med.timeSlot})</strong>
+                  <strong className="text-[#0F172A] flex items-center gap-1 font-bold"><Clock className="w-3.5 h-3.5 text-[#0D9488]" /> {med.time} ({med.timeSlot})</strong>
                 </p>
                 <p className="flex justify-between">
                   <span className="text-slate-500">Pills Remaining:</span>
-                  <strong className={med.pillsRemaining <= 5 ? 'text-amber-700' : 'text-slate-800'}>{med.pillsRemaining} of {med.totalPills}</strong>
+                  <strong className={med.pillsRemaining <= 5 ? 'text-amber-800 font-bold' : 'text-slate-800 font-bold'}>{med.pillsRemaining} of {med.totalPills}</strong>
                 </p>
-                <p className="text-[11px] text-slate-500 pt-1 border-t border-slate-200">💡 {med.instructions}</p>
+                <p className="text-[11px] text-slate-500 pt-1 border-t border-slate-200 font-medium">💡 {med.instructions}</p>
               </div>
 
               <div className="flex justify-between items-center pt-1">
@@ -157,6 +159,9 @@ export const MedicineReminderPage = () => {
                   variant={med.taken ? 'emerald' : 'primary'}
                   size="sm"
                   icon={med.taken ? Check : Pill}
+                  className={`text-xs font-semibold rounded-xl cursor-pointer ${
+                    med.taken ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-[#0F172A] hover:bg-[#1E293B] text-white'
+                  }`}
                   onClick={() => toggleMedicineTaken(med.id)}
                 >
                   {med.taken ? 'Logged ✓' : 'Mark Taken'}
@@ -173,9 +178,9 @@ export const MedicineReminderPage = () => {
         onClose={() => setIsAddModalOpen(false)}
         title="Add Prescription Medication"
       >
-        <form onSubmit={handleAddSubmit} className="space-y-3 text-xs">
+        <form onSubmit={handleAddSubmit} className="space-y-3 text-xs font-sans">
           <div className="med-form-group">
-            <label>Medication Name</label>
+            <label className="block font-bold text-[#0F172A] mb-1">Medication Name</label>
             <input
               type="text"
               required
@@ -188,7 +193,7 @@ export const MedicineReminderPage = () => {
 
           <div className="grid grid-cols-2 gap-3">
             <div className="med-form-group">
-              <label>Dosage</label>
+              <label className="block font-bold text-[#0F172A] mb-1">Dosage</label>
               <input
                 type="text"
                 required
@@ -200,7 +205,7 @@ export const MedicineReminderPage = () => {
             </div>
 
             <div className="med-form-group">
-              <label>Time Slot</label>
+              <label className="block font-bold text-[#0F172A] mb-1">Time Slot</label>
               <select
                 value={formData.timeSlot}
                 onChange={(e) => setFormData({ ...formData, timeSlot: e.target.value })}
@@ -215,7 +220,7 @@ export const MedicineReminderPage = () => {
           </div>
 
           <div className="med-form-group">
-            <label>Instructions</label>
+            <label className="block font-bold text-[#0F172A] mb-1">Instructions</label>
             <input
               type="text"
               value={formData.instructions}
@@ -229,7 +234,7 @@ export const MedicineReminderPage = () => {
             <Button variant="secondary" size="sm" type="button" onClick={() => setIsAddModalOpen(false)}>
               Cancel
             </Button>
-            <Button variant="primary" size="sm" type="submit">
+            <Button variant="primary" size="sm" type="submit" className="bg-[#0F172A] hover:bg-[#1E293B]">
               Save Schedule
             </Button>
           </div>
