@@ -7,6 +7,7 @@ import { HealthDataProvider, useHealthData } from './context/HealthDataContext';
 import { LandingPage } from './pages/LandingPage';
 import { LoginPage } from './pages/LoginPage';
 import { SignupPage } from './pages/SignupPage';
+import { OnboardingPage } from './pages/OnboardingPage';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 import { AppLayout } from './components/layout/AppLayout';
 
@@ -19,13 +20,13 @@ import { EmergencySOSPage } from './pages/EmergencySOSPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 
-// Protected Route Wrapper for Authenticated Users
+// Protected Route Guard for Authenticated & Profile-Completed Users
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, loadingAuth } = useHealthData();
+  const { isAuthenticated, loadingAuth, userProfile } = useHealthData();
 
   if (loadingAuth) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center font-sans">
         <div className="flex flex-col items-center gap-3">
           <div className="w-10 h-10 border-4 border-[#0F172A] border-t-transparent rounded-full animate-spin" />
           <p className="text-xs font-bold text-slate-600">Verifying session...</p>
@@ -36,6 +37,38 @@ const ProtectedRoute = ({ children }) => {
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+
+  // Force onboarding if profile is incomplete
+  if (userProfile && !userProfile.profileCompleted) {
+    return <Navigate to="/complete-profile" replace />;
+  }
+
+  return children;
+};
+
+// Route Guard for Onboarding (/complete-profile)
+const OnboardingRoute = ({ children }) => {
+  const { isAuthenticated, loadingAuth, userProfile } = useHealthData();
+
+  if (loadingAuth) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center font-sans">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-4 border-[#0F172A] border-t-transparent rounded-full animate-spin" />
+          <p className="text-xs font-bold text-slate-600">Verifying session...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // If user has already completed onboarding, send to dashboard
+  if (userProfile && userProfile.profileCompleted) {
+    return <Navigate to="/app/dashboard" replace />;
   }
 
   return children;
@@ -70,6 +103,13 @@ export default function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+
+            {/* Onboarding Health Profile Setup Route */}
+            <Route path="/complete-profile" element={
+              <OnboardingRoute>
+                <OnboardingPage />
+              </OnboardingRoute>
+            } />
 
             {/* Authenticated Protected Suite */}
             <Route path="/app" element={

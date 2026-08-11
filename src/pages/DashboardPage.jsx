@@ -16,11 +16,12 @@ import {
   MicOff,
   FileCheck,
   ShieldAlert,
-  Clock,
   HeartPulse,
   Activity,
-  ArrowRight,
-  TrendingUp
+  MapPin,
+  Calendar,
+  User,
+  Ruler
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
@@ -36,13 +37,11 @@ export const DashboardPage = () => {
     reports, 
     medicines, 
     toggleMedicineTaken, 
-    loadDemoData,
-    clearAllData,
     language
   } = useHealthData();
 
   const [isEditingName, setIsEditingName] = useState(false);
-  const [tempName, setTempName] = useState(userProfile.name);
+  const [tempName, setTempName] = useState(userProfile?.name || 'Patient');
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isListening, setIsListening] = useState(false);
 
@@ -100,16 +99,16 @@ export const DashboardPage = () => {
       let summaryText = "";
       if (language === 'HI') {
         summaryText = latestReport
-          ? `नमस्ते ${userProfile.name}. आपकी हालिया मेडिकल रिपोर्ट का विश्लेषण कर लिया गया है।`
-          : `नमस्ते ${userProfile.name}. मेडिकल एआई में आपका स्वागत है। अपनी लैब रिपोर्ट अपलोड करें।`;
+          ? `नमस्ते ${userProfile?.name}. आपकी हालिया मेडिकल रिपोर्ट का विश्लेषण कर लिया गया है।`
+          : `नमस्ते ${userProfile?.name}. मेडिकल एआई में आपका स्वागत है। अपनी लैब रिपोर्ट अपलोड करें।`;
       } else if (language === 'GU') {
         summaryText = latestReport
-          ? `નમસ્તે ${userProfile.name}. તમારા તાજેતરના તબીબી અહેવાલનું પૃથ્થકરણ કરવામાં આવ્યું છે.`
-          : `નમસ્તે ${userProfile.name}. મેડિકલ એઆઈમાં આપનું સ્વાગત છે. તમારો લેબ રિપોર્ટ અપલોડ કરો.`;
+          ? `નમસ્તે ${userProfile?.name}. તમારા તાજેતરના તબીબી અહેવાલનું પૃથ્થકરણ કરવામાં આવ્યું છે.`
+          : `નમસ્તે ${userProfile?.name}. મેડિકલ એઆઈમાં આપનું સ્વાગત છે. તમારો લેબ રિપોર્ટ અપલોડ કરો.`;
       } else {
         summaryText = latestReport
-          ? `Namaste ${userProfile.name}. ${latestReport.aiSummary || `Your report ${latestReport.title} has been parsed with AI accuracy.`}`
-          : `Namaste ${userProfile.name}. Welcome to MedicalAI. Your personal health workspace is ready. Please upload your medical lab report to parse your biomarkers.`;
+          ? `Namaste ${userProfile?.name}. ${latestReport.aiSummary || `Your report ${latestReport.title} has been parsed with AI accuracy.`}`
+          : `Namaste ${userProfile?.name}. Welcome to MedicalAI. Your personal health workspace is ready. Please upload your medical lab report to parse your biomarkers.`;
       }
       
       const utterance = new SpeechSynthesisUtterance(summaryText);
@@ -173,7 +172,7 @@ export const DashboardPage = () => {
   };
 
   const shareOnWhatsApp = () => {
-    const text = encodeURIComponent(`🏥 MedicalAI Patient Workspace for ${userProfile.name}:\nStatus: Active\nReports Tracked: ${reports.length}\nManaged via MedicalAI Assistant.`);
+    const text = encodeURIComponent(`🏥 MedicalAI Patient Workspace for ${userProfile?.name || 'Patient'}:\nStatus: Active\nReports Tracked: ${reports.length}\nManaged via MedicalAI Assistant.`);
     window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
     toast.success("Opening WhatsApp...");
   };
@@ -204,18 +203,9 @@ export const DashboardPage = () => {
               </span>
             )}
             <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-800 bg-emerald-50 px-3.5 py-1 rounded-full border border-emerald-200">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Ayushman Bharat (PM-JAY) Empaneled
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Verified Health Profile
             </span>
           </div>
-
-          {reports.length > 0 && (
-            <button
-              onClick={clearAllData}
-              className="text-xs font-semibold text-slate-500 hover:text-rose-600 hover:underline cursor-pointer"
-            >
-              Reset Workspace
-            </button>
-          )}
         </div>
 
         {/* Title / Greeting */}
@@ -245,11 +235,11 @@ export const DashboardPage = () => {
           ) : (
             <div className="flex items-center gap-3 flex-wrap">
               <h1 className="text-2.5xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight leading-snug">
-                {getGreeting()}, {userProfile.name}
+                {getGreeting()}, {userProfile?.name}
               </h1>
               <button
                 onClick={() => {
-                  setTempName(userProfile.name);
+                  setTempName(userProfile?.name || '');
                   setIsEditingName(true);
                 }}
                 className="px-2.5 py-1 rounded-lg bg-slate-50 text-slate-700 hover:bg-slate-100 text-xs font-semibold transition-colors inline-flex items-center gap-1.5 border border-slate-200 cursor-pointer"
@@ -266,6 +256,37 @@ export const DashboardPage = () => {
               : `Welcome to your AI clinical portal. Upload your scanned medical report (PDF or Image) to parse your biomarkers automatically.`
             }
           </p>
+        </div>
+
+        {/* Personalized Health Profile Metadata Bar */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 text-xs">
+          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+            <span className="text-slate-500 font-medium flex items-center gap-1">
+              <Calendar className="w-3.5 h-3.5 text-[#0D9488]" /> Age:
+            </span>
+            <strong className="text-[#0F172A] font-bold text-sm">{userProfile?.age ? `${userProfile.age} yrs` : 'Not Set'}</strong>
+          </div>
+
+          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+            <span className="text-slate-500 font-medium flex items-center gap-1">
+              <User className="w-3.5 h-3.5 text-[#0D9488]" /> Gender:
+            </span>
+            <strong className="text-[#0F172A] font-bold text-sm">{userProfile?.gender || 'Not Set'}</strong>
+          </div>
+
+          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+            <span className="text-slate-500 font-medium flex items-center gap-1">
+              <Ruler className="w-3.5 h-3.5 text-[#0D9488]" /> Height:
+            </span>
+            <strong className="text-[#0F172A] font-bold text-sm">{userProfile?.height ? `${userProfile.height} ${userProfile.heightUnit || 'cm'}` : 'Not Set'}</strong>
+          </div>
+
+          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+            <span className="text-slate-500 font-medium flex items-center gap-1">
+              <MapPin className="w-3.5 h-3.5 text-[#0D9488]" /> Location:
+            </span>
+            <strong className="text-[#0F172A] font-bold text-sm truncate block">{userProfile?.city ? `${userProfile.city}, ${userProfile.country || 'India'}` : 'Not Set'}</strong>
+          </div>
         </div>
 
         {/* Feature Tools & Action Bar */}
@@ -319,25 +340,13 @@ export const DashboardPage = () => {
             >
               Upload Blood Report
             </Button>
-
-            {reports.length === 0 && (
-              <Button
-                variant="secondary"
-                size="md"
-                icon={Sparkles}
-                className="py-2.5 px-5 text-sm font-semibold rounded-xl bg-slate-50 text-slate-800 border-slate-200 hover:bg-slate-100 cursor-pointer"
-                onClick={loadDemoData}
-              >
-                Load Sample Preview
-              </Button>
-            )}
           </div>
 
         </div>
 
       </Card>
 
-      {/* Clean Empty State Card */}
+      {/* Clean Empty State Card for New Users */}
       {reports.length === 0 && (
         <Card className="p-10 text-center border-2 border-dashed border-slate-300 bg-white space-y-6 rounded-2xl shadow-xs">
           <div className="w-16 h-16 rounded-2xl bg-slate-50 text-[#0F172A] flex items-center justify-center mx-auto border border-slate-200 shadow-xs">
@@ -371,16 +380,6 @@ export const DashboardPage = () => {
               onClick={() => navigate('/app/upload')}
             >
               Upload Your First Report
-            </Button>
-
-            <Button
-              variant="secondary"
-              size="md"
-              icon={Sparkles}
-              className="py-3 px-6 text-sm font-semibold rounded-xl border-slate-200 hover:bg-slate-50 cursor-pointer"
-              onClick={loadDemoData}
-            >
-              Load Sample Demo Data
             </Button>
           </div>
         </Card>

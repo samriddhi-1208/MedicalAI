@@ -51,7 +51,8 @@ export const SignupPage = () => {
         confirmPassword
       });
 
-      navigate('/app/dashboard');
+      // Redirect new user to mandatory Health Profile Setup page
+      navigate('/complete-profile');
     } catch (err) {
       toast.error(err.message || "Failed to create account. Please try again.");
     } finally {
@@ -203,7 +204,7 @@ export const SignupPage = () => {
                 <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
               ) : (
                 <>
-                  <span>Create Account</span>
+                  <span>Create Account & Setup Profile</span>
                   <ArrowRight className="w-4 h-4 text-[#0D9488]" />
                 </>
               )}

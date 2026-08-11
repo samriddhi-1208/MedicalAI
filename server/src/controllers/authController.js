@@ -18,7 +18,7 @@ async function getUserFromReq(req) {
 
 exports.signup = async (req, res, next) => {
   try {
-    const { email, password, name, phone, birthDate, age, gender, bloodGroup, height, weight, physician } = req.body;
+    const { email, password, name } = req.body;
     
     if (!email || !password || !name) {
       return res.status(400).json({ error: "Name, email, and password are required." });
@@ -48,17 +48,10 @@ exports.signup = async (req, res, next) => {
       email: email.toLowerCase(),
       password_hash: passwordHash,
       full_name: name,
-      phone: phone || '',
-      birth_date: birthDate || '',
-      age: parseInt(age) || 20,
-      gender: gender || 'Female',
-      blood_group: bloodGroup || 'O+',
-      height: height ? (height.includes('cm') ? height : `${height} cm`) : '',
-      weight: weight ? (weight.includes('kg') ? weight : `${weight} kg`) : '',
-      primary_physician: physician || ''
+      profile_completed: false
     });
 
-    console.log(`[AUTH] Registered new user in MongoDB: ID ${newUser.id} (${newUser.email})`);
+    console.log(`[AUTH] Registered new user in MongoDB: ID ${newUser.id} (${newUser.email}) - profile_completed: false`);
 
     const token = jwt.sign(
       { id: newUser.id, email: newUser.email, name: newUser.full_name },
@@ -102,7 +95,7 @@ exports.login = async (req, res, next) => {
     const userObj = user.toObject();
     delete userObj.password_hash;
 
-    console.log(`[AUTH] User signed in: ID ${user.id} (${user.email})`);
+    console.log(`[AUTH] User signed in: ID ${user.id} (${user.email}) - profile_completed: ${user.profile_completed}`);
 
     res.json({ token, user: userObj });
   } catch (error) {
@@ -152,6 +145,8 @@ exports.updateProfile = async (req, res, next) => {
     const updated = await User.findByIdAndUpdate(user._id, req.body, { new: true });
     const userObj = updated.toObject();
     delete userObj.password_hash;
+    
+    console.log(`[AUTH] Profile updated for ID ${updated.id}: profile_completed = ${updated.profile_completed}`);
     res.json(userObj);
   } catch (error) {
     next(error);

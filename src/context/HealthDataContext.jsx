@@ -60,12 +60,20 @@ export const HealthDataProvider = ({ children }) => {
           name: profileData.full_name || profileData.name || 'Patient',
           email: profileData.email,
           phone: profileData.phone || '',
-          age: profileData.age || 20,
+          dateOfBirth: profileData.date_of_birth || '',
+          age: profileData.age || 0,
           gender: profileData.gender || 'Female',
-          bloodGroup: profileData.blood_group || 'O+',
           height: profileData.height || '',
+          heightUnit: profileData.height_unit || 'cm',
           weight: profileData.weight || '',
-          primaryPhysician: profileData.primary_physician || ''
+          weightUnit: profileData.weight_unit || 'kg',
+          bloodGroup: profileData.blood_group || 'Not Known',
+          city: profileData.city || '',
+          state: profileData.state || '',
+          country: profileData.country || 'India',
+          occupation: profileData.occupation || '',
+          primaryPhysician: profileData.primary_physician || '',
+          profileCompleted: profileData.profile_completed || false
         });
 
         // 2. Fetch authenticated user's reports ONLY
@@ -121,25 +129,35 @@ export const HealthDataProvider = ({ children }) => {
 
     localStorage.setItem('medguardian_token', data.token);
     setToken(data.token);
-    setUserProfile({
+    
+    const userObj = {
       id: data.user.id || data.user._id,
       name: data.user.full_name || email.split('@')[0],
       email: data.user.email,
       phone: data.user.phone || '',
-      age: data.user.age || 20,
+      dateOfBirth: data.user.date_of_birth || '',
+      age: data.user.age || 0,
       gender: data.user.gender || 'Female',
-      bloodGroup: data.user.blood_group || 'O+',
       height: data.user.height || '',
+      heightUnit: data.user.height_unit || 'cm',
       weight: data.user.weight || '',
-      primaryPhysician: data.user.primary_physician || ''
-    });
+      weightUnit: data.user.weight_unit || 'kg',
+      bloodGroup: data.user.blood_group || 'Not Known',
+      city: data.user.city || '',
+      state: data.user.state || '',
+      country: data.user.country || 'India',
+      occupation: data.user.occupation || '',
+      primaryPhysician: data.user.primary_physician || '',
+      profileCompleted: data.user.profile_completed || false
+    };
 
-    toast.success(`Welcome back, ${data.user.full_name || 'Patient'}!`);
-    return data.user;
+    setUserProfile(userObj);
+    toast.success(`Welcome back, ${userObj.name}!`);
+    return userObj;
   };
 
-  // Auth Action: Register Account
-  const signup = async ({ name, email, password, confirmPassword, phone, age, gender, bloodGroup, height, weight }) => {
+  // Auth Action: Register Account (profile_completed = false)
+  const signup = async ({ name, email, password, confirmPassword }) => {
     if (password !== confirmPassword) {
       throw new Error("Passwords do not match. Please re-enter your password.");
     }
@@ -147,7 +165,7 @@ export const HealthDataProvider = ({ children }) => {
     const res = await fetch(`${API_BASE}/auth/signup`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password, phone, age, gender, bloodGroup, height, weight })
+      body: JSON.stringify({ name, email, password })
     });
 
     const data = await res.json();
@@ -157,25 +175,93 @@ export const HealthDataProvider = ({ children }) => {
 
     localStorage.setItem('medguardian_token', data.token);
     setToken(data.token);
-    setUserProfile({
+    
+    const userObj = {
       id: data.user.id || data.user._id,
       name: data.user.full_name || name,
       email: data.user.email || email,
-      phone: data.user.phone || phone || '',
-      age: data.user.age || age || 20,
-      gender: data.user.gender || gender || 'Female',
-      bloodGroup: data.user.blood_group || bloodGroup || 'O+',
-      height: data.user.height || '',
-      weight: data.user.weight || '',
-      primaryPhysician: ''
-    });
+      profileCompleted: false
+    };
 
-    // Newly registered account starts 100% empty!
+    setUserProfile(userObj);
     setReports([]);
     setMedicines([]);
     setEmergencyContacts([]);
-    toast.success(`Account registered for ${name}! Welcome to MedicalAI.`);
-    return data.user;
+    toast.success(`Account created successfully! Please complete your health profile.`);
+    return userObj;
+  };
+
+  // Onboarding Action: Complete Health Profile
+  const completeOnboarding = async (profileData) => {
+    const payload = {
+      full_name: profileData.name,
+      date_of_birth: profileData.dateOfBirth,
+      age: profileData.age,
+      gender: profileData.gender,
+      height: profileData.height,
+      height_unit: profileData.heightUnit,
+      weight: profileData.weight,
+      weight_unit: profileData.weightUnit,
+      blood_group: profileData.bloodGroup,
+      city: profileData.city,
+      state: profileData.state,
+      country: profileData.country,
+      occupation: profileData.occupation,
+      profile_completed: true
+    };
+
+    try {
+      const res = await fetch(`${API_BASE}/auth/profile`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to update profile");
+      }
+
+      const updated = await res.json();
+      setUserProfile(prev => ({
+        ...prev,
+        name: updated.full_name || profileData.name,
+        dateOfBirth: updated.date_of_birth || profileData.dateOfBirth,
+        age: updated.age || profileData.age,
+        gender: updated.gender || profileData.gender,
+        height: updated.height || profileData.height,
+        heightUnit: updated.height_unit || profileData.heightUnit,
+        weight: updated.weight || profileData.weight,
+        weightUnit: updated.weight_unit || profileData.weightUnit,
+        bloodGroup: updated.blood_group || profileData.bloodGroup,
+        city: updated.city || profileData.city,
+        state: updated.state || profileData.state,
+        country: updated.country || profileData.country,
+        occupation: updated.occupation || profileData.occupation,
+        profileCompleted: true
+      }));
+
+      return updated;
+    } catch (err) {
+      console.log("Onboarding profile sync note:", err.message);
+      // Fallback local update
+      setUserProfile(prev => ({
+        ...prev,
+        name: profileData.name,
+        dateOfBirth: profileData.dateOfBirth,
+        age: profileData.age,
+        gender: profileData.gender,
+        height: profileData.height,
+        heightUnit: profileData.heightUnit,
+        weight: profileData.weight,
+        weightUnit: profileData.weightUnit,
+        bloodGroup: profileData.bloodGroup,
+        city: profileData.city,
+        state: profileData.state,
+        country: profileData.country,
+        occupation: profileData.occupation,
+        profileCompleted: true
+      }));
+    }
   };
 
   // Auth Action: Sign Out
@@ -331,6 +417,7 @@ export const HealthDataProvider = ({ children }) => {
       loadingAuth,
       login,
       signup,
+      completeOnboarding,
       logout,
       reports: Array.isArray(reports) ? reports : [],
       activeReportId,

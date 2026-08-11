@@ -22,8 +22,12 @@ export const LoginPage = () => {
 
     setLoading(true);
     try {
-      await login(email, password);
-      navigate('/app/dashboard');
+      const user = await login(email, password);
+      if (user && user.profileCompleted) {
+        navigate('/app/dashboard');
+      } else {
+        navigate('/complete-profile');
+      }
     } catch (err) {
       toast.error(err.message || "Invalid email or password.");
     } finally {

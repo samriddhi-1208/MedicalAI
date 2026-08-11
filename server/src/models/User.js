@@ -3,16 +3,23 @@ const mongoose = require('mongoose');
 const userSchema = new mongoose.Schema(
   {
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-    password_hash: { type: String, default: '$2a$10$w8T0F.82yB/wR3s8dG2u0eK0W.m9cR5H3uJ4kL.b1V2N3M4P5Q6R7' },
+    password_hash: { type: String, required: true },
     full_name: { type: String, required: true, default: 'Patient' },
     phone: { type: String, default: '' },
-    birth_date: { type: String, default: '' },
-    age: { type: Number, default: 20 },
+    date_of_birth: { type: String, default: '' },
+    age: { type: Number, default: 0 },
     gender: { type: String, default: 'Female' },
-    blood_group: { type: String, default: 'O+' },
     height: { type: String, default: '' },
+    height_unit: { type: String, default: 'cm' },
     weight: { type: String, default: '' },
-    primary_physician: { type: String, default: '' }
+    weight_unit: { type: String, default: 'kg' },
+    blood_group: { type: String, default: 'Not Known' },
+    city: { type: String, default: '' },
+    state: { type: String, default: '' },
+    country: { type: String, default: 'India' },
+    occupation: { type: String, default: '' },
+    primary_physician: { type: String, default: '' },
+    profile_completed: { type: Boolean, default: false }
   },
   {
     timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
