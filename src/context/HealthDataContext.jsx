@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import confetti from 'canvas-confetti';
+import { MOCK_REPORTS } from '../data/mockData';
 
 const HealthDataContext = createContext();
 const API_BASE = 'http://localhost:5000/api';
@@ -55,7 +56,27 @@ export const HealthDataProvider = ({ children }) => {
     }
   });
 
-  const [reports, setReports] = useState([]);
+  // State: Reports (with auto-purge for old 12.8 cached reports)
+  const [reports, setReports] = useState(() => {
+    try {
+      const saved = localStorage.getItem('medguardian_reports');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          // Purge if cached report contains old 12.8 value or Fasting Glucose
+          const isOldFormat = parsed.some(r => 
+            Array.isArray(r.biomarkers) && r.biomarkers.some(b => b.value === 12.8 || b.name === 'Fasting Blood Glucose')
+          );
+          if (!isOldFormat) {
+            return parsed;
+          }
+        }
+      }
+    } catch (e) {}
+    localStorage.removeItem('medguardian_reports');
+    return MOCK_REPORTS;
+  });
+
   const [medicines, setMedicines] = useState([]);
   const [emergencyContacts, setEmergencyContacts] = useState([]);
   const [sosLogs, setSosLogs] = useState([]);
@@ -70,7 +91,7 @@ export const HealthDataProvider = ({ children }) => {
       if (!storedToken) {
         setToken(null);
         setUserProfile(null);
-        setReports([]);
+        setReports(MOCK_REPORTS);
         setMedicines([]);
         setEmergencyContacts([]);
         return;
@@ -107,11 +128,14 @@ export const HealthDataProvider = ({ children }) => {
           setUserProfile(syncedUser);
           localStorage.setItem('medguardian_user_profile', JSON.stringify(syncedUser));
 
-          // Fetch authenticated user's reports
+          // Fetch authenticated user's reports from backend if online
           const rRes = await fetch(`${API_BASE}/reports`, { headers });
           if (rRes.ok) {
             const rData = await rRes.json();
-            setReports(Array.isArray(rData) ? rData : []);
+            if (Array.isArray(rData) && rData.length > 0) {
+              setReports(rData);
+              localStorage.setItem('medguardian_reports', JSON.stringify(rData));
+            }
           }
 
           // Fetch authenticated user's medicines
@@ -128,7 +152,6 @@ export const HealthDataProvider = ({ children }) => {
             setEmergencyContacts(Array.isArray(cData) ? cData : []);
           }
         } else if (profileRes.status === 401) {
-          // Explicit 401 Unauthorized from server -> expire session
           console.warn("[AUTH] Server rejected token (401). Signing out.");
           logout();
         }
@@ -190,7 +213,6 @@ export const HealthDataProvider = ({ children }) => {
       console.log("[AUTH] Login network fallback:", err.message);
     }
 
-    // Client session fallback if backend network connection is unreachable
     if (!userObj) {
       authToken = 'token-' + Date.now();
       userObj = {
@@ -260,7 +282,7 @@ export const HealthDataProvider = ({ children }) => {
     localStorage.setItem('medguardian_user_profile', JSON.stringify(userObj));
     setToken(authToken);
     setUserProfile(userObj);
-    setReports([]);
+    setReports(MOCK_REPORTS);
     setMedicines([]);
     setEmergencyContacts([]);
     toast.success(`Account created successfully!`);
@@ -322,9 +344,10 @@ export const HealthDataProvider = ({ children }) => {
     localStorage.removeItem('medguardian_user_profile');
     localStorage.removeItem('medguardian_user_email');
     localStorage.removeItem('medguardian_user_name');
+    localStorage.removeItem('medguardian_reports');
     setToken(null);
     setUserProfile(null);
-    setReports([]);
+    setReports(MOCK_REPORTS);
     setMedicines([]);
     setEmergencyContacts([]);
     setSosLogs([]);
@@ -333,10 +356,14 @@ export const HealthDataProvider = ({ children }) => {
     toast.success("Signed out successfully.");
   };
 
-  const activeReport = (Array.isArray(reports) ? reports : []).find(r => r.id === activeReportId) || (reports && reports.length > 0 ? reports[0] : null);
+  const activeReport = (Array.isArray(reports) && reports.length > 0) ? reports[0] : null;
 
   const addReport = (newReport) => {
-    setReports(prev => [newReport, ...(Array.isArray(prev) ? prev : [])]);
+    setReports(prev => {
+      const updated = [newReport, ...(Array.isArray(prev) ? prev : [])];
+      localStorage.setItem('medguardian_reports', JSON.stringify(updated));
+      return updated;
+    });
     setActiveReportId(newReport.id);
   };
 
