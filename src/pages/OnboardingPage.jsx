@@ -178,8 +178,8 @@ export const OnboardingPage = () => {
 
               <div className="med-form-group">
                 <label className="block text-xs font-bold text-[#0F172A] mb-1.5">Full Name <span className="text-rose-500">*</span></label>
-                <div className="relative w-full">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <div className="relative relative-icon-input w-full">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 z-10">
                     <User className="w-4.5 h-4.5 text-[#0F172A]" />
                   </div>
                   <input
@@ -196,15 +196,13 @@ export const OnboardingPage = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="med-form-group">
                   <label className="block text-xs font-bold text-[#0F172A] mb-1.5">Date of Birth <span className="text-rose-500">*</span></label>
-                  <div className="relative w-full">
-                    <input
-                      type="date"
-                      required
-                      value={dateOfBirth}
-                      onChange={(e) => setDateOfBirth(e.target.value)}
-                      className="med-input w-full block"
-                    />
-                  </div>
+                  <input
+                    type="date"
+                    required
+                    value={dateOfBirth}
+                    onChange={(e) => setDateOfBirth(e.target.value)}
+                    className="med-input w-full block"
+                  />
                 </div>
 
                 <div className="med-form-group">
@@ -249,24 +247,21 @@ export const OnboardingPage = () => {
               </div>
 
               {/* Height & Unit */}
-              <div className="grid grid-cols-3 gap-3">
-                <div className="col-span-2 med-form-group">
-                  <label className="block text-xs font-bold text-[#0F172A] mb-1.5">Height <span className="text-rose-500">*</span></label>
+              <div className="med-form-group">
+                <label className="block text-xs font-bold text-[#0F172A] mb-1.5">Height <span className="text-rose-500">*</span></label>
+                <div className="grid grid-cols-4 gap-2">
                   <input
                     type="number"
                     required
                     value={height}
                     onChange={(e) => setHeight(e.target.value)}
-                    placeholder="e.g. 175"
-                    className="med-input w-full block"
+                    placeholder="e.g. 180"
+                    className="med-input col-span-3"
                   />
-                </div>
-                <div className="med-form-group">
-                  <label className="block text-xs font-bold text-[#0F172A] mb-1.5">Unit</label>
                   <select
                     value={heightUnit}
                     onChange={(e) => setHeightUnit(e.target.value)}
-                    className="med-input w-full block"
+                    className="med-input col-span-1"
                   >
                     <option value="cm">cm</option>
                     <option value="ft">ft</option>
@@ -278,18 +273,18 @@ export const OnboardingPage = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="med-form-group">
                   <label className="block text-xs font-bold text-[#0F172A] mb-1.5">Weight (Optional)</label>
-                  <div className="flex gap-2">
+                  <div className="grid grid-cols-4 gap-2">
                     <input
                       type="number"
                       value={weight}
                       onChange={(e) => setWeight(e.target.value)}
-                      placeholder="e.g. 68"
-                      className="med-input w-full block"
+                      placeholder="e.g. 70"
+                      className="med-input col-span-3"
                     />
                     <select
                       value={weightUnit}
                       onChange={(e) => setWeightUnit(e.target.value)}
-                      className="med-input shrink-0"
+                      className="med-input col-span-1"
                     >
                       <option value="kg">kg</option>
                       <option value="lbs">lbs</option>
@@ -302,7 +297,7 @@ export const OnboardingPage = () => {
                   <select
                     value={bloodGroup}
                     onChange={(e) => setBloodGroup(e.target.value)}
-                    className="med-input w-full block"
+                    className="med-input w-full"
                   >
                     <option value="Not Known">Not Known</option>
                     <option value="O+">O+</option>
@@ -318,9 +313,9 @@ export const OnboardingPage = () => {
               </div>
 
               {/* Location: City, State, Country */}
-              <div className="space-y-3">
-                <label className="block text-xs font-bold text-[#0F172A] mb-0">General Location</label>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="med-form-group">
+                <label className="block text-xs font-bold text-[#0F172A] mb-1.5">General Location</label>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                   <input
                     type="text"
                     required

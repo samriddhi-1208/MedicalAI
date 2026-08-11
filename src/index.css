@@ -326,7 +326,7 @@ label, .nav-label {
   background-color: #F8FAFC;
 }
 
-/* Form Controls & Full-Width Input Styling */
+/* Form Controls & Input Styling */
 .med-form-group {
   margin-bottom: 20px;
   width: 100%;
@@ -348,7 +348,7 @@ input[type="number"],
 select,
 textarea {
   display: block;
-  width: 100% !important;
+  width: 100%;
   padding: 11px 16px;
   border: 1.5px solid var(--neutral-border);
   border-radius: 10px;
@@ -360,13 +360,8 @@ textarea {
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
-/* 🎯 Fix Icon Collision: When an input is inside a .relative container with an icon */
-.relative input.med-input,
-.relative input[type="text"],
-.relative input[type="email"],
-.relative input[type="password"],
-.relative input[type="tel"],
-.relative input[type="number"] {
+/* Fix Icon Collision strictly when container is marked with .relative-icon-input */
+.relative-icon-input input {
   padding-left: 2.85rem !important; /* 46px left padding so icons NEVER overlap with text */
 }
 
