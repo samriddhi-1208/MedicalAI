@@ -61,7 +61,7 @@ export const LoginPage = () => {
             <div className="med-form-group">
               <label htmlFor="email" className="block text-xs font-bold text-[#0F172A] mb-1.5">Email Address</label>
               <div className="relative w-full">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 z-10">
                   <Mail className="w-4.5 h-4.5 text-[#0F172A]" />
                 </div>
                 <input
@@ -70,7 +70,7 @@ export const LoginPage = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="patient@example.com"
-                  className="med-input w-full block"
+                  className="med-input w-full block !pl-11"
                   required
                 />
               </div>
@@ -84,7 +84,7 @@ export const LoginPage = () => {
                 </Link>
               </div>
               <div className="relative w-full">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 z-10">
                   <Lock className="w-4.5 h-4.5 text-[#0F172A]" />
                 </div>
                 <input
@@ -93,13 +93,13 @@ export const LoginPage = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••••••"
-                  className="med-input w-full block pr-10"
+                  className="med-input w-full block !pl-11 !pr-10"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-700 cursor-pointer"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-700 cursor-pointer z-10"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
