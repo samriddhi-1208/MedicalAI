@@ -21,17 +21,22 @@ const API_BASE = 'http://localhost:5000/api';
 
 export const ReportUploadPage = () => {
   const navigate = useNavigate();
-  const { addReport, loadDemoData } = useHealthData();
+  const { addReport } = useHealthData();
   const [dragOver, setDragOver] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [stepStatus, setStepStatus] = useState('');
   const [progress, setProgress] = useState(0);
 
   const handleFileSelect = (file) => {
     if (!file) return;
     const validTypes = ['application/pdf', 'image/png', 'image/jpeg', 'image/webp'];
     if (!validTypes.includes(file.type) && !file.name.endsWith('.pdf')) {
-      toast.error("Please select a PDF or Image file (PNG, JPG)");
+      toast.error("Please select a valid PDF or Image file (PNG, JPG)");
+      return;
+    }
+    if (file.size > 15 * 1024 * 1024) {
+      toast.error("File size exceeds 15MB limit.");
       return;
     }
     setSelectedFile(file);
@@ -48,25 +53,25 @@ export const ReportUploadPage = () => {
 
   const handleUploadSubmit = async () => {
     if (!selectedFile) {
-      toast.error("Please select a lab report file to upload!");
+      toast.error("Please select a medical report file to upload!");
       return;
     }
 
     setUploading(true);
-    setProgress(25);
-
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 85) {
-          clearInterval(interval);
-          return 90;
-        }
-        return prev + 20;
-      });
-    }, 300);
+    setProgress(15);
+    setStepStatus("Uploading report...");
 
     try {
-      // Send real FormData request to Node.js / Express backend to execute pdf-parse OCR Engine
+      // Step 1: Uploading
+      await new Promise(r => setTimeout(r, 600));
+      setProgress(40);
+      setStepStatus("Reading medical report text...");
+
+      // Step 2: Extracting OCR text
+      await new Promise(r => setTimeout(r, 700));
+      setProgress(70);
+      setStepStatus("Extracting clinical parameters...");
+
       const formData = new FormData();
       formData.append('report', selectedFile);
       formData.append('title', selectedFile.name.replace(/\.[^/.]+$/, ""));
@@ -74,76 +79,39 @@ export const ReportUploadPage = () => {
       const token = localStorage.getItem('medguardian_token');
       const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
 
+      // Step 3: AI analysis in progress
+      setProgress(88);
+      setStepStatus("AI analysis in progress...");
+
       const res = await fetch(`${API_BASE}/reports/upload`, {
         method: 'POST',
         headers,
         body: formData
       });
 
-      clearInterval(interval);
-      setProgress(100);
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || "Unable to analyze this report. Please try again.");
+      }
 
-      if (res.ok) {
-        const data = await res.json();
-        if (data.report) {
-          addReport(data.report);
-          toast.success("Document OCR parsed! Real biomarker metrics extracted from report.");
-          setUploading(false);
-          navigate('/app/analysis');
-          return;
-        }
+      const data = await res.json();
+      setProgress(100);
+      setStepStatus("Analysis complete");
+
+      if (data.report) {
+        addReport(data.report);
+        toast.success("Medical report analyzed successfully!");
+        setUploading(false);
+        navigate('/app/analysis');
+        return;
       }
     } catch (err) {
-      console.log("Backend offline fallback OCR:", err.message);
-    }
-
-    // Client-side Fallback Text Extractor if backend server is offline
-    setTimeout(() => {
-      clearInterval(interval);
-      setProgress(100);
-
-      const fileName = selectedFile.name.toLowerCase();
-      let extractedBiomarkers = [];
-      let summaryText = "";
-
-      if (fileName.includes('thyroid') || fileName.includes('tsh')) {
-        extractedBiomarkers = [
-          { name: "TSH", value: 2.15, unit: "mIU/L", refRange: "0.40 - 4.00", status: "Normal", statusType: "normal", category: "Endocrine" },
-          { name: "Free T4", value: 1.34, unit: "ng/dL", refRange: "0.80 - 1.80", status: "Normal", statusType: "normal", category: "Endocrine" },
-          { name: "Free T3", value: 3.2, unit: "pg/mL", refRange: "2.3 - 4.2", status: "Normal", statusType: "normal", category: "Endocrine" }
-        ];
-        summaryText = `Thyroid function panel extracted from ${selectedFile.name}. TSH is 2.15 mIU/L and Free T4 is 1.34 ng/dL.`;
-      } else {
-        // Real CBC Parameters extracted from Lakshmi Manapure report
-        extractedBiomarkers = [
-          { name: "Hemoglobin (Hb)", value: 11.4, unit: "g/dL", refRange: "12.0 - 15.5", status: "Slightly Low", statusType: "warning", category: "Hematology", notes: "Mild microcytic tendency. Ensure adequate dietary iron." },
-          { name: "WBC (Total Leucocyte)", value: 6000, unit: "cell/cu.mm", refRange: "4000 - 11000", status: "Normal", statusType: "normal", category: "Hematology", notes: "Normal white blood cell response." },
-          { name: "RBC Count", value: 5.19, unit: "mill/cu.mm", refRange: "3.80 - 5.20", status: "Normal", statusType: "normal", category: "Hematology", notes: "Optimal RBC count." },
-          { name: "HCT / PCV", value: 34.7, unit: "%", refRange: "36.0 - 46.0", status: "Borderline Low", statusType: "warning", category: "Hematology", notes: "Packed cell volume." },
-          { name: "MCV", value: 66.9, unit: "fL", refRange: "80.0 - 100.0", status: "Low", statusType: "warning", category: "Hematology", notes: "Microcytic red cell index." },
-          { name: "MCH", value: 22.0, unit: "pg", refRange: "27.0 - 32.0", status: "Low", statusType: "warning", category: "Hematology", notes: "Hypochromic cell index." },
-          { name: "Platelet Count", value: 2.85, unit: "lakh/cu.mm", refRange: "1.50 - 4.50", status: "Normal", statusType: "normal", category: "Hematology", notes: "Adequate blood clotting platelets." }
-        ];
-        summaryText = `Complete Blood Count (CBC) parsed from ${selectedFile.name}. Hemoglobin is 11.4 g/dL, WBC count is 6000 cell/cu.mm, and RBC count is 5.19 mill/cu.mm.`;
-      }
-
-      const clientReport = {
-        id: `rep-${Date.now().toString().slice(-4)}`,
-        title: selectedFile.name.replace(/\.[^/.]+$/, "") || "Lab Diagnostic Report",
-        date: new Date().toISOString().split('T')[0],
-        labName: "Apex Clinical Diagnostics",
-        status: "Attention Needed",
-        statusType: "warning",
-        ocrConfidence: "99.4% (OCR Live Parsing)",
-        aiSummary: summaryText,
-        biomarkers: extractedBiomarkers
-      };
-
-      addReport(clientReport);
+      console.error("Upload error:", err.message);
+      toast.error(err.message || "Unable to analyze this report. Please try again.");
       setUploading(false);
-      toast.success("Document OCR parsed! Real biomarker metrics extracted from report.");
-      navigate('/app/analysis');
-    }, 1500);
+      setProgress(0);
+      setStepStatus("");
+    }
   };
 
   return (
@@ -152,13 +120,13 @@ export const ReportUploadPage = () => {
       {/* Header */}
       <div className="text-center space-y-2">
         <span className="px-3.5 py-1 rounded-full bg-slate-100 text-slate-800 text-xs font-bold uppercase tracking-wider border border-slate-200">
-          AI OCR Parsing Engine
+          AI OCR & Clinical Pipeline
         </span>
         <h1 className="text-3xl font-extrabold text-[#0F172A] tracking-tight">
-          Upload Scanned Medical Report
+          Upload Medical Report
         </h1>
         <p className="text-sm font-normal text-slate-600 max-w-xl mx-auto">
-          Upload your scanned lab report PDF or paper photo to automatically extract test parameters, values, and clinical reference bounds.
+          Upload your scanned lab report (PDF, JPG, PNG) to automatically extract test parameters, measured values, and reference ranges.
         </p>
       </div>
 
@@ -210,19 +178,19 @@ export const ReportUploadPage = () => {
           )}
         </div>
 
-        {/* Uploading Progress Bar */}
+        {/* Step-by-Step Processing State UI */}
         {uploading && (
-          <div className="space-y-2 p-4 rounded-xl bg-slate-50 border border-slate-200">
+          <div className="space-y-3 p-5 rounded-2xl bg-slate-50 border border-slate-200">
             <div className="flex justify-between text-xs font-bold text-[#0F172A]">
               <span className="flex items-center gap-2">
-                <RefreshCw className="w-3.5 h-3.5 text-[#0D9488] animate-spin" />
-                Scanning document with OCR AI engine...
+                <RefreshCw className="w-4 h-4 text-[#0D9488] animate-spin" />
+                {stepStatus}
               </span>
               <span>{progress}%</span>
             </div>
-            <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+            <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
               <div 
-                className="bg-[#0F172A] h-2 rounded-full transition-all duration-300" 
+                className="bg-[#0F172A] h-2.5 rounded-full transition-all duration-300" 
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -232,27 +200,17 @@ export const ReportUploadPage = () => {
         {/* Submit Actions */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
           <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
-            <ShieldCheck className="w-4 h-4 text-[#0D9488]" /> Encrypted 256-Bit File Storage
+            <ShieldCheck className="w-4 h-4 text-[#0D9488]" /> Encrypted 256-Bit Storage
           </div>
 
           <div className="flex items-center gap-3 w-full sm:w-auto">
-            <Button
-              variant="secondary"
-              size="md"
-              icon={Sparkles}
-              className="flex-1 sm:flex-none text-xs font-semibold rounded-xl border-slate-200 hover:bg-slate-50"
-              onClick={loadDemoData}
-            >
-              Load Sample Report
-            </Button>
-
             <Button
               variant="primary"
               size="md"
               icon={ArrowRight}
               loading={uploading}
-              disabled={!selectedFile}
-              className="flex-1 sm:flex-none text-xs font-semibold rounded-xl bg-[#0F172A] hover:bg-[#1E293B]"
+              disabled={!selectedFile || uploading}
+              className="w-full sm:w-auto text-xs font-semibold rounded-xl bg-[#0F172A] hover:bg-[#1E293B]"
               onClick={handleUploadSubmit}
             >
               Process & Analyze Report

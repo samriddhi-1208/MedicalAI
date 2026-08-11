@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { ThemeProvider } from './context/ThemeContext';
-import { HealthDataProvider } from './context/HealthDataContext';
+import { HealthDataProvider, useHealthData } from './context/HealthDataContext';
 
 import { LandingPage } from './pages/LandingPage';
 import { LoginPage } from './pages/LoginPage';
@@ -18,6 +18,28 @@ import { MedicineReminderPage } from './pages/MedicineReminderPage';
 import { EmergencySOSPage } from './pages/EmergencySOSPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { NotFoundPage } from './pages/NotFoundPage';
+
+// Protected Route Wrapper for Authenticated Users
+const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated, loadingAuth } = useHealthData();
+
+  if (loadingAuth) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-4 border-[#0F172A] border-t-transparent rounded-full animate-spin" />
+          <p className="text-xs font-bold text-slate-600">Verifying session...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+};
 
 export default function App() {
   return (
@@ -49,8 +71,12 @@ export default function App() {
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
-            {/* Authenticated Application Suite */}
-            <Route path="/app" element={<AppLayout />}>
+            {/* Authenticated Protected Suite */}
+            <Route path="/app" element={
+              <ProtectedRoute>
+                <AppLayout />
+              </ProtectedRoute>
+            }>
               <Route index element={<Navigate to="/app/dashboard" replace />} />
               <Route path="dashboard" element={<DashboardPage />} />
               <Route path="upload" element={<ReportUploadPage />} />

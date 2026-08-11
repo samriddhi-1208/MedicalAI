@@ -16,8 +16,10 @@ import {
   Lock,
   Stethoscope,
   Sparkles,
-  BarChart3,
-  Users
+  Search,
+  Building2,
+  ShieldCheck,
+  Check
 } from 'lucide-react';
 import { Navbar } from '../components/layout/Navbar';
 import { Footer } from '../components/layout/Footer';
@@ -27,99 +29,97 @@ import { useHealthData } from '../context/HealthDataContext';
 
 export const LandingPage = () => {
   const navigate = useNavigate();
-  const { userProfile } = useHealthData();
-  const [faqOpen, setFaqOpen] = useState(0); // First item open by default
+  const { isAuthenticated } = useHealthData();
+  const [faqOpen, setFaqOpen] = useState(0);
 
-  const displayName = userProfile && userProfile.name && userProfile.name !== 'New Patient' 
-    ? userProfile.name 
-    : 'Sarah Jenkins';
+  const handleUploadClick = () => {
+    if (isAuthenticated) {
+      navigate('/app/upload');
+    } else {
+      navigate('/signup');
+    }
+  };
 
-  const displayAgeBlood = userProfile && userProfile.age 
-    ? `${userProfile.age} yrs • ${userProfile.bloodGroup || 'O+'}`
-    : '28 yrs • O+';
+  const handleSignInClick = () => {
+    if (isAuthenticated) {
+      navigate('/app/dashboard');
+    } else {
+      navigate('/login');
+    }
+  };
 
   const features = [
     {
       icon: FileText,
       title: "AI Medical Report Analysis",
-      description: "Extract test values, reference intervals, and clinical biomarkers from paper photos or PDF lab results with high accuracy."
+      description: "Upload scanned lab tests (PDF, JPG, PNG). Our OCR & AI engine extracts test parameters, units, and reference ranges into structured JSON."
+    },
+    {
+      icon: BrainCircuit,
+      title: "Biomarker Parameter Extraction",
+      description: "Automatically parses lab values such as Hemoglobin, WBCs, RBCs, Glucose, and Thyroid metrics without manual data entry."
     },
     {
       icon: Activity,
-      title: "Patient Health Dashboard",
-      description: "Centralized personal portal displaying key vital metrics, test trends, recent medical reports, and diagnostic summaries."
+      title: "Personalized Health Insights",
+      description: "Plain-language interpretations of out-of-range clinical parameters paired with actionable dietary and lifestyle suggestions."
     },
     {
-      icon: Clock,
-      title: "Longitudinal Medical History",
-      description: "Maintain a structured timeline of past blood panels, historical lab metrics, and diagnostic findings across care visits."
+      icon: Building2,
+      title: "24/7 Hospital & Specialist Finder",
+      description: "Locate empaneled government district hospitals, CHCs, and Ayushman Bharat PM-JAY centers near your GPS location."
     },
     {
       icon: Pill,
-      title: "Medicine Tracking & Schedule",
-      description: "Set daily dosage reminders, log taken medications, track pill inventory, and receive timely refill alerts."
+      title: "Medicine Schedule & Reminders",
+      description: "Set daily dosage alerts, log taken prescriptions, track bottle inventory, and receive timely pharmacy refill warnings."
     },
     {
       icon: Siren,
       title: "Emergency SOS Dispatch",
-      description: "1-click automated alert dispatch to saved emergency contacts, primary care doctors, and 108 ambulance services with live GPS."
-    },
-    {
-      icon: HeartPulse,
-      title: "Structured Health Reports",
-      description: "Translate complex clinical laboratory jargon into plain-language summaries with actionable lifestyle and diet guidance."
-    },
-    {
-      icon: BrainCircuit,
-      title: "AI Clinical Insights",
-      description: "Intelligent biomarker risk indicators pointing out out-of-range parameters and potential medical areas of attention."
-    },
-    {
-      icon: Lock,
-      title: "Secure Patient Data Privacy",
-      description: "256-bit encrypted local storage architecture ensuring strict patient data privacy and total record confidentiality."
+      description: "1-click automated SMS/Email alert dispatch with live GPS coordinates to your emergency contacts and care providers."
     }
   ];
 
   const steps = [
     {
       step: "01",
-      title: "Upload Report",
-      description: "Drag and drop or scan paper lab test results, blood panel PDFs, or diagnostic images."
+      title: "Create Account",
+      description: "Sign up securely to create your private, encrypted healthcare workspace."
     },
     {
       step: "02",
-      title: "AI Analysis",
-      description: "Our OCR and clinical AI engine extracts parameters, units, reference bounds, and clinical flags."
+      title: "Upload Report",
+      description: "Upload paper photos or PDF lab results directly to the secure backend processor."
     },
     {
       step: "03",
-      title: "Understand Results",
-      description: "Review clear plain-language summaries, abnormal biomarkers, and risk indicators."
+      title: "AI Parameter Extraction",
+      description: "AI extracts lab values, measurement units, and reference bounds into structured JSON data."
     },
     {
       step: "04",
-      title: "Track Your Health",
-      description: "Monitor long-term health metrics, manage prescriptions, and share records with doctors."
+      title: "View Insights",
+      description: "Explore plain-language diagnostic summaries and monitor your longitudinal health metrics."
     }
   ];
 
   const faqs = [
     {
-      question: "How does MedicalAI analyze paper medical reports?",
-      answer: "MedicalAI utilizes Optical Character Recognition (OCR) combined with clinical AI parsing algorithms to read PDF or paper photo lab reports. It automatically extracts test titles, numerical values, measurement units, and reference ranges to flag out-of-bounds parameters."
+      question: "How does MedicalAI process my medical reports?",
+      answer: "MedicalAI uses an AI and Optical Character Recognition (OCR) pipeline. When you upload a PDF or image report, our backend extracts the text, identifies test names, values, and reference ranges, and structures the findings into your private database."
     },
     {
-      question: "Can MedicalAI replace my doctor or primary physician?",
-      answer: "No. MedicalAI is an intelligent health literacy and record organization assistant designed to help patients understand lab results and prepare questions for doctor consultations. It does not provide formal medical diagnoses or prescribe treatment."
+      question: "Will unauthenticated visitors or other users see my health data?",
+      answer: "No. Your health records are strictly isolated under your authenticated account ID. MedicalAI enforces strict JWT session security, ensuring no unauthenticated visitor or other user can ever view your records."
     },
     {
-      question: "Is my personal medical data safe and private?",
-      answer: "Yes. All health data is encrypted and managed with strict privacy controls. Your personal health records are never sold or shared with unauthorized third parties."
+      question: "Does MedicalAI provide a definitive medical diagnosis?",
+      answer: "No. MedicalAI provides AI-generated interpretations intended strictly for informational and record organization purposes. It is not a replacement for professional consultation with a qualified medical doctor."
     },
     {
       question: "How does the Emergency SOS feature work?",
-      answer: "When triggered, Emergency SOS dispatches automated alert payloads containing live GPS coordinates to your saved emergency contacts, matched primary physician, and national ambulance helpline services."
+      answer: "When triggered, Emergency SOS dispatches automated alert payloads containing live GPS coordinates to your saved emergency contacts and care providers."
     }
   ];
 
@@ -127,7 +127,7 @@ export const LandingPage = () => {
     <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] font-sans antialiased">
       <Navbar />
 
-      {/* Hero Section */}
+      {/* Hero Section - Pure Product Focus (No Fake Patient Data) */}
       <section className="py-16 md:py-24 bg-white border-b border-slate-200 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
@@ -135,18 +135,18 @@ export const LandingPage = () => {
             {/* Hero Left Content */}
             <div className="lg:col-span-7 space-y-6">
               
-              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold border border-emerald-200/80">
-                <CheckCircle2 className="w-3.5 h-3.5 text-[#059669]" />
-                <span>Trusted AI Health Intelligence • Clinical Report Guidance</span>
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-teal-50 text-[#0D9488] text-xs font-semibold border border-teal-200">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#0D9488]" />
+                <span>AI-Powered Medical Report Intelligence</span>
               </div>
 
               <h1 className="text-4xl sm:text-5xl lg:text-5.5xl font-extrabold text-[#0F172A] tracking-tight leading-[1.15]">
-                Smart AI Healthcare Guidance <br className="hidden sm:inline" />
-                <span className="text-[#0D9488]">for Your Medical Reports</span>
+                Understand Your Medical Reports <br className="hidden sm:inline" />
+                <span className="text-[#0D9488]">with AI Intelligence</span>
               </h1>
 
               <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl font-normal">
-                MedicalAI helps you understand medical reports, extract key clinical parameters, identify potential health concerns, and effortlessly organize your healthcare information in one secure dashboard.
+                Upload your medical report and let MedicalAI extract important clinical parameters and provide an easy-to-understand interpretation.
               </p>
 
               <div className="flex flex-wrap items-center gap-4 pt-2">
@@ -155,7 +155,7 @@ export const LandingPage = () => {
                   size="md"
                   icon={Upload}
                   className="bg-[#0F172A] hover:bg-[#1E293B] py-3.5 px-6 text-sm font-semibold rounded-xl shadow-md shadow-slate-900/10 cursor-pointer"
-                  onClick={() => navigate('/app/upload')}
+                  onClick={handleUploadClick}
                 >
                   Upload Medical Report
                 </Button>
@@ -165,9 +165,9 @@ export const LandingPage = () => {
                   size="md"
                   icon={ArrowRight}
                   className="py-3.5 px-6 text-sm font-semibold rounded-xl bg-slate-50 border-slate-200 text-[#0F172A] hover:bg-slate-100 cursor-pointer"
-                  onClick={() => navigate('/app/dashboard')}
+                  onClick={handleSignInClick}
                 >
-                  Open Patient Dashboard
+                  {isAuthenticated ? "Open Dashboard" : "Sign In"}
                 </Button>
               </div>
 
@@ -175,89 +175,70 @@ export const LandingPage = () => {
               <div className="grid grid-cols-3 gap-6 pt-6 border-t border-slate-100 text-xs text-slate-600">
                 <div>
                   <span className="block font-bold text-sm text-[#0F172A]">Instant OCR</span>
-                  <span>PDF & paper report scan</span>
+                  <span>PDF & paper report extraction</span>
                 </div>
                 <div>
-                  <span className="block font-bold text-sm text-[#0F172A]">Biomarker Flags</span>
-                  <span>Out-of-range indicators</span>
+                  <span className="block font-bold text-sm text-[#0F172A]">Structured JSON</span>
+                  <span>Parameter & bound parsing</span>
                 </div>
                 <div>
-                  <span className="block font-bold text-sm text-[#0F172A]">24/7 Emergency</span>
-                  <span>1-Click SOS dispatch</span>
+                  <span className="block font-bold text-sm text-[#0F172A]">256-Bit Encrypted</span>
+                  <span>Private database storage</span>
                 </div>
               </div>
 
             </div>
 
-            {/* Hero Right Dashboard Preview Card */}
+            {/* Hero Right Product Capability Preview (Generic Showcase) */}
             <div className="lg:col-span-5">
               <Card className="p-6 space-y-5 bg-white border border-slate-200 shadow-xl shadow-slate-200/50 rounded-2xl">
                 
-                {/* Card Header */}
                 <div className="flex items-center justify-between border-b border-slate-100 pb-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-[#0F172A] text-white flex items-center justify-center font-bold">
-                      <Activity className="w-5 h-5 text-[#0D9488]" />
+                      <BrainCircuit className="w-5 h-5 text-[#0D9488]" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-bold text-[#0F172A]">Patient Overview</h3>
-                      <p className="text-xs text-slate-500 font-medium">Diagnostic Health Record</p>
+                      <h3 className="text-sm font-bold text-[#0F172A]">MedicalAI OCR Pipeline</h3>
+                      <p className="text-xs text-slate-500 font-medium">Automated Structured Extraction</p>
                     </div>
                   </div>
-                  <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-[#059669] text-xs font-bold border border-emerald-200">
-                    Report Active
+                  <span className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold border border-slate-200">
+                    SaaS Engine
                   </span>
                 </div>
 
-                {/* Patient Details Row */}
-                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2 text-xs">
-                  <div className="flex justify-between">
-                    <span className="text-slate-500 font-medium">Patient:</span>
-                    <strong className="text-[#0F172A] font-bold">{displayName}</strong>
+                <div className="space-y-3 text-xs">
+                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                    <div className="flex items-center justify-between font-bold text-[#0F172A]">
+                      <span className="flex items-center gap-1.5"><FileText className="w-4 h-4 text-[#0D9488]" /> Input Document:</span>
+                      <span className="text-slate-500 text-[11px]">PDF / PNG / JPG</span>
+                    </div>
+                    <p className="text-slate-600 font-medium text-[11px]">Raw lab report file uploaded by patient</p>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-500 font-medium">Vitals:</span>
-                    <strong className="text-[#0F172A] font-bold">{displayAgeBlood}</strong>
+
+                  <div className="p-3.5 rounded-xl bg-slate-900 text-white space-y-2 font-mono text-[11px]">
+                    <div className="flex justify-between text-[#0D9488] font-bold">
+                      <span>Structured JSON Output:</span>
+                      <span>100% Parsed</span>
+                    </div>
+                    <p className="text-slate-300 font-normal">
+                      &#123; "biomarkers": [ &#123; "name": "Hemoglobin", "status": "Extracted" &#125; ] &#125;
+                    </p>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-500 font-medium">Primary Doctor:</span>
-                    <strong className="text-[#0D9488] font-bold">Dr. Marcus Vance, MD</strong>
+
+                  <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 space-y-1 text-emerald-900">
+                    <span className="font-bold flex items-center gap-1"><Check className="w-3.5 h-3.5 text-emerald-600" /> Patient Privacy Guaranteed</span>
+                    <p className="text-[11px] font-normal">Records are saved strictly under your private authenticated user account.</p>
                   </div>
                 </div>
 
-                {/* AI Analysis Preview */}
-                <div className="space-y-2.5">
-                  <div className="flex items-center justify-between text-xs font-bold text-[#0F172A]">
-                    <span>AI Biomarker Insights:</span>
-                    <span className="text-xs text-amber-700 font-semibold bg-amber-50 px-2 py-0.5 rounded border border-amber-200">1 Concern Flagged</span>
-                  </div>
-
-                  <div className="space-y-2 text-xs">
-                    <div className="flex justify-between items-center p-3 rounded-xl border border-slate-200 bg-white">
-                      <div>
-                        <span className="font-semibold text-slate-800">Total Cholesterol</span>
-                        <span className="block text-[11px] text-slate-500">Ref: 125-200 mg/dL</span>
-                      </div>
-                      <span className="font-bold text-slate-900">224 mg/dL <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold text-[10px] ml-1">High</span></span>
-                    </div>
-
-                    <div className="flex justify-between items-center p-3 rounded-xl border border-slate-200 bg-white">
-                      <div>
-                        <span className="font-semibold text-slate-800">Fasting Glucose</span>
-                        <span className="block text-[11px] text-slate-500">Ref: 70-100 mg/dL</span>
-                      </div>
-                      <span className="font-bold text-slate-900">92 mg/dL <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px] ml-1">Normal</span></span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Status Footer */}
                 <div className="pt-2 flex items-center justify-between text-xs text-slate-500 border-t border-slate-100">
                   <span className="flex items-center gap-1.5 font-medium">
-                    <Shield className="w-3.5 h-3.5 text-[#0D9488]" /> 256-Bit Encrypted
+                    <Shield className="w-3.5 h-3.5 text-[#0D9488]" /> REST API Connected
                   </span>
-                  <Link to="/app/analysis" className="text-[#0D9488] font-bold hover:underline">
-                    View Full Analysis →
+                  <Link to="/signup" className="text-[#0D9488] font-bold hover:underline">
+                    Get Started Free →
                   </Link>
                 </div>
 
@@ -274,17 +255,17 @@ export const LandingPage = () => {
           
           <div className="text-center max-w-2xl mx-auto space-y-3">
             <span className="px-3.5 py-1 rounded-full bg-teal-50 text-[#0D9488] text-xs font-bold uppercase tracking-wider border border-teal-200">
-              Platform Features
+              Core Capabilities
             </span>
             <h2 className="text-3xl font-extrabold text-[#0F172A] tracking-tight">
-              Designed for Complete Patient Care
+              Integrated Healthcare Management Suite
             </h2>
             <p className="text-sm text-slate-600 font-normal">
-              Comprehensive clinical tools to manage lab reports, track medications, locate specialty care, and alert contacts during emergencies.
+              Designed for complete record organization, AI biomarker extraction, prescription tracking, and 24/7 emergency care.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((item, idx) => {
               const Icon = item.icon;
               return (
@@ -317,7 +298,7 @@ export const LandingPage = () => {
               How MedicalAI Works
             </h2>
             <p className="text-sm text-slate-600">
-              Four simple steps to transform raw paper lab tests into actionable health guidance.
+              Four simple steps from account creation to AI report insights.
             </p>
           </div>
 
@@ -339,7 +320,7 @@ export const LandingPage = () => {
               size="md"
               icon={Upload}
               className="bg-[#0F172A] hover:bg-[#1E293B] py-3.5 px-8 text-sm font-semibold rounded-xl cursor-pointer"
-              onClick={() => navigate('/app/upload')}
+              onClick={handleUploadClick}
             >
               Get Started Now
             </Button>

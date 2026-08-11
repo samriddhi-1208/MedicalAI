@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Shield, ArrowRight, Menu, X, Activity } from 'lucide-react';
+import { ArrowRight, Menu, X, Activity, User, LogOut } from 'lucide-react';
+import { useHealthData } from '../../context/HealthDataContext';
 
 export const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAuthenticated, userProfile, logout } = useHealthData();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -55,20 +57,42 @@ export const Navbar = () => {
 
         {/* Desktop Action CTAs */}
         <div className="hidden md:flex items-center gap-3">
-          <Link 
-            to="/login" 
-            className="text-sm font-semibold text-slate-700 hover:text-[#0F172A] px-3 py-2 rounded-lg hover:bg-slate-100 transition-colors"
-          >
-            Sign In
-          </Link>
+          {isAuthenticated ? (
+            <>
+              <button
+                onClick={() => navigate('/app/dashboard')}
+                className="py-2 px-4.5 text-xs sm:text-sm font-semibold rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white flex items-center gap-2 cursor-pointer shadow-xs transition-all"
+              >
+                <span>Dashboard ({userProfile?.name?.split(' ')[0] || 'User'})</span>
+                <ArrowRight className="w-4 h-4 text-[#0D9488]" />
+              </button>
 
-          <button
-            onClick={() => navigate('/app/dashboard')}
-            className="med-btn med-btn-primary py-2 px-4.5 text-xs sm:text-sm font-semibold rounded-xl"
-          >
-            <span>Patient Dashboard</span> 
-            <ArrowRight className="w-4 h-4 text-[#0D9488]" />
-          </button>
+              <button
+                onClick={logout}
+                className="p-2 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer"
+                title="Sign Out"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            </>
+          ) : (
+            <>
+              <Link 
+                to="/login" 
+                className="text-sm font-semibold text-slate-700 hover:text-[#0F172A] px-3 py-2 rounded-lg hover:bg-slate-100 transition-colors"
+              >
+                Sign In
+              </Link>
+
+              <Link
+                to="/signup"
+                className="py-2 px-4.5 text-xs sm:text-sm font-semibold rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white flex items-center gap-2 cursor-pointer shadow-xs transition-all"
+              >
+                <span>Create Account</span> 
+                <ArrowRight className="w-4 h-4 text-[#0D9488]" />
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile Hamburger Button */}
@@ -117,23 +141,36 @@ export const Navbar = () => {
           </a>
 
           <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">
-            <Link 
-              to="/login" 
-              onClick={() => setMobileMenuOpen(false)}
-              className="w-full text-center py-2.5 font-semibold text-slate-800 border border-slate-200 rounded-xl"
-            >
-              Sign In
-            </Link>
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                navigate('/app/dashboard');
-              }}
-              className="w-full py-2.5 font-semibold text-white bg-[#0F172A] rounded-xl flex items-center justify-center gap-2"
-            >
-              <span>Patient Dashboard</span>
-              <ArrowRight className="w-4 h-4 text-[#0D9488]" />
-            </button>
+            {isAuthenticated ? (
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  navigate('/app/dashboard');
+                }}
+                className="w-full py-2.5 font-semibold text-white bg-[#0F172A] rounded-xl flex items-center justify-center gap-2"
+              >
+                <span>Dashboard ({userProfile?.name?.split(' ')[0]})</span>
+                <ArrowRight className="w-4 h-4 text-[#0D9488]" />
+              </button>
+            ) : (
+              <>
+                <Link 
+                  to="/login" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full text-center py-2.5 font-semibold text-slate-800 border border-slate-200 rounded-xl"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  to="/signup"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full py-2.5 font-semibold text-white bg-[#0F172A] rounded-xl flex items-center justify-center gap-2 text-center"
+                >
+                  <span>Create Account</span>
+                  <ArrowRight className="w-4 h-4 text-[#0D9488]" />
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}

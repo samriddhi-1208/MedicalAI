@@ -7,7 +7,6 @@ import {
   Globe,
   Share2,
   PhoneCall,
-  Wifi,
   Mic,
   MoreHorizontal,
   LogOut,
@@ -20,7 +19,7 @@ import { useHealthData } from '../../context/HealthDataContext';
 export const Header = ({ collapsed }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { userProfile, notifications, clearAllData, language, setLanguage } = useHealthData();
+  const { userProfile, notifications, logout, language, setLanguage } = useHealthData();
   
   const [profileOpen, setProfileOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
@@ -28,11 +27,8 @@ export const Header = ({ collapsed }) => {
 
   const handleSignOut = () => {
     setProfileOpen(false);
-    localStorage.removeItem('medguardian_token');
-    localStorage.removeItem('medguardian_user_profile');
-    clearAllData();
-    toast.success("Signed out successfully. Returning to Create Account...");
-    navigate('/signup');
+    logout();
+    navigate('/login');
   };
 
   const getPageTitle = (path) => {
@@ -70,7 +66,7 @@ export const Header = ({ collapsed }) => {
   };
 
   const handleShareWhatsApp = () => {
-    const text = encodeURIComponent(`🏥 MedicalAI Patient Record: View health updates for ${userProfile.name} on MedicalAI.`);
+    const text = encodeURIComponent(`🏥 MedicalAI Patient Record: View health updates for ${userProfile?.name || 'Patient'} on MedicalAI.`);
     window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
     toast.success("Opening WhatsApp share...");
   };
@@ -88,50 +84,6 @@ export const Header = ({ collapsed }) => {
     }
   };
 
-  const startVoiceInput = () => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      toast.error("Voice input is not supported in this browser.");
-      return;
-    }
-
-    const recognition = new SpeechRecognition();
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognition.lang = language === 'GU' ? 'gu-IN' : language === 'HI' ? 'hi-IN' : 'en-IN';
-
-    recognition.onstart = () => {
-      toast.loading("Listening... Speak now...", { id: 'voice-toast' });
-    };
-
-    recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      toast.dismiss('voice-toast');
-      toast.success(`Recognized: "${transcript}"`);
-
-      const lower = transcript.toLowerCase();
-      if (lower.includes('hospital') || lower.includes('હોસ્પિટલ') || lower.includes('अस्पताल')) {
-        navigate('/app/hospitals');
-      } else if (lower.includes('upload') || lower.includes('અપલોડ') || lower.includes('अपलोड')) {
-        navigate('/app/upload');
-      } else if (lower.includes('medicine') || lower.includes('દવા') || lower.includes('दवा')) {
-        navigate('/app/medicines');
-      } else if (lower.includes('sos') || lower.includes('help') || lower.includes('મદદ')) {
-        navigate('/app/sos');
-      }
-    };
-
-    recognition.onerror = () => {
-      toast.dismiss('voice-toast');
-    };
-
-    recognition.onend = () => {
-      toast.dismiss('voice-toast');
-    };
-
-    recognition.start();
-  };
-
   return (
     <header
       className={`fixed top-0 right-0 z-20 h-16 bg-white border-b border-slate-200 transition-all duration-200 flex items-center justify-between px-4 sm:px-6 shadow-xs ${
@@ -145,7 +97,7 @@ export const Header = ({ collapsed }) => {
             {getPageTitle(location.pathname)}
           </h1>
           <p className="text-xs font-medium text-slate-500 hidden sm:block truncate mt-0.5">
-            Patient: <span className="font-bold text-slate-800">{userProfile.name}</span> • Clinical Workspace
+            Patient: <span className="font-bold text-slate-800">{userProfile?.name || 'Patient'}</span> • Clinical Workspace
           </p>
         </div>
 
@@ -181,17 +133,6 @@ export const Header = ({ collapsed }) => {
                 <span className="text-xs font-bold text-[#0F172A]">
                   {language === 'HI' ? 'Hindi (हिंदी)' : language === 'GU' ? 'Gujarati (ગુજ)' : 'English (EN)'}
                 </span>
-              </button>
-
-              <button
-                onClick={() => {
-                  startVoiceInput();
-                  setMoreToolsOpen(false);
-                }}
-                className="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-50 flex items-center gap-2 text-slate-800 font-semibold cursor-pointer"
-              >
-                <Mic className="w-4 h-4 text-[#0D9488]" /> 
-                {language === 'HI' ? 'Voice Search (आवाज से बोलें)' : language === 'GU' ? 'Voice Search (અવાજથી બોલો)' : 'Voice Search'}
               </button>
 
               <button
@@ -243,7 +184,6 @@ export const Header = ({ collapsed }) => {
             <div className="absolute right-0 mt-2 w-72 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 p-4 text-xs space-y-2">
               <div className="flex items-center justify-between font-bold text-[#0F172A] border-b border-slate-100 pb-2">
                 <span>Notifications</span>
-                <span className="text-[#0D9488] font-semibold cursor-pointer">Mark read</span>
               </div>
               <p className="text-slate-500 py-2">No unread notifications.</p>
             </div>
@@ -257,7 +197,7 @@ export const Header = ({ collapsed }) => {
             className="flex items-center gap-1.5 p-1 rounded-xl hover:bg-slate-100 cursor-pointer transition-colors"
           >
             <div className="w-8 h-8 rounded-full bg-[#0F172A] text-white font-bold text-xs flex items-center justify-center border border-slate-300 shadow-2xs">
-              {userProfile.name ? userProfile.name.charAt(0) : 'P'}
+              {userProfile?.name ? userProfile.name.charAt(0) : 'P'}
             </div>
             <ChevronDown className="w-3.5 h-3.5 text-slate-500 hidden sm:block" />
           </button>
@@ -265,8 +205,8 @@ export const Header = ({ collapsed }) => {
           {profileOpen && (
             <div className="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 py-2 text-xs">
               <div className="px-4 py-2.5 border-b border-slate-100">
-                <p className="font-bold text-[#0F172A] text-sm">{userProfile.name}</p>
-                <p className="text-slate-500 text-[11px] truncate font-medium">{userProfile.email || 'patient@example.com'}</p>
+                <p className="font-bold text-[#0F172A] text-sm">{userProfile?.name || 'Patient'}</p>
+                <p className="text-slate-500 text-[11px] truncate font-medium">{userProfile?.email || 'patient@example.com'}</p>
               </div>
               <Link to="/app/settings" onClick={() => setProfileOpen(false)} className="block px-4 py-2.5 font-semibold text-slate-800 hover:bg-slate-50">
                 Profile & Vitals

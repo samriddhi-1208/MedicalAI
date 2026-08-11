@@ -1,99 +1,33 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowRight, Lock, Mail, Sparkles, Activity, Eye, EyeOff } from 'lucide-react';
+import { ArrowRight, Lock, Mail, Activity, Eye, EyeOff } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
 
-const API_BASE = 'http://localhost:5000/api';
-
 export const LoginPage = () => {
   const navigate = useNavigate();
-  const { userProfile, updateUserProfile } = useHealthData();
+  const { login } = useHealthData();
 
-  // Retrieve actual registered patient email and saved password from local storage
-  const savedLocalEmail = localStorage.getItem('medguardian_last_user_email') || (userProfile && userProfile.email ? userProfile.email : '');
-  const savedLocalPass = localStorage.getItem('medguardian_last_user_pass') || 'password123';
-
-  const [email, setEmail] = useState(savedLocalEmail);
-  const [password, setPassword] = useState(savedLocalEmail ? savedLocalPass : '');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  // Automatically populate both email AND password on page mount if user registered on this device
-  useEffect(() => {
-    if (savedLocalEmail) {
-      setEmail(savedLocalEmail);
-      setPassword(savedLocalPass);
-    }
-  }, [savedLocalEmail, savedLocalPass]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     if (!email || !password) {
-      toast.error("Please enter email and password");
+      toast.error("Please enter both email and password.");
       return;
     }
 
     setLoading(true);
     try {
-      // Save last user email & password ONLY on this device's browser local storage
-      localStorage.setItem('medguardian_last_user_email', email);
-      localStorage.setItem('medguardian_last_user_pass', password);
-
-      // Send real POST request to backend API
-      const res = await fetch(`${API_BASE}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || 'Login failed');
-      }
-
-      if (data.token) {
-        localStorage.setItem('medguardian_token', data.token);
-      }
-
-      updateUserProfile({
-        name: data.user?.full_name || email.split('@')[0],
-        email: data.user?.email || email,
-        phone: data.user?.phone || '',
-        birthDate: data.user?.birth_date || '',
-        age: data.user?.age || '',
-        gender: data.user?.gender || 'Female',
-        bloodGroup: data.user?.blood_group || 'O+',
-        height: data.user?.height || '',
-        weight: data.user?.weight || '',
-        primaryPhysician: data.user?.primary_physician || ''
-      });
-
-      toast.success(`Welcome back, ${data.user?.full_name || 'Patient'}!`);
+      await login(email, password);
       navigate('/app/dashboard');
     } catch (err) {
-      console.log("Backend offline or login fallback: ", err.message);
-      localStorage.setItem('medguardian_last_user_email', email);
-      localStorage.setItem('medguardian_last_user_pass', password);
-      updateUserProfile({
-        name: email.split('@')[0],
-        email: email
-      });
-      toast.success("Signed in to workspace");
-      navigate('/app/dashboard');
+      toast.error(err.message || "Invalid email or password.");
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleQuickAutoFill = () => {
-    if (savedLocalEmail) {
-      setEmail(savedLocalEmail);
-      setPassword(savedLocalPass);
-      toast.success(`Auto-filled saved credentials & password for ${savedLocalEmail}`);
-    } else {
-      toast.error("No registered account found on this device. Please Create an Account first!");
-      navigate('/signup');
     }
   };
 
@@ -122,22 +56,6 @@ export const LoginPage = () => {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white border border-slate-200 py-8 px-6 shadow-xl shadow-slate-200/50 rounded-2xl sm:px-8 space-y-5">
           
-          {/* Quick Auto-Fill Credentials Button */}
-          {savedLocalEmail ? (
-            <button
-              type="button"
-              onClick={handleQuickAutoFill}
-              className="w-full py-2.5 px-4 rounded-xl bg-slate-50 hover:bg-slate-100 text-[#0F172A] text-xs font-semibold border border-slate-200 flex items-center justify-center gap-2 transition-all cursor-pointer"
-            >
-              <Sparkles className="w-4 h-4 text-[#0D9488]" />
-              <span>⚡ Auto-Fill Saved Account ({savedLocalEmail})</span>
-            </button>
-          ) : (
-            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-500 text-center">
-              First time on this device? <Link to="/signup" className="text-[#0D9488] font-bold hover:underline">Create an Account</Link> to save your profile
-            </div>
-          )}
-
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="med-form-group">
               <label htmlFor="email" className="block text-xs font-bold text-[#0F172A] mb-1.5">Email Address</label>
@@ -150,7 +68,7 @@ export const LoginPage = () => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your registered email"
+                  placeholder="patient@example.com"
                   className="med-input w-full block"
                   required
                 />

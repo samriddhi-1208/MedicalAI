@@ -1,37 +1,44 @@
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const config = require('../config');
 
-// Helper to safely find user from req without Mongoose ObjectId CastError
+// Helper to find authenticated user from req.user
 async function getUserFromReq(req) {
   const userId = req.user?.id;
   if (userId && mongoose.Types.ObjectId.isValid(userId)) {
-    const found = await User.findById(userId);
-    if (found) return found;
+    return await User.findById(userId);
   }
   if (req.user?.email) {
-    const foundByEmail = await User.findOne({ email: req.user.email.toLowerCase() });
-    if (foundByEmail) return foundByEmail;
+    return await User.findOne({ email: req.user.email.toLowerCase() });
   }
-  return await User.findOne();
+  return null;
 }
 
 exports.signup = async (req, res, next) => {
   try {
-    const { email, name, phone, birthDate, age, gender, bloodGroup, height, weight, physician, password } = req.body;
-    if (!email) {
-      return res.status(400).json({ error: "Email is required" });
+    const { email, password, name, phone, birthDate, age, gender, bloodGroup, height, weight, physician } = req.body;
+    
+    if (!email || !password || !name) {
+      return res.status(400).json({ error: "Name, email, and password are required." });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ error: "Password must be at least 6 characters long." });
     }
 
     const existing = await User.findOne({ email: email.toLowerCase() });
     if (existing) {
-      return res.status(400).json({ error: "User with this email already registered" });
+      return res.status(400).json({ error: "An account with this email already exists. Please sign in instead." });
     }
+
+    const passwordHash = await bcrypt.hash(password, 10);
 
     const newUser = await User.create({
       email: email.toLowerCase(),
-      full_name: name || 'Patient',
+      password_hash: passwordHash,
+      full_name: name,
       phone: phone || '',
       birth_date: birthDate || '',
       age: parseInt(age) || 20,
@@ -42,14 +49,18 @@ exports.signup = async (req, res, next) => {
       primary_physician: physician || ''
     });
 
-    console.log(`[AUTH] New patient registered in MongoDB Atlas: ID ${newUser.id} (${newUser.email}) - Age: ${newUser.age}, Height: ${newUser.height}, Weight: ${newUser.weight}`);
+    console.log(`[AUTH] Registered new user in MongoDB: ID ${newUser.id} (${newUser.email})`);
 
     const token = jwt.sign(
       { id: newUser.id, email: newUser.email, name: newUser.full_name },
       config.jwtSecret,
       { expiresIn: '7d' }
     );
-    res.status(201).json({ token, user: newUser });
+
+    const userObj = newUser.toObject();
+    delete userObj.password_hash;
+
+    res.status(201).json({ token, user: userObj });
   } catch (error) {
     next(error);
   }
@@ -57,18 +68,20 @@ exports.signup = async (req, res, next) => {
 
 exports.login = async (req, res, next) => {
   try {
-    const { email } = req.body;
-    if (!email) {
-      return res.status(400).json({ error: "Email is required" });
+    const { email, password } = req.body;
+    
+    if (!email || !password) {
+      return res.status(400).json({ error: "Email and password are required." });
     }
 
-    let user = await User.findOne({ email: email.toLowerCase() });
+    const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
-      user = await User.create({
-        email: email.toLowerCase(),
-        full_name: email.split('@')[0].replace(/[._]/g, ' ')
-      });
-      console.log(`[AUTH] Auto-created new patient in MongoDB Atlas: ID ${user.id} (${user.email})`);
+      return res.status(401).json({ error: "Invalid email or password." });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password_hash);
+    if (!isMatch) {
+      return res.status(401).json({ error: "Invalid email or password." });
     }
 
     const token = jwt.sign(
@@ -76,7 +89,13 @@ exports.login = async (req, res, next) => {
       config.jwtSecret,
       { expiresIn: '7d' }
     );
-    res.json({ token, user });
+
+    const userObj = user.toObject();
+    delete userObj.password_hash;
+
+    console.log(`[AUTH] User signed in: ID ${user.id} (${user.email})`);
+
+    res.json({ token, user: userObj });
   } catch (error) {
     next(error);
   }
@@ -85,7 +104,12 @@ exports.login = async (req, res, next) => {
 exports.getProfile = async (req, res, next) => {
   try {
     const user = await getUserFromReq(req);
-    res.json(user);
+    if (!user) {
+      return res.status(401).json({ error: "Authentication required." });
+    }
+    const userObj = user.toObject();
+    delete userObj.password_hash;
+    res.json(userObj);
   } catch (error) {
     next(error);
   }
@@ -95,11 +119,18 @@ exports.updateProfile = async (req, res, next) => {
   try {
     const user = await getUserFromReq(req);
     if (!user) {
-      return res.status(404).json({ error: "User profile not found" });
+      return res.status(401).json({ error: "Authentication required." });
+    }
+
+    if (req.body.password) {
+      req.body.password_hash = await bcrypt.hash(req.body.password, 10);
+      delete req.body.password;
     }
 
     const updated = await User.findByIdAndUpdate(user._id, req.body, { new: true });
-    res.json(updated);
+    const userObj = updated.toObject();
+    delete userObj.password_hash;
+    res.json(userObj);
   } catch (error) {
     next(error);
   }

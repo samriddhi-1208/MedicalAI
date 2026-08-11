@@ -3,9 +3,8 @@ const config = require('../config');
 
 module.exports = (req, res, next) => {
   const authHeader = req.headers.authorization;
-  if (!authHeader) {
-    req.user = { email: "laxmi.manapure@example.com" };
-    return next();
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: "Authentication token required. Please sign in." });
   }
 
   const token = authHeader.split(' ')[1];
@@ -14,7 +13,6 @@ module.exports = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (err) {
-    req.user = { email: "laxmi.manapure@example.com" };
-    next();
+    return res.status(401).json({ error: "Session expired or invalid token. Please sign in again." });
   }
 };
