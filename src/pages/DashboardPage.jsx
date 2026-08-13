@@ -68,28 +68,7 @@ export const DashboardPage = () => {
     taken: false
   };
 
-  const recentReportsList = (Array.isArray(reports) && reports.length > 0)
-    ? reports
-    : [
-        {
-          id: "rep-2023-001",
-          title: "Comprehensive Metabolic Panel",
-          labName: "Quest Diagnostics & Pathology",
-          doctorName: "Dr. Emily Chen",
-          date: "Oct 24, 2023",
-          status: "Normal",
-          statusType: "normal"
-        },
-        {
-          id: "rep-2023-002",
-          title: "Chest X-Ray & Imaging Report",
-          labName: "City Hospital Radiometry",
-          doctorName: "City Hospital Radiologist",
-          date: "Oct 12, 2023",
-          status: "Normal",
-          statusType: "normal"
-        }
-      ];
+  const recentReportsList = (Array.isArray(reports) && reports.length > 0) ? reports : [];
 
   return (
     <div className="space-y-6 pb-12 font-sans antialiased">
@@ -276,18 +255,27 @@ export const DashboardPage = () => {
           </div>
 
           <div className="space-y-3">
-            {recentReportsList.map((rep) => (
-              <ReportCard 
-                key={rep.id}
-                title={rep.title}
-                date={rep.date}
-                doctorName={rep.doctorName}
-                labName={rep.labName}
-                status={rep.status}
-                statusType={rep.statusType}
-                onViewDetails={() => navigate('/app/analysis')}
-              />
-            ))}
+            {recentReportsList.length === 0 ? (
+              <Card className="p-6 text-center bg-white border border-slate-200 rounded-2xl space-y-3">
+                <FileText className="w-8 h-8 text-slate-400 mx-auto" />
+                <p className="text-xs text-slate-600 font-normal">
+                  No uploaded medical reports yet. Click "Upload New" to analyze your first lab document.
+                </p>
+              </Card>
+            ) : (
+              recentReportsList.map((rep) => (
+                <ReportCard 
+                  key={rep.id || rep.reportId}
+                  title={rep.fileName || rep.title}
+                  date={rep.uploadedAt || rep.date}
+                  doctorName={rep.doctorName || 'Prescribing Physician'}
+                  labName={rep.labName || 'Uploaded Lab Document'}
+                  status={rep.status || 'Normal'}
+                  statusType={rep.statusType || 'normal'}
+                  onViewDetails={() => navigate('/app/analysis')}
+                />
+              ))
+            )}
           </div>
         </div>
 
