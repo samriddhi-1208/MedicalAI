@@ -1,6 +1,6 @@
 /**
- * MedGuardian AI — 100% Real-Time Emergency Service Architecture
- * Live Geolocation, OpenStreetMap Nearby Emergency Facilities API, and 108 Dispatch.
+ * MedGuardian AI — Universal Real-Time Emergency Service Architecture
+ * Live Geolocation, Multi-Stage OpenStreetMap Bounding Box + Reverse Geocoding District Engine for Gujarat & India.
  * ZERO HARDCODED HOSPITALS OR TRUSTED CONTACTS.
  */
 
@@ -24,54 +24,88 @@ export function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
 
 export const emergencyService = {
   /**
-   * Fetches real nearby emergency hospitals from OpenStreetMap Nominatim Live API using geographic bounding box & city fallback
+   * Fetches real nearby emergency hospitals for ANY location in Gujarat / India using multi-tier spatial bounding box & district reverse geocoding
    */
   fetchLiveNearbyEmergencyHospitals: async (lat, lng) => {
     try {
-      const delta = 0.30; // ~30km bounding box around GPS coordinates
-      const viewbox = `${lng - delta},${lat + delta},${lng + delta},${lat - delta}`;
-      const url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&extratags=1&q=hospital&viewbox=${viewbox}&bounded=1&limit=30`;
+      let rawResults = [];
 
-      let response = await fetch(url, {
-        headers: {
-          'User-Agent': 'MedGuardianAI-EmergencySystem/1.0'
-        }
-      });
+      // Stage 1: Local 35km Spatial Bounding Box
+      const delta1 = 0.35;
+      const viewbox1 = `${lng - delta1},${lat + delta1},${lng + delta1},${lat - delta1}`;
+      const url1 = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&extratags=1&q=hospital&viewbox=${viewbox1}&bounded=1&limit=30`;
 
-      let data = [];
-      if (response.ok) {
-        data = await response.json();
+      try {
+        const res1 = await fetch(url1, { headers: { 'User-Agent': 'MedGuardianAI-GujaratEngine/1.0' } });
+        if (res1.ok) rawResults = await res1.json();
+      } catch (e) {
+        console.error("Stage 1 search error:", e);
       }
 
-      // Fallback: If viewbox search yielded fewer than 3 results, query by reverse geocoded city name
-      if (!Array.isArray(data) || data.length < 3) {
+      // Stage 2: Expanded 60km Spatial Bounding Box if Stage 1 < 5 results
+      if (!Array.isArray(rawResults) || rawResults.length < 5) {
+        const delta2 = 0.60;
+        const viewbox2 = `${lng - delta2},${lat + delta2},${lng + delta2},${lat - delta2}`;
+        const url2 = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&extratags=1&q=hospital&viewbox=${viewbox2}&bounded=1&limit=40`;
+        try {
+          const res2 = await fetch(url2, { headers: { 'User-Agent': 'MedGuardianAI-GujaratEngine/1.0' } });
+          if (res2.ok) {
+            const data2 = await res2.json();
+            if (Array.isArray(data2) && data2.length > rawResults.length) {
+              rawResults = data2;
+            }
+          }
+        } catch (e) {
+          console.error("Stage 2 search error:", e);
+        }
+      }
+
+      // Stage 3: Reverse Geocoding City / District Query (For rural Gujarat towns & villages)
+      if (!Array.isArray(rawResults) || rawResults.length < 3) {
         try {
           const revRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`, {
-            headers: { 'User-Agent': 'MedGuardianAI-EmergencySystem/1.0' }
+            headers: { 'User-Agent': 'MedGuardianAI-GujaratEngine/1.0' }
           });
           if (revRes.ok) {
             const revData = await revRes.json();
-            const cityName = revData.address?.city || revData.address?.town || revData.address?.county || revData.address?.state;
+            const addr = revData.address || {};
+            const cityName = addr.city || addr.town || addr.village || addr.suburb || addr.county || addr.district || addr.state_district || addr.state;
+            
             if (cityName) {
-              const cityUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&extratags=1&q=hospital+in+${encodeURIComponent(cityName)}&limit=30`;
-              const cityRes = await fetch(cityUrl, {
-                headers: { 'User-Agent': 'MedGuardianAI-EmergencySystem/1.0' }
-              });
+              const cityUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&extratags=1&q=hospital+in+${encodeURIComponent(cityName)}+Gujarat&limit=40`;
+              const cityRes = await fetch(cityUrl, { headers: { 'User-Agent': 'MedGuardianAI-GujaratEngine/1.0' } });
               if (cityRes.ok) {
-                data = await cityRes.json();
+                const cityData = await cityRes.json();
+                if (Array.isArray(cityData) && cityData.length > 0) {
+                  rawResults = cityData;
+                }
               }
             }
           }
         } catch (e) {
-          console.error("City fallback search error:", e);
+          console.error("Stage 3 city reverse geocoding error:", e);
         }
       }
 
-      if (!Array.isArray(data) || data.length === 0) {
+      // Stage 4: Gujarat State Fallback
+      if (!Array.isArray(rawResults) || rawResults.length === 0) {
+        try {
+          const stateUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&extratags=1&q=hospital+in+Gujarat&limit=40`;
+          const stateRes = await fetch(stateUrl, { headers: { 'User-Agent': 'MedGuardianAI-GujaratEngine/1.0' } });
+          if (stateRes.ok) {
+            rawResults = await stateRes.json();
+          }
+        } catch (e) {
+          console.error("Stage 4 state fallback search error:", e);
+        }
+      }
+
+      if (!Array.isArray(rawResults) || rawResults.length === 0) {
         return [];
       }
 
-      const mapped = data.map((item, index) => {
+      // Map and calculate exact Haversine proximity for every hospital
+      const mapped = rawResults.map((item, index) => {
         const itemLat = parseFloat(item.lat);
         const itemLng = parseFloat(item.lon);
         const distKm = calculateHaversineDistance(lat, lng, itemLat, itemLng);
@@ -80,8 +114,8 @@ export const emergencyService = {
         const fullAddress = [
           addressObj.road,
           addressObj.suburb || addressObj.neighbourhood,
-          addressObj.city || addressObj.town || addressObj.county,
-          addressObj.state,
+          addressObj.city || addressObj.town || addressObj.county || addressObj.village,
+          addressObj.state || 'Gujarat',
           addressObj.postcode
         ].filter(Boolean).join(', ') || item.display_name;
 
@@ -90,7 +124,7 @@ export const emergencyService = {
 
         return {
           id: `hosp-live-${item.place_id || index}`,
-          name: item.name || item.display_name.split(',')[0] || `Emergency Healthcare Facility #${index + 1}`,
+          name: item.name || item.display_name.split(',')[0] || `Emergency Hospital #${index + 1}`,
           address: fullAddress,
           lat: itemLat,
           lng: itemLng,
@@ -104,7 +138,7 @@ export const emergencyService = {
         };
       });
 
-      // Sort strictly by actual geographic proximity
+      // Sort strictly by proximity from user's current GPS location
       mapped.sort((a, b) => (a.distanceKm || 999) - (b.distanceKm || 999));
       return mapped;
     } catch (err) {
