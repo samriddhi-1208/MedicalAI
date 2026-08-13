@@ -15,12 +15,14 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../../context/HealthDataContext';
+import { formatDisplayName } from '../../utils/formatters';
 
 export const Header = ({ collapsed }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { userProfile, notifications, logout, language, setLanguage } = useHealthData();
   
+  const displayName = formatDisplayName(userProfile?.name);
   const [profileOpen, setProfileOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [moreToolsOpen, setMoreToolsOpen] = useState(false);
@@ -45,6 +47,10 @@ export const Header = ({ collapsed }) => {
         if (language === 'HI') return 'एआई जांच विश्लेषण';
         if (language === 'GU') return 'એઆઈ નિદાન નિષ્કર્ષ';
         return 'AI Diagnostic Analysis';
+      case '/app/trends':
+        if (language === 'HI') return 'स्वास्थ्य रुझान';
+        if (language === 'GU') return 'આરોગ્ય વલણો';
+        return 'Health Trends & Analytics';
       case '/app/hospitals': 
         if (language === 'HI') return '24/7 नजदीकी अस्पताल';
         if (language === 'GU') return '24/7 નજીકની હોસ્પિટલ';
@@ -66,7 +72,7 @@ export const Header = ({ collapsed }) => {
   };
 
   const handleShareWhatsApp = () => {
-    const text = encodeURIComponent(`🏥 MedicalAI Patient Record: View health updates for ${userProfile?.name || 'Patient'} on MedicalAI.`);
+    const text = encodeURIComponent(`🏥 MedicalAI Patient Record: View health updates for ${displayName} on MedicalAI.`);
     window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
     toast.success("Opening WhatsApp share...");
   };
@@ -97,7 +103,7 @@ export const Header = ({ collapsed }) => {
             {getPageTitle(location.pathname)}
           </h1>
           <p className="text-xs font-medium text-slate-500 hidden sm:block truncate mt-0.5">
-            Patient: <span className="font-bold text-slate-800">{userProfile?.name || 'Patient'}</span> • Clinical Workspace
+            Patient: <span className="font-bold text-slate-800">{displayName}</span> • Clinical Workspace
           </p>
         </div>
 
@@ -197,7 +203,7 @@ export const Header = ({ collapsed }) => {
             className="flex items-center gap-1.5 p-1 rounded-xl hover:bg-slate-100 cursor-pointer transition-colors"
           >
             <div className="w-8 h-8 rounded-full bg-[#0F172A] text-white font-bold text-xs flex items-center justify-center border border-slate-300 shadow-2xs">
-              {userProfile?.name ? userProfile.name.charAt(0) : 'P'}
+              {displayName ? displayName.charAt(0) : 'P'}
             </div>
             <ChevronDown className="w-3.5 h-3.5 text-slate-500 hidden sm:block" />
           </button>
@@ -205,7 +211,7 @@ export const Header = ({ collapsed }) => {
           {profileOpen && (
             <div className="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 py-2 text-xs">
               <div className="px-4 py-2.5 border-b border-slate-100">
-                <p className="font-bold text-[#0F172A] text-sm">{userProfile?.name || 'Patient'}</p>
+                <p className="font-bold text-[#0F172A] text-sm">{displayName}</p>
                 <p className="text-slate-500 text-[11px] truncate font-medium">{userProfile?.email || ''}</p>
               </div>
               <Link to="/app/settings" onClick={() => setProfileOpen(false)} className="block px-4 py-2.5 font-semibold text-slate-800 hover:bg-slate-50">

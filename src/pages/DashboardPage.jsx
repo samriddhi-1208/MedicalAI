@@ -32,6 +32,7 @@ import { useHealthData } from '../context/HealthDataContext';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
+import { formatDisplayName } from '../utils/formatters';
 
 export const DashboardPage = () => {
   const navigate = useNavigate();
@@ -44,8 +45,9 @@ export const DashboardPage = () => {
     language
   } = useHealthData();
 
+  const displayName = formatDisplayName(userProfile?.name);
   const [isEditingName, setIsEditingName] = useState(false);
-  const [tempName, setTempName] = useState(userProfile?.name || 'Patient');
+  const [tempName, setTempName] = useState(displayName);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isListening, setIsListening] = useState(false);
 
@@ -114,11 +116,11 @@ export const DashboardPage = () => {
             ) : (
               <div className="flex items-center gap-3 flex-wrap">
                 <h1 className="text-2.5xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight leading-snug">
-                  {getGreeting()}, {userProfile?.name}
+                  {getGreeting()}, {displayName}
                 </h1>
                 <button
                   onClick={() => {
-                    setTempName(userProfile?.name || '');
+                    setTempName(displayName);
                     setIsEditingName(true);
                   }}
                   className="px-2.5 py-1 rounded-lg bg-slate-50 text-slate-700 hover:bg-slate-100 text-xs font-semibold transition-colors inline-flex items-center gap-1.5 border border-slate-200 cursor-pointer"
