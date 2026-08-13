@@ -4,6 +4,7 @@ import {
   LayoutDashboard, 
   Upload, 
   BrainCircuit, 
+  TrendingUp,
   MapPin, 
   Pill, 
   Siren, 
@@ -24,6 +25,7 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
     { label: 'Dashboard', path: '/app/dashboard', icon: LayoutDashboard },
     { label: 'Upload Report', path: '/app/upload', icon: Upload },
     { label: 'AI Diagnosis & Analysis', path: '/app/analysis', icon: BrainCircuit },
+    { label: 'Health Trends & Analytics', path: '/app/trends', icon: TrendingUp },
     { label: 'Hospital Finder', path: '/app/hospitals', icon: MapPin },
     { 
       label: 'Medicine Reminders', 

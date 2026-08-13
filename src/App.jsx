@@ -14,6 +14,7 @@ import { AppLayout } from './components/layout/AppLayout';
 import { DashboardPage } from './pages/DashboardPage';
 import { ReportUploadPage } from './pages/ReportUploadPage';
 import { AIAnalysisPage } from './pages/AIAnalysisPage';
+import { HealthTimelinePage } from './pages/HealthTimelinePage';
 import { HospitalFinderPage } from './pages/HospitalFinderPage';
 import { MedicineReminderPage } from './pages/MedicineReminderPage';
 import { EmergencySOSPage } from './pages/EmergencySOSPage';
@@ -121,6 +122,7 @@ export default function App() {
               <Route path="dashboard" element={<DashboardPage />} />
               <Route path="upload" element={<ReportUploadPage />} />
               <Route path="analysis" element={<AIAnalysisPage />} />
+              <Route path="trends" element={<HealthTimelinePage />} />
               <Route path="hospitals" element={<HospitalFinderPage />} />
               <Route path="medicines" element={<MedicineReminderPage />} />
               <Route path="sos" element={<EmergencySOSPage />} />

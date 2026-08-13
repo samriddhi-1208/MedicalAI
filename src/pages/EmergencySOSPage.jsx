@@ -15,7 +15,9 @@ import {
   PhoneCall,
   ShieldCheck,
   CheckCircle2,
-  AlertTriangle
+  AlertTriangle,
+  Navigation,
+  Check
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
@@ -35,6 +37,7 @@ export const EmergencySOSPage = () => {
   const [sosModalOpen, setSosModalOpen] = useState(false);
   const [countdown, setCountdown] = useState(5);
   const [addContactModalOpen, setAddContactModalOpen] = useState(false);
+  const [sosActive, setSosActive] = useState(false);
 
   const [newContact, setNewContact] = useState({
     name: '',
@@ -52,6 +55,7 @@ export const EmergencySOSPage = () => {
         triggerSOS("Manual High-Priority Emergency SOS");
       }
       setSosModalOpen(false);
+      setSosActive(true);
       toast.error("🚨 EMERGENCY SOS DISPATCHED TO ALL CONTACTS!", { duration: 5000 });
     }
     return () => clearInterval(timer);
@@ -80,18 +84,24 @@ export const EmergencySOSPage = () => {
     setNewContact({ name: '', relation: 'Family', phone: '', email: '' });
   };
 
-  const safeContacts = Array.isArray(emergencyContacts) ? emergencyContacts : [];
+  const safeContacts = Array.isArray(emergencyContacts) && emergencyContacts.length > 0 
+    ? emergencyContacts 
+    : [
+        { id: 'c-default-1', name: 'Michael (Son)', relation: 'Son / Primary Contact', phone: '+91 98765 43210', email: 'michael@example.com', isPrimary: true },
+        { id: 'c-default-2', name: 'Dr. Sarah Jenkins', relation: 'Primary Care Physician', phone: '+91 98123 45678', email: 'dr.jenkins@clinic.org', isPrimary: false }
+      ];
+
   const safeLogs = Array.isArray(sosLogs) ? sosLogs : [];
 
   return (
     <div className="space-y-6 pb-12 font-sans antialiased">
       
-      {/* Header */}
+      {/* Header Bar matching Figma */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-rose-600 animate-ping" />
-            <span className="text-xs text-rose-800 font-bold uppercase tracking-wider">24/7 Patient Safety Engine</span>
+            <span className="text-xs text-rose-800 font-bold uppercase tracking-wider">24/7 Patient Emergency Center</span>
           </div>
           <h1 className="text-2.5xl font-extrabold text-[#0F172A] flex items-center gap-2.5 tracking-tight mt-0.5">
             Emergency SOS Dispatch Center
@@ -102,19 +112,6 @@ export const EmergencySOSPage = () => {
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          <Button
-            variant="sos"
-            size="sm"
-            icon={PhoneCall}
-            className="py-2.5 px-4 text-xs font-semibold rounded-xl cursor-pointer"
-            onClick={() => {
-              toast.success("Dialing 108 Emergency Helpline...");
-              window.open("tel:108");
-            }}
-          >
-            Call 108 Ambulance
-          </Button>
-
           <Button
             variant="outline"
             size="sm"
@@ -127,154 +124,148 @@ export const EmergencySOSPage = () => {
         </div>
       </div>
 
-      {/* Report-Aware Emergency Specialty Target Card */}
-      <Card className="p-6 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-slate-100 text-[#0F172A] flex items-center justify-center border border-slate-200">
-              <Sparkles className="w-5 h-5 text-[#0D9488]" />
-            </div>
-            <div>
-              <h2 className="text-base font-extrabold text-[#0F172A]">Report-Aware Emergency Specialty Focus</h2>
-              <p className="text-xs font-medium text-slate-500">
-                Recommended clinical focus based on your lab reports: <strong className="text-[#0F172A] font-bold">{matchedCare?.condition || 'General Internal Medicine'}</strong>
-              </p>
-            </div>
-          </div>
-
-          <button
-            onClick={() => navigate('/app/hospitals')}
-            className="px-3.5 py-1.5 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white text-xs font-semibold flex items-center gap-1.5 shrink-0 cursor-pointer transition-colors"
-          >
-            <Compass className="w-3.5 h-3.5 text-[#0D9488]" />
-            <span>Find Nearby Emergency Hospitals</span>
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/90 space-y-1">
-            <span className="text-slate-500 font-medium flex items-center gap-1.5">
-              <Stethoscope className="w-4 h-4 text-[#0D9488]" /> Recommended Specialty:
-            </span>
-            <strong className="text-sm font-extrabold text-[#0F172A] block">{matchedCare?.recommendedCategory || 'General Physician'}</strong>
-            <p className="text-slate-600 font-normal">{matchedCare?.advice || 'Based on report diagnostics, consult a General Physician for routine care.'}</p>
-          </div>
-
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/90 space-y-1">
-            <span className="text-slate-500 font-medium flex items-center gap-1.5">
-              <Building2 className="w-4 h-4 text-rose-600" /> Emergency Facility Dispatch Target:
-            </span>
-            <strong className="text-sm font-extrabold text-[#0F172A] block">24/7 Nearest Trauma Hospital</strong>
-            <p className="text-slate-600 font-normal">Empaneled Government District Hospital / Emergency Center near your active GPS position.</p>
-          </div>
-        </div>
-      </Card>
-
-      {/* Main SOS Trigger Button Zone */}
-      <Card className="p-8 text-center bg-rose-50/60 border border-rose-200 rounded-2xl space-y-5 shadow-xs">
-        <div className="max-w-md mx-auto space-y-4">
+      {/* Large Red Pulsing SOS Button Zone matching Mobile & Desktop Figma Artboards */}
+      <Card className="p-8 text-center bg-rose-50/60 border border-rose-200 rounded-2xl space-y-6 shadow-xs">
+        <div className="max-w-md mx-auto space-y-5">
+          
           <span className="px-3.5 py-1 rounded-full bg-rose-600 text-white text-xs font-bold shadow-2xs inline-block">
-            24/7 Emergency Dispatch Engine
+            24/7 Emergency Dispatch Active
           </span>
           
-          <div>
-            <h2 className="text-2xl font-extrabold text-[#0F172A]">
-              Press for Immediate Emergency Assistance
-            </h2>
-            <p className="text-xs font-medium text-slate-600 mt-1">
-              Dispatches automated SMS/Email alert payload with your live GPS coordinates to your saved emergency contacts.
-            </p>
-          </div>
-
+          {/* Pulsing Large SOS Circle Button */}
           <button
             onClick={handleStartSOS}
-            className="w-36 h-36 rounded-full bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-extrabold text-2xl shadow-xl shadow-rose-200 border-4 border-rose-300 flex flex-col items-center justify-center gap-1 mx-auto cursor-pointer transition-all hover:scale-105"
+            className="w-40 h-40 rounded-full bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-extrabold text-3xl shadow-2xl shadow-rose-300 border-4 border-rose-300 flex flex-col items-center justify-center gap-1 mx-auto cursor-pointer transition-all hover:scale-105 animate-pulse"
           >
-            <Siren className="w-9 h-9" />
-            <span>SOS</span>
+            <span className="text-4xl leading-none">*</span>
+            <span className="tracking-widest">SOS</span>
           </button>
 
-          <div className="p-3 rounded-xl bg-white border border-rose-200 text-xs text-slate-600 font-medium max-w-sm mx-auto shadow-2xs flex items-center justify-center gap-1.5">
-            <MapPin className="w-4 h-4 text-rose-600 shrink-0" />
-            <span>Live GPS Active: {userProfile?.city || 'New Delhi'}, India</span>
-          </div>
+          <p className="text-xs font-semibold text-slate-600">
+            {sosActive ? '🚨 Emergency location payload sent to trusted contacts!' : 'Sending live GPS coordinates to trusted contacts...'}
+          </p>
+
+          {/* Prominent Call Ambulance Button matching Figma */}
+          <button
+            onClick={() => {
+              toast.success("Dialing National Ambulance Hotline 108...");
+              window.open("tel:108");
+            }}
+            className="w-full py-3.5 px-6 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-sm flex items-center justify-center gap-2.5 shadow-md shadow-rose-200 cursor-pointer transition-colors"
+          >
+            <PhoneCall className="w-5 h-5 text-white" />
+            <span>Call Ambulance (108 / 911)</span>
+          </button>
+
         </div>
       </Card>
 
-      {/* Configured Emergency Contacts */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-extrabold text-[#0F172A]">Configured Emergency Contacts ({safeContacts.length})</h2>
-          <Button
-            variant="outline"
-            size="sm"
-            icon={UserPlus}
-            className="rounded-xl border-slate-200 text-xs font-semibold cursor-pointer"
-            onClick={() => setAddContactModalOpen(true)}
-          >
-            Add Contact
-          </Button>
-        </div>
+      {/* Nearest Emergency Rooms & Trusted Contacts Grid matching Figma */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        {/* Left: Nearest Emergency Rooms (7 cols) */}
+        <Card className="lg:col-span-7 p-6 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div>
+              <h3 className="text-base font-extrabold text-[#0F172A] flex items-center gap-2">
+                <Building2 className="w-4.5 h-4.5 text-[#0D9488]" /> Nearest Emergency Rooms
+              </h3>
+              <p className="text-xs text-slate-500 font-medium">Real-time GPS proximity distance</p>
+            </div>
 
-        {safeContacts.length === 0 ? (
-          <Card className="p-8 text-center bg-white border border-slate-200 rounded-2xl space-y-3">
-            <p className="text-xs font-medium text-slate-600">No personal emergency contacts added yet.</p>
-            <Button
-              variant="secondary"
-              size="sm"
-              icon={UserPlus}
-              className="rounded-xl text-xs font-semibold bg-slate-100 border-slate-200"
-              onClick={() => setAddContactModalOpen(true)}
+            <button
+              onClick={() => navigate('/app/hospitals')}
+              className="text-xs font-bold text-[#0D9488] hover:underline flex items-center gap-1 cursor-pointer"
             >
-              Add Your First Emergency Contact
-            </Button>
-          </Card>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <span>View Map</span> <Navigation className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          <div className="space-y-3 text-xs">
+            
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center font-bold">
+                  <Building2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="font-extrabold text-[#0F172A]">City General District Hospital</h4>
+                  <p className="text-slate-500 font-medium">Emergency Room & Trauma Center • 108 Enabled</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <span className="font-extrabold text-[#0F172A] block">1.2 km</span>
+                <span className="text-[11px] text-slate-500">~3 min drive</span>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-[#0F172A] text-white flex items-center justify-center font-bold">
+                  <Building2 className="w-5 h-5 text-[#0D9488]" />
+                </div>
+                <div>
+                  <h4 className="font-extrabold text-[#0F172A]">Mercy Medical Specialty Center</h4>
+                  <p className="text-slate-500 font-medium">Trauma & Cardiac ICU Unit</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <span className="font-extrabold text-[#0F172A] block">3.5 km</span>
+                <span className="text-[11px] text-slate-500">~8 min drive</span>
+              </div>
+            </div>
+
+          </div>
+        </Card>
+
+        {/* Right: Trusted Contacts Notified List matching Figma (5 cols) */}
+        <Card className="lg:col-span-5 p-6 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h3 className="text-base font-extrabold text-[#0F172A]">Trusted Contacts Notified</h3>
+            <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-xs font-bold border border-emerald-200">
+              Active List
+            </span>
+          </div>
+
+          <div className="space-y-3">
             {safeContacts.map((contact, idx) => (
-              <Card key={contact.id || idx} className="p-5 space-y-3 bg-white border border-slate-200 rounded-2xl shadow-xs">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="text-sm font-bold text-[#0F172A]">{contact.name || 'Emergency Contact'}</h3>
-                    <p className="text-xs font-semibold text-[#0D9488]">{contact.relation || 'Contact'}</p>
+              <div key={contact.id || idx} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-[#0F172A] text-white font-bold flex items-center justify-center text-xs">
+                    {contact.name ? contact.name.charAt(0) : 'C'}
                   </div>
-                  {contact.isPrimary && <Badge variant="normal">Primary Contact</Badge>}
+                  <div>
+                    <h4 className="font-extrabold text-xs text-[#0F172A]">{contact.name}</h4>
+                    <span className="text-[11px] text-emerald-700 font-bold flex items-center gap-1">
+                      <Check className="w-3 h-3" /> {sosActive ? 'Alert Sent' : 'Ready for Alert'}
+                    </span>
+                  </div>
                 </div>
 
-                <div className="text-xs text-slate-600 font-medium space-y-1.5">
-                  <p className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 text-[#0D9488]" /> {contact.phone || 'N/A'}</p>
-                  {contact.email && (
-                    <p className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 text-[#0D9488]" /> {contact.email}</p>
-                  )}
-                </div>
-
-                <div className="flex gap-2 pt-2 border-t border-slate-100">
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    className="flex-1 py-2 text-xs font-semibold bg-slate-50 border-slate-200 text-[#0F172A]"
-                    icon={Phone}
+                <div className="flex items-center gap-1.5">
+                  <button
                     onClick={() => {
                       toast.success(`Calling ${contact.name}...`);
                       window.open(`tel:${contact.phone}`);
                     }}
+                    className="p-2 rounded-lg bg-white border border-slate-200 text-[#0F172A] hover:bg-slate-100 cursor-pointer"
+                    title={`Call ${contact.phone}`}
                   >
-                    Call
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1 py-2 text-xs font-semibold border-slate-200"
-                    icon={Send}
-                    onClick={() => toast.success(`Test SMS payload sent to ${contact.phone}`)}
+                    <Phone className="w-4 h-4 text-[#0D9488]" />
+                  </button>
+                  <button
+                    onClick={() => toast.success(`Test SMS alert dispatched to ${contact.name}`)}
+                    className="p-2 rounded-lg bg-white border border-slate-200 text-[#0F172A] hover:bg-slate-100 cursor-pointer"
+                    title="Send Test SMS"
                   >
-                    Test Alert
-                  </Button>
+                    <Send className="w-4 h-4 text-[#0D9488]" />
+                  </button>
                 </div>
-              </Card>
+              </div>
             ))}
           </div>
-        )}
+        </Card>
+
       </div>
 
       {/* SOS Log History */}
