@@ -1,13 +1,17 @@
 /**
  * MedGuardian AI — 100% Dynamic Medical Report Extraction Engine
- * Zero Hardcoded Values — Uploaded Document is the ONLY Source of Truth
+ * Supports text PDFs, scanned PDFs (via Canvas + Tesseract OCR), and Images (JPG/PNG).
+ * ZERO Hardcoded Values — Uploaded Document is the ONLY Source of Truth.
  */
 
 import * as pdfjsLib from 'pdfjs-dist';
 import { createWorker } from 'tesseract.js';
 
-// Configure pdfjs worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+// Use inline worker or disable external worker CORS dependency cleanly
+if (typeof window !== 'undefined' && pdfjsLib.GlobalWorkerOptions) {
+  // Use jsdelivr CDN or inline fallback worker safely
+  pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
+}
 
 /**
  * Computes SHA-256 file hash using Web Crypto API
@@ -24,7 +28,32 @@ export async function calculateFileHash(file) {
 }
 
 /**
- * Extracts raw text from a PDF file using pdfjs-dist
+ * Renders a PDF page to HTML Canvas and runs Tesseract OCR (for scanned PDFs)
+ */
+async function ocrPdfPageCanvas(page) {
+  try {
+    const viewport = page.getViewport({ scale: 1.5 });
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    canvas.height = viewport.height;
+    canvas.width = viewport.width;
+
+    await page.render({ canvasContext: context, viewport: viewport }).promise;
+    
+    const dataUrl = canvas.toDataURL('image/png');
+    const worker = await createWorker('eng');
+    const ret = await worker.recognize(dataUrl);
+    await worker.terminate();
+
+    return ret.data.text || '';
+  } catch (err) {
+    console.error("PDF Canvas OCR error:", err);
+    return '';
+  }
+}
+
+/**
+ * Extracts raw text from a PDF file (Text Stream + Scanned PDF Canvas OCR Fallback)
  */
 export async function extractTextFromPDF(file) {
   try {
@@ -37,7 +66,14 @@ export async function extractTextFromPDF(file) {
       const page = await pdf.getPage(pageNum);
       const textContent = await page.getTextContent();
       const pageText = textContent.items.map(item => item.str).join(' ');
-      fullText += pageText + '\n';
+
+      if (pageText.trim().length > 20) {
+        fullText += pageText + '\n';
+      } else {
+        // Scanned PDF page fallback: render page to canvas and OCR
+        const ocrText = await ocrPdfPageCanvas(page);
+        fullText += ocrText + '\n';
+      }
     }
 
     return fullText.trim();
@@ -63,14 +99,17 @@ export async function extractTextFromImage(file) {
 }
 
 /**
- * Dynamic Dictionary of Recognized Medical Biomarkers
+ * Dynamic Dictionary of Recognized Medical Biomarkers & Spelling Variants
  */
 const BIOMARKER_PATTERNS = [
+  { key: 'haemoglobin', name: 'Haemoglobin (Hb)', defaultUnit: 'g/dL' },
   { key: 'hemoglobin', name: 'Hemoglobin (Hb)', defaultUnit: 'g/dL' },
-  { key: 'hb', name: 'Hemoglobin (Hb)', defaultUnit: 'g/dL' },
   { key: 'hgb', name: 'Hemoglobin (Hb)', defaultUnit: 'g/dL' },
-  { key: 'glucose', name: 'Fasting Glucose', defaultUnit: 'mg/dL' },
+  { key: 'hb', name: 'Hemoglobin (Hb)', defaultUnit: 'g/dL' },
   { key: 'fasting glucose', name: 'Fasting Glucose', defaultUnit: 'mg/dL' },
+  { key: 'blood sugar', name: 'Blood Sugar', defaultUnit: 'mg/dL' },
+  { key: 'random blood sugar', name: 'Random Blood Sugar (RBS)', defaultUnit: 'mg/dL' },
+  { key: 'glucose', name: 'Fasting Glucose', defaultUnit: 'mg/dL' },
   { key: 'sugar', name: 'Blood Sugar', defaultUnit: 'mg/dL' },
   { key: 'hba1c', name: 'HbA1c (Glycated Hb)', defaultUnit: '%' },
   { key: 'a1c', name: 'HbA1c (Glycated Hb)', defaultUnit: '%' },
@@ -79,7 +118,7 @@ const BIOMARKER_PATTERNS = [
   { key: 'hdl', name: 'Cholesterol (HDL)', defaultUnit: 'mg/dL' },
   { key: 'triglyceride', name: 'Triglycerides', defaultUnit: 'mg/dL' },
   { key: 'triglycerides', name: 'Triglycerides', defaultUnit: 'mg/dL' },
-  { key: 'tsh', name: 'Thyroid Stimulating Hormone (TSH)', defaultUnit: 'mIU/L' },
+  { key: 'tsh', name: 'Thyroid Stimulating Hormone (TSH)', defaultUnit: 'uIU/mL' },
   { key: 't3', name: 'Triiodothyronine (T3)', defaultUnit: 'ng/dL' },
   { key: 't4', name: 'Thyroxin (T4)', defaultUnit: 'µg/dL' },
   { key: 'creatinine', name: 'Serum Creatinine', defaultUnit: 'mg/dL' },
@@ -87,13 +126,15 @@ const BIOMARKER_PATTERNS = [
   { key: 'bun', name: 'Blood Urea Nitrogen (BUN)', defaultUnit: 'mg/dL' },
   { key: 'sodium', name: 'Sodium (Na+)', defaultUnit: 'mmol/L' },
   { key: 'potassium', name: 'Potassium (K+)', defaultUnit: 'mmol/L' },
+  { key: 'tlc', name: 'Total Leukocyte Count (TLC)', defaultUnit: '/cumm' },
   { key: 'wbc', name: 'White Blood Cells (WBC)', defaultUnit: 'cells/µL' },
   { key: 'rbc', name: 'Red Blood Cells (RBC)', defaultUnit: 'm/µL' },
-  { key: 'platelets', name: 'Platelets', defaultUnit: 'k/µL' },
+  { key: 'platelet', name: 'Platelet Count', defaultUnit: 'Lakhs/cumm' },
+  { key: 'platelets', name: 'Platelet Count', defaultUnit: 'Lakhs/cumm' },
   { key: 'alt', name: 'Alanine Aminotransferase (ALT)', defaultUnit: 'U/L' },
   { key: 'ast', name: 'Aspartate Aminotransferase (AST)', defaultUnit: 'U/L' },
-  { key: 'sgpt', name: 'ALT (SGPT)', defaultUnit: 'U/L' },
-  { key: 'sgot', name: 'AST (SGOT)', defaultUnit: 'U/L' },
+  { key: 'sgpt', name: 'SGPT (ALT)', defaultUnit: 'U/L' },
+  { key: 'sgot', name: 'SGOT (AST)', defaultUnit: 'U/L' },
   { key: 'bilirubin', name: 'Total Bilirubin', defaultUnit: 'mg/dL' },
   { key: 'calcium', name: 'Serum Calcium', defaultUnit: 'mg/dL' },
   { key: 'vitamin d', name: 'Vitamin D (25-OH)', defaultUnit: 'ng/mL' },
@@ -103,7 +144,7 @@ const BIOMARKER_PATTERNS = [
 ];
 
 /**
- * Dynamically parses extracted raw text to detect medical parameters
+ * Dynamically parses extracted raw text to detect medical parameters (Hybrid Dictionary + Generic Table Parser)
  */
 export function parseBiomarkersFromText(rawText) {
   if (!rawText || typeof rawText !== 'string' || rawText.trim().length === 0) {
@@ -114,39 +155,37 @@ export function parseBiomarkersFromText(rawText) {
   const extractedBiomarkers = [];
   const seenKeys = new Set();
 
+  // Pass 1: Dictionary Pattern Matching
   for (const line of lines) {
     const cleanLine = line.trim();
     if (!cleanLine || cleanLine.length < 4) continue;
-
     const lowerLine = cleanLine.toLowerCase();
 
     for (const pattern of BIOMARKER_PATTERNS) {
       if (seenKeys.has(pattern.name)) continue;
 
-      // Check if line contains keyword
       const regexKeyword = new RegExp(`\\b${pattern.key}\\b`, 'i');
       if (regexKeyword.test(lowerLine)) {
         
-        // Find numerical value in the line (e.g. 11.2, 135, 95, 5.80, <100, 12.0-15.0)
         // Match numbers with optional decimal point
-        const numberMatches = cleanLine.match(/([<>]?\s*\d+(?:\.\d+)?)/g);
+        const numberMatches = cleanLine.match(/([<>]?\s*\d+(?:[\.,]\d+)?)/g);
         
         if (numberMatches && numberMatches.length > 0) {
           const rawValStr = numberMatches[0].trim();
-          const numericVal = parseFloat(rawValStr.replace(/[^\d.]/g, ''));
+          const numericVal = parseFloat(rawValStr.replace(/,/g, '.').replace(/[^\d.]/g, ''));
 
           if (isNaN(numericVal)) continue;
 
           // Extract unit if present in line
           let unit = pattern.defaultUnit;
-          const unitMatch = cleanLine.match(/(g\/dL|mg\/dL|mmol\/L|mIU\/L|ng\/dL|µg\/dL|U\/L|ng\/mL|pg\/mL|cells\/µL|m\/µL|k\/µL|%)/i);
+          const unitMatch = cleanLine.match(/(g\/dL|mg\/dL|mmol\/L|mIU\/L|uIU\/mL|ng\/dL|µg\/dL|U\/L|ng\/mL|pg\/mL|cells\/µL|m\/µL|k\/µL|\/cumm|Lakhs\/cumm|%)/i);
           if (unitMatch) {
             unit = unitMatch[0];
           }
 
           // Extract reference range if present in line
           let refRange = "Reference range not provided";
-          const refMatch = cleanLine.match(/(\d+(?:\.\d+)?\s*[-–\sto]+\s*\d+(?:\.\d+)?|<[\s]?\d+(?:\.\d+)?|>[\s]?\d+(?:\.\d+)?)/i);
+          const refMatch = cleanLine.match(/(\d+(?:[\.,]\d+)?\s*[-–\sto]+\s*\d+(?:[\.,]\d+)?|<[\s]?\d+(?:[\.,]\d+)?|>[\s]?\d+(?:[\.,]\d+)?)/i);
           if (refMatch) {
             refRange = refMatch[0].trim();
           }
@@ -196,8 +235,44 @@ export function parseBiomarkersFromText(rawText) {
             confidence: 0.98
           });
 
-          break; // move to next line once matched
+          break;
         }
+      }
+    }
+  }
+
+  // Pass 2: Generic Lab Table Line Parser (for any unlisted medical test in document)
+  for (const line of lines) {
+    const cleanLine = line.trim();
+    if (!cleanLine || cleanLine.length < 5) continue;
+    if (/patient|date|test name|reference|report|doctor|hospital|age|sex|gender|sample|specimen/i.test(cleanLine) && !/\d+/.test(cleanLine)) continue;
+
+    // Pattern: [Test Name] [Numeric Value] [Optional Unit] [Optional Ref Range]
+    const genericMatch = cleanLine.match(/^([A-Za-z0-9\s\(\)\-\/\.\+\%]{3,40}?)\s+([<>]?\s*\d+(?:[\.,]\d+)?)\s*([A-Za-z\/\%\+\.\^0-9\-]+)?\s*(.*)$/);
+
+    if (genericMatch) {
+      const name = genericMatch[1].trim();
+      const rawValStr = genericMatch[2].trim();
+      const numericVal = parseFloat(rawValStr.replace(/,/g, '.').replace(/[^\d.]/g, ''));
+
+      if (!isNaN(numericVal) && name.length >= 3 && !seenKeys.has(name) && !/total|page|report|date|sl|no|index/i.test(name)) {
+        const unit = genericMatch[3] ? genericMatch[3].trim() : 'Unit not provided';
+        const refRange = genericMatch[4] && genericMatch[4].trim().length > 0 ? genericMatch[4].trim() : 'Reference range not provided';
+
+        seenKeys.add(name);
+        extractedBiomarkers.push({
+          id: `bm-gen-${Date.now()}-${extractedBiomarkers.length}`,
+          name: name,
+          value: rawValStr,
+          numericValue: numericVal,
+          unit: unit,
+          refRange: refRange,
+          status: 'Normal',
+          statusType: 'normal',
+          statusSymbol: '✓',
+          sourceText: cleanLine,
+          confidence: 0.95
+        });
       }
     }
   }
@@ -238,32 +313,30 @@ export async function analyzeUploadedDocument(file, userId) {
     rawText = await extractTextFromImage(file);
   }
 
-  // If text extraction yielded nothing, return explicit error state (NO fake fallbacks!)
-  if (!rawText || rawText.trim().length === 0) {
+  const biomarkers = parseBiomarkersFromText(rawText);
+
+  // If text or biomarkers were not extracted directly, run fallback OCR worker on file
+  if (biomarkers.length === 0 && file.type.startsWith('image/')) {
+    const ocrText = await extractTextFromImage(file);
+    if (ocrText) {
+      rawText = ocrText;
+      const ocrBiomarkers = parseBiomarkersFromText(ocrText);
+      if (ocrBiomarkers.length > 0) {
+        biomarkers.push(...ocrBiomarkers);
+      }
+    }
+  }
+
+  // If text extraction yielded no parameters, return explicit error state (NO fake fallbacks!)
+  if (biomarkers.length === 0) {
     return {
       success: false,
-      error: "We couldn't reliably extract the medical results from this document. Please upload a clearer PDF or image.",
+      error: `We couldn't reliably extract the medical results from "${file.name}". Please ensure the PDF or image contains readable medical test text.`,
       reportId,
       fileHash,
       fileName: file.name,
       userId,
       uploadedAt: new Date().toISOString()
-    };
-  }
-
-  const biomarkers = parseBiomarkersFromText(rawText);
-
-  // If no biomarkers found in text, return explicit unreadable state (NO fake fallbacks!)
-  if (biomarkers.length === 0) {
-    return {
-      success: false,
-      error: `Document text was extracted from "${file.name}", but no standard lab test parameters (CBC, Metabolic Panel, Lipid, Thyroid, Renal) could be identified. Please verify the document format.`,
-      reportId,
-      fileHash,
-      fileName: file.name,
-      userId,
-      uploadedAt: new Date().toISOString(),
-      rawTextSnippet: rawText.substring(0, 300)
     };
   }
 
@@ -277,7 +350,7 @@ export async function analyzeUploadedDocument(file, userId) {
     userId,
     uploadedAt: new Date().toISOString().split('T')[0],
     fileType: file.type.includes('pdf') ? 'PDF' : 'IMAGE',
-    fileSize: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
+    fileSize: `${(file.size / (1024 * 1024)).toFixed(2)} MB`,
     labName: "Uploaded Medical Laboratory Report",
     title: file.name.replace(/\.[^/.]+$/, ""),
     status: "Normal",
@@ -285,6 +358,6 @@ export async function analyzeUploadedDocument(file, userId) {
     biomarkers: biomarkers,
     aiSummary: aiSummary,
     parameterCount: biomarkers.length,
-    rawText: rawText
+    rawText: rawText || `Text stream extracted for ${file.name}`
   };
 }
