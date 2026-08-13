@@ -113,73 +113,85 @@ export const HospitalFinderPage = () => {
 
   const reportAdvice = getReportAwareAdvice();
 
-  // Client-side OpenStreetMap Overpass Fallback
-  const fetchOpenStreetMapOverpassDirect = async (lat, lng, targetCategory) => {
-    try {
-      const overpassUrl = 'https://overpass-api.de/api/interpreter';
-      const query = `
-        [out:json][timeout:15];
-        (
-          node["amenity"~"hospital|clinic|pharmacy|doctors"](around:15000, ${lat}, ${lng});
-          way["amenity"~"hospital|clinic|pharmacy|doctors"](around:15000, ${lat}, ${lng});
-        );
-        out center 25;
-      `;
+  // Helper to parse OpenStreetMap Nominatim Live Search Results
+  const parseNominatimResults = (data, userLat, userLng) => {
+    return data
+      .map((item, idx) => {
+        const itemLat = parseFloat(item.lat);
+        const itemLng = parseFloat(item.lon);
+        if (isNaN(itemLat) || isNaN(itemLng)) return null;
 
-      const res = await fetch(overpassUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `data=${encodeURIComponent(query)}`
+        const rawName = item.display_name.split(',')[0];
+        const address = item.display_name;
+        const dist = calculateHaversineDistance(userLat, userLng, itemLat, itemLng);
+        const tags = item.extratags || {};
+        const categoryType = item.type === 'pharmacy' ? 'Medical Pharmacy'
+                           : item.type === 'clinic' ? 'Specialty Clinical Care'
+                           : 'Hospital & Healthcare Center';
+
+        return {
+          id: `osm-real-${item.place_id || idx}`,
+          name: rawName,
+          type: categoryType,
+          address: address,
+          distanceKm: dist,
+          etaMins: Math.max(3, Math.round(dist * 2.2)),
+          emergencyOpen: tags.emergency === 'yes' || item.type === 'hospital',
+          phone: tags.phone || tags['contact:phone'] || '+91 108',
+          website: tags.website || null,
+          lat: itemLat,
+          lng: itemLng,
+          directionsUrl: `https://www.google.com/maps/dir/?api=1&destination=${itemLat},${itemLng}`
+        };
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.distanceKm - b.distanceKm);
+  };
+
+  // Live OpenStreetMap Nominatim Search API
+  const fetchOpenStreetMapRealTimeData = async (lat, lng, targetCategory, cityName) => {
+    try {
+      const city = cityName || manualQuery || userProfile?.city || 'New Delhi';
+      let queryKeyword = 'hospital';
+      
+      if (targetCategory === 'General Physician' || targetCategory === 'Pediatrician' || targetCategory === 'Gynecologist' || targetCategory === 'Dermatologist' || targetCategory === 'Orthopedic' || targetCategory === 'Cardiologist') {
+        queryKeyword = `${targetCategory.toLowerCase()} clinic`;
+      } else if (targetCategory === 'Diagnostic Lab') {
+        queryKeyword = 'diagnostic lab pathology';
+      } else if (targetCategory === 'Pharmacy') {
+        queryKeyword = 'pharmacy medical store';
+      } else if (targetCategory === 'Emergency Hospital') {
+        queryKeyword = 'emergency hospital trauma center';
+      } else {
+        queryKeyword = 'hospital clinic medical center';
+      }
+
+      const nomUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&extratags=1&q=${encodeURIComponent(queryKeyword + ' in ' + city)}&limit=20`;
+      const res = await fetch(nomUrl, {
+        headers: { 'Accept-Language': 'en' }
       });
 
-      if (!res.ok) throw new Error("Overpass query failed");
+      if (!res.ok) throw new Error("Nominatim query failed");
       const data = await res.json();
 
-      if (!Array.isArray(data.elements) || data.elements.length === 0) {
+      if (!Array.isArray(data) || data.length === 0) {
+        const altUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&extratags=1&q=${encodeURIComponent('hospital in ' + city)}&limit=15`;
+        const altRes = await fetch(altUrl);
+        const altData = await altRes.json();
+        if (Array.isArray(altData) && altData.length > 0) {
+          return parseNominatimResults(altData, lat, lng);
+        }
         return getFallbackFacilities(lat, lng, targetCategory);
       }
 
-      const results = data.elements
-        .map((el, idx) => {
-          const elementLat = el.lat || (el.center && el.center.lat);
-          const elementLng = el.lon || (el.center && el.center.lon);
-          if (!elementLat || !elementLng) return null;
-
-          const tags = el.tags || {};
-          const name = tags.name || tags['name:en'] || `Healthcare Center #${idx + 1}`;
-          const type = tags.amenity === 'hospital' ? 'Emergency District Hospital' 
-                    : tags.amenity === 'clinic' ? 'Specialty Clinical Care'
-                    : tags.amenity === 'pharmacy' ? 'Medical Pharmacy'
-                    : 'Doctor Clinic';
-
-          const dist = calculateHaversineDistance(lat, lng, elementLat, elementLng);
-          const isEmergency = tags.emergency === 'yes' || tags.amenity === 'hospital';
-
-          return {
-            id: `osm-${el.id}`,
-            name,
-            type,
-            address: tags['addr:full'] || tags['addr:street'] || tags['addr:city'] || `${dist} km from selected location`,
-            distanceKm: dist,
-            etaMins: Math.max(3, Math.round(dist * 2.5)),
-            emergencyOpen: isEmergency,
-            phone: tags.phone || tags['contact:phone'] || '+91 108',
-            website: tags.website || null,
-            lat: elementLat,
-            lng: elementLng,
-            directionsUrl: `https://www.google.com/maps/dir/?api=1&destination=${elementLat},${elementLng}`
-          };
-        })
-        .filter(Boolean)
-        .sort((a, b) => a.distanceKm - b.distanceKm);
-
-      return results.length > 0 ? results : getFallbackFacilities(lat, lng, targetCategory);
-    } catch {
+      return parseNominatimResults(data, lat, lng);
+    } catch (err) {
+      console.error("OSM Live Fetch Error:", err);
       return getFallbackFacilities(lat, lng, targetCategory);
     }
   };
 
-  // Verified Fallback Facilities Generator (Zero Failures)
+  // Verified Fallback Facilities Generator (Safety Baseline)
   const getFallbackFacilities = (lat, lng, targetCategory) => {
     const baseCity = manualQuery || userProfile?.city || 'District City';
     return [
@@ -229,13 +241,13 @@ export const HospitalFinderPage = () => {
     ];
   };
 
-  // 2. Fetch Facilities with Resilient Client-Side Fallback
-  const fetchNearbyFacilities = async (lat, lng, targetCategory = category) => {
+  // 2. Fetch Real-Time Facilities from Live OpenStreetMap API
+  const fetchNearbyFacilities = async (lat, lng, targetCategory = category, cityName = manualQuery) => {
     setLoadingFacilities(true);
     setErrorMsg('');
 
     try {
-      // First try backend localhost API
+      // First try backend localhost API if running locally
       const url = `${API_BASE}/hospitals/nearby?lat=${lat}&lng=${lng}&category=${encodeURIComponent(targetCategory)}&radiusKm=15`;
       const res = await fetch(url).catch(() => null);
 
@@ -248,9 +260,9 @@ export const HospitalFinderPage = () => {
         }
       }
 
-      // Client-side OpenStreetMap Overpass Fallback
-      const osmFacilities = await fetchOpenStreetMapOverpassDirect(lat, lng, targetCategory);
-      setFacilities(osmFacilities);
+      // Fetch Live OpenStreetMap Data via CORS-enabled Nominatim API
+      const realFacilities = await fetchOpenStreetMapRealTimeData(lat, lng, targetCategory, cityName);
+      setFacilities(realFacilities);
     } catch (err) {
       console.error("Facility fetch error:", err);
       const fallback = getFallbackFacilities(lat, lng, targetCategory);
@@ -260,7 +272,7 @@ export const HospitalFinderPage = () => {
     }
   };
 
-  // 3. Geocode Location manually by city / pincode with OpenStreetMap Nominatim Fallback
+  // 3. Geocode Location manually by city / pincode with OpenStreetMap Nominatim
   const handleManualSearch = async (e) => {
     if (e) e.preventDefault();
     if (!manualQuery.trim()) {
@@ -279,7 +291,7 @@ export const HospitalFinderPage = () => {
         const data = await res.json();
         coords = { lat: data.lat, lng: data.lng, name: data.name };
       } else {
-        // Direct OpenStreetMap Nominatim API Fallback
+        // Direct OpenStreetMap Nominatim API
         const nomUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(manualQuery.trim())}&limit=1`;
         const nomRes = await fetch(nomUrl);
         const nomData = await nomRes.json();
@@ -294,19 +306,19 @@ export const HospitalFinderPage = () => {
       }
 
       if (!coords) {
-        // Default Delhi Fallback Coordinates
+        // Default Delhi Coordinates
         coords = { lat: 28.6139, lng: 77.2090, name: manualQuery.trim() };
       }
 
       setUserCoords(coords);
       setLocationMode('manual');
       toast.success(`Location set: ${coords.name.split(',')[0]}`);
-      await fetchNearbyFacilities(coords.lat, coords.lng, category);
+      await fetchNearbyFacilities(coords.lat, coords.lng, category, manualQuery.trim());
     } catch (err) {
       toast.error("Could not find specified location. Loaded default location.");
       const fallbackCoords = { lat: 28.6139, lng: 77.2090, name: manualQuery };
       setUserCoords(fallbackCoords);
-      await fetchNearbyFacilities(fallbackCoords.lat, fallbackCoords.lng, category);
+      await fetchNearbyFacilities(fallbackCoords.lat, fallbackCoords.lng, category, manualQuery);
     } finally {
       setLocLoading(false);
     }
@@ -333,7 +345,17 @@ export const HospitalFinderPage = () => {
         setUserCoords(coords);
         setLocationMode('current');
         toast.success("GPS location locked!");
-        await fetchNearbyFacilities(coords.lat, coords.lng, category);
+
+        // Reverse geocode to get city name for Nominatim search
+        try {
+          const revUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${coords.lat}&lon=${coords.lng}`;
+          const revRes = await fetch(revUrl);
+          const revData = await revRes.json();
+          const cityName = revData?.address?.city || revData?.address?.town || revData?.address?.state_district || 'nearby';
+          await fetchNearbyFacilities(coords.lat, coords.lng, category, cityName);
+        } catch {
+          await fetchNearbyFacilities(coords.lat, coords.lng, category, 'nearby');
+        }
         setLocLoading(false);
       },
       (error) => {
@@ -358,7 +380,7 @@ export const HospitalFinderPage = () => {
   const handleCategorySelect = (newCategory) => {
     setCategory(newCategory);
     if (userCoords) {
-      fetchNearbyFacilities(userCoords.lat, userCoords.lng, newCategory);
+      fetchNearbyFacilities(userCoords.lat, userCoords.lng, newCategory, manualQuery);
     }
   };
 
@@ -632,7 +654,7 @@ export const HospitalFinderPage = () => {
                 size="sm"
                 icon={RefreshCw}
                 className="rounded-xl text-xs font-semibold border-slate-200"
-                onClick={() => userCoords && fetchNearbyFacilities(userCoords.lat, userCoords.lng, category)}
+                onClick={() => userCoords && fetchNearbyFacilities(userCoords.lat, userCoords.lng, category, manualQuery)}
               >
                 Retry Search
               </Button>
