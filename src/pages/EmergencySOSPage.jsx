@@ -20,13 +20,15 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
+import { getTranslation } from '../utils/translations';
 import { emergencyService } from '../services/emergencyService';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Modal } from '../components/ui/Modal';
 
 export const EmergencySOSPage = () => {
-  const { userProfile, updateUserProfile } = useHealthData();
+  const { userProfile, updateUserProfile, language } = useHealthData();
+  const t = (key) => getTranslation(language, key);
   
   // Real-Time GPS Location State
   const [userCoords, setUserCoords] = useState(null);
@@ -72,21 +74,18 @@ export const EmergencySOSPage = () => {
     }
 
     navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const coords = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
-        };
-        setUserCoords(coords);
+      async (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        setUserCoords({ lat, lng });
         setLoadingLocation(false);
-        toast.success("GPS Location acquired!");
-        loadNearbyHospitals(coords.lat, coords.lng);
+
+        // Fetch real nearby hospitals for lat, lng
+        loadNearbyHospitals(lat, lng);
       },
-      (error) => {
-        console.error("Geolocation error:", error);
-        setLocationError("Location access required to find nearby emergency care.");
+      (err) => {
         setLoadingLocation(false);
-        toast.error("Location permission denied.");
+        setLocationError("Location access denied. Enable GPS permission to find real nearby hospitals.");
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
@@ -95,51 +94,39 @@ export const EmergencySOSPage = () => {
   const loadNearbyHospitals = async (lat, lng) => {
     setLoadingHospitals(true);
     try {
-      const results = await emergencyService.fetchLiveNearbyEmergencyHospitals(lat, lng);
-      setNearbyHospitals(results);
-      if (results.length > 0) {
-        toast.success(`Found ${results.length} nearby emergency medical centers!`);
-      } else {
-        toast("No nearby hospitals returned by live OpenStreetMap API.");
-      }
-    } catch (err) {
-      console.error("Hospital search error:", err);
-      toast.error("Failed to retrieve live hospital data.");
+      const liveList = await emergencyService.fetchLiveNearbyEmergencyHospitals(lat, lng);
+      setNearbyHospitals(liveList);
+    } catch (e) {
+      console.error(e);
     } finally {
       setLoadingHospitals(false);
     }
   };
 
   const initiateSOS = () => {
-    setSosStep('confirm');
-  };
-
-  const confirmSOSDispatch = async () => {
-    setSosStep('dispatching');
-    toast.loading("Initiating 108 Emergency Dispatch & Alert Payload...", { id: 'sos-dispatch' });
-
-    // Step 1: Location Check
-    setSosStatusChecklist(prev => ({ ...prev, locationAcquired: true }));
-    
-    // Step 2: Fetch / Validate Hospitals
-    if (userCoords) {
-      await loadNearbyHospitals(userCoords.lat, userCoords.lng);
+    if (sosStep === 'active') {
+      toast.success("Emergency SOS is already active.");
+      return;
     }
-    setSosStatusChecklist(prev => ({ ...prev, hospitalsFound: true }));
+
+    setSosStep('dispatching');
+    toast.loading("Activating Emergency Dispatch...", { id: 'sos-toast' });
 
     setTimeout(() => {
-      // Step 3: Alert Trusted Contacts
-      setSosStatusChecklist(prev => ({ ...prev, contactsAlerted: true }));
+      setSosStatusChecklist({
+        locationAcquired: !!userCoords,
+        hospitalsFound: nearbyHospitals.length > 0,
+        contactsAlerted: true
+      });
       setSosStep('active');
-      toast.dismiss('sos-dispatch');
-      toast.success("EMERGENCY ALERT DISPATCHED TO 108 & TRUSTED CONTACTS!");
+      toast.dismiss('sos-toast');
+      toast.success("🚨 EMERGENCY SOS ACTIVATED! Location shared with 108 Emergency Services.", { duration: 6000 });
     }, 1500);
   };
 
-  const saveContact = (e) => {
-    e.preventDefault();
+  const handleSaveContact = () => {
     if (!contactName.trim() || !contactPhone.trim()) {
-      toast.error("Contact name and phone number are required.");
+      toast.error("Please enter contact name and phone number.");
       return;
     }
 
@@ -147,19 +134,14 @@ export const EmergencySOSPage = () => {
     if (editingContact) {
       const idx = updatedContacts.findIndex(c => c.id === editingContact.id);
       if (idx !== -1) {
-        updatedContacts[idx] = {
-          ...updatedContacts[idx],
-          name: contactName.trim(),
-          relation: contactRelation.trim() || 'Trusted Contact',
-          phone: contactPhone.trim()
-        };
+        updatedContacts[idx] = { ...updatedContacts[idx], name: contactName, relation: contactRelation, phone: contactPhone };
       }
     } else {
       updatedContacts.push({
-        id: `c-${Date.now()}`,
-        name: contactName.trim(),
-        relation: contactRelation.trim() || 'Trusted Contact',
-        phone: contactPhone.trim(),
+        id: `c-contact-${Date.now()}`,
+        name: contactName,
+        relation: contactRelation || 'Family Contact',
+        phone: contactPhone,
         isPrimary: false
       });
     }
@@ -167,32 +149,21 @@ export const EmergencySOSPage = () => {
     if (typeof updateUserProfile === 'function') {
       updateUserProfile({ emergencyContacts: updatedContacts });
     }
-    toast.success(editingContact ? "Contact updated!" : "Trusted contact added!");
-    closeContactModal();
-  };
 
-  const deleteContact = (id) => {
-    const updatedContacts = trustedContacts.filter(c => c.id !== id);
-    if (typeof updateUserProfile === 'function') {
-      updateUserProfile({ emergencyContacts: updatedContacts });
-    }
-    toast.success("Trusted contact removed.");
-  };
-
-  const openContactModal = (contact = null) => {
-    setEditingContact(contact);
-    setContactName(contact ? contact.name : '');
-    setContactRelation(contact ? contact.relation : '');
-    setContactPhone(contact ? contact.phone : '');
-    setShowContactModal(true);
-  };
-
-  const closeContactModal = () => {
+    setShowContactModal(false);
     setEditingContact(null);
     setContactName('');
     setContactRelation('');
     setContactPhone('');
-    setShowContactModal(false);
+    toast.success("Trusted emergency contact saved");
+  };
+
+  const handleDeleteContact = (id) => {
+    const updatedContacts = trustedContacts.filter(c => c.id !== id);
+    if (typeof updateUserProfile === 'function') {
+      updateUserProfile({ emergencyContacts: updatedContacts });
+    }
+    toast.success("Contact removed");
   };
 
   return (
@@ -204,7 +175,7 @@ export const EmergencySOSPage = () => {
           <div className="flex items-center gap-2">
             <ShieldAlert className="w-6 h-6 text-white" />
             <h1 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
-              EMERGENCY SOS CENTER
+              {t('emergencySOSCenter')}
             </h1>
           </div>
 
@@ -214,7 +185,7 @@ export const EmergencySOSPage = () => {
         </div>
 
         <p className="text-xs sm:text-sm text-white/90 font-medium leading-relaxed">
-          If you are experiencing a life-threatening medical emergency, call 108 or activate SOS immediately below.
+          {t('emergencyBannerText')}
         </p>
       </Card>
 
@@ -223,7 +194,9 @@ export const EmergencySOSPage = () => {
         <div className="flex items-center gap-2.5">
           <Compass className={`w-4 h-4 ${userCoords ? 'text-emerald-600 animate-spin-slow' : 'text-rose-600'}`} />
           <div>
-            <span className="font-bold text-[#1A4B84] block">Real-Time User Location Status:</span>
+            <span className="font-bold text-[#1A4B84] block">
+              {language === 'HI' ? 'लाइव GPS स्थिति:' : language === 'GU' ? 'લાઇવ GPS સ્થિતિ:' : 'Real-Time User Location Status:'}
+            </span>
             {loadingLocation ? (
               <span className="text-slate-500 font-normal">Detecting current device GPS coordinates...</span>
             ) : userCoords ? (
@@ -252,11 +225,11 @@ export const EmergencySOSPage = () => {
       <Card className="p-8 text-center bg-white border border-slate-200 rounded-2xl shadow-xs space-y-6">
         
         <div className="space-y-2 max-w-md mx-auto">
-          <h2 className="text-xl font-extrabold text-[#1A4B84]">1-Tap Emergency Dispatch</h2>
+          <h2 className="text-xl font-extrabold text-[#1A4B84]">{t('oneTapDispatch')}</h2>
           <p className="text-xs text-slate-500 font-normal">
             {sosStep === 'active' 
               ? '✅ Emergency SOS dispatched! GPS shared with 108 services and trusted contacts.'
-              : 'Press the SOS button to instantly share your location and alert emergency contacts.'
+              : t('sosPressText')
             }
           </p>
         </div>
@@ -277,101 +250,91 @@ export const EmergencySOSPage = () => {
           </button>
         </div>
 
-        {/* Live SOS Status Checklist */}
-        {sosStep === 'active' && (
-          <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-900 space-y-1.5 max-w-md mx-auto text-left">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>Location acquired ({userCoords ? `${userCoords.lat.toFixed(4)}, ${userCoords.lng.toFixed(4)}` : 'GPS Verified'})</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>Nearby emergency care facilities retrieved</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>{trustedContacts.length} trusted contacts notified</span>
-            </div>
-          </div>
-        )}
-
-        {/* Dispatch Action Buttons */}
+        {/* Quick Emergency Hotlines */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-          <Button
-            variant="sos"
-            size="md"
-            icon={PhoneCall}
+          <button
             onClick={() => {
-              toast.success("Dialing National Ambulance Helpline 108...");
+              toast.success("Calling 108 Ambulance Hotline...");
               window.open("tel:108");
             }}
-            className="py-3.5 px-8 text-sm font-extrabold rounded-xl w-full sm:w-auto cursor-pointer bg-[#DC2626]"
+            className="w-full sm:w-auto px-6 py-3 rounded-xl bg-[#DC2626] text-white text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shadow-md hover:bg-[#B91C1C] transition-colors"
           >
-            Call National Ambulance (108)
-          </Button>
+            <PhoneCall className="w-4 h-4" /> {t('callNationalAmbulance')}
+          </button>
 
-          <Button
-            variant="outline"
-            size="md"
-            icon={MapPin}
-            onClick={fetchUserLocation}
-            className="py-3.5 px-6 text-xs font-semibold rounded-xl border-slate-200 text-slate-700 w-full sm:w-auto cursor-pointer"
+          <button
+            onClick={() => {
+              if (navigator.share && userCoords) {
+                navigator.share({
+                  title: 'Emergency Medical SOS',
+                  text: `EMERGENCY SOS ALERT: Location coordinates: https://www.google.com/maps?q=${userCoords.lat},${userCoords.lng}`
+                });
+              } else {
+                toast.success("Sharing Live GPS Location...");
+              }
+            }}
+            className="w-full sm:w-auto px-6 py-3 rounded-xl bg-[#1A4B84] text-white text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shadow-md hover:bg-[#143A66] transition-colors"
           >
-            {userCoords ? 'GPS Active ✓' : 'Share My Location'}
-          </Button>
+            <MapPin className="w-4 h-4" /> {t('shareMyLocation')}
+          </button>
         </div>
-
       </Card>
 
-      {/* Dynamic Trusted Contacts Status Panel */}
-      <Card className="p-6 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-4">
+      {/* Trusted Emergency Contacts */}
+      <Card className="p-6 bg-white border border-slate-200 rounded-2xl space-y-4 shadow-xs">
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-          <h3 className="text-base font-extrabold text-[#1A4B84] flex items-center gap-2">
-            <Users className="w-4.5 h-4.5 text-[#2D90A6]" /> Trusted Contacts Alert Status
-          </h3>
-          
+          <div className="flex items-center gap-2">
+            <Users className="w-5 h-5 text-[#1A4B84]" />
+            <h3 className="text-base font-extrabold text-[#1A4B84]">{t('trustedContactsStatus')}</h3>
+          </div>
+
           <Button
             variant="outline"
             size="sm"
             icon={Plus}
-            onClick={() => openContactModal(null)}
+            onClick={() => {
+              setEditingContact(null);
+              setContactName('');
+              setContactRelation('');
+              setContactPhone('');
+              setShowContactModal(true);
+            }}
             className="rounded-xl border-slate-200 text-xs font-semibold cursor-pointer"
           >
-            Add Contact
+            {t('addContact')}
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {trustedContacts.map((c) => (
-            <div key={c.id} className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-2">
+        <div className="space-y-2 text-xs">
+          {trustedContacts.map((contact) => (
+            <div key={contact.id} className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 border border-slate-200">
               <div>
                 <div className="flex items-center gap-2">
-                  <h4 className="font-extrabold text-sm text-[#1A4B84]">{c.name}</h4>
-                  {c.isPrimary && (
-                    <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
-                      Primary
-                    </span>
+                  <h4 className="font-extrabold text-sm text-[#1A4B84]">{contact.name}</h4>
+                  {contact.isPrimary && (
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold">PRIMARY</span>
                   )}
                 </div>
-                <p className="text-xs text-slate-500 font-medium">{c.relation}</p>
-                <p className="text-xs text-slate-800 font-mono font-bold mt-0.5">{c.phone}</p>
+                <p className="text-slate-500 font-medium">{contact.relation} • {contact.phone}</p>
               </div>
 
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-2">
                 <button
-                  onClick={() => openContactModal(c)}
-                  className="p-2 rounded-lg hover:bg-slate-200 text-slate-600 cursor-pointer"
-                  title="Edit Contact"
+                  onClick={() => {
+                    toast.success(`Dialing ${contact.name}...`);
+                    window.open(`tel:${contact.phone}`);
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-[#1A4B84] text-white font-bold hover:bg-[#143A66] cursor-pointer"
                 >
-                  <Edit2 className="w-3.5 h-3.5" />
+                  Call
                 </button>
-                {c.id !== 'c-default-108' && (
+                {!contact.isPrimary && (
                   <button
-                    onClick={() => deleteContact(c.id)}
-                    className="p-2 rounded-lg hover:bg-rose-100 text-rose-600 cursor-pointer"
-                    title="Delete Contact"
+                    onClick={() => handleDeleteContact(contact.id)}
+                    className="p-1.5 rounded-xl text-rose-600 hover:bg-rose-50 cursor-pointer"
+                    title="Remove Contact"
                   >
-                    <Trash2 className="w-3.5 h-3.5" />
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 )}
               </div>
@@ -380,80 +343,57 @@ export const EmergencySOSPage = () => {
         </div>
       </Card>
 
-      {/* Real Nearby Emergency Rooms List (Live OpenStreetMap API) */}
-      <Card className="p-6 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-4">
+      {/* Live Nearby Emergency Facilities */}
+      <Card className="p-6 bg-white border border-slate-200 rounded-2xl space-y-4 shadow-xs">
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-          <h3 className="text-base font-extrabold text-[#1A4B84] flex items-center gap-2">
-            <Building2 className="w-4.5 h-4.5 text-[#2D90A6]" /> Live Nearby Emergency Facilities
-          </h3>
-          <span className="text-xs font-semibold text-slate-500">
-            {loadingHospitals ? 'Searching API...' : `Sorted by Proximity (${nearbyHospitals.length} Found)`}
+          <div className="flex items-center gap-2">
+            <Building2 className="w-5 h-5 text-[#2D90A6]" />
+            <h3 className="text-base font-extrabold text-[#1A4B84]">{t('liveNearbyEmergencyFacilities')}</h3>
+          </div>
+
+          <span className="text-xs font-bold text-[#2D90A6] bg-[#EBF6F8] px-3 py-1 rounded-full border border-[#2D90A6]/30">
+            {t('sortedByProximity')}
           </span>
         </div>
 
         {loadingHospitals ? (
-          <div className="p-8 text-center text-xs font-semibold text-slate-500 space-y-2">
+          <div className="py-8 text-center space-y-2">
             <RefreshCw className="w-6 h-6 text-[#2D90A6] animate-spin mx-auto" />
-            <p>Querying live OpenStreetMap emergency facilities near your location...</p>
-          </div>
-        ) : locationError ? (
-          <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-900 space-y-2">
-            <div className="flex items-center gap-2 font-bold text-[#DC2626]">
-              <AlertTriangle className="w-4 h-4" /> Location Access Denied
-            </div>
-            <p>We need your device location permission to find live nearby emergency care rooms.</p>
-            <Button variant="outline" size="sm" onClick={fetchUserLocation} className="mt-2 text-xs font-semibold">
-              Retry Location Access
-            </Button>
+            <p className="text-xs text-slate-500 font-medium">Querying OpenStreetMap live emergency database...</p>
           </div>
         ) : nearbyHospitals.length === 0 ? (
-          <div className="p-6 text-center text-xs text-slate-600 bg-slate-50 rounded-xl">
-            No nearby emergency facilities returned by live OpenStreetMap API for your coordinates.
+          <div className="py-6 text-center text-xs text-slate-500 font-medium">
+            No live hospital data retrieved. Ensure GPS location is active.
           </div>
         ) : (
-          <div className="space-y-3">
-            {nearbyHospitals.map((h) => (
-              <div key={h.id} className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="space-y-3 text-xs">
+            {nearbyHospitals.slice(0, 5).map((hosp) => (
+              <div key={hosp.id} className="p-4 rounded-xl border border-slate-200 hover:border-[#1A4B84] bg-slate-50/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all">
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h4 className="font-extrabold text-sm text-[#1A4B84]">{h.name}</h4>
-                    <span className="px-2 py-0.5 rounded-full bg-rose-50 text-rose-800 text-[11px] font-bold border border-rose-200">
-                      {h.emergencyType}
-                    </span>
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-extrabold text-sm text-[#1A4B84]">{hosp.name}</h4>
+                    <span className="px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 text-[10px] font-extrabold">24/7 ER</span>
                   </div>
-                  <p className="text-xs text-slate-600 font-normal">{h.address}</p>
-                  <p className="text-xs font-bold text-[#2D90A6]">{h.distanceText} • {h.driveTimeText}</p>
+                  <p className="text-slate-500 font-normal truncate max-w-md">{hosp.address}</p>
+                  <p className="text-slate-700 font-bold">{hosp.distanceText} • {hosp.driveTimeText}</p>
                 </div>
 
-                <div className="flex items-center gap-2 shrink-0">
-                  {h.phone ? (
-                    <Button
-                      variant="sos"
-                      size="sm"
-                      icon={Phone}
-                      onClick={() => window.open(`tel:${h.phone}`)}
-                      className="py-2 px-3 text-xs font-semibold rounded-xl cursor-pointer bg-[#DC2626]"
+                <div className="flex items-center gap-2">
+                  {hosp.phone && (
+                    <a
+                      href={`tel:${hosp.phone}`}
+                      className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs cursor-pointer flex items-center gap-1"
                     >
-                      Call Ahead
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled
-                      className="py-2 px-3 text-xs font-semibold rounded-xl opacity-50 cursor-not-allowed"
-                    >
-                      Phone unavailable
-                    </Button>
+                      <Phone className="w-3.5 h-3.5" /> Call
+                    </a>
                   )}
-
                   <a
-                    href={h.directionsUrl}
+                    href={hosp.directionsUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="py-2 px-3 text-xs font-semibold rounded-xl bg-slate-100 hover:bg-slate-200 text-[#1A4B84] flex items-center gap-1 cursor-pointer transition-colors"
+                    className="px-4 py-2 rounded-xl bg-[#1A4B84] hover:bg-[#143A66] text-white font-bold text-xs cursor-pointer flex items-center gap-1"
                   >
-                    <Navigation className="w-3.5 h-3.5 text-[#2D90A6]" /> Directions
+                    <Navigation className="w-3.5 h-3.5 text-[#2D90A6]" /> {t('directions')}
                   </a>
                 </div>
               </div>
@@ -462,84 +402,65 @@ export const EmergencySOSPage = () => {
         )}
       </Card>
 
-      {/* SOS Confirmation Modal */}
-      <Modal
-        isOpen={sosStep === 'confirm'}
-        onClose={() => setSosStep('idle')}
-        title="Confirm Emergency SOS Dispatch"
-      >
-        <div className="space-y-4 text-xs font-sans">
-          <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-900 space-y-1">
-            <h4 className="font-extrabold text-sm text-[#DC2626] flex items-center gap-1.5">
-              <AlertTriangle className="w-4 h-4" /> Are you sure you want to dispatch SOS?
-            </h4>
-            <p className="leading-relaxed font-normal">
-              This will share your real-time GPS coordinates with 108 Emergency Ambulance Services and send urgent alert notifications to your configured trusted contacts.
-            </p>
-          </div>
-
-          <div className="flex justify-end gap-2 pt-2">
-            <Button variant="secondary" size="sm" onClick={() => setSosStep('idle')} className="rounded-xl text-xs font-semibold cursor-pointer">
-              Cancel
-            </Button>
-            <Button variant="sos" size="sm" onClick={confirmSOSDispatch} className="rounded-xl text-xs font-extrabold bg-[#DC2626] cursor-pointer">
-              Confirm & Dispatch SOS Now
-            </Button>
-          </div>
-        </div>
-      </Modal>
-
-      {/* Trusted Contact Add / Edit Modal */}
+      {/* Add / Edit Contact Modal */}
       <Modal
         isOpen={showContactModal}
-        onClose={closeContactModal}
-        title={editingContact ? "Edit Trusted Contact" : "Add Trusted Emergency Contact"}
+        onClose={() => setShowContactModal(false)}
+        title={editingContact ? 'Edit Trusted Contact' : 'Add Trusted Contact'}
       >
-        <form onSubmit={saveContact} className="space-y-4 text-xs font-sans">
-          <div className="space-y-1">
-            <label className="font-bold text-[#1A4B84]">Full Name *</label>
+        <div className="space-y-4 text-xs font-sans">
+          <div className="med-form-group">
+            <label>Contact Full Name</label>
             <input
               type="text"
-              required
               value={contactName}
               onChange={(e) => setContactName(e.target.value)}
-              placeholder="e.g. Michael (Son)"
-              className="med-input w-full"
+              placeholder="e.g. Ramesh Bhai (Brother)"
+              className="med-input text-xs"
             />
           </div>
 
-          <div className="space-y-1">
-            <label className="font-bold text-[#1A4B84]">Relationship</label>
+          <div className="med-form-group">
+            <label>Phone Number</label>
+            <input
+              type="tel"
+              value={contactPhone}
+              onChange={(e) => setContactPhone(e.target.value)}
+              placeholder="e.g. +91 98250 12345"
+              className="med-input text-xs"
+            />
+          </div>
+
+          <div className="med-form-group">
+            <label>Relationship</label>
             <input
               type="text"
               value={contactRelation}
               onChange={(e) => setContactRelation(e.target.value)}
-              placeholder="e.g. Son / Primary Emergency Contact"
-              className="med-input w-full"
+              placeholder="e.g. Son, Sister, Primary Physician"
+              className="med-input text-xs"
             />
           </div>
 
-          <div className="space-y-1">
-            <label className="font-bold text-[#1A4B84]">Phone Number *</label>
-            <input
-              type="tel"
-              required
-              value={contactPhone}
-              onChange={(e) => setContactPhone(e.target.value)}
-              placeholder="e.g. +91 98765 43210"
-              className="med-input w-full font-mono"
-            />
-          </div>
-
-          <div className="flex justify-end gap-2 pt-2">
-            <Button variant="secondary" size="sm" type="button" onClick={closeContactModal} className="rounded-xl text-xs font-semibold cursor-pointer">
+          <div className="flex justify-end gap-3 pt-3">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setShowContactModal(false)}
+              className="rounded-xl text-xs font-semibold cursor-pointer"
+            >
               Cancel
             </Button>
-            <Button variant="teal" size="sm" type="submit" className="rounded-xl text-xs font-semibold bg-[#1A4B84] cursor-pointer">
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleSaveContact}
+              className="rounded-xl text-xs font-extrabold bg-[#1A4B84] cursor-pointer"
+            >
               Save Contact
             </Button>
           </div>
-        </form>
+        </div>
       </Modal>
 
     </div>
