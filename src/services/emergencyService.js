@@ -24,22 +24,48 @@ export function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
 
 export const emergencyService = {
   /**
-   * Fetches real nearby emergency hospitals from OpenStreetMap Nominatim Live API
+   * Fetches real nearby emergency hospitals from OpenStreetMap Nominatim Live API using geographic bounding box & city fallback
    */
   fetchLiveNearbyEmergencyHospitals: async (lat, lng) => {
     try {
-      const url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&extratags=1&q=hospital+emergency+near+${lat},${lng}&limit=20`;
-      const response = await fetch(url, {
+      const delta = 0.30; // ~30km bounding box around GPS coordinates
+      const viewbox = `${lng - delta},${lat + delta},${lng + delta},${lat - delta}`;
+      const url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&extratags=1&q=hospital&viewbox=${viewbox}&bounded=1&limit=30`;
+
+      let response = await fetch(url, {
         headers: {
           'User-Agent': 'MedGuardianAI-EmergencySystem/1.0'
         }
       });
 
-      if (!response.ok) {
-        throw new Error(`OpenStreetMap API returned status ${response.status}`);
+      let data = [];
+      if (response.ok) {
+        data = await response.json();
       }
 
-      const data = await response.json();
+      // Fallback: If viewbox search yielded fewer than 3 results, query by reverse geocoded city name
+      if (!Array.isArray(data) || data.length < 3) {
+        try {
+          const revRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`, {
+            headers: { 'User-Agent': 'MedGuardianAI-EmergencySystem/1.0' }
+          });
+          if (revRes.ok) {
+            const revData = await revRes.json();
+            const cityName = revData.address?.city || revData.address?.town || revData.address?.county || revData.address?.state;
+            if (cityName) {
+              const cityUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&extratags=1&q=hospital+in+${encodeURIComponent(cityName)}&limit=30`;
+              const cityRes = await fetch(cityUrl, {
+                headers: { 'User-Agent': 'MedGuardianAI-EmergencySystem/1.0' }
+              });
+              if (cityRes.ok) {
+                data = await cityRes.json();
+              }
+            }
+          }
+        } catch (e) {
+          console.error("City fallback search error:", e);
+        }
+      }
 
       if (!Array.isArray(data) || data.length === 0) {
         return [];
