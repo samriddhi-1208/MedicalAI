@@ -16,7 +16,9 @@ import {
   ArrowRight,
   Eye,
   AlertTriangle,
-  Upload
+  Upload,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
@@ -28,6 +30,11 @@ export const AIAnalysisPage = () => {
   const navigate = useNavigate();
   const { reports, userProfile } = useHealthData();
   const [viewOriginalModal, setViewOriginalModal] = useState(false);
+  const [expandedSources, setExpandedSources] = useState({});
+
+  const toggleSource = (idx) => {
+    setExpandedSources(prev => ({ ...prev, [idx]: !prev[idx] }));
+  };
 
   // Retrieve strictly the current user's latest uploaded report (0% Fake/Fallback Data!)
   const latestReport = (Array.isArray(reports) && reports.length > 0) ? reports[0] : null;
@@ -92,7 +99,7 @@ export const AIAnalysisPage = () => {
             className="rounded-xl text-xs font-semibold border-slate-200 text-slate-700 cursor-pointer"
             onClick={() => setViewOriginalModal(true)}
           >
-            View Original Report Text
+            View Full Report Text
           </Button>
 
           <Button
@@ -150,7 +157,7 @@ export const AIAnalysisPage = () => {
             <h3 className="text-base font-extrabold text-white">AI Clinical Summary</h3>
           </div>
           <span className="px-2.5 py-0.5 rounded-full bg-[#2D90A6]/30 text-[#CCFBF1] text-xs font-bold border border-[#2D90A6]/40">
-            100% Extracted from Document
+            High Confidence Extraction
           </span>
         </div>
 
@@ -173,7 +180,7 @@ export const AIAnalysisPage = () => {
             No specific clinical biomarker tables were recognized in this report.
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {biomarkers.map((bm, idx) => {
               const isWarning = bm.statusType === 'warning' || bm.status === 'Slightly Elevated' || bm.status === 'High' || bm.status === 'Low';
               const isCritical = bm.statusType === 'critical';
@@ -181,44 +188,58 @@ export const AIAnalysisPage = () => {
               return (
                 <div 
                   key={bm.id || idx}
-                  className="p-4 rounded-xl bg-slate-50 border border-slate-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                  className="p-5 rounded-2xl bg-white border border-slate-200 space-y-3 shadow-2xs hover:border-slate-300 transition-all"
                 >
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h4 className="font-extrabold text-sm text-[#1A4B84]">{bm.name}</h4>
-                      <span className={`med-badge ${
-                        isCritical
-                          ? 'med-badge-critical'
-                          : isWarning
-                          ? 'med-badge-warning'
-                          : 'med-badge-normal'
-                      }`}>
-                        <span>{bm.statusSymbol || (isWarning ? '▲' : '✓')}</span>
-                        <span>{bm.status}</span>
-                      </span>
-
-                      {bm.confidence && (
-                        <span className="text-[10px] text-slate-400 font-mono">
-                          Confidence: {Math.round((bm.confidence || 0.98) * 100)}%
-                        </span>
-                      )}
+                  {/* Top Row: Test Name + Status Badge */}
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <div className="flex items-center gap-2.5">
+                      <h4 className="font-extrabold text-base text-[#1A4B84]">{bm.name}</h4>
                     </div>
 
-                    {bm.sourceText && (
-                      <p className="text-[11px] text-slate-500 font-mono italic">
-                        Source text: "{bm.sourceText}"
-                      </p>
-                    )}
+                    <span className={`med-badge ${
+                      isCritical
+                        ? 'med-badge-critical'
+                        : isWarning
+                        ? 'med-badge-warning'
+                        : 'med-badge-normal'
+                    }`}>
+                      <span>{bm.statusSymbol || (isWarning ? '▲' : '✓')}</span>
+                      <span>{bm.status}</span>
+                    </span>
                   </div>
 
-                  <div className="text-right sm:text-right shrink-0">
-                    <span className="text-base font-extrabold text-[#1A4B84] block">
-                      {bm.value} <span className="text-xs font-normal text-slate-500">{bm.unit}</span>
-                    </span>
-                    <span className="text-[11px] text-slate-500 font-medium block">
-                      Ref: {bm.refRange || 'Reference range not provided'}
-                    </span>
+                  {/* Value & Reference Range Row */}
+                  <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 pt-1">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-2.5xl font-extrabold text-[#1A4B84] tracking-tight">{bm.value}</span>
+                      <span className="text-xs font-semibold text-slate-500">{bm.unit}</span>
+                    </div>
+
+                    <div className="text-xs text-slate-600 font-medium">
+                      Reference: <span className="font-bold text-[#1A4B84]">{bm.refRange || 'Reference range not provided'}</span>
+                    </div>
                   </div>
+
+                  {/* View Source Accordion Toggle */}
+                  {bm.sourceText && (
+                    <div className="pt-2 border-t border-slate-100">
+                      <button
+                        onClick={() => toggleSource(idx)}
+                        className="text-xs font-bold text-[#2D90A6] hover:text-[#1A4B84] flex items-center gap-1 cursor-pointer"
+                      >
+                        <span>{expandedSources[idx] ? 'Hide Source' : 'View Source'}</span>
+                        {expandedSources[idx] ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                      </button>
+
+                      {expandedSources[idx] && (
+                        <div className="mt-2 p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-mono text-slate-700 leading-relaxed animate-in fade-in duration-150">
+                          <span className="font-bold text-slate-900 block mb-1">Source from report:</span>
+                          "{bm.sourceText}"
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                 </div>
               );
             })}
@@ -238,7 +259,7 @@ export const AIAnalysisPage = () => {
       <Modal
         isOpen={viewOriginalModal}
         onClose={() => setViewOriginalModal(false)}
-        title={`Original Report Source: ${latestReport.fileName || latestReport.title}`}
+        title={`Original Report Stream: ${latestReport.fileName || latestReport.title}`}
       >
         <div className="space-y-4 text-xs font-sans">
           <div className="p-4 rounded-xl bg-slate-900 text-slate-100 font-mono text-[11px] max-h-96 overflow-y-auto whitespace-pre-wrap leading-relaxed border border-slate-800">

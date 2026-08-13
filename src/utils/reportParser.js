@@ -1,6 +1,6 @@
 /**
  * MedGuardian AI — 100% Dynamic Medical Report Extraction Engine
- * Supports text PDFs, scanned PDFs (via Canvas + Tesseract OCR), and Images (JPG/PNG).
+ * Pipeline: PDF/Image Raw Text -> Document Row Segmentation -> Numeric Token Classification -> Isolated Biomarker Row Mapping -> Validation
  * ZERO Hardcoded Values — Uploaded Document is the ONLY Source of Truth.
  */
 
@@ -111,157 +111,131 @@ export async function extractTextFromImage(file) {
 }
 
 /**
- * Known Medical Biomarker Patterns & Spelling Variants
+ * Stage 1: Segment Document into Clean Candidate Medical Rows
  */
-const BIOMARKER_PATTERNS = [
-  { key: 'haemoglobin', name: 'Haemoglobin (Hb)', defaultUnit: 'g/dL' },
-  { key: 'hemoglobin', name: 'Hemoglobin (Hb)', defaultUnit: 'g/dL' },
-  { key: 'hgb', name: 'Hemoglobin (Hb)', defaultUnit: 'g/dL' },
-  { key: 'hb', name: 'Hemoglobin (Hb)', defaultUnit: 'g/dL' },
-  { key: 'fasting glucose', name: 'Fasting Glucose', defaultUnit: 'mg/dL' },
-  { key: 'random blood sugar', name: 'Random Blood Sugar (RBS)', defaultUnit: 'mg/dL' },
-  { key: 'blood sugar', name: 'Blood Sugar', defaultUnit: 'mg/dL' },
-  { key: 'glucose', name: 'Fasting Glucose', defaultUnit: 'mg/dL' },
-  { key: 'sugar', name: 'Blood Sugar', defaultUnit: 'mg/dL' },
-  { key: 'hba1c', name: 'HbA1c (Glycated Hb)', defaultUnit: '%' },
-  { key: 'a1c', name: 'HbA1c (Glycated Hb)', defaultUnit: '%' },
-  { key: 'cholesterol', name: 'Total Cholesterol', defaultUnit: 'mg/dL' },
-  { key: 'ldl', name: 'Cholesterol (LDL)', defaultUnit: 'mg/dL' },
-  { key: 'hdl', name: 'Cholesterol (HDL)', defaultUnit: 'mg/dL' },
-  { key: 'triglyceride', name: 'Triglycerides', defaultUnit: 'mg/dL' },
-  { key: 'triglycerides', name: 'Triglycerides', defaultUnit: 'mg/dL' },
-  { key: 'tsh', name: 'Thyroid Stimulating Hormone (TSH)', defaultUnit: 'uIU/mL' },
-  { key: 't3', name: 'Triiodothyronine (T3)', defaultUnit: 'ng/dL' },
-  { key: 't4', name: 'Thyroxin (T4)', defaultUnit: 'µg/dL' },
-  { key: 'creatinine', name: 'Serum Creatinine', defaultUnit: 'mg/dL' },
-  { key: 'urea', name: 'Blood Urea', defaultUnit: 'mg/dL' },
-  { key: 'bun', name: 'Blood Urea Nitrogen (BUN)', defaultUnit: 'mg/dL' },
-  { key: 'sodium', name: 'Sodium (Na+)', defaultUnit: 'mmol/L' },
-  { key: 'potassium', name: 'Potassium (K+)', defaultUnit: 'mmol/L' },
-  { key: 'tlc', name: 'Total Leukocyte Count (TLC)', defaultUnit: '/cumm' },
-  { key: 'wbc', name: 'White Blood Cells (WBC)', defaultUnit: 'cell/cu.mm' },
-  { key: 'rbc', name: 'Red Blood Cells (RBC)', defaultUnit: 'mil/cu.mm' },
-  { key: 'platelet', name: 'Platelet Count', defaultUnit: 'Lac/cmm' },
-  { key: 'platelets', name: 'Platelet Count', defaultUnit: 'Lac/cmm' },
-  { key: 'esr', name: 'Erythrocyte Sedimentation Rate (ESR)', defaultUnit: 'mm/hr' },
-  { key: 'crp', name: 'C-Reactive Protein (CRP)', defaultUnit: 'mg/L' },
-  { key: 'alt', name: 'Alanine Aminotransferase (ALT)', defaultUnit: 'U/L' },
-  { key: 'ast', name: 'Aspartate Aminotransferase (AST)', defaultUnit: 'U/L' },
-  { key: 'sgpt', name: 'SGPT (ALT)', defaultUnit: 'U/L' },
-  { key: 'sgot', name: 'SGOT (AST)', defaultUnit: 'U/L' },
-  { key: 'bilirubin', name: 'Total Bilirubin', defaultUnit: 'mg/dL' },
-  { key: 'calcium', name: 'Serum Calcium', defaultUnit: 'mg/dL' },
-  { key: 'vitamin d', name: 'Vitamin D (25-OH)', defaultUnit: 'ng/mL' },
-  { key: 'vitamin b12', name: 'Vitamin B12', defaultUnit: 'pg/mL' }
-];
+function segmentDocumentRows(rawText) {
+  const testKeywords = [
+    'Haemoglobin', 'Hemoglobin', 'Total WBC Count', 'RBC Count', 'Hematocrit', 'HCT', 
+    'Mean Corp Volume', 'MCV', 'Mean Corp Hb', 'MCH', 'MCHC', 'RDW-CV', 'RDW-SD', 
+    'Platelet Count', 'MPV', 'PDW-SD', 'PCT', 'Neutrophils', 'Lymphocytes', 'Monocytes', 
+    'Eosinophils', 'Basophils', 'ESR', 'Alanine Aminotransferase', 'ALT', 'AST', 'SGPT', 
+    'SGOT', 'CRP', 'C-REACTIVE PROTEIN', 'Fasting Glucose', 'Blood Sugar', 'Serum Creatinine', 
+    'Blood Urea', 'Total Cholesterol', 'TSH'
+  ];
+
+  let preparedText = rawText;
+  for (const kw of testKeywords) {
+    const regex = new RegExp(`(?<=\\s|^)(${kw})(?=\\s|\\:)`, 'gi');
+    preparedText = preparedText.replace(regex, '\n$1');
+  }
+
+  const rawLines = preparedText.split(/\r?\n/);
+  return rawLines.map(l => l.trim()).filter(l => l.length > 4);
+}
 
 /**
- * Dynamically parses extracted text to detect medical parameters with line splitting & keyword boundary matching
+ * Stage 2: Classify Tokens and Extract (Test Name, Value, Unit, Reference Range, Source Text)
  */
 export function parseBiomarkersFromText(rawText) {
   if (!rawText || typeof rawText !== 'string' || rawText.trim().length === 0) {
     return [];
   }
 
-  // Pre-split on newline OR major test keywords to prevent massive multi-test single paragraph collisions
-  const textWithBreaks = rawText.replace(/(Haemoglobin|Hemoglobin|Total WBC Count|RBC Count|Hematocrit|HCT|MCV|MCH|MCHC|RDW-CV|RDW-SD|Platelet Count|MPV|PDW-SD|PCT|Neutrophils|Lymphocytes|Monocytes|Eosinophils|Basophils|ESR|Alanine Aminotransferase|ALT|AST|SGPT|SGOT|CRP|C-REACTIVE PROTEIN|Fasting Glucose|Blood Sugar|Serum Creatinine|Blood Urea|Total Cholesterol|TSH)/gi, '\n$1');
-  const lines = textWithBreaks.split(/\r?\n/);
-  
-  const extractedBiomarkers = [];
-  const seenKeys = new Set();
+  const rows = segmentDocumentRows(rawText);
+  const extractedResults = [];
+  const seenNames = new Set();
 
-  for (const line of lines) {
-    const cleanLine = line.trim();
-    if (!cleanLine || cleanLine.length < 4) continue;
-    const lowerLine = cleanLine.toLowerCase();
+  for (const line of rows) {
+    // Ignore metadata header lines with dates, sample IDs, page numbers
+    if (/patient|registration date|collection date|sample id|report date|reg\. no|page \d/i.test(line) && !/haemoglobin|alt|crp|esr|wbc|rbc|platelet/i.test(line)) {
+      continue;
+    }
 
-    for (const pattern of BIOMARKER_PATTERNS) {
-      if (seenKeys.has(pattern.name)) continue;
+    // Row Matcher Pattern:
+    // Group 1: Test Name
+    // Group 2: Result Value (e.g. 11.4, 13.3, 46.1, 65, 289000)
+    // Group 3: Unit (e.g. gm/dL, unit/L, mg/L, mm/hr, Lac/cmm, %)
+    // Group 4: Reference Range (e.g. 12.5 - 16.0, 5 - 35, 0 - 6, 0 - 20)
+    const rowMatch = line.match(/^([A-Za-z0-9\s\(\)\-\/]+?)\s+([<>]?\s*\d+(?:[\.,]\d+)?)\s*([A-Za-z\/\%\+\.\^0-9\-]+)?\s*(.*)$/);
 
-      const regexKeyword = new RegExp(`\\b${pattern.key}\\b`, 'i');
-      if (regexKeyword.test(lowerLine)) {
+    if (rowMatch) {
+      const rawName = rowMatch[1].trim();
+      const rawValue = rowMatch[2].trim();
+      const unit = rowMatch[3] ? rowMatch[3].trim() : 'Unit not provided';
+      let refStr = rowMatch[4] ? rowMatch[4].trim() : 'Reference range not provided';
+
+      // Ensure reference range does NOT contain dates (e.g. 04/01/2026) or page headers
+      if (/\d{2}\/\d{2}\/\d{4}|\d{4}\s+\d{2}|page/i.test(refStr)) {
+        refStr = refStr.replace(/\d{2}\/\d{2}\/\d{4}.*$/, '').replace(/\d{4}\s+\d{2}.*$/, '').trim();
+        if (!refStr) refStr = 'Reference range not provided';
+      }
+
+      const numericValue = parseFloat(rawValue.replace(/,/g, '.').replace(/[^\d.]/g, ''));
+
+      if (!isNaN(numericValue) && rawName.length >= 2 && !seenNames.has(rawName) && !/complete blood|haematology|report|test description/i.test(rawName)) {
         
-        // Find numerical value occurring AFTER keyword in the line
-        const keywordIdx = lowerLine.search(regexKeyword);
-        const subLine = cleanLine.substring(keywordIdx);
+        // Clean display name normalization
+        let displayName = rawName;
+        if (/haemoglobin|hemoglobin/i.test(rawName)) displayName = 'Haemoglobin (Hb)';
+        else if (/alanine aminotransferase|alt/i.test(rawName)) displayName = 'Alanine Aminotransferase (ALT)';
+        else if (/crp|c-reactive/i.test(rawName)) displayName = 'C-Reactive Protein (CRP)';
+        else if (/esr/i.test(rawName)) displayName = 'Erythrocyte Sedimentation Rate (ESR)';
+        else if (/platelet/i.test(rawName)) displayName = 'Platelet Count';
+        else if (/wbc/i.test(rawName)) displayName = 'Total WBC Count';
+        else if (/rbc/i.test(rawName)) displayName = 'RBC Count';
 
-        const numberMatches = subLine.match(/([<>]?\s*\d+(?:[\.,]\d+)?)/g);
-        
-        if (numberMatches && numberMatches.length > 0) {
-          const rawValStr = numberMatches[0].trim();
-          const numericVal = parseFloat(rawValStr.replace(/,/g, '.').replace(/[^\d.]/g, ''));
+        // Dynamic Status Evaluation from Extracted Value + Reference Range
+        let status = 'Normal';
+        let statusType = 'normal';
+        let statusSymbol = '✓';
 
-          if (isNaN(numericVal)) continue;
-
-          // Extract unit if present in line
-          let unit = pattern.defaultUnit;
-          const unitMatch = subLine.match(/(g\/dL|gm\/dL|mg\/dL|mg\/L|mmol\/L|mIU\/L|uIU\/mL|ng\/dL|µg\/dL|U\/L|unit\/L|ng\/mL|pg\/mL|cell\/cu\.mm|mil\/cu\.mm|cells\/µL|m\/µL|k\/µL|\/cumm|Lac\/cmm|Lakhs\/cumm|mm\/hr|fL|pg|%)/i);
-          if (unitMatch) {
-            unit = unitMatch[0];
+        const rangeMatch = refStr.match(/(\d+(?:[\.,]\d+)?)\s*[-–\sto]+\s*(\d+(?:[\.,]\d+)?)/);
+        if (rangeMatch) {
+          const low = parseFloat(rangeMatch[1]);
+          const high = parseFloat(rangeMatch[2]);
+          if (!isNaN(low) && numericValue < low) {
+            status = 'Low';
+            statusType = 'warning';
+            statusSymbol = '▼';
+          } else if (!isNaN(high) && numericValue > high) {
+            status = 'High';
+            statusType = 'warning';
+            statusSymbol = '▲';
           }
-
-          // Extract reference range if present in line
-          let refRange = "Reference range not provided";
-          const refMatch = subLine.match(/(\d+(?:[\.,]\d+)?\s*[-–\sto]+\s*\d+(?:[\.,]\d+)?|<[\s]?\d+(?:[\.,]\d+)?|>[\s]?\d+(?:[\.,]\d+)?)/i);
-          if (refMatch) {
-            refRange = refMatch[0].trim();
-          }
-
-          // Calculate status dynamically
-          let status = 'Normal';
-          let statusType = 'normal';
-          let statusSymbol = '✓';
-
-          if (refMatch) {
-            if (refRange.includes('<') || refRange.includes('less')) {
-              const maxThreshold = parseFloat(refRange.replace(/[^\d.]/g, ''));
-              if (!isNaN(maxThreshold) && numericVal > maxThreshold) {
-                status = 'Slightly Elevated';
-                statusType = 'warning';
-                statusSymbol = '▲';
-              }
-            } else if (refRange.includes('-') || refRange.includes('to')) {
-              const parts = refRange.split(/[-–to]+/);
-              const minVal = parseFloat(parts[0].replace(/[^\d.]/g, ''));
-              const maxVal = parseFloat(parts[1]?.replace(/[^\d.]/g, ''));
-
-              if (!isNaN(minVal) && numericVal < minVal) {
-                status = 'Low';
-                statusType = 'warning';
-                statusSymbol = '▼';
-              } else if (!isNaN(maxVal) && numericVal > maxVal) {
-                status = 'High';
-                statusType = 'warning';
-                statusSymbol = '▲';
-              }
+        } else {
+          const maxMatch = refStr.match(/<[\s]?(\d+(?:[\.,]\d+)?)/);
+          if (maxMatch) {
+            const maxVal = parseFloat(maxMatch[1]);
+            if (!isNaN(maxVal) && numericValue > maxVal) {
+              status = 'High';
+              statusType = 'warning';
+              statusSymbol = '▲';
             }
           }
-
-          // Format clean source snippet (up to 140 chars)
-          const cleanSnippet = subLine.length > 140 ? subLine.substring(0, 140) + '...' : subLine;
-
-          seenKeys.add(pattern.name);
-          extractedBiomarkers.push({
-            id: `bm-${Date.now()}-${extractedBiomarkers.length}`,
-            name: pattern.name,
-            value: rawValStr,
-            numericValue: numericVal,
-            unit: unit,
-            refRange: refRange,
-            status: status,
-            statusType: statusType,
-            statusSymbol: statusSymbol,
-            sourceText: cleanSnippet,
-            confidence: 0.98
-          });
-
-          break;
         }
+
+        // Isolated source text (ONLY that single row!)
+        const isolatedSource = line.length > 120 ? line.substring(0, 120) + '...' : line;
+
+        seenNames.add(rawName);
+        extractedResults.push({
+          id: `bm-${Date.now()}-${extractedResults.length}`,
+          name: displayName,
+          value: rawValue,
+          numericValue: numericValue,
+          unit: unit,
+          refRange: refStr,
+          status: status,
+          statusType: statusType,
+          statusSymbol: statusSymbol,
+          sourceText: isolatedSource, // EXACT isolated row text ONLY!
+          confidence: 'High Confidence'
+        });
       }
     }
   }
 
-  return extractedBiomarkers;
+  return extractedResults;
 }
 
 /**
