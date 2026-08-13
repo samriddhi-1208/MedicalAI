@@ -19,7 +19,8 @@ import {
   Globe,
   SlidersHorizontal,
   Star,
-  Slash
+  ShieldAlert,
+  Info
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
@@ -28,7 +29,7 @@ import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { Modal } from '../components/ui/Modal';
 
-// Haversine distance calculator in km
+// Haversine geographic distance calculation in km
 function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
   const R = 6371; // Earth's radius in km
   const dLat = (lat2 - lat1) * (Math.PI / 180);
@@ -43,32 +44,65 @@ function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
   return parseFloat((R * c).toFixed(1));
 }
 
+// Ensure Leaflet JS and CSS are dynamically loaded in browser environment
+const ensureLeafletLoaded = () => {
+  return new Promise((resolve) => {
+    if (window.L) {
+      resolve(window.L);
+      return;
+    }
+
+    if (!document.getElementById('leaflet-css-cdn')) {
+      const link = document.createElement('link');
+      link.id = 'leaflet-css-cdn';
+      link.rel = 'stylesheet';
+      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      document.head.appendChild(link);
+    }
+
+    if (!document.getElementById('leaflet-js-cdn')) {
+      const script = document.createElement('script');
+      script.id = 'leaflet-js-cdn';
+      script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+      script.onload = () => resolve(window.L);
+      document.body.appendChild(script);
+    } else {
+      const interval = setInterval(() => {
+        if (window.L) {
+          clearInterval(interval);
+          resolve(window.L);
+        }
+      }, 100);
+    }
+  });
+};
+
 export const HospitalFinderPage = () => {
   const { reports, userProfile } = useHealthData();
   const mapContainerRef = useRef(null);
   const leafletMapRef = useRef(null);
+  const markersRef = useRef({});
 
   // Location Pipeline State
-  const [locationGranted, setLocationGranted] = useState(false);
-  const [locationMode, setLocationMode] = useState(null); // 'current' | 'manual' | 'profile' | null
+  const [locationState, setLocationState] = useState('prompt'); // 'prompt' | 'loading' | 'granted' | 'denied'
+  const [locationMode, setLocationMode] = useState(null); // 'current' | 'manual' | 'profile'
   const [manualQuery, setManualQuery] = useState(userProfile?.city || '');
   const [userCoords, setUserCoords] = useState(null); // { lat, lng, name }
-  const [locLoading, setLocLoading] = useState(false);
-  const [locationDenied, setLocationDenied] = useState(false);
 
-  // Search, Filter, Radius & Sort State
+  // Search & Filter State
   const [searchKeyword, setSearchKeyword] = useState('');
   const [category, setCategory] = useState('Hospitals');
   const [radiusKm, setRadiusKm] = useState(5); // 5 | 10 | 25
   const [sortBy, setSortBy] = useState('distance'); // 'distance' | 'relevance' | 'rating'
   
-  // Results State (100% Real API Data — ZERO Hardcoded Fallbacks)
+  // Real API Results State (ZERO Hardcoded / Demo Data)
   const [facilities, setFacilities] = useState([]);
   const [loadingFacilities, setLoadingFacilities] = useState(false);
-  const [fetchError, setFetchError] = useState(null);
-  const [selectedFacility, setSelectedFacility] = useState(null);
+  const [apiError, setApiError] = useState(null);
+  const [selectedFacilityId, setSelectedFacilityId] = useState(null);
+  const [selectedFacilityModal, setSelectedFacilityModal] = useState(null);
 
-  // 1. Report-Aware Medical Need Cautious Suggestion
+  // 1. Cautious Medical-AI Healthcare Guidance
   const getReportAwareAdvice = () => {
     if (!Array.isArray(reports) || reports.length === 0) return null;
     const latestReport = reports[0];
@@ -121,49 +155,48 @@ export const HospitalFinderPage = () => {
 
   const reportAdvice = getReportAwareAdvice();
 
-  // 2. Real-Time OpenStreetMap Nominatim Live Search Query (Zero Hardcoded Data)
-  const fetchRealFacilitiesFromAPI = async (lat, lng, targetCategory, keyword, radius, sortOrder) => {
+  // 2. Fetch Real Data from External Places API (OpenStreetMap Nominatim Live API)
+  const fetchRealFacilities = async (lat, lng, targetCategory, keyword, radius, sortOrder) => {
     setLoadingFacilities(true);
-    setFetchError(null);
+    setApiError(null);
 
     try {
-      let queryText = keyword.trim();
-      if (!queryText) {
+      let queryKeyword = keyword.trim();
+      if (!queryKeyword) {
         if (targetCategory === 'General Physician' || targetCategory === 'Pediatrician' || targetCategory === 'Gynecologist' || targetCategory === 'Dermatologist' || targetCategory === 'Orthopedic' || targetCategory === 'Cardiologist') {
-          queryText = `${targetCategory.toLowerCase()} clinic`;
+          queryKeyword = `${targetCategory.toLowerCase()} clinic`;
         } else if (targetCategory === 'Diagnostic Lab') {
-          queryText = 'diagnostic lab pathology';
+          queryKeyword = 'diagnostic lab pathology';
         } else if (targetCategory === 'Pharmacy') {
-          queryText = 'pharmacy medical store';
+          queryKeyword = 'pharmacy medical store';
         } else if (targetCategory === 'Emergency Hospital') {
-          queryText = 'emergency hospital trauma center';
+          queryKeyword = 'emergency hospital trauma center';
         } else if (targetCategory === 'Clinics') {
-          queryText = 'clinic health center';
+          queryKeyword = 'clinic health center';
         } else {
-          queryText = 'hospital';
+          queryKeyword = 'hospital';
         }
       }
 
-      // Query OpenStreetMap Nominatim Live API
-      const locationName = userCoords?.name ? userCoords.name.split(',')[0] : '';
-      const nomUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&extratags=1&q=${encodeURIComponent(queryText + (locationName ? ' in ' + locationName : ''))}&limit=30`;
+      // Query OpenStreetMap Nominatim Live Search API
+      const nomUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&extratags=1&q=${encodeURIComponent(queryKeyword + ' near ' + lat + ',' + lng)}&limit=40`;
 
       const res = await fetch(nomUrl, {
-        headers: { 'Accept-Language': 'en' }
+        headers: { 'User-Agent': 'MedicalAI-App/1.0', 'Accept-Language': 'en' }
       });
 
       if (!res.ok) {
-        throw new Error("We couldn't retrieve nearby healthcare facilities right now.");
+        throw new Error("Unable to fetch nearby healthcare facilities. Please try again.");
       }
 
       const data = await res.json();
 
       if (!Array.isArray(data)) {
-        throw new Error("We couldn't retrieve nearby healthcare facilities right now.");
+        throw new Error("Unable to fetch nearby healthcare facilities. Please try again.");
       }
 
-      // Parse 100% Real API Data
-      const parsedResults = data
+      // Process 100% Real API Data — NEVER invent missing fields
+      const results = data
         .map((item, idx) => {
           const itemLat = parseFloat(item.lat);
           const itemLng = parseFloat(item.lon);
@@ -171,17 +204,17 @@ export const HospitalFinderPage = () => {
 
           const dist = calculateHaversineDistance(lat, lng, itemLat, itemLng);
           
-          // Filter strictly by selected radius
+          // Filter strictly by user-selected search radius
           if (dist > radius) return null;
 
           const tags = item.extratags || {};
-          const rawName = item.display_name.split(',')[0];
+          const name = item.display_name.split(',')[0];
           const fullAddress = item.display_name;
 
-          // Extract real phone only if provided by API
+          // Phone: Show ONLY if API provides it
           const phone = tags.phone || tags['contact:phone'] || tags['phone:mobile'] || null;
 
-          // Extract real opening status only if provided by API
+          // Opening Hours: Show ONLY if API provides it
           let openStatus = null;
           if (tags.opening_hours) {
             openStatus = tags.opening_hours.includes('24/7') ? '🟢 Open 24/7' : `🕐 ${tags.opening_hours}`;
@@ -189,10 +222,10 @@ export const HospitalFinderPage = () => {
             openStatus = '🟢 Open 24/7 (Emergency)';
           }
 
-          // Extract real rating only if provided by API
+          // Rating: Show ONLY if API provides it
           const rating = tags.rating ? parseFloat(tags.rating) : null;
 
-          // Confirm emergency availability ONLY if API confirms it
+          // Emergency Service Confirmed ONLY if API tags confirm it
           const emergencyConfirmed = tags.emergency === 'yes' || (tags.amenity === 'hospital' && tags['hospital:emergency'] === 'yes');
 
           const categoryType = item.type === 'pharmacy' ? 'Pharmacy'
@@ -200,8 +233,8 @@ export const HospitalFinderPage = () => {
                              : 'Hospital';
 
           return {
-            id: `osm-real-${item.place_id || idx}`,
-            name: rawName,
+            id: `osm-${item.place_id || idx}`,
+            name,
             type: categoryType,
             address: fullAddress,
             distanceKm: dist,
@@ -217,37 +250,83 @@ export const HospitalFinderPage = () => {
         })
         .filter(Boolean);
 
-      // Sort results by user selection
+      // Sort by user selection
       if (sortOrder === 'rating') {
-        parsedResults.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+        results.sort((a, b) => (b.rating || 0) - (a.rating || 0));
       } else if (sortOrder === 'relevance') {
-        parsedResults.sort((a, b) => a.name.localeCompare(b.name));
+        results.sort((a, b) => a.name.localeCompare(b.name));
       } else {
         // Default: Distance
-        parsedResults.sort((a, b) => a.distanceKm - b.distanceKm);
+        results.sort((a, b) => a.distanceKm - b.distanceKm);
       }
 
-      setFacilities(parsedResults);
+      setFacilities(results);
     } catch (err) {
-      console.error("Real API Fetch Error:", err);
+      console.error("API Fetch Error:", err);
       setFacilities([]);
-      setFetchError(err.message || "We couldn't retrieve nearby healthcare facilities right now.");
+      setApiError(err.message || "Unable to fetch nearby healthcare facilities. Please try again.");
     } finally {
       setLoadingFacilities(false);
     }
   };
 
-  // 3. Geocode Location manually by city / pincode
-  const handleManualSearch = async (e) => {
-    if (e) e.preventDefault();
-    if (!manualQuery.trim()) {
-      toast.error("Please enter a location or city name.");
+  // 3. Obtain Browser Geolocation Permission (`navigator.geolocation`)
+  const handleUseCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      toast.error("Geolocation is not supported by your browser.");
       return;
     }
 
-    setLocLoading(true);
-    setFetchError(null);
-    setLocationDenied(false);
+    setLocationState('loading');
+    setApiError(null);
+    toast.loading("Obtaining browser GPS position...", { id: 'geo-toast' });
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        toast.dismiss('geo-toast');
+        const coords = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+          name: "Current GPS Location"
+        };
+
+        // Attempt reverse geocode to get human-readable location name
+        try {
+          const revUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${coords.lat}&lon=${coords.lng}`;
+          const revRes = await fetch(revUrl);
+          const revData = await revRes.json();
+          if (revData?.display_name) {
+            coords.name = revData.display_name;
+          }
+        } catch {
+          // Keep GPS Location fallback label
+        }
+
+        setUserCoords(coords);
+        setLocationState('granted');
+        setLocationMode('current');
+        toast.success("GPS Location detected!");
+        await fetchRealFacilities(coords.lat, coords.lng, category, searchKeyword, radiusKm, sortBy);
+      },
+      (error) => {
+        toast.dismiss('geo-toast');
+        setLocationState('denied');
+        toast.error("Location access was denied. Please allow location access or search for a city manually.");
+      },
+      { timeout: 10000, enableHighAccuracy: true }
+    );
+  };
+
+  // 4. Geocode Location manually by city / pincode fallback
+  const handleManualSearch = async (e) => {
+    if (e) e.preventDefault();
+    if (!manualQuery.trim()) {
+      toast.error("Please enter a city name or location.");
+      return;
+    }
+
+    setLocationState('loading');
+    setApiError(null);
 
     try {
       const nomUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(manualQuery.trim())}&limit=1`;
@@ -265,131 +344,54 @@ export const HospitalFinderPage = () => {
       };
 
       setUserCoords(coords);
-      setLocationGranted(true);
+      setLocationState('granted');
       setLocationMode('manual');
-      toast.success(`Location locked: ${coords.name.split(',')[0]}`);
-      await fetchRealFacilitiesFromAPI(coords.lat, coords.lng, category, searchKeyword, radiusKm, sortBy);
+      toast.success(`Location set: ${coords.name.split(',')[0]}`);
+      await fetchRealFacilities(coords.lat, coords.lng, category, searchKeyword, radiusKm, sortBy);
     } catch (err) {
       toast.error(err.message || "Could not locate specified area.");
-      setFetchError(err.message);
-    } finally {
-      setLocLoading(false);
+      setApiError(err.message);
+      setLocationState('denied');
     }
   };
 
-  // 4. Request Browser Geolocation API
-  const handleUseCurrentLocation = () => {
-    if (!navigator.geolocation) {
-      toast.error("Geolocation is not supported by your browser.");
-      return;
-    }
-
-    setLocLoading(true);
-    setLocationDenied(false);
-    toast.loading("Finding healthcare facilities near you...", { id: 'geo-toast' });
-
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        toast.dismiss('geo-toast');
-        const coords = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-          name: "Current Location"
-        };
-
-        // Try reverse geocoding for display city name
-        try {
-          const revUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${coords.lat}&lon=${coords.lng}`;
-          const revRes = await fetch(revUrl);
-          const revData = await revRes.json();
-          if (revData?.display_name) {
-            coords.name = revData.display_name;
-          }
-        } catch {
-          // Keep Current Location fallback string
-        }
-
-        setUserCoords(coords);
-        setLocationGranted(true);
-        setLocationMode('current');
-        toast.success("GPS Location granted!");
-        await fetchRealFacilitiesFromAPI(coords.lat, coords.lng, category, searchKeyword, radiusKm, sortBy);
-        setLocLoading(false);
-      },
-      (error) => {
-        toast.dismiss('geo-toast');
-        setLocLoading(false);
-        setLocationDenied(true);
-        toast.error("Location access was denied.");
-      },
-      { timeout: 10000, enableHighAccuracy: true }
-    );
-  };
-
-  // Initial Load Pipeline: Saved Profile City Fallback if present
-  useEffect(() => {
-    if (userProfile?.city) {
-      const city = userProfile.city;
-      setManualQuery(city);
-      // Geocode saved city
-      fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(city)}&limit=1`)
-        .then(res => res.json())
-        .then(data => {
-          if (Array.isArray(data) && data.length > 0) {
-            const coords = {
-              lat: parseFloat(data[0].lat),
-              lng: parseFloat(data[0].lon),
-              name: data[0].display_name
-            };
-            setUserCoords(coords);
-            setLocationGranted(true);
-            setLocationMode('profile');
-            fetchRealFacilitiesFromAPI(coords.lat, coords.lng, category, searchKeyword, radiusKm, sortBy);
-          }
-        })
-        .catch(() => {
-          // Leave in ungranted initial state
-        });
-    }
-  }, []);
-
-  // Filter & Search Re-query Trigger
-  const handleApplySearch = (e) => {
-    if (e) e.preventDefault();
-    if (userCoords) {
-      fetchRealFacilitiesFromAPI(userCoords.lat, userCoords.lng, category, searchKeyword, radiusKm, sortBy);
-    } else {
-      handleManualSearch();
-    }
-  };
-
+  // Trigger search when filters change
   const handleCategoryChange = (newCategory) => {
     setCategory(newCategory);
     if (userCoords) {
-      fetchRealFacilitiesFromAPI(userCoords.lat, userCoords.lng, newCategory, searchKeyword, radiusKm, sortBy);
+      fetchRealFacilities(userCoords.lat, userCoords.lng, newCategory, searchKeyword, radiusKm, sortBy);
     }
   };
 
   const handleRadiusChange = (newRadius) => {
     setRadiusKm(newRadius);
     if (userCoords) {
-      fetchRealFacilitiesFromAPI(userCoords.lat, userCoords.lng, category, searchKeyword, newRadius, sortBy);
+      fetchRealFacilities(userCoords.lat, userCoords.lng, category, searchKeyword, newRadius, sortBy);
     }
   };
 
   const handleSortChange = (newSort) => {
     setSortBy(newSort);
     if (userCoords) {
-      fetchRealFacilitiesFromAPI(userCoords.lat, userCoords.lng, category, searchKeyword, radiusKm, newSort);
+      fetchRealFacilities(userCoords.lat, userCoords.lng, category, searchKeyword, radiusKm, newSort);
     }
   };
 
-  // 5. Interactive Leaflet Map Mounting
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (userCoords) {
+      fetchRealFacilities(userCoords.lat, userCoords.lng, category, searchKeyword, radiusKm, sortBy);
+    } else {
+      handleManualSearch();
+    }
+  };
+
+  // 5. Mount & Sync Interactive Leaflet Map
   useEffect(() => {
     if (!userCoords || !mapContainerRef.current) return;
 
-    if (window.L) {
-      const L = window.L;
+    ensureLeafletLoaded().then((L) => {
+      if (!L) return;
 
       if (!leafletMapRef.current) {
         const map = L.map(mapContainerRef.current).setView([userCoords.lat, userCoords.lng], 13);
@@ -402,6 +404,7 @@ export const HospitalFinderPage = () => {
       }
 
       const map = leafletMapRef.current;
+      markersRef.current = {};
 
       // Clear existing markers
       map.eachLayer((layer) => {
@@ -410,20 +413,20 @@ export const HospitalFinderPage = () => {
         }
       });
 
-      // User Marker
+      // User Location Marker
       const userIcon = L.divIcon({
         className: 'custom-user-marker',
-        html: `<div style="background-color: #0F172A; width: 18px; height: 18px; border-radius: 50%; border: 3px solid #0D9488; box-shadow: 0 0 10px rgba(13, 148, 136, 0.6);"></div>`,
-        iconSize: [18, 18],
-        iconAnchor: [9, 9]
+        html: `<div style="background-color: #0F172A; width: 20px; height: 20px; border-radius: 50%; border: 3px solid #0D9488; box-shadow: 0 0 12px rgba(13, 148, 136, 0.7);"></div>`,
+        iconSize: [20, 20],
+        iconAnchor: [10, 10]
       });
 
       L.marker([userCoords.lat, userCoords.lng], { icon: userIcon })
         .addTo(map)
         .bindPopup(`<b>Your Location</b><br>${userCoords.name}`);
 
-      // Facility Markers (Real API Data Only)
-      facilities.forEach(fac => {
+      // Facility Markers (Real API Data)
+      facilities.forEach((fac) => {
         const isEmergency = fac.emergencyConfirmed;
         const facIcon = L.divIcon({
           className: 'custom-fac-marker',
@@ -433,22 +436,40 @@ export const HospitalFinderPage = () => {
         });
 
         const marker = L.marker([fac.lat, fac.lng], { icon: facIcon }).addTo(map);
+
         marker.bindPopup(`
           <div style="font-family: sans-serif; font-size: 12px; max-width: 220px; padding: 2px;">
             <strong style="color: #0F172A; display: block; font-size: 13px;">${fac.name}</strong>
             <span style="color: #475569; display: block; font-size: 11px; margin-top: 2px;">${fac.address}</span>
-            <div style="margin-top: 6px; font-weight: bold; color: #0D9488; font-size: 11px; display: flex; align-items: center; justify-between;">
-              <span>${fac.distanceKm} km away</span>
-              ${fac.openStatus ? `<span style="color: #059669;">${fac.openStatus}</span>` : ''}
+            <div style="margin-top: 6px; font-weight: bold; color: #0D9488; font-size: 11px;">
+              ${fac.distanceKm} km away
             </div>
-            <a href="${fac.directionsUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; margin-top: 8px; font-[#0F172A]; font-weight: bold; font-size: 11px; text-decoration: underline;">
+            <a href="${fac.directionsUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; margin-top: 8px; color: #0F172A; font-weight: bold; font-size: 11px; text-decoration: underline;">
               Get Directions →
             </a>
           </div>
         `);
+
+        marker.on('click', () => {
+          setSelectedFacilityId(fac.id);
+        });
+
+        markersRef.current[fac.id] = marker;
       });
-    }
+    });
   }, [userCoords, facilities]);
+
+  // Focus facility on card click
+  const handleFacilityCardClick = (fac) => {
+    setSelectedFacilityId(fac.id);
+    if (leafletMapRef.current && fac.lat && fac.lng) {
+      leafletMapRef.current.setView([fac.lat, fac.lng], 15);
+      const marker = markersRef.current[fac.id];
+      if (marker) {
+        marker.openPopup();
+      }
+    }
+  };
 
   const categories = [
     'Hospitals',
@@ -472,13 +493,13 @@ export const HospitalFinderPage = () => {
         <div>
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-xs text-emerald-800 font-bold uppercase tracking-wider">Real-Time OpenStreetMap Engine</span>
+            <span className="text-xs text-emerald-800 font-bold uppercase tracking-wider">OpenStreetMap Real-Time Location Engine</span>
           </div>
           <h1 className="text-2.5xl font-extrabold text-[#0F172A] tracking-tight mt-0.5">
             24/7 Hospital & Healthcare Finder
           </h1>
           <p className="text-xs font-normal text-slate-500">
-            {locationGranted && userCoords
+            {locationState === 'granted' && userCoords
               ? `Healthcare facilities near ${userCoords.name.split(',')[0]}`
               : 'Find healthcare near you using browser GPS or manual location'
             }
@@ -501,7 +522,13 @@ export const HospitalFinderPage = () => {
         </div>
       </div>
 
-      {/* Report-Aware Medical Need Cautious Suggestion */}
+      {/* Privacy Notice */}
+      <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 flex items-center gap-2">
+        <Info className="w-4 h-4 text-[#0D9488] shrink-0" />
+        <span>Your location is used only to find nearby healthcare facilities and is never stored permanently.</span>
+      </div>
+
+      {/* Medical-AI Cautious Healthcare Guidance */}
       {reportAdvice && (
         <Card className="p-5 bg-teal-50/60 border border-teal-200 rounded-2xl shadow-xs space-y-3">
           <div className="flex items-center justify-between flex-wrap gap-3">
@@ -532,9 +559,9 @@ export const HospitalFinderPage = () => {
         </Card>
       )}
 
-      {/* Location Access Prompt UI (Shown when location has not been granted) */}
-      {!locationGranted && (
-        <Card className="p-8 text-center bg-white border border-slate-200 rounded-2xl space-y-5 shadow-sm max-w-2xl mx-auto">
+      {/* Location Access Prompt UI (Initial Un-Granted / Denied State) */}
+      {locationState !== 'granted' && (
+        <Card className="p-8 text-center bg-white border border-slate-200 rounded-2xl space-y-5 shadow-xs max-w-2xl mx-auto">
           <div className="w-14 h-14 rounded-2xl bg-teal-50 text-[#0D9488] flex items-center justify-center mx-auto border border-teal-200 shadow-2xs">
             <Compass className="w-7 h-7" />
           </div>
@@ -542,13 +569,13 @@ export const HospitalFinderPage = () => {
           <div className="space-y-2">
             <h2 className="text-xl font-extrabold text-[#0F172A]">Find healthcare near you</h2>
             <p className="text-xs text-slate-600 font-normal leading-relaxed">
-              Location access is required to find healthcare facilities near you. Use your browser's GPS position or enter your city manually.
+              Location access is required to find healthcare facilities near you. Click below to allow browser GPS or enter your city manually.
             </p>
           </div>
 
-          {locationDenied && (
-            <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-800 font-semibold">
-              ⚠️ Location access was denied in browser settings. Please click "Enter Location Manually" below or allow GPS access.
+          {locationState === 'denied' && (
+            <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 font-semibold space-y-1">
+              <p>⚠️ Location access was denied. Please allow location access or search for a city manually below.</p>
             </div>
           )}
 
@@ -557,11 +584,11 @@ export const HospitalFinderPage = () => {
               variant="primary"
               size="md"
               icon={Compass}
-              loading={locLoading}
+              loading={locationState === 'loading'}
               onClick={handleUseCurrentLocation}
               className="bg-[#0F172A] hover:bg-[#1E293B] py-3 px-6 text-xs font-semibold rounded-xl w-full sm:w-auto cursor-pointer"
             >
-              {locLoading ? 'Finding healthcare facilities near you...' : 'Use My Current Location'}
+              {locationState === 'loading' ? 'Finding healthcare facilities near you...' : 'Use My Current Location'}
             </Button>
 
             <Button
@@ -569,7 +596,7 @@ export const HospitalFinderPage = () => {
               size="md"
               icon={MapPin}
               onClick={() => {
-                const city = prompt("Enter your City or Pincode:", manualQuery || "Mumbai");
+                const city = prompt("Enter City Name or Pincode:", manualQuery || "Mumbai");
                 if (city) {
                   setManualQuery(city);
                   handleManualSearch();
@@ -583,10 +610,9 @@ export const HospitalFinderPage = () => {
         </Card>
       )}
 
-      {/* Location Bar & Real Search Interface (Shown after Location is set) */}
-      {locationGranted && (
+      {/* Active Location Search Bar & Controls (Shown once Location is active) */}
+      {locationState === 'granted' && (
         <>
-          {/* Active Location Info & Controls */}
           <Card className="p-6 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-4">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
               <div>
@@ -601,7 +627,7 @@ export const HospitalFinderPage = () => {
               <div className="flex items-center gap-2 flex-wrap">
                 <button
                   onClick={handleUseCurrentLocation}
-                  disabled={locLoading}
+                  disabled={locationState === 'loading'}
                   className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer border ${
                     locationMode === 'current'
                       ? 'bg-[#0F172A] text-white border-slate-800 shadow-xs'
@@ -609,13 +635,13 @@ export const HospitalFinderPage = () => {
                   }`}
                 >
                   <Compass className={`w-4 h-4 ${locationMode === 'current' ? 'text-[#0D9488]' : 'text-slate-500'}`} />
-                  <span>{locLoading ? 'Locating...' : 'Near Me'}</span>
+                  <span>{locationState === 'loading' ? 'Locating...' : 'Use My Current Location'}</span>
                 </button>
               </div>
             </div>
 
             {/* Real Search Bar & Filters Form */}
-            <form onSubmit={handleApplySearch} className="grid grid-cols-1 sm:grid-cols-12 gap-3 text-xs">
+            <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 sm:grid-cols-12 gap-3 text-xs">
               
               {/* Search Bar Input */}
               <div className="sm:col-span-6 relative">
@@ -700,67 +726,72 @@ export const HospitalFinderPage = () => {
             </div>
           </div>
 
-          {/* Main Grid: Real API Facility Cards + Interactive OpenStreetMap */}
+          {/* Main Content Grid: Result Cards + Interactive OpenStreetMap */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
-            {/* Left: Real API Facility Cards */}
+            {/* Left: Result Cards */}
             <div className="lg:col-span-7 space-y-4">
               
               <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
                 <span>
-                  Real API results for: <strong className="text-[#0F172A] font-bold">{category}</strong> ({radiusKm} km radius)
+                  Real API results for: <strong className="text-[#0F172A] font-bold">{category}</strong>
                 </span>
-                <span>{facilities.length} Facilities Found</span>
+                <span>
+                  {loadingFacilities 
+                    ? 'Finding healthcare facilities near you...'
+                    : `${facilities.length} facilities found within ${radiusKm} km`
+                  }
+                </span>
               </div>
 
               {/* Loading State */}
               {loadingFacilities && (
-                <Card className="p-8 text-center bg-white border border-slate-200 rounded-2xl space-y-3">
+                <Card className="p-8 text-center bg-white border border-slate-200 rounded-2xl space-y-3 shadow-xs">
                   <div className="w-8 h-8 border-4 border-[#0F172A] border-t-transparent rounded-full animate-spin mx-auto" />
                   <p className="text-xs font-extrabold text-[#0F172A]">Finding healthcare facilities near you...</p>
                 </Card>
               )}
 
-              {/* Error State (NO Fake Fallbacks) */}
-              {!loadingFacilities && fetchError && (
+              {/* Error State (Zero Fake Data) */}
+              {!loadingFacilities && apiError && (
                 <Card className="p-8 text-center bg-white border border-slate-200 rounded-2xl space-y-4 shadow-xs">
                   <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto border border-rose-200">
                     <AlertTriangle className="w-6 h-6" />
                   </div>
                   <div className="space-y-1.5 max-w-md mx-auto">
-                    <h3 className="text-base font-extrabold text-[#0F172A]">We couldn't retrieve nearby healthcare facilities right now.</h3>
-                    <p className="text-xs text-slate-600 font-normal">{fetchError}</p>
+                    <h3 className="text-base font-extrabold text-[#0F172A]">Unable to fetch nearby healthcare facilities.</h3>
+                    <p className="text-xs text-slate-600 font-normal">{apiError}</p>
                   </div>
                   <div className="flex justify-center gap-3 pt-2">
                     <Button
                       variant="outline"
                       size="sm"
                       icon={RefreshCw}
-                      className="rounded-xl text-xs font-semibold border-slate-200"
-                      onClick={() => userCoords && fetchRealFacilitiesFromAPI(userCoords.lat, userCoords.lng, category, searchKeyword, radiusKm, sortBy)}
+                      className="rounded-xl text-xs font-semibold border-slate-200 cursor-pointer"
+                      onClick={() => userCoords && fetchRealFacilities(userCoords.lat, userCoords.lng, category, searchKeyword, radiusKm, sortBy)}
                     >
-                      Try Again
+                      Please try again
                     </Button>
                   </div>
                 </Card>
               )}
 
-              {/* Empty State (NO Fake Fallbacks) */}
-              {!loadingFacilities && !fetchError && facilities.length === 0 && (
+              {/* Empty State (Zero Fake Data) */}
+              {!loadingFacilities && !apiError && facilities.length === 0 && (
                 <Card className="p-8 text-center bg-white border border-slate-200 rounded-2xl space-y-4 shadow-xs">
                   <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-600 flex items-center justify-center mx-auto border border-slate-200">
                     <Building2 className="w-6 h-6 text-slate-400" />
                   </div>
                   <div className="space-y-1.5 max-w-md mx-auto">
-                    <h3 className="text-base font-extrabold text-[#0F172A]">No healthcare facilities were found within {radiusKm} km.</h3>
-                    <p className="text-xs text-slate-600 font-normal">Try expanding your search radius to find results further out.</p>
+                    <h3 className="text-base font-extrabold text-[#0F172A]">No healthcare facilities found within {radiusKm} km.</h3>
+                    <p className="text-xs text-slate-600 font-normal">Try expanding your search radius to find facilities further out.</p>
                   </div>
                   <div className="flex justify-center gap-2 pt-2 flex-wrap">
                     {radiusKm < 10 && (
                       <Button
                         variant="primary"
                         size="sm"
-                        className="rounded-xl text-xs font-semibold bg-[#0F172A]"
+                        className="rounded-xl text-xs font-semibold bg-[#0F172A] cursor-pointer"
                         onClick={() => handleRadiusChange(10)}
                       >
                         Search within 10 km
@@ -770,7 +801,7 @@ export const HospitalFinderPage = () => {
                       <Button
                         variant="primary"
                         size="sm"
-                        className="rounded-xl text-xs font-semibold bg-[#0F172A]"
+                        className="rounded-xl text-xs font-semibold bg-[#0F172A] cursor-pointer"
                         onClick={() => handleRadiusChange(25)}
                       >
                         Search within 25 km
@@ -780,12 +811,13 @@ export const HospitalFinderPage = () => {
                 </Card>
               )}
 
-              {/* Real API Facility Cards (100% Real API Data) */}
-              {!loadingFacilities && !fetchError && facilities.map((fac) => (
+              {/* Real API Facility Cards (100% Authentic Data — Zero Fake Fallbacks) */}
+              {!loadingFacilities && !apiError && facilities.map((fac) => (
                 <Card 
-                  key={fac.id} 
-                  className={`p-6 space-y-3.5 bg-white border rounded-2xl shadow-xs transition-all ${
-                    selectedFacility?.id === fac.id ? 'border-[#0D9488] ring-2 ring-[#0D9488]/20' : 'border-slate-200 hover:border-slate-300'
+                  key={fac.id}
+                  onClick={() => handleFacilityCardClick(fac)}
+                  className={`p-6 space-y-3.5 bg-white border rounded-2xl shadow-xs transition-all cursor-pointer ${
+                    selectedFacilityId === fac.id ? 'border-[#0D9488] ring-2 ring-[#0D9488]/20 bg-teal-50/20' : 'border-slate-200 hover:border-slate-300'
                   }`}
                 >
                   <div className="flex justify-between items-start gap-3">
@@ -831,25 +863,31 @@ export const HospitalFinderPage = () => {
                   </div>
 
                   <div className="flex items-center gap-2 pt-2 flex-wrap">
-                    {fac.phone && (
+                    {fac.phone ? (
                       <Button
                         variant="sos"
                         size="sm"
                         className="py-2 px-3.5 text-xs font-semibold rounded-xl cursor-pointer"
                         icon={Phone}
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation();
                           toast.success(`Dialing ${fac.name}...`);
                           window.open(`tel:${fac.phone}`);
                         }}
                       >
                         Call ({fac.phone})
                       </Button>
+                    ) : (
+                      <span className="text-xs text-slate-400 font-medium px-2 py-1 bg-slate-100 rounded-lg">
+                        Phone unavailable
+                      </span>
                     )}
 
                     <a
                       href={fac.directionsUrl}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
                       className="py-2 px-3.5 text-xs font-semibold rounded-xl bg-slate-50 border border-slate-200 text-[#0F172A] hover:bg-slate-100 flex items-center gap-1.5 transition-colors"
                     >
                       <Navigation className="w-3.5 h-3.5 text-[#0D9488]" />
@@ -861,7 +899,10 @@ export const HospitalFinderPage = () => {
                       variant="outline"
                       size="sm"
                       className="py-2 px-3 text-xs font-semibold rounded-xl border-slate-200 text-slate-700 hover:bg-slate-50 ml-auto cursor-pointer"
-                      onClick={() => setSelectedFacility(fac)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedFacilityModal(fac);
+                      }}
                     >
                       View Details
                     </Button>
@@ -872,20 +913,20 @@ export const HospitalFinderPage = () => {
 
             </div>
 
-            {/* Right: Interactive OpenStreetMap Container */}
+            {/* Right: Real Interactive Map Canvas (100% In Sync) */}
             <div className="lg:col-span-5 space-y-4">
               <Card className="p-4 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-3">
                 <div className="flex items-center justify-between text-xs font-bold text-[#0F172A]">
                   <span className="flex items-center gap-1.5">
-                    <Compass className="w-4 h-4 text-[#0D9488]" /> Live Interactive Map
+                    <Compass className="w-4 h-4 text-[#0D9488]" /> Interactive OpenStreetMap Canvas
                   </span>
-                  <span className="text-[#0D9488]">OpenStreetMap Engine</span>
+                  <span className="text-[#0D9488]">Live Real-Time Tiles</span>
                 </div>
 
-                {/* Map Canvas Container */}
+                {/* Interactive Leaflet Map Canvas */}
                 <div 
                   ref={mapContainerRef} 
-                  className="w-full h-[420px] rounded-xl border border-slate-200 bg-slate-100 z-10" 
+                  className="w-full h-[440px] rounded-xl border border-slate-200 bg-slate-100 z-10" 
                 />
 
                 <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1 text-slate-600 font-normal">
@@ -905,49 +946,49 @@ export const HospitalFinderPage = () => {
 
       {/* Facility Details Modal */}
       <Modal
-        isOpen={!!selectedFacility}
-        onClose={() => setSelectedFacility(null)}
-        title={selectedFacility?.name || 'Facility Details'}
+        isOpen={!!selectedFacilityModal}
+        onClose={() => setSelectedFacilityModal(null)}
+        title={selectedFacilityModal?.name || 'Facility Details'}
       >
-        {selectedFacility && (
+        {selectedFacilityModal && (
           <div className="space-y-4 text-xs font-sans">
             <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
               <div className="flex justify-between items-start">
                 <div>
-                  <h4 className="font-extrabold text-sm text-[#0F172A]">{selectedFacility.name}</h4>
-                  <p className="text-xs text-[#0D9488] font-bold">{selectedFacility.type}</p>
+                  <h4 className="font-extrabold text-sm text-[#0F172A]">{selectedFacilityModal.name}</h4>
+                  <p className="text-xs text-[#0D9488] font-bold">{selectedFacilityModal.type}</p>
                 </div>
-                {selectedFacility.emergencyConfirmed && (
+                {selectedFacilityModal.emergencyConfirmed && (
                   <span className="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-800 text-[11px] font-bold border border-rose-200">
                     Emergency Service Confirmed
                   </span>
                 )}
               </div>
-              <p className="text-slate-600 font-normal">{selectedFacility.address}</p>
-              <p className="text-[#0F172A] font-bold">Distance: {selectedFacility.distanceKm} km away</p>
+              <p className="text-slate-600 font-normal">{selectedFacilityModal.address}</p>
+              <p className="text-[#0F172A] font-bold">Distance: {selectedFacilityModal.distanceKm} km away</p>
             </div>
 
             <div className="p-3 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-between text-xs">
               <span className="font-bold text-[#0F172A]">
-                Phone: {selectedFacility.phone || 'Phone unavailable'}
+                Phone: {selectedFacilityModal.phone || 'Phone unavailable'}
               </span>
-              {selectedFacility.phone && (
+              {selectedFacilityModal.phone && (
                 <Button
                   variant="sos"
                   size="sm"
-                  className="py-1.5 px-3 text-xs font-semibold rounded-lg"
-                  onClick={() => window.open(`tel:${selectedFacility.phone}`)}
+                  className="py-1.5 px-3 text-xs font-semibold rounded-lg cursor-pointer"
+                  onClick={() => window.open(`tel:${selectedFacilityModal.phone}`)}
                 >
                   Call Now
                 </Button>
               )}
             </div>
 
-            {selectedFacility.website && (
+            {selectedFacilityModal.website && (
               <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between text-xs">
-                <span className="font-semibold text-slate-700 truncate max-w-[200px]">{selectedFacility.website}</span>
+                <span className="font-semibold text-slate-700 truncate max-w-[200px]">{selectedFacilityModal.website}</span>
                 <a
-                  href={selectedFacility.website}
+                  href={selectedFacilityModal.website}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-[#0D9488] font-bold hover:underline flex items-center gap-1"
@@ -959,7 +1000,7 @@ export const HospitalFinderPage = () => {
 
             <div className="flex justify-end pt-3 border-t border-slate-100">
               <a
-                href={selectedFacility.directionsUrl}
+                href={selectedFacilityModal.directionsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="py-2.5 px-5 text-xs font-semibold rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white flex items-center gap-1.5 transition-colors"
