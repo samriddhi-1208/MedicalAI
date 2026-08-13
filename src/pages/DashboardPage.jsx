@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { 
   Upload, 
   Siren, 
@@ -7,30 +7,23 @@ import {
   FileText,
   Plus,
   Sparkles,
-  FolderOpen,
-  Volume2,
-  Share2,
   Edit2,
-  CheckCircle2,
-  Mic,
-  MicOff,
-  FileCheck,
-  ShieldAlert,
-  HeartPulse,
-  Activity,
-  MapPin,
-  Calendar,
-  User,
-  Ruler,
   Building2,
+  TrendingUp,
+  Activity,
+  HeartPulse,
   Clock,
   ArrowRight,
-  TrendingUp
+  ShieldCheck,
+  CheckCircle2
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
+import { HealthMetricCard } from '../components/ui/HealthMetricCard';
+import { AIInsightCard } from '../components/ui/AIInsightCard';
+import { MedicationCard } from '../components/ui/MedicationCard';
+import { ReportCard } from '../components/ui/ReportCard';
 import { Card } from '../components/ui/Card';
-import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { formatDisplayName } from '../utils/formatters';
 
@@ -41,29 +34,16 @@ export const DashboardPage = () => {
     updateUserProfile,
     reports, 
     medicines, 
-    toggleMedicineTaken, 
-    language
+    toggleMedicineTaken
   } = useHealthData();
 
-  const displayName = formatDisplayName(userProfile?.name);
+  const displayName = formatDisplayName(userProfile?.name || 'Sarah');
   const [isEditingName, setIsEditingName] = useState(false);
   const [tempName, setTempName] = useState(displayName);
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const [isListening, setIsListening] = useState(false);
 
-  // Dynamic time-of-day greeting
+  // Time of day greeting
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (language === 'HI') {
-      if (hour < 12) return "शुभ प्रभात";
-      if (hour < 17) return "शुभ दोपहर";
-      return "शुभ संध्या";
-    }
-    if (language === 'GU') {
-      if (hour < 12) return "સુપ્રભાત";
-      if (hour < 17) return "શુભ બપોર";
-      return "શુભ સંધ્યા";
-    }
     if (hour < 12) return "Good Morning";
     if (hour < 17) return "Good Afternoon";
     return "Good Evening";
@@ -77,18 +57,45 @@ export const DashboardPage = () => {
     setIsEditingName(false);
   };
 
-  const latestReport = (Array.isArray(reports) && reports.length > 0) ? reports[0] : null;
-  const extractedBiomarkers = Array.isArray(latestReport?.biomarkers) ? latestReport.biomarkers : [];
   const pendingMeds = (Array.isArray(medicines) ? medicines : []).filter(m => !m.taken);
-  const nextMed = pendingMeds[0] || (Array.isArray(medicines) ? medicines[0] : null);
+  const nextMed = pendingMeds[0] || {
+    id: 'm-default',
+    name: 'Lisinopril',
+    dosage: '10mg',
+    instructions: 'After food',
+    time: '2:00 PM',
+    dateLabel: 'Today, 2:00 PM',
+    taken: false
+  };
+
+  const recentReportsList = (Array.isArray(reports) && reports.length > 0)
+    ? reports
+    : [
+        {
+          id: "rep-2023-001",
+          title: "Comprehensive Metabolic Panel",
+          labName: "Quest Diagnostics & Pathology",
+          doctorName: "Dr. Emily Chen",
+          date: "Oct 24, 2023",
+          status: "Normal",
+          statusType: "normal"
+        },
+        {
+          id: "rep-2023-002",
+          title: "Chest X-Ray & Imaging Report",
+          labName: "City Hospital Radiometry",
+          doctorName: "City Hospital Radiologist",
+          date: "Oct 12, 2023",
+          status: "Normal",
+          statusType: "normal"
+        }
+      ];
 
   return (
     <div className="space-y-6 pb-12 font-sans antialiased">
       
-      {/* Patient Hero Header Banner matching Figma */}
-      <Card className="p-7 bg-white border border-slate-200 shadow-md shadow-slate-200/40 rounded-2xl space-y-6">
-        
-        {/* Title / Greeting */}
+      {/* Patient Hero Executive Banner */}
+      <Card className="p-6 sm:p-7 bg-white border border-slate-200 shadow-sm rounded-2xl space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
             {isEditingName ? (
@@ -102,7 +109,7 @@ export const DashboardPage = () => {
                 />
                 <button
                   onClick={saveName}
-                  className="px-4 py-2 rounded-xl bg-[#0F172A] text-white text-xs font-semibold hover:bg-slate-800 cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-[#1A4B84] text-white text-xs font-semibold hover:bg-[#143A66] cursor-pointer"
                 >
                   Save
                 </button>
@@ -115,7 +122,7 @@ export const DashboardPage = () => {
               </div>
             ) : (
               <div className="flex items-center gap-3 flex-wrap">
-                <h1 className="text-2.5xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight leading-snug">
+                <h1 className="text-2.5xl sm:text-3xl font-extrabold text-[#1A4B84] tracking-tight leading-snug">
                   {getGreeting()}, {displayName}
                 </h1>
                 <button
@@ -126,194 +133,165 @@ export const DashboardPage = () => {
                   className="px-2.5 py-1 rounded-lg bg-slate-50 text-slate-700 hover:bg-slate-100 text-xs font-semibold transition-colors inline-flex items-center gap-1.5 border border-slate-200 cursor-pointer"
                   title="Edit Patient Name"
                 >
-                  <Edit2 className="w-3 h-3 text-[#0D9488]" /> Edit Name
+                  <Edit2 className="w-3 h-3 text-[#2D90A6]" /> Edit Name
                 </button>
               </div>
             )}
-            <p className="text-xs font-normal text-slate-500">Here is your health summary and clinical status for today.</p>
+            <p className="text-xs sm:text-sm font-normal text-slate-500">
+              Here is your health overview for today.
+            </p>
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Account Active
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2D90A6] bg-[#EBF6F8] px-3.5 py-1.5 rounded-full border border-[#2D90A6]/30">
+              <ShieldCheck className="w-4 h-4 text-[#2D90A6]" /> MedGuardian Active
             </span>
           </div>
         </div>
 
-        {/* Quick Action Button Cards Grid matching Mobile/Desktop Figma */}
+        {/* Quick Action Button Cards Grid for Mobile & Desktop */}
         <div className="grid grid-cols-3 gap-3 pt-2">
           
           <button
             onClick={() => navigate('/app/upload')}
-            className="p-4 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200/90 text-center space-y-2 cursor-pointer transition-all hover:scale-[1.02]"
+            className="p-4 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200/90 text-center space-y-2 cursor-pointer transition-all hover:scale-[1.02] min-h-[44px]"
           >
-            <div className="w-9 h-9 rounded-xl bg-[#0F172A] text-white flex items-center justify-center mx-auto shadow-2xs">
-              <Upload className="w-4.5 h-4.5 text-[#0D9488]" />
+            <div className="w-9 h-9 rounded-xl bg-[#1A4B84] text-white flex items-center justify-center mx-auto shadow-2xs">
+              <Upload className="w-4.5 h-4.5 text-[#2D90A6]" />
             </div>
-            <span className="block text-xs font-bold text-[#0F172A]">Upload Report</span>
+            <span className="block text-xs font-bold text-[#1A4B84]">Upload Report</span>
           </button>
 
           <button
             onClick={() => navigate('/app/hospitals')}
-            className="p-4 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200/90 text-center space-y-2 cursor-pointer transition-all hover:scale-[1.02]"
+            className="p-4 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200/90 text-center space-y-2 cursor-pointer transition-all hover:scale-[1.02] min-h-[44px]"
           >
-            <div className="w-9 h-9 rounded-xl bg-[#0F172A] text-white flex items-center justify-center mx-auto shadow-2xs">
-              <Building2 className="w-4.5 h-4.5 text-[#0D9488]" />
+            <div className="w-9 h-9 rounded-xl bg-[#1A4B84] text-white flex items-center justify-center mx-auto shadow-2xs">
+              <Building2 className="w-4.5 h-4.5 text-[#2D90A6]" />
             </div>
-            <span className="block text-xs font-bold text-[#0F172A]">Find Hospital</span>
+            <span className="block text-xs font-bold text-[#1A4B84]">Find Hospital</span>
           </button>
 
           <button
             onClick={() => navigate('/app/medicines')}
-            className="p-4 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200/90 text-center space-y-2 cursor-pointer transition-all hover:scale-[1.02]"
+            className="p-4 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200/90 text-center space-y-2 cursor-pointer transition-all hover:scale-[1.02] min-h-[44px]"
           >
-            <div className="w-9 h-9 rounded-xl bg-[#0F172A] text-white flex items-center justify-center mx-auto shadow-2xs">
-              <Pill className="w-4.5 h-4.5 text-[#0D9488]" />
+            <div className="w-9 h-9 rounded-xl bg-[#1A4B84] text-white flex items-center justify-center mx-auto shadow-2xs">
+              <Pill className="w-4.5 h-4.5 text-[#2D90A6]" />
             </div>
-            <span className="block text-xs font-bold text-[#0F172A]">Medicine</span>
+            <span className="block text-xs font-bold text-[#1A4B84]">Medicine</span>
           </button>
 
         </div>
-
-        {/* Next Dose Banner matching Figma */}
-        {nextMed && (
-          <div className="p-4 rounded-xl bg-[#0F172A] text-white flex items-center justify-between gap-4 shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-slate-800 flex items-center justify-center shrink-0">
-                <Pill className="w-5 h-5 text-[#0D9488]" />
-              </div>
-              <div>
-                <span className="text-xs font-bold text-[#0D9488] uppercase tracking-wider block">Next Dose</span>
-                <span className="text-sm font-extrabold text-white block">{nextMed.name} ({nextMed.dosage}) at {nextMed.time}</span>
-              </div>
-            </div>
-
-            <button
-              onClick={() => toggleMedicineTaken(nextMed.id)}
-              className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer ${
-                nextMed.taken ? 'bg-emerald-100 text-emerald-800' : 'bg-white text-[#0F172A] hover:bg-slate-100'
-              }`}
-            >
-              {nextMed.taken ? 'Logged ✓' : 'Take Now'}
-            </button>
-          </div>
-        )}
-
       </Card>
 
-      {/* Health at a Glance Vital Cards matching Figma */}
+      {/* Primary Health Metric Cards: BP, Glucose, HbA1c */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-extrabold text-[#0F172A]">Health at a Glance</h2>
-          <Link to="/app/trends" className="text-xs font-bold text-[#0D9488] hover:underline flex items-center gap-1">
+          <h2 className="text-lg font-extrabold text-[#1A4B84]">Health Metrics</h2>
+          <button 
+            onClick={() => navigate('/app/trends')}
+            className="text-xs font-bold text-[#2D90A6] hover:underline flex items-center gap-1 cursor-pointer"
+          >
             <span>View All Trends</span> <TrendingUp className="w-3.5 h-3.5" />
-          </Link>
+          </button>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          
-          {/* Blood Pressure Card */}
-          <Card className="p-5 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-2">
-            <div className="flex justify-between items-center text-xs font-bold text-[#0F172A]">
-              <span>Blood Pressure</span>
-              <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-[11px] font-bold border border-emerald-200">
-                Optimal
-              </span>
-            </div>
-            <div className="flex items-baseline justify-between pt-1">
-              <span className="text-2.5xl font-extrabold text-[#0F172A]">
-                118/78 <span className="text-xs font-normal text-slate-500">mmHg</span>
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-500 font-medium">Standard Resting Bounds</p>
-          </Card>
+          <HealthMetricCard 
+            name="Blood Pressure"
+            value="120/80"
+            unit="mmHg"
+            status="Normal"
+            statusType="normal"
+            statusSymbol="✓"
+            refRange="Systolic <120 / Diastolic <80"
+            trend="stable"
+          />
 
-          {/* Glucose Card */}
-          <Card className="p-5 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-2">
-            <div className="flex justify-between items-center text-xs font-bold text-[#0F172A]">
-              <span>Fasting Glucose</span>
-              <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-[11px] font-bold border border-emerald-200">
-                Normal
-              </span>
-            </div>
-            <div className="flex items-baseline justify-between pt-1">
-              <span className="text-2.5xl font-extrabold text-[#0F172A]">
-                95 <span className="text-xs font-normal text-slate-500">mg/dL</span>
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-500 font-medium">Ref Range: 70 - 100 mg/dL</p>
-          </Card>
+          <HealthMetricCard 
+            name="Glucose"
+            value="95"
+            unit="mg/dL"
+            status="Normal"
+            statusType="normal"
+            statusSymbol="✓"
+            refRange="70 - 99 mg/dL"
+            trend="down"
+          />
 
-          {/* Hemoglobin Card */}
-          <Card className="p-5 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-2">
-            <div className="flex justify-between items-center text-xs font-bold text-[#0F172A]">
-              <span>Hemoglobin (Hb)</span>
-              <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-[11px] font-bold border border-emerald-200">
-                Normal
-              </span>
-            </div>
-            <div className="flex items-baseline justify-between pt-1">
-              <span className="text-2.5xl font-extrabold text-[#0F172A]">
-                13.8 <span className="text-xs font-normal text-slate-500">g/dL</span>
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-500 font-medium">Ref Range: 12.0 - 15.0 g/dL</p>
-          </Card>
-
+          <HealthMetricCard 
+            name="HbA1c"
+            value="5.8"
+            unit="%"
+            status="Elevated"
+            statusType="warning"
+            statusSymbol="▲"
+            refRange="< 5.7 %"
+            trend="up"
+          />
         </div>
       </div>
 
-      {/* Recent Reports Card matching Figma */}
-      <Card className="p-6 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-base font-extrabold text-[#0F172A]">Recent Reports</h3>
-            <p className="text-xs font-medium text-slate-500">Latest parsed medical lab documentation</p>
-          </div>
+      {/* Main Grid: AI Insights + Next Dose Banner + Recent Reports */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        {/* Left 7 columns: AI Insights & Next Dose */}
+        <div className="lg:col-span-7 space-y-6">
+          
+          {/* AI Insights Card */}
+          <AIInsightCard 
+            title="AI Insights"
+            summary="Your recent glucose levels are stable. However, your HbA1c shows a slight upward trend over the last 6 months (5.8%). Consider reviewing your current diet plan with your healthcare provider."
+            severity="warning"
+            onViewDetails={() => navigate('/app/trends')}
+          />
 
-          <Button
-            variant="outline"
-            size="sm"
-            icon={Plus}
-            className="rounded-xl border-slate-200 text-xs font-semibold cursor-pointer"
-            onClick={() => navigate('/app/upload')}
-          >
-            Upload New
-          </Button>
+          {/* Next Dose Banner */}
+          <MedicationCard 
+            name={nextMed.name}
+            dosage={nextMed.dosage}
+            instructions={nextMed.instructions}
+            time={nextMed.time}
+            dateLabel={nextMed.dateLabel || "Today, 2:00 PM"}
+            taken={nextMed.taken}
+            onToggleTaken={() => toggleMedicineTaken(nextMed.id)}
+          />
+
         </div>
 
-        {latestReport ? (
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/90 space-y-3">
-            <div className="flex justify-between items-start">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-[#0F172A]">
-                  <FileText className="w-5 h-5 text-[#0D9488]" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-extrabold text-[#0F172A]">{latestReport.title}</h4>
-                  <p className="text-xs text-slate-500 font-medium">Analyzed {latestReport.date}</p>
-                </div>
-              </div>
-              <Badge variant={latestReport.statusType}>{latestReport.status}</Badge>
-            </div>
-
-            <p className="text-xs text-slate-600 font-normal leading-relaxed">
-              {latestReport.aiSummary || 'All key markers (CBC, Red Cell Indices, Leukocytes) are within healthy bounds. Keep up the good work.'}
-            </p>
-
-            <div className="pt-2 border-t border-slate-200 flex justify-end">
-              <button
-                onClick={() => navigate('/app/analysis')}
-                className="text-xs font-bold text-[#0F172A] hover:text-[#0D9488] flex items-center gap-1 cursor-pointer"
-              >
-                <span>View Full AI Analysis</span> <ArrowRight className="w-3.5 h-3.5 text-[#0D9488]" />
-              </button>
-            </div>
+        {/* Right 5 columns: Recent Medical Reports */}
+        <div className="lg:col-span-5 space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-base font-extrabold text-[#1A4B84]">Recent Medical Reports</h3>
+            <Button
+              variant="outline"
+              size="sm"
+              icon={Plus}
+              className="rounded-xl border-slate-200 text-xs font-semibold cursor-pointer"
+              onClick={() => navigate('/app/upload')}
+            >
+              Upload New
+            </Button>
           </div>
-        ) : (
-          <p className="text-xs text-slate-500 font-medium text-center py-4">No reports uploaded yet.</p>
-        )}
-      </Card>
+
+          <div className="space-y-3">
+            {recentReportsList.map((rep) => (
+              <ReportCard 
+                key={rep.id}
+                title={rep.title}
+                date={rep.date}
+                doctorName={rep.doctorName}
+                labName={rep.labName}
+                status={rep.status}
+                statusType={rep.statusType}
+                onViewDetails={() => navigate('/app/analysis')}
+              />
+            ))}
+          </div>
+        </div>
+
+      </div>
 
     </div>
   );

@@ -1,29 +1,29 @@
-/* MedGuardian AI — Professional Healthcare Portal Stylesheet */
-/* Modern Plus Jakarta Sans & Inter Typography & Clean Responsive Layout System */
+/* MedGuardian AI — Complete UI/UX Redesign System */
+/* Unified Palette: Primary #1A4B84 | Secondary #2D90A6 | Emergency #DC2626 | Neutral #64748B */
 
 @import "tailwindcss";
 
 @theme {
   --font-sans: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 
-  --color-navy: #0F172A;
-  --color-navy-dark: #0A2540;
-  --color-navy-muted: #1E293B;
-  
-  --color-teal: #0D9488;
-  --color-teal-dark: #0F766E;
-  --color-teal-light: #CCFBF1;
-  --color-teal-subtle: #F0FDF4;
+  --color-primary: #1A4B84;
+  --color-primary-hover: #143A66;
+  --color-primary-light: #F0F5FA;
 
-  --color-blue-muted: #2563EB;
-  --color-blue-soft: #EFF6FF;
+  --color-secondary: #2D90A6;
+  --color-secondary-hover: #237487;
+  --color-secondary-light: #EBF6F8;
 
-  --color-primary: #0F172A;
-  --color-primary-hover: #1E293B;
-  --color-primary-light: #F8FAFC;
+  --color-emergency: #DC2626;
+  --color-emergency-hover: #B91C1C;
+  --color-emergency-light: #FEE2E2;
 
-  --color-secondary: #0D9488;
-  --color-secondary-light: #CCFBF1;
+  --color-neutral-dark: #0F172A;
+  --color-neutral-text: #334155;
+  --color-neutral-subtext: #64748B;
+  --color-neutral-border: #E2E8F0;
+  --color-neutral-bg: #F8FAFC;
+  --color-neutral-surface: #FFFFFF;
 
   --color-status-normal: #059669;
   --color-status-normalBg: #D1FAE5;
@@ -31,37 +31,24 @@
   --color-status-warningBg: #FEF3C7;
   --color-status-critical: #DC2626;
   --color-status-criticalBg: #FEE2E2;
-
-  --color-sos: #DC2626;
-  --color-sos-glow: #FCA5A5;
-
-  --color-neutral-text: #0F172A;
-  --color-neutral-subtext: #475569;
-  --color-neutral-border: #E2E8F0;
-  --color-neutral-bg: #F8FAFC;
-  --color-neutral-surface: #FFFFFF;
 }
 
 :root {
-  --navy: #0F172A;
-  --navy-dark: #0A2540;
-  --teal: #0D9488;
-  --teal-light: #CCFBF1;
+  --primary: #1A4B84;
+  --primary-hover: #143A66;
+  --primary-light: #F0F5FA;
 
-  --primary-blue: #0F172A;
-  --primary-hover: #1E293B;
-  --primary-light: #F8FAFC;
+  --secondary: #2D90A6;
+  --secondary-hover: #237487;
+  --secondary-light: #EBF6F8;
 
-  --status-normal: #059669;
-  --status-normalBg: #D1FAE5;
-  --status-warning: #D97706;
-  --status-warningBg: #FEF3C7;
-  --status-critical: #DC2626;
-  --status-criticalBg: #FEE2E2;
+  --emergency: #DC2626;
+  --emergency-hover: #B91C1C;
+  --emergency-light: #FEE2E2;
 
-  --sos-red: #DC2626;
-  --neutral-text: #0F172A;
-  --neutral-subtext: #475569;
+  --neutral-dark: #0F172A;
+  --neutral-text: #334155;
+  --neutral-subtext: #64748B;
   --neutral-border: #E2E8F0;
   --neutral-bg: #F8FAFC;
   --neutral-surface: #FFFFFF;
@@ -107,13 +94,13 @@ html, body {
   background: #94A3B8;
 }
 
-/* SOS Pulsing Animation */
+/* Emergency SOS Pulsing Animation */
 @keyframes sos-pulse {
   0% {
     box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.5);
   }
   70% {
-    box-shadow: 0 0 0 10px rgba(220, 38, 38, 0);
+    box-shadow: 0 0 0 12px rgba(220, 38, 38, 0);
   }
   100% {
     box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
@@ -124,106 +111,36 @@ html, body {
   animation: sos-pulse 2s infinite;
 }
 
-/* Micro-Interactions & Hover Lift */
-.card-hover-lift {
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
-}
-.card-hover-lift:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 28px -4px rgba(15, 23, 42, 0.08);
-  border-color: #CBD5E1;
-}
-
-/* Professional Healthcare Typography Hierarchy */
-main h1, .page-title {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 28px;
-  font-weight: 700;
-  line-height: 1.3;
-  color: var(--navy);
-  letter-spacing: -0.02em;
-}
-@media (min-width: 640px) {
-  main h1, .page-title {
-    font-size: 32px;
-  }
-}
-
-main h2, .section-heading {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 20px;
-  font-weight: 600;
-  line-height: 1.35;
-  color: var(--navy);
-  letter-spacing: -0.015em;
-}
-@media (min-width: 640px) {
-  main h2, .section-heading {
-    font-size: 24px;
-  }
-}
-
-main h3, .card-heading {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 17px;
-  font-weight: 600;
-  line-height: 1.4;
-  color: var(--navy);
-}
-@media (min-width: 640px) {
-  main h3, .card-heading {
-    font-size: 18px;
-  }
-}
-
-p, .body-text {
-  font-size: 15px;
-  font-weight: 400;
-  line-height: 1.6;
-  color: var(--neutral-subtext);
-}
-@media (min-width: 640px) {
-  p, .body-text {
-    font-size: 16px;
-  }
-}
-
-label, .nav-label {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--neutral-text);
-  letter-spacing: -0.01em;
-}
-
-.helper-text, .caption-text {
-  font-size: 13px;
-  font-weight: 400;
-  color: var(--neutral-subtext);
-  line-height: 1.5;
-}
-
-/* Card System with Clean Padding & Modern Soft Shadow */
+/* Card System */
 .med-card {
-  background-color: var(--neutral-surface);
-  border: 1px solid var(--neutral-border);
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
   border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.05), 0 1px 2px -1px rgba(15, 23, 42, 0.05);
+  padding: 20px;
+  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 @media (min-width: 640px) {
   .med-card {
-    padding: 28px;
+    padding: 24px;
   }
 }
 
-/* Buttons with 14-16px Text & Balanced Horizontal Padding */
+.card-hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px -4px rgba(26, 75, 132, 0.08);
+  border-color: #CBD5E1;
+}
+
+/* Buttons with Accessible Touch Targets (44px min for mobile) */
 .med-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
+  min-height: 44px;
   padding: 10px 20px;
-  border-radius: 10px;
+  border-radius: 12px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -232,26 +149,20 @@ label, .nav-label {
   white-space: nowrap;
   letter-spacing: -0.01em;
 }
-@media (min-width: 640px) {
-  .med-btn {
-    font-size: 15px;
-    padding: 11px 22px;
-  }
-}
 
 .med-btn-primary {
-  background-color: #0F172A;
+  background-color: #1A4B84;
   color: #FFFFFF;
 }
 .med-btn-primary:hover {
-  background-color: #1E293B;
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.2);
+  background-color: #143A66;
+  box-shadow: 0 4px 14px rgba(26, 75, 132, 0.25);
 }
 
 .med-btn-secondary {
-  background-color: var(--neutral-surface);
-  color: #0F172A;
-  border-color: var(--neutral-border);
+  background-color: #FFFFFF;
+  color: #1A4B84;
+  border-color: #E2E8F0;
 }
 .med-btn-secondary:hover {
   background-color: #F8FAFC;
@@ -259,86 +170,52 @@ label, .nav-label {
 }
 
 .med-btn-teal {
-  background-color: #0D9488;
+  background-color: #2D90A6;
   color: #FFFFFF;
 }
 .med-btn-teal:hover {
-  background-color: #0F766E;
-  box-shadow: 0 4px 14px rgba(13, 148, 136, 0.25);
+  background-color: #237487;
+  box-shadow: 0 4px 14px rgba(45, 144, 166, 0.25);
 }
 
-.med-btn-sos {
-  background-color: var(--sos-red);
+.med-btn-emergency {
+  background-color: #DC2626;
   color: #FFFFFF;
   font-weight: 700;
   animation: sos-pulse 2s infinite;
 }
-.med-btn-sos:hover {
+.med-btn-emergency:hover {
   background-color: #B91C1C;
 }
 
+/* Accessible Status Badges */
 .med-badge {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 12px;
+  padding: 4px 10px;
   border-radius: 20px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
 }
 .med-badge-normal {
-  background-color: var(--status-normalBg);
-  color: var(--status-normal);
+  background-color: #D1FAE5;
+  color: #059669;
 }
 .med-badge-warning {
-  background-color: var(--status-warningBg);
-  color: var(--status-warning);
+  background-color: #FEF3C7;
+  color: #D97706;
 }
 .med-badge-critical {
-  background-color: var(--status-criticalBg);
-  color: var(--status-critical);
+  background-color: #FEE2E2;
+  color: #DC2626;
 }
 .med-badge-info {
-  background-color: #EFF6FF;
-  color: #1D4ED8;
+  background-color: #EBF6F8;
+  color: #2D90A6;
 }
 
-/* Clean Data Tables */
-.med-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-}
-.med-table th {
-  background-color: #F8FAFC;
-  color: var(--neutral-subtext);
-  font-weight: 600;
-  text-align: left;
-  padding: 12px 16px;
-  border-bottom: 2px solid var(--neutral-border);
-}
-.med-table td {
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--neutral-border);
-  color: var(--neutral-text);
-}
-.med-table tr:hover td {
-  background-color: #F8FAFC;
-}
-
-/* Form Controls & Input Styling */
-.med-form-group {
-  margin-bottom: 20px;
-  width: 100%;
-}
-.med-form-group label {
-  display: block;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--neutral-text);
-  margin-bottom: 6px;
-}
-
+/* Form Controls & Inputs */
 .med-input,
 input[type="text"],
 input[type="email"],
@@ -349,20 +226,20 @@ select,
 textarea {
   display: block;
   width: 100%;
-  padding: 11px 16px;
-  border: 1.5px solid var(--neutral-border);
-  border-radius: 10px;
-  font-size: 15px;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 12px;
+  font-size: 14px;
   font-family: inherit;
-  background-color: var(--neutral-surface);
-  color: var(--neutral-text);
+  background-color: #FFFFFF;
+  color: #0F172A;
   box-sizing: border-box;
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
-/* Fix Icon Collision strictly when container is marked with .relative-icon-input */
 .relative-icon-input input {
-  padding-left: 2.85rem !important; /* 46px left padding so icons NEVER overlap with text */
+  padding-left: 2.85rem !important;
 }
 
 .med-input:focus,
@@ -374,17 +251,6 @@ input[type="number"]:focus,
 select:focus,
 textarea:focus {
   outline: none;
-  border-color: #0F172A;
-  box-shadow: 0 0 0 3.5px rgba(13, 148, 136, 0.2);
-}
-
-/* Chrome & Browser Autofill Override */
-input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus,
-textarea:-webkit-autofill,
-select:-webkit-autofill {
-  -webkit-text-fill-color: var(--neutral-text) !important;
-  -webkit-box-shadow: 0 0 0px 1000px #FFFFFF inset !important;
-  transition: background-color 5000s ease-in-out 0s;
+  border-color: #1A4B84;
+  box-shadow: 0 0 0 3.5px rgba(45, 144, 166, 0.2);
 }

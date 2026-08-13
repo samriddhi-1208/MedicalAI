@@ -7,10 +7,8 @@ import {
   Globe,
   Share2,
   PhoneCall,
-  Mic,
   MoreHorizontal,
   LogOut,
-  User,
   ShieldCheck
 } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -67,12 +65,12 @@ export const Header = ({ collapsed }) => {
         if (language === 'HI') return 'खाता सेटिंग्स';
         if (language === 'GU') return 'એકાઉન્ટ સેટિંગ્સ';
         return 'Account Settings';
-      default: return 'MedicalAI';
+      default: return 'MedGuardian AI';
     }
   };
 
   const handleShareWhatsApp = () => {
-    const text = encodeURIComponent(`🏥 MedicalAI Patient Record: View health updates for ${displayName} on MedicalAI.`);
+    const text = encodeURIComponent(`🏥 MedGuardian AI Patient Record: View health updates for ${displayName} on MedGuardian AI.`);
     window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
     toast.success("Opening WhatsApp share...");
   };
@@ -92,14 +90,14 @@ export const Header = ({ collapsed }) => {
 
   return (
     <header
-      className={`fixed top-0 right-0 z-20 h-16 bg-white border-b border-slate-200 transition-all duration-200 flex items-center justify-between px-4 sm:px-6 shadow-xs ${
+      className={`fixed top-0 right-0 z-20 h-16 bg-white border-b border-slate-200 transition-all duration-200 flex items-center justify-between px-4 sm:px-6 shadow-2xs ${
         collapsed ? 'md:left-20' : 'md:left-64'
       } left-0`}
     >
       {/* Left Info */}
       <div className="flex items-center gap-3 min-w-0">
         <div className="min-w-0">
-          <h1 className="text-base sm:text-lg font-bold text-[#0F172A] leading-tight truncate tracking-tight">
+          <h1 className="text-base sm:text-lg font-bold text-[#1A4B84] leading-tight truncate tracking-tight">
             {getPageTitle(location.pathname)}
           </h1>
           <p className="text-xs font-medium text-slate-500 hidden sm:block truncate mt-0.5">
@@ -107,15 +105,15 @@ export const Header = ({ collapsed }) => {
           </p>
         </div>
 
-        <span className="hidden xl:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-[#059669] text-xs font-semibold border border-emerald-200">
+        <span className="hidden xl:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#EBF6F8] text-[#2D90A6] text-xs font-semibold border border-[#2D90A6]/30">
           <ShieldCheck className="w-3.5 h-3.5" /> Authenticated Session
         </span>
       </div>
 
-      {/* Right Essential Actions */}
+      {/* Right Actions */}
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
         
-        {/* Secondary Tools Menu Popover */}
+        {/* Tools Menu Popover */}
         <div className="relative">
           <button
             onClick={() => setMoreToolsOpen(!moreToolsOpen)}
@@ -135,8 +133,8 @@ export const Header = ({ collapsed }) => {
                 }}
                 className="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-50 flex items-center justify-between text-slate-800 font-semibold cursor-pointer"
               >
-                <span className="flex items-center gap-2"><Globe className="w-4 h-4 text-[#0D9488]" /> Language</span>
-                <span className="text-xs font-bold text-[#0F172A]">
+                <span className="flex items-center gap-2"><Globe className="w-4 h-4 text-[#2D90A6]" /> Language</span>
+                <span className="text-xs font-bold text-[#1A4B84]">
                   {language === 'HI' ? 'Hindi (हिंदी)' : language === 'GU' ? 'Gujarati (ગુજ)' : 'English (EN)'}
                 </span>
               </button>
@@ -149,7 +147,7 @@ export const Header = ({ collapsed }) => {
                 }}
                 className="w-full text-left px-3 py-2 rounded-xl hover:bg-rose-50 flex items-center gap-2 text-rose-700 font-semibold cursor-pointer"
               >
-                <PhoneCall className="w-4 h-4 text-rose-600" /> 108 Ambulance Helpline
+                <PhoneCall className="w-4 h-4 text-[#DC2626]" /> 108 Ambulance Helpline
               </button>
 
               <button
@@ -168,7 +166,7 @@ export const Header = ({ collapsed }) => {
         {/* Emergency SOS Button */}
         <button
           onClick={() => navigate('/app/sos')}
-          className="med-btn med-btn-sos text-xs sm:text-sm py-1.5 px-3 sm:px-4 font-bold shrink-0 cursor-pointer rounded-xl"
+          className="med-btn med-btn-emergency text-xs sm:text-sm py-1.5 px-3 sm:px-4 font-bold shrink-0 cursor-pointer rounded-xl"
         >
           <Siren className="w-4 h-4" /> <span>Emergency SOS</span>
         </button>
@@ -182,13 +180,13 @@ export const Header = ({ collapsed }) => {
           >
             <Bell className="w-4.5 h-4.5" />
             {notifications.length > 0 && (
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#0D9488] rounded-full" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#2D90A6] rounded-full" />
             )}
           </button>
 
           {notifOpen && (
             <div className="absolute right-0 mt-2 w-72 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 p-4 text-xs space-y-2">
-              <div className="flex items-center justify-between font-bold text-[#0F172A] border-b border-slate-100 pb-2">
+              <div className="flex items-center justify-between font-bold text-[#1A4B84] border-b border-slate-100 pb-2">
                 <span>Notifications</span>
               </div>
               <p className="text-slate-500 py-2">No unread notifications.</p>
@@ -202,8 +200,8 @@ export const Header = ({ collapsed }) => {
             onClick={() => setProfileOpen(!profileOpen)}
             className="flex items-center gap-1.5 p-1 rounded-xl hover:bg-slate-100 cursor-pointer transition-colors"
           >
-            <div className="w-8 h-8 rounded-full bg-[#0F172A] text-white font-bold text-xs flex items-center justify-center border border-slate-300 shadow-2xs">
-              {displayName ? displayName.charAt(0) : 'P'}
+            <div className="w-8 h-8 rounded-full bg-[#1A4B84] text-white font-bold text-xs flex items-center justify-center border border-slate-300 shadow-2xs">
+              {displayName ? displayName.charAt(0) : 'S'}
             </div>
             <ChevronDown className="w-3.5 h-3.5 text-slate-500 hidden sm:block" />
           </button>
@@ -211,7 +209,7 @@ export const Header = ({ collapsed }) => {
           {profileOpen && (
             <div className="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 py-2 text-xs">
               <div className="px-4 py-2.5 border-b border-slate-100">
-                <p className="font-bold text-[#0F172A] text-sm">{displayName}</p>
+                <p className="font-bold text-[#1A4B84] text-sm">{displayName}</p>
                 <p className="text-slate-500 text-[11px] truncate font-medium">{userProfile?.email || ''}</p>
               </div>
               <Link to="/app/settings" onClick={() => setProfileOpen(false)} className="block px-4 py-2.5 font-semibold text-slate-800 hover:bg-slate-50">

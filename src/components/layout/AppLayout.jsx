@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
-import { MobileNav } from './MobileNav';
+import { MobileBottomNav } from './MobileBottomNav';
 
 export const AppLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -18,7 +18,7 @@ export const AppLayout = () => {
       >
         <Outlet />
       </main>
-      <MobileNav />
+      <MobileBottomNav />
     </div>
   );
 };
