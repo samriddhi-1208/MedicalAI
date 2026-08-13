@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   User, 
   MapPin, 
@@ -25,7 +25,7 @@ export const ProfilePage = () => {
 
   // Helper to calculate age automatically from DOB
   const calculateAge = (dobString) => {
-    if (!dobString) return '28';
+    if (!dobString) return null;
     const birthDate = new Date(dobString);
     const today = new Date();
     let age = today.getFullYear() - birthDate.getFullYear();
@@ -33,30 +33,58 @@ export const ProfilePage = () => {
     if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
       age--;
     }
-    return age > 0 ? age : '28';
+    return age > 0 ? age : null;
   };
 
   const [formData, setFormData] = useState({
-    name: userProfile?.name || 'Sarah Jenkins',
-    phone: userProfile?.phone || '+1 (555) 234-5678',
-    dob: userProfile?.dob || '1995-08-12',
-    gender: userProfile?.gender || 'Female',
-    height: userProfile?.height || '165',
-    weight: userProfile?.weight || '58',
-    bloodGroup: userProfile?.bloodGroup || 'O+',
-    primaryPhysician: userProfile?.primaryPhysician || 'Dr. Emily Chen',
-    city: userProfile?.city || 'San Francisco',
-    state: userProfile?.state || 'California',
-    country: userProfile?.country || 'United States',
-    allergies: userProfile?.allergies || 'Penicillin, Peanuts',
-    existingConditions: userProfile?.existingConditions || 'Mild Asthma, Elevated HbA1c',
-    currentMedications: userProfile?.currentMedications || 'Lisinopril 10mg, Metformin 500mg',
-    emergencyNotes: userProfile?.emergencyNotes || 'Asthma inhaler kept in travel bag. No penicillin.',
-    emergencyContact: userProfile?.emergencyContact || 'Michael (Son)',
-    emergencyPhone: userProfile?.emergencyPhone || '+1 (555) 987-6543',
-    emergencyRelation: userProfile?.emergencyRelation || 'Son',
-    preferredHospital: userProfile?.preferredHospital || 'City General Hospital'
+    name: userProfile?.name || '',
+    phone: userProfile?.phone || '',
+    dob: userProfile?.dob || '',
+    gender: userProfile?.gender || '',
+    height: userProfile?.height || '',
+    weight: userProfile?.weight || '',
+    bloodGroup: userProfile?.bloodGroup || '',
+    primaryPhysician: userProfile?.primaryPhysician || '',
+    city: userProfile?.city || '',
+    state: userProfile?.state || '',
+    country: userProfile?.country || '',
+    allergies: userProfile?.allergies || '',
+    existingConditions: userProfile?.existingConditions || '',
+    currentMedications: userProfile?.currentMedications || '',
+    emergencyNotes: userProfile?.emergencyNotes || '',
+    emergencyContact: userProfile?.emergencyContact || '',
+    emergencyPhone: userProfile?.emergencyPhone || '',
+    emergencyRelation: userProfile?.emergencyRelation || '',
+    preferredHospital: userProfile?.preferredHospital || ''
   });
+
+  // Sync state if userProfile updates
+  useEffect(() => {
+    if (userProfile) {
+      setFormData(prev => ({
+        ...prev,
+        name: userProfile.name || prev.name,
+        phone: userProfile.phone || prev.phone,
+        dob: userProfile.dob || prev.dob,
+        gender: userProfile.gender || prev.gender,
+        height: userProfile.height || prev.height,
+        weight: userProfile.weight || prev.weight,
+        bloodGroup: userProfile.bloodGroup || prev.bloodGroup,
+        primaryPhysician: userProfile.primaryPhysician || prev.primaryPhysician,
+        city: userProfile.city || prev.city,
+        state: userProfile.state || prev.state,
+        country: userProfile.country || prev.country,
+        allergies: userProfile.allergies || prev.allergies,
+        existingConditions: userProfile.existingConditions || prev.existingConditions,
+        currentMedications: userProfile.currentMedications || prev.currentMedications,
+        emergencyNotes: userProfile.emergencyNotes || prev.emergencyNotes,
+        emergencyContact: userProfile.emergencyContact || prev.emergencyContact,
+        emergencyPhone: userProfile.emergencyPhone || prev.emergencyPhone,
+        emergencyRelation: userProfile.emergencyRelation || prev.emergencyRelation,
+        preferredHospital: userProfile.preferredHospital || prev.preferredHospital
+      }));
+    }
+  }, [userProfile]);
 
   const [locLoading, setLocLoading] = useState(false);
 
@@ -90,7 +118,7 @@ export const ProfilePage = () => {
             const country = revData.address.country || '';
 
             setFormData(prev => ({ ...prev, city, state, country }));
-            toast.success(`Location set: ${city}, ${country}`);
+            toast.success(`Location locked: ${city}, ${country}`);
           }
         } catch {
           toast.success("GPS Coordinates detected.");
@@ -124,7 +152,7 @@ export const ProfilePage = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 rounded-full bg-[#1A4B84] text-white font-extrabold text-2xl flex items-center justify-center border-2 border-[#2D90A6] shadow-md shrink-0">
-            {formData.name ? formData.name.charAt(0) : 'S'}
+            {formData.name ? formData.name.charAt(0).toUpperCase() : 'P'}
           </div>
           <div>
             <div className="flex items-center gap-2">
@@ -164,8 +192,8 @@ export const ProfilePage = () => {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
+                placeholder="e.g. Sakshi Bhatt"
                 className="med-input text-xs"
-                required
               />
             </div>
 
@@ -177,6 +205,7 @@ export const ProfilePage = () => {
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
+                placeholder="e.g. +1 (555) 234-5678"
                 className="med-input text-xs"
               />
             </div>
@@ -197,7 +226,7 @@ export const ProfilePage = () => {
               <div className="med-form-group">
                 <label>Age (Auto-Calculated)</label>
                 <div className="med-input bg-slate-50 text-slate-700 font-bold text-xs flex items-center">
-                  {age} years old
+                  {age ? `${age} years old` : 'Enter DOB to calculate'}
                 </div>
               </div>
 
@@ -210,6 +239,7 @@ export const ProfilePage = () => {
                   onChange={handleChange}
                   className="med-input text-xs"
                 >
+                  <option value="">Select Gender</option>
                   <option value="Female">Female</option>
                   <option value="Male">Male</option>
                   <option value="Other">Other</option>
@@ -239,6 +269,7 @@ export const ProfilePage = () => {
                   name="height"
                   value={formData.height}
                   onChange={handleChange}
+                  placeholder="e.g. 165"
                   className="med-input text-xs"
                 />
                 <span className="px-3 py-2 rounded-xl bg-slate-100 font-bold text-slate-700">cm</span>
@@ -254,6 +285,7 @@ export const ProfilePage = () => {
                   name="weight"
                   value={formData.weight}
                   onChange={handleChange}
+                  placeholder="e.g. 58"
                   className="med-input text-xs"
                 />
                 <span className="px-3 py-2 rounded-xl bg-slate-100 font-bold text-slate-700">kg</span>
@@ -269,6 +301,7 @@ export const ProfilePage = () => {
                 onChange={handleChange}
                 className="med-input text-xs"
               >
+                <option value="">Select Blood Group</option>
                 <option value="O+">O positive (O+)</option>
                 <option value="O-">O negative (O-)</option>
                 <option value="A+">A positive (A+)</option>
@@ -288,6 +321,7 @@ export const ProfilePage = () => {
                 name="primaryPhysician"
                 value={formData.primaryPhysician}
                 onChange={handleChange}
+                placeholder="e.g. Dr. Emily Chen"
                 className="med-input text-xs"
               />
             </div>
@@ -325,6 +359,7 @@ export const ProfilePage = () => {
                 name="city"
                 value={formData.city}
                 onChange={handleChange}
+                placeholder="e.g. San Francisco"
                 className="med-input text-xs"
               />
             </div>
@@ -337,6 +372,7 @@ export const ProfilePage = () => {
                 name="state"
                 value={formData.state}
                 onChange={handleChange}
+                placeholder="e.g. California"
                 className="med-input text-xs"
               />
             </div>
@@ -349,6 +385,7 @@ export const ProfilePage = () => {
                 name="country"
                 value={formData.country}
                 onChange={handleChange}
+                placeholder="e.g. United States"
                 className="med-input text-xs"
               />
             </div>
@@ -371,8 +408,8 @@ export const ProfilePage = () => {
                 name="allergies"
                 value={formData.allergies}
                 onChange={handleChange}
-                className="med-input text-xs"
                 placeholder="e.g. Penicillin, Peanuts, Sulfa"
+                className="med-input text-xs"
               />
             </div>
 
@@ -384,8 +421,21 @@ export const ProfilePage = () => {
                 name="existingConditions"
                 value={formData.existingConditions}
                 onChange={handleChange}
+                placeholder="e.g. Mild Asthma, High Blood Pressure"
                 className="med-input text-xs"
-                placeholder="e.g. Asthma, Hypertension, Diabetes"
+              />
+            </div>
+
+            <div className="sm:col-span-2 med-form-group">
+              <label htmlFor="currentMedications">Current Medications</label>
+              <input
+                id="currentMedications"
+                type="text"
+                name="currentMedications"
+                value={formData.currentMedications}
+                onChange={handleChange}
+                placeholder="e.g. Lisinopril 10mg, Metformin 500mg"
+                className="med-input text-xs"
               />
             </div>
 
@@ -397,8 +447,8 @@ export const ProfilePage = () => {
                 rows={2}
                 value={formData.emergencyNotes}
                 onChange={handleChange}
+                placeholder="e.g. Asthma inhaler kept in travel bag. No penicillin."
                 className="med-input text-xs resize-none"
-                placeholder="Important emergency notes for responders..."
               />
             </div>
           </div>
@@ -424,6 +474,7 @@ export const ProfilePage = () => {
                 name="emergencyContact"
                 value={formData.emergencyContact}
                 onChange={handleChange}
+                placeholder="e.g. Michael (Son)"
                 className="med-input text-xs"
               />
             </div>
@@ -436,6 +487,7 @@ export const ProfilePage = () => {
                 name="emergencyPhone"
                 value={formData.emergencyPhone}
                 onChange={handleChange}
+                placeholder="e.g. +1 (555) 987-6543"
                 className="med-input text-xs"
               />
             </div>
@@ -448,6 +500,7 @@ export const ProfilePage = () => {
                 name="emergencyRelation"
                 value={formData.emergencyRelation}
                 onChange={handleChange}
+                placeholder="e.g. Son / Primary Contact"
                 className="med-input text-xs"
               />
             </div>
@@ -460,6 +513,7 @@ export const ProfilePage = () => {
                 name="preferredHospital"
                 value={formData.preferredHospital}
                 onChange={handleChange}
+                placeholder="e.g. City General Hospital"
                 className="med-input text-xs"
               />
             </div>
