@@ -22,7 +22,7 @@ export const translations = {
     patient: "Patient",
     clinicalWorkspace: "Clinical Workspace",
 
-    // Dashboard
+    // Dashboard & Components
     goodMorning: "Good Morning",
     goodAfternoon: "Good Afternoon",
     goodEvening: "Good Evening",
@@ -44,6 +44,18 @@ export const translations = {
     recentMedicalReports: "Recent Medical Reports",
     uploadNew: "Upload New",
     noUploadedReports: "No uploaded medical reports yet. Click 'Upload New' to analyze your first lab document.",
+    plainLanguageSummary: "Plain Language Summary",
+    aiNotice: "AI-generated information for record organization. Always consult a qualified medical provider.",
+    viewDetails: "View Details",
+    viewAnalysis: "View Analysis",
+    logged: "Logged ✓",
+    markAsTaken: "Mark as Taken",
+    refRange: "Ref Range",
+    normal: "Normal",
+    high: "High",
+    low: "Low",
+    attention: "Attention",
+    critical: "Critical",
 
     // Medical Reports / Upload
     dynamicDocAnalyzer: "Dynamic Medical Document Analyzer",
@@ -165,7 +177,7 @@ export const translations = {
     patient: "मरीज़",
     clinicalWorkspace: "क्लिनिकल वर्कस्पेस",
 
-    // Dashboard
+    // Dashboard & Components
     goodMorning: "सुप्रभात",
     goodAfternoon: "नमस्कार",
     goodEvening: "शुभ संध्या",
@@ -187,6 +199,18 @@ export const translations = {
     recentMedicalReports: "हालिया मेडिकल रिपोर्ट्स",
     uploadNew: "नई अपलोड करें",
     noUploadedReports: "अभी तक कोई मेडिकल रिपोर्ट अपलोड नहीं की गई है। अपनी पहली लैब रिपोर्ट का विश्लेषण करने के लिए 'नई अपलोड करें' पर क्लिक करें।",
+    plainLanguageSummary: "सरल भाषा सारांश",
+    aiNotice: "रिकॉर्ड संगठन के लिए AI जानकारी। हमेशा योग्य चिकित्सक से परामर्श करें।",
+    viewDetails: "विवरण देखें",
+    viewAnalysis: "विश्लेषण देखें",
+    logged: "दर्ज किया गया ✓",
+    markAsTaken: "ली गई चिह्नित करें",
+    refRange: "संदर्भ सीमा",
+    normal: "सामान्य",
+    high: "उच्च",
+    low: "निम्न",
+    attention: "ध्यान दें",
+    critical: "गंभीर",
 
     // Medical Reports / Upload
     dynamicDocAnalyzer: "डायनामिक मेडिकल दस्तावेज़ विश्लेषक",
@@ -308,7 +332,7 @@ export const translations = {
     patient: "દર્દી",
     clinicalWorkspace: "ક્લિનિકલ વર્કસ્પેસ",
 
-    // Dashboard
+    // Dashboard & Components
     goodMorning: "સુપ્રભાત",
     goodAfternoon: "શુભ બપોર",
     goodEvening: "શુભ સંધ્યા",
@@ -330,6 +354,18 @@ export const translations = {
     recentMedicalReports: "તાજેતરના મેડિકલ રિપોર્ટ્સ",
     uploadNew: "નવો અપલોડ કરો",
     noUploadedReports: "હજુ સુધી કોઈ મેડિકલ રિપોર્ટ અપલોડ થયો નથી. તમારા પ્રથમ લેબ રિપોર્ટનું વિશ્લેષણ કરવા માટે 'નવો અપલોડ કરો' પર ક્લિક કરો.",
+    plainLanguageSummary: "સરળ ભાષા સારાંશ",
+    aiNotice: "રેકોર્ડ ઓર્ગેનાઈઝેશન માટે AI માહિતી. હંમેશા યોગ્ય તબીબી નિષ્ણાતની સલાહ લો.",
+    viewDetails: "વિગતો જુઓ",
+    viewAnalysis: "વિશ્લેષણ જુઓ",
+    logged: "નોંધાયેલ ✓",
+    markAsTaken: "લીધેલ તરીકે ચિહ્નિત કરો",
+    refRange: "સંદર્ભ સીમા",
+    normal: "સામાન્ય",
+    high: "ઊંચું",
+    low: "ઓછું",
+    attention: "ધ્યાન આપો",
+    critical: "ગંભીર",
 
     // Medical Reports / Upload
     dynamicDocAnalyzer: "ડાયનેમિક મેડિકલ દસ્તાવેજ વિશ્લેષક",

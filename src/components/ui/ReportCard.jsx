@@ -1,7 +1,22 @@
 import React from 'react';
 import { FileText, ArrowRight, Calendar, User } from 'lucide-react';
+import { useHealthData } from '../../context/HealthDataContext';
+import { getTranslation } from '../../utils/translations';
 
 export const ReportCard = ({ title, date, doctorName, labName, status, statusType, onViewDetails }) => {
+  const { language } = useHealthData();
+  const t = (key) => getTranslation(language, key);
+
+  const getTranslatedStatus = () => {
+    if (!status) return t('normal');
+    if (/normal/i.test(status)) return t('normal');
+    if (/attention|elevated/i.test(status)) return t('attention');
+    if (/critical/i.test(status)) return t('critical');
+    if (/high/i.test(status)) return t('high');
+    if (/low/i.test(status)) return t('low');
+    return status;
+  };
+
   return (
     <div className="med-card card-hover-lift space-y-3">
       <div className="flex items-start justify-between gap-3">
@@ -22,7 +37,7 @@ export const ReportCard = ({ title, date, doctorName, labName, status, statusTyp
             ? 'med-badge-critical'
             : 'med-badge-normal'
         }`}>
-          {status || 'Normal'}
+          {getTranslatedStatus()}
         </span>
       </div>
 
@@ -43,7 +58,7 @@ export const ReportCard = ({ title, date, doctorName, labName, status, statusTyp
             onClick={onViewDetails}
             className="text-xs font-bold text-[#1A4B84] hover:text-[#2D90A6] flex items-center gap-1 cursor-pointer transition-colors"
           >
-            <span>View Analysis</span>
+            <span>{t('viewAnalysis')}</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         )}

@@ -1,7 +1,12 @@
 import React from 'react';
 import { HeartPulse, Activity, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { useHealthData } from '../../context/HealthDataContext';
+import { getTranslation } from '../../utils/translations';
 
 export const HealthMetricCard = ({ name, value, unit, status, statusType, statusSymbol, refRange, trend }) => {
+  const { language } = useHealthData();
+  const t = (key) => getTranslation(language, key);
+
   const isWarning = statusType === 'warning' || status === 'Elevated' || status === 'High';
   const isCritical = statusType === 'critical';
 
@@ -15,6 +20,16 @@ export const HealthMetricCard = ({ name, value, unit, status, statusType, status
     if (trend === 'up') return <TrendingUp className="w-3.5 h-3.5 text-amber-600" />;
     if (trend === 'down') return <TrendingDown className="w-3.5 h-3.5 text-emerald-600" />;
     return <Minus className="w-3.5 h-3.5 text-slate-400" />;
+  };
+
+  const getTranslatedStatus = () => {
+    if (!status) return t('normal');
+    if (/normal/i.test(status)) return t('normal');
+    if (/high/i.test(status)) return t('high');
+    if (/low/i.test(status)) return t('low');
+    if (/attention|elevated/i.test(status)) return t('attention');
+    if (/critical/i.test(status)) return t('critical');
+    return status;
   };
 
   return (
@@ -37,7 +52,7 @@ export const HealthMetricCard = ({ name, value, unit, status, statusType, status
             : 'med-badge-normal'
         }`}>
           <span>{statusSymbol || (isWarning ? '▲' : '✓')}</span>
-          <span>{status}</span>
+          <span>{getTranslatedStatus()}</span>
         </span>
       </div>
 
@@ -56,7 +71,7 @@ export const HealthMetricCard = ({ name, value, unit, status, statusType, status
       {/* Reference Range */}
       {refRange && (
         <p className="text-[11px] text-slate-500 font-normal pt-1 border-t border-slate-100">
-          Ref Range: <span className="font-semibold text-slate-700">{refRange}</span>
+          {t('refRange')}: <span className="font-semibold text-slate-700">{refRange}</span>
         </p>
       )}
     </div>

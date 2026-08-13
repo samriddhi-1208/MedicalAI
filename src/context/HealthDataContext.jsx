@@ -56,16 +56,18 @@ export const HealthDataProvider = ({ children }) => {
     }
   });
 
-  // State: Reports (with auto-purge for old 12.8 cached reports)
+  // State: Reports (with auto-purge for old broken cached reports)
   const [reports, setReports] = useState(() => {
     try {
       const saved = localStorage.getItem('medguardian_reports');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          // Purge if cached report contains old 12.8 value or Fasting Glucose
+          // Purge if cached report contains old broken values (e.g. 26% or date 2026 01 as ref range)
           const isOldFormat = parsed.some(r => 
-            Array.isArray(r.biomarkers) && r.biomarkers.some(b => b.value === 12.8 || b.name === 'Fasting Blood Glucose')
+            Array.isArray(r.biomarkers) && r.biomarkers.some(b => 
+              b.value === 12.8 || b.value === '26' || b.value === 26 || String(b.refRange).includes('2026') || b.name === 'Fasting Blood Glucose'
+            )
           );
           if (!isOldFormat) {
             return parsed;

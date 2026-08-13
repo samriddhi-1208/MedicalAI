@@ -1,14 +1,19 @@
 import React from 'react';
 import { Pill, Clock, CheckCircle2 } from 'lucide-react';
+import { useHealthData } from '../../context/HealthDataContext';
+import { getTranslation } from '../../utils/translations';
 
 export const MedicationCard = ({ name, dosage, instructions, time, dateLabel, taken, onToggleTaken }) => {
+  const { language } = useHealthData();
+  const t = (key) => getTranslation(language, key);
+
   return (
     <div className={`med-card space-y-3.5 transition-all ${
       taken ? 'bg-slate-50 border-slate-200 opacity-75' : 'bg-white border-slate-200'
     }`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-xs font-bold text-[#2D90A6] uppercase tracking-wider">
-          <Clock className="w-4 h-4 text-[#2D90A6]" /> Next Dose
+          <Clock className="w-4 h-4 text-[#2D90A6]" /> {t('nextDose')}
         </div>
 
         <span className="text-xs font-semibold text-slate-500 font-mono">
@@ -39,10 +44,10 @@ export const MedicationCard = ({ name, dosage, instructions, time, dateLabel, ta
         >
           {taken ? (
             <>
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Logged ✓
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" /> {t('logged')}
             </>
           ) : (
-            'Mark as Taken'
+            t('markAsTaken')
           )}
         </button>
       </div>
