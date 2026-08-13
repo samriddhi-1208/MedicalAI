@@ -7,9 +7,8 @@
 import * as pdfjsLib from 'pdfjs-dist';
 import { createWorker } from 'tesseract.js';
 
-// Use inline worker or disable external worker CORS dependency cleanly
+// Configure pdfjs worker with fallback CDN worker
 if (typeof window !== 'undefined' && pdfjsLib.GlobalWorkerOptions) {
-  // Use jsdelivr CDN or inline fallback worker safely
   pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 }
 
@@ -53,7 +52,7 @@ async function ocrPdfPageCanvas(page) {
 }
 
 /**
- * Extracts raw text from a PDF file (Text Stream + Scanned PDF Canvas OCR Fallback)
+ * Extracts raw text from a PDF file with precise Y-axis line breaks
  */
 export async function extractTextFromPDF(file) {
   try {
@@ -65,7 +64,20 @@ export async function extractTextFromPDF(file) {
     for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
       const page = await pdf.getPage(pageNum);
       const textContent = await page.getTextContent();
-      const pageText = textContent.items.map(item => item.str).join(' ');
+      
+      let lastY = null;
+      let pageText = '';
+
+      for (const item of textContent.items) {
+        const currentY = item.transform ? item.transform[5] : null;
+        if (lastY !== null && currentY !== null && Math.abs(currentY - lastY) > 5) {
+          pageText += '\n';
+        } else {
+          pageText += ' ';
+        }
+        pageText += item.str;
+        lastY = currentY;
+      }
 
       if (pageText.trim().length > 20) {
         fullText += pageText + '\n';
@@ -99,7 +111,7 @@ export async function extractTextFromImage(file) {
 }
 
 /**
- * Dynamic Dictionary of Recognized Medical Biomarkers & Spelling Variants
+ * Known Medical Biomarker Patterns & Spelling Variants
  */
 const BIOMARKER_PATTERNS = [
   { key: 'haemoglobin', name: 'Haemoglobin (Hb)', defaultUnit: 'g/dL' },
@@ -107,8 +119,8 @@ const BIOMARKER_PATTERNS = [
   { key: 'hgb', name: 'Hemoglobin (Hb)', defaultUnit: 'g/dL' },
   { key: 'hb', name: 'Hemoglobin (Hb)', defaultUnit: 'g/dL' },
   { key: 'fasting glucose', name: 'Fasting Glucose', defaultUnit: 'mg/dL' },
-  { key: 'blood sugar', name: 'Blood Sugar', defaultUnit: 'mg/dL' },
   { key: 'random blood sugar', name: 'Random Blood Sugar (RBS)', defaultUnit: 'mg/dL' },
+  { key: 'blood sugar', name: 'Blood Sugar', defaultUnit: 'mg/dL' },
   { key: 'glucose', name: 'Fasting Glucose', defaultUnit: 'mg/dL' },
   { key: 'sugar', name: 'Blood Sugar', defaultUnit: 'mg/dL' },
   { key: 'hba1c', name: 'HbA1c (Glycated Hb)', defaultUnit: '%' },
@@ -127,10 +139,12 @@ const BIOMARKER_PATTERNS = [
   { key: 'sodium', name: 'Sodium (Na+)', defaultUnit: 'mmol/L' },
   { key: 'potassium', name: 'Potassium (K+)', defaultUnit: 'mmol/L' },
   { key: 'tlc', name: 'Total Leukocyte Count (TLC)', defaultUnit: '/cumm' },
-  { key: 'wbc', name: 'White Blood Cells (WBC)', defaultUnit: 'cells/µL' },
-  { key: 'rbc', name: 'Red Blood Cells (RBC)', defaultUnit: 'm/µL' },
-  { key: 'platelet', name: 'Platelet Count', defaultUnit: 'Lakhs/cumm' },
-  { key: 'platelets', name: 'Platelet Count', defaultUnit: 'Lakhs/cumm' },
+  { key: 'wbc', name: 'White Blood Cells (WBC)', defaultUnit: 'cell/cu.mm' },
+  { key: 'rbc', name: 'Red Blood Cells (RBC)', defaultUnit: 'mil/cu.mm' },
+  { key: 'platelet', name: 'Platelet Count', defaultUnit: 'Lac/cmm' },
+  { key: 'platelets', name: 'Platelet Count', defaultUnit: 'Lac/cmm' },
+  { key: 'esr', name: 'Erythrocyte Sedimentation Rate (ESR)', defaultUnit: 'mm/hr' },
+  { key: 'crp', name: 'C-Reactive Protein (CRP)', defaultUnit: 'mg/L' },
   { key: 'alt', name: 'Alanine Aminotransferase (ALT)', defaultUnit: 'U/L' },
   { key: 'ast', name: 'Aspartate Aminotransferase (AST)', defaultUnit: 'U/L' },
   { key: 'sgpt', name: 'SGPT (ALT)', defaultUnit: 'U/L' },
@@ -138,24 +152,24 @@ const BIOMARKER_PATTERNS = [
   { key: 'bilirubin', name: 'Total Bilirubin', defaultUnit: 'mg/dL' },
   { key: 'calcium', name: 'Serum Calcium', defaultUnit: 'mg/dL' },
   { key: 'vitamin d', name: 'Vitamin D (25-OH)', defaultUnit: 'ng/mL' },
-  { key: 'vitamin b12', name: 'Vitamin B12', defaultUnit: 'pg/mL' },
-  { key: 'iron', name: 'Serum Iron', defaultUnit: 'µg/dL' },
-  { key: 'ferritin', name: 'Ferritin', defaultUnit: 'ng/mL' }
+  { key: 'vitamin b12', name: 'Vitamin B12', defaultUnit: 'pg/mL' }
 ];
 
 /**
- * Dynamically parses extracted raw text to detect medical parameters (Hybrid Dictionary + Generic Table Parser)
+ * Dynamically parses extracted text to detect medical parameters with line splitting & keyword boundary matching
  */
 export function parseBiomarkersFromText(rawText) {
   if (!rawText || typeof rawText !== 'string' || rawText.trim().length === 0) {
     return [];
   }
 
-  const lines = rawText.split(/\r?\n/);
+  // Pre-split on newline OR major test keywords to prevent massive multi-test single paragraph collisions
+  const textWithBreaks = rawText.replace(/(Haemoglobin|Hemoglobin|Total WBC Count|RBC Count|Hematocrit|HCT|MCV|MCH|MCHC|RDW-CV|RDW-SD|Platelet Count|MPV|PDW-SD|PCT|Neutrophils|Lymphocytes|Monocytes|Eosinophils|Basophils|ESR|Alanine Aminotransferase|ALT|AST|SGPT|SGOT|CRP|C-REACTIVE PROTEIN|Fasting Glucose|Blood Sugar|Serum Creatinine|Blood Urea|Total Cholesterol|TSH)/gi, '\n$1');
+  const lines = textWithBreaks.split(/\r?\n/);
+  
   const extractedBiomarkers = [];
   const seenKeys = new Set();
 
-  // Pass 1: Dictionary Pattern Matching
   for (const line of lines) {
     const cleanLine = line.trim();
     if (!cleanLine || cleanLine.length < 4) continue;
@@ -167,8 +181,11 @@ export function parseBiomarkersFromText(rawText) {
       const regexKeyword = new RegExp(`\\b${pattern.key}\\b`, 'i');
       if (regexKeyword.test(lowerLine)) {
         
-        // Match numbers with optional decimal point
-        const numberMatches = cleanLine.match(/([<>]?\s*\d+(?:[\.,]\d+)?)/g);
+        // Find numerical value occurring AFTER keyword in the line
+        const keywordIdx = lowerLine.search(regexKeyword);
+        const subLine = cleanLine.substring(keywordIdx);
+
+        const numberMatches = subLine.match(/([<>]?\s*\d+(?:[\.,]\d+)?)/g);
         
         if (numberMatches && numberMatches.length > 0) {
           const rawValStr = numberMatches[0].trim();
@@ -178,14 +195,14 @@ export function parseBiomarkersFromText(rawText) {
 
           // Extract unit if present in line
           let unit = pattern.defaultUnit;
-          const unitMatch = cleanLine.match(/(g\/dL|mg\/dL|mmol\/L|mIU\/L|uIU\/mL|ng\/dL|µg\/dL|U\/L|ng\/mL|pg\/mL|cells\/µL|m\/µL|k\/µL|\/cumm|Lakhs\/cumm|%)/i);
+          const unitMatch = subLine.match(/(g\/dL|gm\/dL|mg\/dL|mg\/L|mmol\/L|mIU\/L|uIU\/mL|ng\/dL|µg\/dL|U\/L|unit\/L|ng\/mL|pg\/mL|cell\/cu\.mm|mil\/cu\.mm|cells\/µL|m\/µL|k\/µL|\/cumm|Lac\/cmm|Lakhs\/cumm|mm\/hr|fL|pg|%)/i);
           if (unitMatch) {
             unit = unitMatch[0];
           }
 
           // Extract reference range if present in line
           let refRange = "Reference range not provided";
-          const refMatch = cleanLine.match(/(\d+(?:[\.,]\d+)?\s*[-–\sto]+\s*\d+(?:[\.,]\d+)?|<[\s]?\d+(?:[\.,]\d+)?|>[\s]?\d+(?:[\.,]\d+)?)/i);
+          const refMatch = subLine.match(/(\d+(?:[\.,]\d+)?\s*[-–\sto]+\s*\d+(?:[\.,]\d+)?|<[\s]?\d+(?:[\.,]\d+)?|>[\s]?\d+(?:[\.,]\d+)?)/i);
           if (refMatch) {
             refRange = refMatch[0].trim();
           }
@@ -220,6 +237,9 @@ export function parseBiomarkersFromText(rawText) {
             }
           }
 
+          // Format clean source snippet (up to 140 chars)
+          const cleanSnippet = subLine.length > 140 ? subLine.substring(0, 140) + '...' : subLine;
+
           seenKeys.add(pattern.name);
           extractedBiomarkers.push({
             id: `bm-${Date.now()}-${extractedBiomarkers.length}`,
@@ -231,48 +251,12 @@ export function parseBiomarkersFromText(rawText) {
             status: status,
             statusType: statusType,
             statusSymbol: statusSymbol,
-            sourceText: cleanLine,
+            sourceText: cleanSnippet,
             confidence: 0.98
           });
 
           break;
         }
-      }
-    }
-  }
-
-  // Pass 2: Generic Lab Table Line Parser (for any unlisted medical test in document)
-  for (const line of lines) {
-    const cleanLine = line.trim();
-    if (!cleanLine || cleanLine.length < 5) continue;
-    if (/patient|date|test name|reference|report|doctor|hospital|age|sex|gender|sample|specimen/i.test(cleanLine) && !/\d+/.test(cleanLine)) continue;
-
-    // Pattern: [Test Name] [Numeric Value] [Optional Unit] [Optional Ref Range]
-    const genericMatch = cleanLine.match(/^([A-Za-z0-9\s\(\)\-\/\.\+\%]{3,40}?)\s+([<>]?\s*\d+(?:[\.,]\d+)?)\s*([A-Za-z\/\%\+\.\^0-9\-]+)?\s*(.*)$/);
-
-    if (genericMatch) {
-      const name = genericMatch[1].trim();
-      const rawValStr = genericMatch[2].trim();
-      const numericVal = parseFloat(rawValStr.replace(/,/g, '.').replace(/[^\d.]/g, ''));
-
-      if (!isNaN(numericVal) && name.length >= 3 && !seenKeys.has(name) && !/total|page|report|date|sl|no|index/i.test(name)) {
-        const unit = genericMatch[3] ? genericMatch[3].trim() : 'Unit not provided';
-        const refRange = genericMatch[4] && genericMatch[4].trim().length > 0 ? genericMatch[4].trim() : 'Reference range not provided';
-
-        seenKeys.add(name);
-        extractedBiomarkers.push({
-          id: `bm-gen-${Date.now()}-${extractedBiomarkers.length}`,
-          name: name,
-          value: rawValStr,
-          numericValue: numericVal,
-          unit: unit,
-          refRange: refRange,
-          status: 'Normal',
-          statusType: 'normal',
-          statusSymbol: '✓',
-          sourceText: cleanLine,
-          confidence: 0.95
-        });
       }
     }
   }
@@ -314,18 +298,6 @@ export async function analyzeUploadedDocument(file, userId) {
   }
 
   const biomarkers = parseBiomarkersFromText(rawText);
-
-  // If text or biomarkers were not extracted directly, run fallback OCR worker on file
-  if (biomarkers.length === 0 && file.type.startsWith('image/')) {
-    const ocrText = await extractTextFromImage(file);
-    if (ocrText) {
-      rawText = ocrText;
-      const ocrBiomarkers = parseBiomarkersFromText(ocrText);
-      if (ocrBiomarkers.length > 0) {
-        biomarkers.push(...ocrBiomarkers);
-      }
-    }
-  }
 
   // If text extraction yielded no parameters, return explicit error state (NO fake fallbacks!)
   if (biomarkers.length === 0) {
