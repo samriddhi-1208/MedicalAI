@@ -14,27 +14,30 @@ import {
   Activity
 } from 'lucide-react';
 import { useHealthData } from '../../context/HealthDataContext';
+import { getTranslation } from '../../utils/translations';
 
 export const Sidebar = ({ collapsed, setCollapsed }) => {
   const location = useLocation();
-  const { medicines } = useHealthData();
+  const { medicines, language } = useHealthData();
 
   const pendingMedsCount = (Array.isArray(medicines) ? medicines : []).filter(m => !m.taken).length;
 
+  const t = (key) => getTranslation(language, key);
+
   const navItems = [
-    { label: 'Dashboard', path: '/app/dashboard', icon: LayoutDashboard },
-    { label: 'Medical Reports', path: '/app/analysis', icon: FileText },
-    { label: 'Health Trends', path: '/app/trends', icon: TrendingUp },
-    { label: 'Find Hospital', path: '/app/hospitals', icon: MapPin },
+    { label: t('dashboard'), path: '/app/dashboard', icon: LayoutDashboard },
+    { label: t('medicalReports'), path: '/app/analysis', icon: FileText },
+    { label: t('healthTrends'), path: '/app/trends', icon: TrendingUp },
+    { label: t('findHospital'), path: '/app/hospitals', icon: MapPin },
     { 
-      label: 'Medications', 
+      label: t('medications'), 
       path: '/app/medicines', 
       icon: Pill, 
       badge: pendingMedsCount > 0 ? `${pendingMedsCount} due` : null 
     },
-    { label: 'Emergency', path: '/app/sos', icon: Siren, badge: '24/7' },
-    { label: 'Profile', path: '/app/profile', icon: User },
-    { label: 'Settings', path: '/app/settings', icon: Settings }
+    { label: t('emergency'), path: '/app/sos', icon: Siren, badge: '24/7' },
+    { label: t('profile'), path: '/app/profile', icon: User },
+    { label: t('settings'), path: '/app/settings', icon: Settings }
   ];
 
   return (
@@ -55,7 +58,7 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
                 <span className="font-extrabold text-base text-[#1A4B84] leading-none tracking-tight">
                   Med<span className="text-[#2D90A6]">Guardian AI</span>
                 </span>
-                <span className="text-[10px] text-slate-500 font-medium mt-0.5">Clinical Workspace</span>
+                <span className="text-[10px] text-slate-500 font-medium mt-0.5">{t('clinicalWorkspace')}</span>
               </div>
             )}
           </NavLink>
@@ -110,15 +113,15 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
           >
             <Siren className="w-5 h-5 text-[#DC2626] shrink-0" />
             <div className="text-left">
-              <p className="text-sm font-bold text-rose-900">Emergency SOS</p>
-              <p className="text-[11px] font-medium text-rose-700">1-Click Dispatch</p>
+              <p className="text-sm font-bold text-rose-900">{t('emergencySOS')}</p>
+              <p className="text-[11px] font-medium text-rose-700">{t('oneClickDispatch')}</p>
             </div>
           </NavLink>
         ) : (
           <NavLink
             to="/app/sos"
             className="flex items-center justify-center p-2.5 rounded-xl bg-rose-50 text-rose-600 border border-rose-200"
-            title="Emergency SOS"
+            title={t('emergencySOS')}
           >
             <Siren className="w-5 h-5" />
           </NavLink>

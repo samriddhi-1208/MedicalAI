@@ -1,13 +1,18 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { Home, FileText, TrendingUp, User } from 'lucide-react';
+import { useHealthData } from '../../context/HealthDataContext';
+import { getTranslation } from '../../utils/translations';
 
 export const MobileBottomNav = () => {
+  const { language } = useHealthData();
+  const t = (key) => getTranslation(language, key);
+
   const navItems = [
-    { label: 'Home', path: '/app/dashboard', icon: Home },
-    { label: 'Reports', path: '/app/analysis', icon: FileText },
-    { label: 'Trends', path: '/app/trends', icon: TrendingUp },
-    { label: 'Profile', path: '/app/settings', icon: User },
+    { label: t('dashboard'), path: '/app/dashboard', icon: Home },
+    { label: t('medicalReports'), path: '/app/analysis', icon: FileText },
+    { label: t('healthTrends'), path: '/app/trends', icon: TrendingUp },
+    { label: t('profile'), path: '/app/profile', icon: User },
   ];
 
   return (
@@ -31,7 +36,7 @@ export const MobileBottomNav = () => {
               }
             >
               <Icon className="w-5 h-5" />
-              <span className="text-[11px] leading-none mt-1">{item.label}</span>
+              <span className="text-[11px] leading-none mt-1 truncate max-w-[70px]">{item.label}</span>
             </NavLink>
           );
         })}

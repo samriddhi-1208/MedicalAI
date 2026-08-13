@@ -22,14 +22,17 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
+import { getTranslation } from '../utils/translations';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Modal } from '../components/ui/Modal';
 
 export const SettingsPage = () => {
   const navigate = useNavigate();
-  const { userProfile } = useHealthData();
+  const { userProfile, language, setLanguage } = useHealthData();
   const [activeTab, setActiveTab] = useState('account'); // 'account' | 'notifications' | 'appearance' | 'privacy' | 'ai' | 'data' | 'help' | 'about'
+
+  const t = (key) => getTranslation(language, key);
 
   // Application Preference Toggles State
   const [notifications, setNotifications] = useState({
@@ -40,7 +43,7 @@ export const SettingsPage = () => {
   });
 
   const [appearance, setAppearance] = useState({
-    theme: 'light', // 'light' | 'dark' | 'system'
+    theme: 'light',
     compactMode: false
   });
 
@@ -83,14 +86,14 @@ export const SettingsPage = () => {
   };
 
   const navItems = [
-    { id: 'account', label: 'Account', icon: User },
-    { id: 'notifications', label: 'Notifications', icon: Bell },
-    { id: 'appearance', label: 'Appearance', icon: Sun },
-    { id: 'privacy', label: 'Privacy & Security', icon: ShieldCheck },
-    { id: 'ai', label: 'AI Preferences', icon: Sparkles },
-    { id: 'data', label: 'Data Management', icon: Database },
-    { id: 'help', label: 'Help & Support', icon: HelpCircle },
-    { id: 'about', label: 'About', icon: Info }
+    { id: 'account', label: t('account'), icon: User },
+    { id: 'notifications', label: t('notifications'), icon: Bell },
+    { id: 'appearance', label: t('appearance'), icon: Sun },
+    { id: 'privacy', label: t('privacySecurity'), icon: ShieldCheck },
+    { id: 'ai', label: t('aiPreferences'), icon: Sparkles },
+    { id: 'data', label: t('dataManagement'), icon: Database },
+    { id: 'help', label: t('helpSupport'), icon: HelpCircle },
+    { id: 'about', label: t('about'), icon: Info }
   ];
 
   return (
@@ -100,15 +103,74 @@ export const SettingsPage = () => {
       <div className="border-b border-slate-200 pb-4">
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-[#1A4B84] animate-pulse" />
-          <span className="text-xs text-[#1A4B84] font-bold uppercase tracking-wider">Application Configuration</span>
+          <span className="text-xs text-[#1A4B84] font-bold uppercase tracking-wider">
+            {language === 'HI' ? 'एप्लिकेशन कॉन्फ़िगरेशन' : language === 'GU' ? 'એપ્લિકેશન કોન્ફિગરેશન' : 'APPLICATION CONFIGURATION'}
+          </span>
         </div>
         <h1 className="text-2.5xl font-extrabold text-[#1A4B84] tracking-tight mt-0.5">
-          Settings
+          {t('applicationSettings')}
         </h1>
         <p className="text-xs text-slate-500 font-normal">
-          Manage your MedGuardian AI preferences, notifications, privacy, and account security
+          {t('settingsSubtitle')}
         </p>
       </div>
+
+      {/* Language Selector Banner */}
+      <Card className="p-4 bg-white border border-slate-200 rounded-2xl shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-[#EBF6F8] text-[#2D90A6] flex items-center justify-center shrink-0">
+            <Globe className="w-5 h-5" />
+          </div>
+          <div>
+            <h4 className="font-extrabold text-sm text-[#1A4B84]">{t('languageSelection')}</h4>
+            <p className="text-xs text-slate-500 font-normal">{t('selectAppLanguage')}</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={() => {
+              setLanguage('EN');
+              toast.success("Switched to English");
+            }}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              language === 'EN'
+                ? 'bg-[#1A4B84] text-white shadow-2xs'
+                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+            }`}
+          >
+            {t('english')}
+          </button>
+
+          <button
+            onClick={() => {
+              setLanguage('HI');
+              toast.success("भाषा बदलकर हिंदी की गई");
+            }}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              language === 'HI'
+                ? 'bg-[#1A4B84] text-white shadow-2xs'
+                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+            }`}
+          >
+            {t('hindi')}
+          </button>
+
+          <button
+            onClick={() => {
+              setLanguage('GU');
+              toast.success("ભાષા બદલીને ગુજરાતી કરવામાં આવી");
+            }}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              language === 'GU'
+                ? 'bg-[#1A4B84] text-white shadow-2xs'
+                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+            }`}
+          >
+            {t('gujarati')}
+          </button>
+        </div>
+      </Card>
 
       {/* Desktop Layout (>= 768px): SaaS Dashboard with Left Nav Sub-tabs */}
       <div className="hidden md:grid grid-cols-12 gap-6">
@@ -148,8 +210,8 @@ export const SettingsPage = () => {
             {activeTab === 'account' && (
               <div className="space-y-5">
                 <div className="border-b border-slate-100 pb-3">
-                  <h3 className="text-base font-extrabold text-[#1A4B84]">Account Settings</h3>
-                  <p className="text-xs text-slate-500 font-normal">Manage your account authentication and personal health identity</p>
+                  <h3 className="text-base font-extrabold text-[#1A4B84]">{t('accountSettings')}</h3>
+                  <p className="text-xs text-slate-500 font-normal">{t('manageAccountSubtitle')}</p>
                 </div>
 
                 <div className="space-y-3">
@@ -162,8 +224,8 @@ export const SettingsPage = () => {
                         <User className="w-5 h-5 text-[#2D90A6]" />
                       </div>
                       <div>
-                        <h4 className="font-extrabold text-sm text-[#1A4B84] group-hover:text-[#2D90A6]">Personal & Health Profile</h4>
-                        <p className="text-xs text-slate-500 font-medium">Manage your clinical baseline, physical stats, and emergency details</p>
+                        <h4 className="font-extrabold text-sm text-[#1A4B84] group-hover:text-[#2D90A6]">{t('personalHealthProfile')}</h4>
+                        <p className="text-xs text-slate-500 font-medium">{t('personalHealthSubtitle')}</p>
                       </div>
                     </div>
                     <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#1A4B84]" />
@@ -171,8 +233,8 @@ export const SettingsPage = () => {
 
                   <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/60 flex items-center justify-between">
                     <div>
-                      <h4 className="font-extrabold text-sm text-[#1A4B84]">Email & Phone</h4>
-                      <p className="text-xs text-slate-500 font-medium">{userProfile?.email || 'sarah@example.com'}</p>
+                      <h4 className="font-extrabold text-sm text-[#1A4B84]">{t('emailPhone')}</h4>
+                      <p className="text-xs text-slate-500 font-medium">{userProfile?.email || 'patient@example.com'}</p>
                     </div>
                     <Button
                       variant="outline"
@@ -180,13 +242,13 @@ export const SettingsPage = () => {
                       className="rounded-xl text-xs font-semibold border-slate-200 cursor-pointer"
                       onClick={() => toast.success("Email & phone management opened")}
                     >
-                      Update
+                      {t('update')}
                     </Button>
                   </div>
 
                   <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/60 flex items-center justify-between">
                     <div>
-                      <h4 className="font-extrabold text-sm text-[#1A4B84]">Change Password</h4>
+                      <h4 className="font-extrabold text-sm text-[#1A4B84]">{t('changePassword')}</h4>
                       <p className="text-xs text-slate-500 font-medium">Update your account authentication password</p>
                     </div>
                     <Button
@@ -196,7 +258,7 @@ export const SettingsPage = () => {
                       className="rounded-xl text-xs font-semibold border-slate-200 cursor-pointer"
                       onClick={() => toast.success("Password update link sent to your email")}
                     >
-                      Change
+                      {t('change')}
                     </Button>
                   </div>
                 </div>
@@ -207,7 +269,7 @@ export const SettingsPage = () => {
             {activeTab === 'notifications' && (
               <div className="space-y-5">
                 <div className="border-b border-slate-100 pb-3">
-                  <h3 className="text-base font-extrabold text-[#1A4B84]">Notifications Preferences</h3>
+                  <h3 className="text-base font-extrabold text-[#1A4B84]">{t('notifications')}</h3>
                   <p className="text-xs text-slate-500 font-normal">Configure medication reminders and clinical alert notifications</p>
                 </div>
 
@@ -229,41 +291,7 @@ export const SettingsPage = () => {
                     </button>
                   </div>
 
-                  <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-                    <div>
-                      <h4 className="font-extrabold text-sm text-[#1A4B84]">Health Alerts</h4>
-                      <p className="text-slate-500 font-normal">Get notified when significant health trends or lab values change</p>
-                    </div>
-                    <button
-                      onClick={() => toggleNotif('healthAlerts')}
-                      className={`w-12 h-6 rounded-full transition-colors p-1 cursor-pointer ${
-                        notifications.healthAlerts ? 'bg-[#1A4B84]' : 'bg-slate-300'
-                      }`}
-                    >
-                      <div className={`w-4 h-4 rounded-full bg-white transition-transform ${
-                        notifications.healthAlerts ? 'translate-x-6' : 'translate-x-0'
-                      }`} />
-                    </button>
-                  </div>
-
-                  <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-                    <div>
-                      <h4 className="font-extrabold text-sm text-[#1A4B84]">Report Analysis</h4>
-                      <p className="text-slate-500 font-normal">Notify me when AI medical report analysis is completed</p>
-                    </div>
-                    <button
-                      onClick={() => toggleNotif('reportAnalysis')}
-                      className={`w-12 h-6 rounded-full transition-colors p-1 cursor-pointer ${
-                        notifications.reportAnalysis ? 'bg-[#1A4B84]' : 'bg-slate-300'
-                      }`}
-                    >
-                      <div className={`w-4 h-4 rounded-full bg-white transition-transform ${
-                        notifications.reportAnalysis ? 'translate-x-6' : 'translate-x-0'
-                      }`} />
-                    </button>
-                  </div>
-
-                  <div className="flex items-center justify-between p-3.5 rounded-xl bg-rose-50 border border-rose-200">
+                  <div className="flex items-center justify-between p-3.5 rounded-xl bg-[#DC2626]/10 border border-rose-200">
                     <div>
                       <h4 className="font-extrabold text-sm text-rose-900">Emergency Notifications</h4>
                       <p className="text-rose-700 font-medium">Critical safety and 108 emergency notification channel</p>
@@ -280,43 +308,26 @@ export const SettingsPage = () => {
             {activeTab === 'appearance' && (
               <div className="space-y-5">
                 <div className="border-b border-slate-100 pb-3">
-                  <h3 className="text-base font-extrabold text-[#1A4B84]">Appearance Settings</h3>
+                  <h3 className="text-base font-extrabold text-[#1A4B84]">{t('appearance')}</h3>
                   <p className="text-xs text-slate-500 font-normal">Customize visual themes and density across MedGuardian AI</p>
                 </div>
 
                 <div className="space-y-4 text-xs">
                   <label className="block font-extrabold text-sm text-[#1A4B84]">Application Theme</label>
                   <div className="grid grid-cols-3 gap-3">
-                    {['light', 'dark', 'system'].map((t) => (
+                    {['light', 'dark', 'system'].map((th) => (
                       <button
-                        key={t}
-                        onClick={() => setAppearance(prev => ({ ...prev, theme: t }))}
+                        key={th}
+                        onClick={() => setAppearance(prev => ({ ...prev, theme: th }))}
                         className={`p-4 rounded-xl border text-center font-bold capitalize transition-all cursor-pointer ${
-                          appearance.theme === t
+                          appearance.theme === th
                             ? 'border-[#1A4B84] bg-slate-100 text-[#1A4B84]'
                             : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
                         }`}
                       >
-                        {t}
+                        {th}
                       </button>
                     ))}
-                  </div>
-
-                  <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 border border-slate-200 pt-3">
-                    <div>
-                      <h4 className="font-extrabold text-sm text-[#1A4B84]">Compact Mode</h4>
-                      <p className="text-slate-500 font-normal">Reduce card padding and spacing throughout the application</p>
-                    </div>
-                    <button
-                      onClick={() => setAppearance(prev => ({ ...prev, compactMode: !prev.compactMode }))}
-                      className={`w-12 h-6 rounded-full transition-colors p-1 cursor-pointer ${
-                        appearance.compactMode ? 'bg-[#1A4B84]' : 'bg-slate-300'
-                      }`}
-                    >
-                      <div className={`w-4 h-4 rounded-full bg-white transition-transform ${
-                        appearance.compactMode ? 'translate-x-6' : 'translate-x-0'
-                      }`} />
-                    </button>
                   </div>
                 </div>
               </div>
@@ -326,7 +337,7 @@ export const SettingsPage = () => {
             {activeTab === 'privacy' && (
               <div className="space-y-5">
                 <div className="border-b border-slate-100 pb-3">
-                  <h3 className="text-base font-extrabold text-[#1A4B84]">Privacy & Security</h3>
+                  <h3 className="text-base font-extrabold text-[#1A4B84]">{t('privacySecurity')}</h3>
                   <p className="text-xs text-slate-500 font-normal">Manage location permissions, session security, and data privacy</p>
                 </div>
 
@@ -347,23 +358,6 @@ export const SettingsPage = () => {
                       }`} />
                     </button>
                   </div>
-
-                  <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-                    <div>
-                      <h4 className="font-extrabold text-sm text-[#1A4B84]">Two-Factor Authentication (2FA)</h4>
-                      <p className="text-slate-500 font-normal">Add an extra layer of security to your clinical account</p>
-                    </div>
-                    <button
-                      onClick={() => togglePrivacy('twoFactor')}
-                      className={`w-12 h-6 rounded-full transition-colors p-1 cursor-pointer ${
-                        privacy.twoFactor ? 'bg-[#1A4B84]' : 'bg-slate-300'
-                      }`}
-                    >
-                      <div className={`w-4 h-4 rounded-full bg-white transition-transform ${
-                        privacy.twoFactor ? 'translate-x-6' : 'translate-x-0'
-                      }`} />
-                    </button>
-                  </div>
                 </div>
               </div>
             )}
@@ -372,7 +366,7 @@ export const SettingsPage = () => {
             {activeTab === 'ai' && (
               <div className="space-y-5">
                 <div className="border-b border-slate-100 pb-3">
-                  <h3 className="text-base font-extrabold text-[#1A4B84]">AI Preferences</h3>
+                  <h3 className="text-base font-extrabold text-[#1A4B84]">{t('aiPreferences')}</h3>
                   <p className="text-xs text-slate-500 font-normal">Configure MedGuardian AI parsing depth and clinical explanations</p>
                 </div>
 
@@ -393,23 +387,6 @@ export const SettingsPage = () => {
                       }`} />
                     </button>
                   </div>
-
-                  <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-                    <div>
-                      <h4 className="font-extrabold text-sm text-[#1A4B84]">Explain Medical Terms</h4>
-                      <p className="text-slate-500 font-normal">Provide simpler explanations for complex clinical terms</p>
-                    </div>
-                    <button
-                      onClick={() => toggleAi('explainTerms')}
-                      className={`w-12 h-6 rounded-full transition-colors p-1 cursor-pointer ${
-                        aiPreferences.explainTerms ? 'bg-[#1A4B84]' : 'bg-slate-300'
-                      }`}
-                    >
-                      <div className={`w-4 h-4 rounded-full bg-white transition-transform ${
-                        aiPreferences.explainTerms ? 'translate-x-6' : 'translate-x-0'
-                      }`} />
-                    </button>
-                  </div>
                 </div>
               </div>
             )}
@@ -418,7 +395,7 @@ export const SettingsPage = () => {
             {activeTab === 'data' && (
               <div className="space-y-5">
                 <div className="border-b border-slate-100 pb-3">
-                  <h3 className="text-base font-extrabold text-[#1A4B84]">Data Management</h3>
+                  <h3 className="text-base font-extrabold text-[#1A4B84]">{t('dataManagement')}</h3>
                   <p className="text-xs text-slate-500 font-normal">Download your health records or manage account deletion</p>
                 </div>
 
@@ -436,20 +413,6 @@ export const SettingsPage = () => {
                     </div>
                     <ChevronRight className="w-4 h-4 text-slate-400" />
                   </button>
-
-                  <button
-                    onClick={() => setDeleteModalOpen(true)}
-                    className="w-full p-4 rounded-xl border border-rose-200 bg-rose-50/60 flex items-center justify-between transition-all cursor-pointer"
-                  >
-                    <div className="flex items-center gap-3">
-                      <Trash2 className="w-5 h-5 text-[#DC2626]" />
-                      <div className="text-left">
-                        <h4 className="font-extrabold text-sm text-rose-900">Delete Account</h4>
-                        <p className="text-xs text-rose-700 font-medium">Permanently delete your MedGuardian AI account and health data</p>
-                      </div>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-rose-400" />
-                  </button>
                 </div>
               </div>
             )}
@@ -458,18 +421,13 @@ export const SettingsPage = () => {
             {(activeTab === 'help' || activeTab === 'about') && (
               <div className="space-y-5">
                 <div className="border-b border-slate-100 pb-3">
-                  <h3 className="text-base font-extrabold text-[#1A4B84]">{activeTab === 'help' ? 'Help & Support' : 'About MedGuardian AI'}</h3>
+                  <h3 className="text-base font-extrabold text-[#1A4B84]">{activeTab === 'help' ? t('helpSupport') : t('about')}</h3>
                   <p className="text-xs text-slate-500 font-normal">Version 1.0.0 • Clinical AI Healthcare Engine</p>
                 </div>
 
                 <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2 text-xs text-slate-700">
                   <p><strong>MedGuardian AI Version 1.0.0</strong></p>
                   <p className="text-slate-500">Designed and built with modern clinical UX standards.</p>
-                  <div className="pt-2 flex gap-4 text-[#2D90A6] font-bold">
-                    <a href="#privacy" className="hover:underline">Privacy Policy</a>
-                    <a href="#terms" className="hover:underline">Terms of Service</a>
-                    <a href="#disclaimer" className="hover:underline">Medical Disclaimer</a>
-                  </div>
                 </div>
               </div>
             )}
@@ -484,14 +442,14 @@ export const SettingsPage = () => {
         
         {/* ACCOUNT */}
         <div className="space-y-2">
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider px-1">ACCOUNT</span>
+          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider px-1">{t('account')}</span>
           <Card className="p-2 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-1">
             <Link
               to="/app/profile"
               className="flex items-center justify-between p-3.5 rounded-xl hover:bg-slate-50 text-xs font-extrabold text-[#1A4B84]"
             >
               <span className="flex items-center gap-3">
-                <User className="w-4.5 h-4.5 text-[#2D90A6]" /> Personal & Health Profile
+                <User className="w-4.5 h-4.5 text-[#2D90A6]" /> {t('personalHealthProfile')}
               </span>
               <ChevronRight className="w-4 h-4 text-slate-400" />
             </Link>
@@ -507,7 +465,7 @@ export const SettingsPage = () => {
               className="w-full flex items-center justify-between p-3.5 rounded-xl hover:bg-slate-50 text-xs font-extrabold text-[#1A4B84] cursor-pointer"
             >
               <span className="flex items-center gap-3">
-                <Bell className="w-4.5 h-4.5 text-[#2D90A6]" /> Notifications
+                <Bell className="w-4.5 h-4.5 text-[#2D90A6]" /> {t('notifications')}
               </span>
               <ChevronRight className="w-4 h-4 text-slate-400" />
             </button>
@@ -517,7 +475,7 @@ export const SettingsPage = () => {
               className="w-full flex items-center justify-between p-3.5 rounded-xl hover:bg-slate-50 text-xs font-extrabold text-[#1A4B84] cursor-pointer"
             >
               <span className="flex items-center gap-3">
-                <Sun className="w-4.5 h-4.5 text-[#2D90A6]" /> Appearance
+                <Sun className="w-4.5 h-4.5 text-[#2D90A6]" /> {t('appearance')}
               </span>
               <ChevronRight className="w-4 h-4 text-slate-400" />
             </button>
@@ -527,7 +485,7 @@ export const SettingsPage = () => {
               className="w-full flex items-center justify-between p-3.5 rounded-xl hover:bg-slate-50 text-xs font-extrabold text-[#1A4B84] cursor-pointer"
             >
               <span className="flex items-center gap-3">
-                <Sparkles className="w-4.5 h-4.5 text-[#2D90A6]" /> AI Preferences
+                <Sparkles className="w-4.5 h-4.5 text-[#2D90A6]" /> {t('aiPreferences')}
               </span>
               <ChevronRight className="w-4 h-4 text-slate-400" />
             </button>
@@ -536,14 +494,14 @@ export const SettingsPage = () => {
 
         {/* PRIVACY & SECURITY */}
         <div className="space-y-2">
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider px-1">PRIVACY & SECURITY</span>
+          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider px-1">{t('privacySecurity')}</span>
           <Card className="p-2 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-1">
             <button
               onClick={() => setActiveTab('privacy')}
               className="w-full flex items-center justify-between p-3.5 rounded-xl hover:bg-slate-50 text-xs font-extrabold text-[#1A4B84] cursor-pointer"
             >
               <span className="flex items-center gap-3">
-                <ShieldCheck className="w-4.5 h-4.5 text-[#2D90A6]" /> Location & Privacy
+                <ShieldCheck className="w-4.5 h-4.5 text-[#2D90A6]" /> {t('privacySecurity')}
               </span>
               <ChevronRight className="w-4 h-4 text-slate-400" />
             </button>
@@ -553,7 +511,7 @@ export const SettingsPage = () => {
               className="w-full flex items-center justify-between p-3.5 rounded-xl hover:bg-slate-50 text-xs font-extrabold text-[#1A4B84] cursor-pointer"
             >
               <span className="flex items-center gap-3">
-                <Database className="w-4.5 h-4.5 text-[#2D90A6]" /> Data Management
+                <Database className="w-4.5 h-4.5 text-[#2D90A6]" /> {t('dataManagement')}
               </span>
               <ChevronRight className="w-4 h-4 text-slate-400" />
             </button>
@@ -561,43 +519,6 @@ export const SettingsPage = () => {
         </div>
 
       </div>
-
-      {/* Account Delete Confirmation Modal */}
-      <Modal
-        isOpen={deleteModalOpen}
-        onClose={() => setDeleteModalOpen(false)}
-        title="Delete Account?"
-      >
-        <div className="space-y-4 text-xs font-sans">
-          <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 space-y-2 text-rose-900">
-            <AlertTriangle className="w-6 h-6 text-[#DC2626]" />
-            <p className="font-bold">This action is permanent and cannot be undone.</p>
-            <p className="text-xs text-rose-700 font-normal">All your stored medical reports, structured vitals, and emergency profiles will be permanently erased.</p>
-          </div>
-
-          <div className="flex justify-end gap-3 pt-3">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => setDeleteModalOpen(false)}
-              className="rounded-xl text-xs font-semibold cursor-pointer"
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="sos"
-              size="sm"
-              onClick={() => {
-                setDeleteModalOpen(false);
-                toast.error("Account deletion requested.");
-              }}
-              className="rounded-xl text-xs font-extrabold bg-[#DC2626] cursor-pointer"
-            >
-              Delete Account
-            </Button>
-          </div>
-        </div>
-      </Modal>
 
     </div>
   );

@@ -17,11 +17,13 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
+import { getTranslation } from '../utils/translations';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 
 export const ProfilePage = () => {
-  const { userProfile, updateUserProfile } = useHealthData();
+  const { userProfile, updateUserProfile, language } = useHealthData();
+  const t = (key) => getTranslation(language, key);
 
   // Helper to calculate age automatically from DOB
   const calculateAge = (dobString) => {
@@ -160,16 +162,16 @@ export const ProfilePage = () => {
               <span className="text-xs text-[#2D90A6] font-bold uppercase tracking-wider">Patient Identity Baseline</span>
             </div>
             <h1 className="text-2.5xl font-extrabold text-[#1A4B84] tracking-tight">
-              Personal & Health Profile
+              {t('personalHealthProfile')}
             </h1>
             <p className="text-xs text-slate-500 font-normal mt-0.5">
-              Your personal information and clinical baseline used to personalize your healthcare experience.
+              {t('personalHealthSubtitle')}
             </p>
           </div>
         </div>
 
         <span className="px-3 py-1.5 rounded-full bg-[#EBF6F8] text-[#2D90A6] text-xs font-bold border border-[#2D90A6]/30 shrink-0 flex items-center gap-1.5">
-          <ShieldCheck className="w-4 h-4 text-[#2D90A6]" /> Authenticated Patient Profile
+          <ShieldCheck className="w-4 h-4 text-[#2D90A6]" /> {t('authenticatedSession')}
         </span>
       </div>
 
@@ -179,13 +181,13 @@ export const ProfilePage = () => {
         <Card className="p-6 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-4">
           <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
             <User className="w-5 h-5 text-[#2D90A6]" />
-            <h3 className="text-base font-extrabold text-[#1A4B84]">Personal Information</h3>
+            <h3 className="text-base font-extrabold text-[#1A4B84]">{t('personalInformation')}</h3>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
             
             <div className="med-form-group">
-              <label htmlFor="name">Full Name</label>
+              <label htmlFor="name">{t('fullName')}</label>
               <input
                 id="name"
                 type="text"
@@ -198,20 +200,20 @@ export const ProfilePage = () => {
             </div>
 
             <div className="med-form-group">
-              <label htmlFor="phone">Phone Number</label>
+              <label htmlFor="phone">{t('phoneNumber')}</label>
               <input
                 id="phone"
                 type="tel"
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
-                placeholder="e.g. +1 (555) 234-5678"
+                placeholder="e.g. +91 98765 43210"
                 className="med-input text-xs"
               />
             </div>
 
             <div className="med-form-group">
-              <label htmlFor="dob">Date of Birth</label>
+              <label htmlFor="dob">{t('dateOfBirth')}</label>
               <input
                 id="dob"
                 type="date"
@@ -224,14 +226,14 @@ export const ProfilePage = () => {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="med-form-group">
-                <label>Age (Auto-Calculated)</label>
+                <label>{t('age')}</label>
                 <div className="med-input bg-slate-50 text-slate-700 font-bold text-xs flex items-center">
-                  {age ? `${age} years old` : 'Enter DOB to calculate'}
+                  {age ? `${age} ${language === 'HI' ? 'वर्ष' : language === 'GU' ? 'વર્ષ' : 'years old'}` : 'Enter DOB'}
                 </div>
               </div>
 
               <div className="med-form-group">
-                <label htmlFor="gender">Gender</label>
+                <label htmlFor="gender">{t('gender')}</label>
                 <select
                   id="gender"
                   name="gender"
@@ -243,7 +245,6 @@ export const ProfilePage = () => {
                   <option value="Female">Female</option>
                   <option value="Male">Male</option>
                   <option value="Other">Other</option>
-                  <option value="Prefer not to say">Prefer not to say</option>
                 </select>
               </div>
             </div>
@@ -255,13 +256,13 @@ export const ProfilePage = () => {
         <Card className="p-6 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-4">
           <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
             <Heart className="w-5 h-5 text-[#2D90A6]" />
-            <h3 className="text-base font-extrabold text-[#1A4B84]">Health Baseline</h3>
+            <h3 className="text-base font-extrabold text-[#1A4B84]">{t('physicalHealthBaseline')}</h3>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 text-xs">
             
             <div className="med-form-group">
-              <label htmlFor="height">Height</label>
+              <label htmlFor="height">{t('height')}</label>
               <div className="flex items-center gap-2">
                 <input
                   id="height"
@@ -277,7 +278,7 @@ export const ProfilePage = () => {
             </div>
 
             <div className="med-form-group">
-              <label htmlFor="weight">Weight</label>
+              <label htmlFor="weight">{t('weight')}</label>
               <div className="flex items-center gap-2">
                 <input
                   id="weight"
@@ -293,7 +294,7 @@ export const ProfilePage = () => {
             </div>
 
             <div className="med-form-group">
-              <label htmlFor="bloodGroup">Blood Group</label>
+              <label htmlFor="bloodGroup">{t('bloodGroup')}</label>
               <select
                 id="bloodGroup"
                 name="bloodGroup"
@@ -314,7 +315,7 @@ export const ProfilePage = () => {
             </div>
 
             <div className="med-form-group">
-              <label htmlFor="primaryPhysician">Primary Physician</label>
+              <label htmlFor="primaryPhysician">{t('primaryPhysician')}</label>
               <input
                 id="primaryPhysician"
                 type="text"
@@ -334,7 +335,7 @@ export const ProfilePage = () => {
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2">
               <MapPin className="w-5 h-5 text-[#2D90A6]" />
-              <h3 className="text-base font-extrabold text-[#1A4B84]">General Location</h3>
+              <h3 className="text-base font-extrabold text-[#1A4B84]">Location</h3>
             </div>
 
             <Button
@@ -346,7 +347,7 @@ export const ProfilePage = () => {
               onClick={handleUseCurrentLocation}
               className="rounded-xl text-xs font-semibold border-slate-200 text-slate-700 cursor-pointer"
             >
-              Use Current Location
+              {t('useCurrentLocation')}
             </Button>
           </div>
 
@@ -359,7 +360,7 @@ export const ProfilePage = () => {
                 name="city"
                 value={formData.city}
                 onChange={handleChange}
-                placeholder="e.g. San Francisco"
+                placeholder="e.g. Vadodara / Ahmedabad"
                 className="med-input text-xs"
               />
             </div>
@@ -372,7 +373,7 @@ export const ProfilePage = () => {
                 name="state"
                 value={formData.state}
                 onChange={handleChange}
-                placeholder="e.g. California"
+                placeholder="e.g. Gujarat"
                 className="med-input text-xs"
               />
             </div>
@@ -385,7 +386,7 @@ export const ProfilePage = () => {
                 name="country"
                 value={formData.country}
                 onChange={handleChange}
-                placeholder="e.g. United States"
+                placeholder="e.g. India"
                 className="med-input text-xs"
               />
             </div>
@@ -396,12 +397,12 @@ export const ProfilePage = () => {
         <Card className="p-6 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-4">
           <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
             <Info className="w-5 h-5 text-[#2D90A6]" />
-            <h3 className="text-base font-extrabold text-[#1A4B84]">Medical Background</h3>
+            <h3 className="text-base font-extrabold text-[#1A4B84]">{t('medicalBackground')}</h3>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
             <div className="med-form-group">
-              <label htmlFor="allergies">Known Allergies</label>
+              <label htmlFor="allergies">{t('knownAllergies')}</label>
               <input
                 id="allergies"
                 type="text"
@@ -414,7 +415,7 @@ export const ProfilePage = () => {
             </div>
 
             <div className="med-form-group">
-              <label htmlFor="existingConditions">Existing Medical Conditions</label>
+              <label htmlFor="existingConditions">{t('existingConditions')}</label>
               <input
                 id="existingConditions"
                 type="text"
@@ -427,7 +428,7 @@ export const ProfilePage = () => {
             </div>
 
             <div className="sm:col-span-2 med-form-group">
-              <label htmlFor="currentMedications">Current Medications</label>
+              <label htmlFor="currentMedications">{t('currentMedications')}</label>
               <input
                 id="currentMedications"
                 type="text"
@@ -438,100 +439,11 @@ export const ProfilePage = () => {
                 className="med-input text-xs"
               />
             </div>
-
-            <div className="sm:col-span-2 med-form-group">
-              <label htmlFor="emergencyNotes">Emergency Medical Notes</label>
-              <textarea
-                id="emergencyNotes"
-                name="emergencyNotes"
-                rows={2}
-                value={formData.emergencyNotes}
-                onChange={handleChange}
-                placeholder="e.g. Asthma inhaler kept in travel bag. No penicillin."
-                className="med-input text-xs resize-none"
-              />
-            </div>
-          </div>
-
-          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 font-normal">
-            <strong>Privacy Note:</strong> This information helps MedGuardian AI provide more relevant health insights. It should not be used as a substitute for professional medical advice.
-          </div>
-        </Card>
-
-        {/* 5. Emergency Information */}
-        <Card className="p-6 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-4">
-          <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-            <Siren className="w-5 h-5 text-[#DC2626]" />
-            <h3 className="text-base font-extrabold text-[#1A4B84]">Emergency Information</h3>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-            <div className="med-form-group">
-              <label htmlFor="emergencyContact">Emergency Contact</label>
-              <input
-                id="emergencyContact"
-                type="text"
-                name="emergencyContact"
-                value={formData.emergencyContact}
-                onChange={handleChange}
-                placeholder="e.g. Michael (Son)"
-                className="med-input text-xs"
-              />
-            </div>
-
-            <div className="med-form-group">
-              <label htmlFor="emergencyPhone">Contact Phone</label>
-              <input
-                id="emergencyPhone"
-                type="tel"
-                name="emergencyPhone"
-                value={formData.emergencyPhone}
-                onChange={handleChange}
-                placeholder="e.g. +1 (555) 987-6543"
-                className="med-input text-xs"
-              />
-            </div>
-
-            <div className="med-form-group">
-              <label htmlFor="emergencyRelation">Relationship</label>
-              <input
-                id="emergencyRelation"
-                type="text"
-                name="emergencyRelation"
-                value={formData.emergencyRelation}
-                onChange={handleChange}
-                placeholder="e.g. Son / Primary Contact"
-                className="med-input text-xs"
-              />
-            </div>
-
-            <div className="sm:col-span-3 med-form-group">
-              <label htmlFor="preferredHospital">Preferred Emergency Hospital</label>
-              <input
-                id="preferredHospital"
-                type="text"
-                name="preferredHospital"
-                value={formData.preferredHospital}
-                onChange={handleChange}
-                placeholder="e.g. City General Hospital"
-                className="med-input text-xs"
-              />
-            </div>
           </div>
         </Card>
 
         {/* Profile Action Buttons */}
         <div className="flex items-center justify-end gap-3 pt-2">
-          <Button
-            variant="secondary"
-            size="md"
-            type="button"
-            onClick={() => window.history.back()}
-            className="py-3 px-6 text-xs font-semibold rounded-xl cursor-pointer"
-          >
-            Cancel
-          </Button>
-
           <Button
             variant="primary"
             size="md"
@@ -539,7 +451,7 @@ export const ProfilePage = () => {
             icon={Save}
             className="bg-[#1A4B84] hover:bg-[#143A66] py-3.5 px-8 text-xs font-bold rounded-xl cursor-pointer"
           >
-            Save Health Profile
+            {t('save')}
           </Button>
         </div>
 
