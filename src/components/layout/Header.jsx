@@ -9,7 +9,9 @@ import {
   PhoneCall,
   MoreHorizontal,
   LogOut,
-  ShieldCheck
+  ShieldCheck,
+  User,
+  Settings
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../../context/HealthDataContext';
@@ -61,10 +63,14 @@ export const Header = ({ collapsed }) => {
         if (language === 'HI') return 'इमरजेंसी 108 एसओएस';
         if (language === 'GU') return 'ઇમરજન્સી 108 એસઓએસ';
         return 'Emergency SOS Center';
+      case '/app/profile':
+        if (language === 'HI') return 'व्यक्तिगत एवं स्वास्थ्य प्रोफ़ाइल';
+        if (language === 'GU') return 'વ્યક્તિગત અને આરોગ્ય પ્રોફાઇલ';
+        return 'Personal & Health Profile';
       case '/app/settings': 
-        if (language === 'HI') return 'खाता सेटिंग्स';
-        if (language === 'GU') return 'એકાઉન્ટ સેટિંગ્સ';
-        return 'Account Settings';
+        if (language === 'HI') return 'एप्लिकेशन सेटिंग्स';
+        if (language === 'GU') return 'એપ્લિકેશન સેટિંગ્સ';
+        return 'Application Settings';
       default: return 'MedGuardian AI';
     }
   };
@@ -212,12 +218,25 @@ export const Header = ({ collapsed }) => {
                 <p className="font-bold text-[#1A4B84] text-sm">{displayName}</p>
                 <p className="text-slate-500 text-[11px] truncate font-medium">{userProfile?.email || ''}</p>
               </div>
-              <Link to="/app/settings" onClick={() => setProfileOpen(false)} className="block px-4 py-2.5 font-semibold text-slate-800 hover:bg-slate-50">
-                Profile & Vitals
+              <Link 
+                to="/app/profile" 
+                onClick={() => setProfileOpen(false)} 
+                className="px-4 py-2.5 font-semibold text-slate-800 hover:bg-slate-50 flex items-center gap-2"
+              >
+                <User className="w-3.5 h-3.5 text-[#2D90A6]" />
+                <span>Personal & Health Profile</span>
+              </Link>
+              <Link 
+                to="/app/settings" 
+                onClick={() => setProfileOpen(false)} 
+                className="px-4 py-2.5 font-semibold text-slate-800 hover:bg-slate-50 flex items-center gap-2"
+              >
+                <Settings className="w-3.5 h-3.5 text-slate-500" />
+                <span>Application Settings</span>
               </Link>
               <button
                 onClick={handleSignOut}
-                className="w-full text-left px-4 py-2.5 font-bold text-rose-600 hover:bg-rose-50 flex items-center gap-2 cursor-pointer"
+                className="w-full text-left px-4 py-2.5 font-bold text-rose-600 hover:bg-rose-50 flex items-center gap-2 cursor-pointer border-t border-slate-100 mt-1"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 <span>Sign Out</span>

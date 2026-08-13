@@ -33,7 +33,7 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
       badge: pendingMedsCount > 0 ? `${pendingMedsCount} due` : null 
     },
     { label: 'Emergency', path: '/app/sos', icon: Siren, badge: '24/7' },
-    { label: 'Profile', path: '/app/settings', icon: User },
+    { label: 'Profile', path: '/app/profile', icon: User },
     { label: 'Settings', path: '/app/settings', icon: Settings }
   ];
 

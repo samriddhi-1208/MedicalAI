@@ -18,6 +18,7 @@ import { HealthTimelinePage } from './pages/HealthTimelinePage';
 import { HospitalFinderPage } from './pages/HospitalFinderPage';
 import { MedicineReminderPage } from './pages/MedicineReminderPage';
 import { EmergencySOSPage } from './pages/EmergencySOSPage';
+import { ProfilePage } from './pages/ProfilePage';
 import { SettingsPage } from './pages/SettingsPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 
@@ -29,7 +30,7 @@ const ProtectedRoute = ({ children }) => {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center font-sans">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-[#0F172A] border-t-transparent rounded-full animate-spin" />
+          <div className="w-10 h-10 border-4 border-[#1A4B84] border-t-transparent rounded-full animate-spin" />
           <p className="text-xs font-bold text-slate-600">Verifying session...</p>
         </div>
       </div>
@@ -56,7 +57,7 @@ const OnboardingRoute = ({ children }) => {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center font-sans">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-[#0F172A] border-t-transparent rounded-full animate-spin" />
+          <div className="w-10 h-10 border-4 border-[#1A4B84] border-t-transparent rounded-full animate-spin" />
           <p className="text-xs font-bold text-slate-600">Verifying session...</p>
         </div>
       </div>
@@ -84,13 +85,13 @@ export default function App() {
           toastOptions={{
             duration: 3500,
             style: {
-              background: '#0F172A',
+              background: '#1A4B84',
               color: '#F8FAFC',
               border: '1px solid #1E293B',
               borderRadius: '16px',
               fontSize: '13px',
               padding: '12px 16px',
-              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5)'
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3)'
             }
           }}
         />
@@ -126,6 +127,7 @@ export default function App() {
               <Route path="hospitals" element={<HospitalFinderPage />} />
               <Route path="medicines" element={<MedicineReminderPage />} />
               <Route path="sos" element={<EmergencySOSPage />} />
+              <Route path="profile" element={<ProfilePage />} />
               <Route path="settings" element={<SettingsPage />} />
             </Route>
 
