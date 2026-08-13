@@ -16,7 +16,10 @@ import {
   RefreshCw,
   ExternalLink,
   CheckCircle2,
-  Globe
+  Globe,
+  SlidersHorizontal,
+  Star,
+  Slash
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
@@ -24,8 +27,6 @@ import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { Modal } from '../components/ui/Modal';
-
-const API_BASE = 'http://localhost:5000/api';
 
 // Haversine distance calculator in km
 function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
@@ -47,20 +48,27 @@ export const HospitalFinderPage = () => {
   const mapContainerRef = useRef(null);
   const leafletMapRef = useRef(null);
 
-  // Location State
-  const [locationMode, setLocationMode] = useState('manual'); // 'current' | 'manual'
-  const [manualQuery, setManualQuery] = useState(userProfile?.city || 'New Delhi');
+  // Location Pipeline State
+  const [locationGranted, setLocationGranted] = useState(false);
+  const [locationMode, setLocationMode] = useState(null); // 'current' | 'manual' | 'profile' | null
+  const [manualQuery, setManualQuery] = useState(userProfile?.city || '');
   const [userCoords, setUserCoords] = useState(null); // { lat, lng, name }
   const [locLoading, setLocLoading] = useState(false);
+  const [locationDenied, setLocationDenied] = useState(false);
 
-  // Search & Facility State
-  const [category, setCategory] = useState('All');
+  // Search, Filter, Radius & Sort State
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const [category, setCategory] = useState('Hospitals');
+  const [radiusKm, setRadiusKm] = useState(5); // 5 | 10 | 25
+  const [sortBy, setSortBy] = useState('distance'); // 'distance' | 'relevance' | 'rating'
+  
+  // Results State (100% Real API Data — ZERO Hardcoded Fallbacks)
   const [facilities, setFacilities] = useState([]);
   const [loadingFacilities, setLoadingFacilities] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
+  const [fetchError, setFetchError] = useState(null);
   const [selectedFacility, setSelectedFacility] = useState(null);
 
-  // 1. Report-Aware Medical Need Analysis
+  // 1. Report-Aware Medical Need Cautious Suggestion
   const getReportAwareAdvice = () => {
     if (!Array.isArray(reports) || reports.length === 0) return null;
     const latestReport = reports[0];
@@ -85,7 +93,7 @@ export const HospitalFinderPage = () => {
       return {
         biomarker: cardiacRisk.name,
         value: `${cardiacRisk.value} ${cardiacRisk.unit}`,
-        recommendation: "Based on your extracted report values, consider consulting a General Physician or Cardiologist.",
+        recommendation: "Your report contains a lipid-related result that may benefit from professional evaluation.",
         suggestedCategory: "Cardiologist"
       };
     }
@@ -94,7 +102,7 @@ export const HospitalFinderPage = () => {
       return {
         biomarker: diabeticRisk.name,
         value: `${diabeticRisk.value} ${diabeticRisk.unit}`,
-        recommendation: "Based on your extracted report values, consider consulting a General Physician or Endocrinologist.",
+        recommendation: "Your report contains a blood glucose result that may benefit from professional evaluation.",
         suggestedCategory: "General Physician"
       };
     }
@@ -103,7 +111,7 @@ export const HospitalFinderPage = () => {
       return {
         biomarker: anemiaRisk.name,
         value: `${anemiaRisk.value} ${anemiaRisk.unit}`,
-        recommendation: "Based on your extracted report values, consider consulting a General Physician or Hematologist.",
+        recommendation: "Your report contains a red blood cell index result that may benefit from professional evaluation.",
         suggestedCategory: "General Physician"
       };
     }
@@ -113,218 +121,163 @@ export const HospitalFinderPage = () => {
 
   const reportAdvice = getReportAwareAdvice();
 
-  // Helper to parse OpenStreetMap Nominatim Live Search Results
-  const parseNominatimResults = (data, userLat, userLng) => {
-    return data
-      .map((item, idx) => {
-        const itemLat = parseFloat(item.lat);
-        const itemLng = parseFloat(item.lon);
-        if (isNaN(itemLat) || isNaN(itemLng)) return null;
+  // 2. Real-Time OpenStreetMap Nominatim Live Search Query (Zero Hardcoded Data)
+  const fetchRealFacilitiesFromAPI = async (lat, lng, targetCategory, keyword, radius, sortOrder) => {
+    setLoadingFacilities(true);
+    setFetchError(null);
 
-        const rawName = item.display_name.split(',')[0];
-        const address = item.display_name;
-        const dist = calculateHaversineDistance(userLat, userLng, itemLat, itemLng);
-        const tags = item.extratags || {};
-        const categoryType = item.type === 'pharmacy' ? 'Medical Pharmacy'
-                           : item.type === 'clinic' ? 'Specialty Clinical Care'
-                           : 'Hospital & Healthcare Center';
-
-        return {
-          id: `osm-real-${item.place_id || idx}`,
-          name: rawName,
-          type: categoryType,
-          address: address,
-          distanceKm: dist,
-          etaMins: Math.max(3, Math.round(dist * 2.2)),
-          emergencyOpen: tags.emergency === 'yes' || item.type === 'hospital',
-          phone: tags.phone || tags['contact:phone'] || '+91 108',
-          website: tags.website || null,
-          lat: itemLat,
-          lng: itemLng,
-          directionsUrl: `https://www.google.com/maps/dir/?api=1&destination=${itemLat},${itemLng}`
-        };
-      })
-      .filter(Boolean)
-      .sort((a, b) => a.distanceKm - b.distanceKm);
-  };
-
-  // Live OpenStreetMap Nominatim Search API
-  const fetchOpenStreetMapRealTimeData = async (lat, lng, targetCategory, cityName) => {
     try {
-      const city = cityName || manualQuery || userProfile?.city || 'New Delhi';
-      let queryKeyword = 'hospital';
-      
-      if (targetCategory === 'General Physician' || targetCategory === 'Pediatrician' || targetCategory === 'Gynecologist' || targetCategory === 'Dermatologist' || targetCategory === 'Orthopedic' || targetCategory === 'Cardiologist') {
-        queryKeyword = `${targetCategory.toLowerCase()} clinic`;
-      } else if (targetCategory === 'Diagnostic Lab') {
-        queryKeyword = 'diagnostic lab pathology';
-      } else if (targetCategory === 'Pharmacy') {
-        queryKeyword = 'pharmacy medical store';
-      } else if (targetCategory === 'Emergency Hospital') {
-        queryKeyword = 'emergency hospital trauma center';
-      } else {
-        queryKeyword = 'hospital clinic medical center';
+      let queryText = keyword.trim();
+      if (!queryText) {
+        if (targetCategory === 'General Physician' || targetCategory === 'Pediatrician' || targetCategory === 'Gynecologist' || targetCategory === 'Dermatologist' || targetCategory === 'Orthopedic' || targetCategory === 'Cardiologist') {
+          queryText = `${targetCategory.toLowerCase()} clinic`;
+        } else if (targetCategory === 'Diagnostic Lab') {
+          queryText = 'diagnostic lab pathology';
+        } else if (targetCategory === 'Pharmacy') {
+          queryText = 'pharmacy medical store';
+        } else if (targetCategory === 'Emergency Hospital') {
+          queryText = 'emergency hospital trauma center';
+        } else if (targetCategory === 'Clinics') {
+          queryText = 'clinic health center';
+        } else {
+          queryText = 'hospital';
+        }
       }
 
-      const nomUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&extratags=1&q=${encodeURIComponent(queryKeyword + ' in ' + city)}&limit=20`;
+      // Query OpenStreetMap Nominatim Live API
+      const locationName = userCoords?.name ? userCoords.name.split(',')[0] : '';
+      const nomUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&extratags=1&q=${encodeURIComponent(queryText + (locationName ? ' in ' + locationName : ''))}&limit=30`;
+
       const res = await fetch(nomUrl, {
         headers: { 'Accept-Language': 'en' }
       });
 
-      if (!res.ok) throw new Error("Nominatim query failed");
+      if (!res.ok) {
+        throw new Error("We couldn't retrieve nearby healthcare facilities right now.");
+      }
+
       const data = await res.json();
 
-      if (!Array.isArray(data) || data.length === 0) {
-        const altUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&extratags=1&q=${encodeURIComponent('hospital in ' + city)}&limit=15`;
-        const altRes = await fetch(altUrl);
-        const altData = await altRes.json();
-        if (Array.isArray(altData) && altData.length > 0) {
-          return parseNominatimResults(altData, lat, lng);
-        }
-        return getFallbackFacilities(lat, lng, targetCategory);
+      if (!Array.isArray(data)) {
+        throw new Error("We couldn't retrieve nearby healthcare facilities right now.");
       }
 
-      return parseNominatimResults(data, lat, lng);
+      // Parse 100% Real API Data
+      const parsedResults = data
+        .map((item, idx) => {
+          const itemLat = parseFloat(item.lat);
+          const itemLng = parseFloat(item.lon);
+          if (isNaN(itemLat) || isNaN(itemLng)) return null;
+
+          const dist = calculateHaversineDistance(lat, lng, itemLat, itemLng);
+          
+          // Filter strictly by selected radius
+          if (dist > radius) return null;
+
+          const tags = item.extratags || {};
+          const rawName = item.display_name.split(',')[0];
+          const fullAddress = item.display_name;
+
+          // Extract real phone only if provided by API
+          const phone = tags.phone || tags['contact:phone'] || tags['phone:mobile'] || null;
+
+          // Extract real opening status only if provided by API
+          let openStatus = null;
+          if (tags.opening_hours) {
+            openStatus = tags.opening_hours.includes('24/7') ? '🟢 Open 24/7' : `🕐 ${tags.opening_hours}`;
+          } else if (tags.emergency === 'yes') {
+            openStatus = '🟢 Open 24/7 (Emergency)';
+          }
+
+          // Extract real rating only if provided by API
+          const rating = tags.rating ? parseFloat(tags.rating) : null;
+
+          // Confirm emergency availability ONLY if API confirms it
+          const emergencyConfirmed = tags.emergency === 'yes' || (tags.amenity === 'hospital' && tags['hospital:emergency'] === 'yes');
+
+          const categoryType = item.type === 'pharmacy' ? 'Pharmacy'
+                             : item.type === 'clinic' ? 'Clinic'
+                             : 'Hospital';
+
+          return {
+            id: `osm-real-${item.place_id || idx}`,
+            name: rawName,
+            type: categoryType,
+            address: fullAddress,
+            distanceKm: dist,
+            openStatus,
+            rating,
+            emergencyConfirmed,
+            phone,
+            website: tags.website || null,
+            lat: itemLat,
+            lng: itemLng,
+            directionsUrl: `https://www.google.com/maps/dir/?api=1&destination=${itemLat},${itemLng}`
+          };
+        })
+        .filter(Boolean);
+
+      // Sort results by user selection
+      if (sortOrder === 'rating') {
+        parsedResults.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+      } else if (sortOrder === 'relevance') {
+        parsedResults.sort((a, b) => a.name.localeCompare(b.name));
+      } else {
+        // Default: Distance
+        parsedResults.sort((a, b) => a.distanceKm - b.distanceKm);
+      }
+
+      setFacilities(parsedResults);
     } catch (err) {
-      console.error("OSM Live Fetch Error:", err);
-      return getFallbackFacilities(lat, lng, targetCategory);
-    }
-  };
-
-  // Verified Fallback Facilities Generator (Safety Baseline)
-  const getFallbackFacilities = (lat, lng, targetCategory) => {
-    const baseCity = manualQuery || userProfile?.city || 'District City';
-    return [
-      {
-        id: 'fac-fb-1',
-        name: `${baseCity} AIIMS Emergency Medical Center`,
-        type: 'Government District Hospital & Trauma Center',
-        address: `Sector 12, Main Healthcare Corridor, ${baseCity}`,
-        distanceKm: 1.2,
-        etaMins: 4,
-        emergencyOpen: true,
-        phone: '+91 108',
-        website: 'https://aiims.edu',
-        lat: lat + 0.008,
-        lng: lng + 0.008,
-        directionsUrl: `https://www.google.com/maps/dir/?api=1&destination=${lat + 0.008},${lng + 0.008}`
-      },
-      {
-        id: 'fac-fb-2',
-        name: `Fortis Healthcare & Specialty Clinic`,
-        type: 'Multispecialty Care Center',
-        address: `Block B, Civil Hospital Road, ${baseCity}`,
-        distanceKm: 2.8,
-        etaMins: 7,
-        emergencyOpen: true,
-        phone: '+91 98765 43210',
-        website: 'https://fortishealthcare.com',
-        lat: lat - 0.012,
-        lng: lng + 0.005,
-        directionsUrl: `https://www.google.com/maps/dir/?api=1&destination=${lat - 0.012},${lng + 0.005}`
-      },
-      {
-        id: 'fac-fb-3',
-        name: `Apollo Diagnostics & Pharmacy`,
-        type: 'Diagnostic Lab & Pharmacy',
-        address: `Station Road, Near Bus Stand, ${baseCity}`,
-        distanceKm: 3.5,
-        etaMins: 9,
-        emergencyOpen: false,
-        openingHours: '8:00 AM - 10:00 PM',
-        phone: '+91 98123 45678',
-        website: 'https://apollodiagnostics.in',
-        lat: lat + 0.015,
-        lng: lng - 0.01,
-        directionsUrl: `https://www.google.com/maps/dir/?api=1&destination=${lat + 0.015},${lng - 0.01}`
-      }
-    ];
-  };
-
-  // 2. Fetch Real-Time Facilities from Live OpenStreetMap API
-  const fetchNearbyFacilities = async (lat, lng, targetCategory = category, cityName = manualQuery) => {
-    setLoadingFacilities(true);
-    setErrorMsg('');
-
-    try {
-      // First try backend localhost API if running locally
-      const url = `${API_BASE}/hospitals/nearby?lat=${lat}&lng=${lng}&category=${encodeURIComponent(targetCategory)}&radiusKm=15`;
-      const res = await fetch(url).catch(() => null);
-
-      if (res && res.ok) {
-        const data = await res.json();
-        if (Array.isArray(data) && data.length > 0) {
-          setFacilities(data);
-          setLoadingFacilities(false);
-          return;
-        }
-      }
-
-      // Fetch Live OpenStreetMap Data via CORS-enabled Nominatim API
-      const realFacilities = await fetchOpenStreetMapRealTimeData(lat, lng, targetCategory, cityName);
-      setFacilities(realFacilities);
-    } catch (err) {
-      console.error("Facility fetch error:", err);
-      const fallback = getFallbackFacilities(lat, lng, targetCategory);
-      setFacilities(fallback);
+      console.error("Real API Fetch Error:", err);
+      setFacilities([]);
+      setFetchError(err.message || "We couldn't retrieve nearby healthcare facilities right now.");
     } finally {
       setLoadingFacilities(false);
     }
   };
 
-  // 3. Geocode Location manually by city / pincode with OpenStreetMap Nominatim
+  // 3. Geocode Location manually by city / pincode
   const handleManualSearch = async (e) => {
     if (e) e.preventDefault();
     if (!manualQuery.trim()) {
-      toast.error("Please enter a city or pincode to search.");
+      toast.error("Please enter a location or city name.");
       return;
     }
 
     setLocLoading(true);
-    setErrorMsg('');
+    setFetchError(null);
+    setLocationDenied(false);
+
     try {
-      let coords = null;
+      const nomUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(manualQuery.trim())}&limit=1`;
+      const nomRes = await fetch(nomUrl);
+      const nomData = await nomRes.json();
 
-      // Try backend first
-      const res = await fetch(`${API_BASE}/hospitals/geocode?query=${encodeURIComponent(manualQuery.trim())}`).catch(() => null);
-      if (res && res.ok) {
-        const data = await res.json();
-        coords = { lat: data.lat, lng: data.lng, name: data.name };
-      } else {
-        // Direct OpenStreetMap Nominatim API
-        const nomUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(manualQuery.trim())}&limit=1`;
-        const nomRes = await fetch(nomUrl);
-        const nomData = await nomRes.json();
-
-        if (Array.isArray(nomData) && nomData.length > 0) {
-          coords = {
-            lat: parseFloat(nomData[0].lat),
-            lng: parseFloat(nomData[0].lon),
-            name: nomData[0].display_name
-          };
-        }
+      if (!Array.isArray(nomData) || nomData.length === 0) {
+        throw new Error(`Unable to locate "${manualQuery}". Please check spelling.`);
       }
 
-      if (!coords) {
-        // Default Delhi Coordinates
-        coords = { lat: 28.6139, lng: 77.2090, name: manualQuery.trim() };
-      }
+      const coords = {
+        lat: parseFloat(nomData[0].lat),
+        lng: parseFloat(nomData[0].lon),
+        name: nomData[0].display_name
+      };
 
       setUserCoords(coords);
+      setLocationGranted(true);
       setLocationMode('manual');
-      toast.success(`Location set: ${coords.name.split(',')[0]}`);
-      await fetchNearbyFacilities(coords.lat, coords.lng, category, manualQuery.trim());
+      toast.success(`Location locked: ${coords.name.split(',')[0]}`);
+      await fetchRealFacilitiesFromAPI(coords.lat, coords.lng, category, searchKeyword, radiusKm, sortBy);
     } catch (err) {
-      toast.error("Could not find specified location. Loaded default location.");
-      const fallbackCoords = { lat: 28.6139, lng: 77.2090, name: manualQuery };
-      setUserCoords(fallbackCoords);
-      await fetchNearbyFacilities(fallbackCoords.lat, fallbackCoords.lng, category, manualQuery);
+      toast.error(err.message || "Could not locate specified area.");
+      setFetchError(err.message);
     } finally {
       setLocLoading(false);
     }
   };
 
-  // 4. Get Current Geolocation Coordinates
+  // 4. Request Browser Geolocation API
   const handleUseCurrentLocation = () => {
     if (!navigator.geolocation) {
       toast.error("Geolocation is not supported by your browser.");
@@ -332,7 +285,8 @@ export const HospitalFinderPage = () => {
     }
 
     setLocLoading(true);
-    toast.loading("Fetching GPS position...", { id: 'geo-toast' });
+    setLocationDenied(false);
+    toast.loading("Finding healthcare facilities near you...", { id: 'geo-toast' });
 
     navigator.geolocation.getCurrentPosition(
       async (position) => {
@@ -340,51 +294,97 @@ export const HospitalFinderPage = () => {
         const coords = {
           lat: position.coords.latitude,
           lng: position.coords.longitude,
-          name: "Current GPS Position"
+          name: "Current Location"
         };
-        setUserCoords(coords);
-        setLocationMode('current');
-        toast.success("GPS location locked!");
 
-        // Reverse geocode to get city name for Nominatim search
+        // Try reverse geocoding for display city name
         try {
           const revUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${coords.lat}&lon=${coords.lng}`;
           const revRes = await fetch(revUrl);
           const revData = await revRes.json();
-          const cityName = revData?.address?.city || revData?.address?.town || revData?.address?.state_district || 'nearby';
-          await fetchNearbyFacilities(coords.lat, coords.lng, category, cityName);
+          if (revData?.display_name) {
+            coords.name = revData.display_name;
+          }
         } catch {
-          await fetchNearbyFacilities(coords.lat, coords.lng, category, 'nearby');
+          // Keep Current Location fallback string
         }
+
+        setUserCoords(coords);
+        setLocationGranted(true);
+        setLocationMode('current');
+        toast.success("GPS Location granted!");
+        await fetchRealFacilitiesFromAPI(coords.lat, coords.lng, category, searchKeyword, radiusKm, sortBy);
         setLocLoading(false);
       },
       (error) => {
         toast.dismiss('geo-toast');
         setLocLoading(false);
-        let msg = "Geolocation permission denied. Searching city location below...";
-        toast.error(msg);
-        handleManualSearch();
+        setLocationDenied(true);
+        toast.error("Location access was denied.");
       },
       { timeout: 10000, enableHighAccuracy: true }
     );
   };
 
-  // Initial load: Geocode user's default city or prompt location
+  // Initial Load Pipeline: Saved Profile City Fallback if present
   useEffect(() => {
-    const initialCity = userProfile?.city || 'New Delhi';
-    setManualQuery(initialCity);
-    handleManualSearch();
+    if (userProfile?.city) {
+      const city = userProfile.city;
+      setManualQuery(city);
+      // Geocode saved city
+      fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(city)}&limit=1`)
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data) && data.length > 0) {
+            const coords = {
+              lat: parseFloat(data[0].lat),
+              lng: parseFloat(data[0].lon),
+              name: data[0].display_name
+            };
+            setUserCoords(coords);
+            setLocationGranted(true);
+            setLocationMode('profile');
+            fetchRealFacilitiesFromAPI(coords.lat, coords.lng, category, searchKeyword, radiusKm, sortBy);
+          }
+        })
+        .catch(() => {
+          // Leave in ungranted initial state
+        });
+    }
   }, []);
 
-  // 5. Category Selection Change Handler
-  const handleCategorySelect = (newCategory) => {
-    setCategory(newCategory);
+  // Filter & Search Re-query Trigger
+  const handleApplySearch = (e) => {
+    if (e) e.preventDefault();
     if (userCoords) {
-      fetchNearbyFacilities(userCoords.lat, userCoords.lng, newCategory, manualQuery);
+      fetchRealFacilitiesFromAPI(userCoords.lat, userCoords.lng, category, searchKeyword, radiusKm, sortBy);
+    } else {
+      handleManualSearch();
     }
   };
 
-  // 6. Interactive Leaflet Map Mounting
+  const handleCategoryChange = (newCategory) => {
+    setCategory(newCategory);
+    if (userCoords) {
+      fetchRealFacilitiesFromAPI(userCoords.lat, userCoords.lng, newCategory, searchKeyword, radiusKm, sortBy);
+    }
+  };
+
+  const handleRadiusChange = (newRadius) => {
+    setRadiusKm(newRadius);
+    if (userCoords) {
+      fetchRealFacilitiesFromAPI(userCoords.lat, userCoords.lng, category, searchKeyword, newRadius, sortBy);
+    }
+  };
+
+  const handleSortChange = (newSort) => {
+    setSortBy(newSort);
+    if (userCoords) {
+      fetchRealFacilitiesFromAPI(userCoords.lat, userCoords.lng, category, searchKeyword, radiusKm, newSort);
+    }
+  };
+
+  // 5. Interactive Leaflet Map Mounting
   useEffect(() => {
     if (!userCoords || !mapContainerRef.current) return;
 
@@ -422,9 +422,9 @@ export const HospitalFinderPage = () => {
         .addTo(map)
         .bindPopup(`<b>Your Location</b><br>${userCoords.name}`);
 
-      // Facility Markers
+      // Facility Markers (Real API Data Only)
       facilities.forEach(fac => {
-        const isEmergency = fac.emergencyOpen;
+        const isEmergency = fac.emergencyConfirmed;
         const facIcon = L.divIcon({
           className: 'custom-fac-marker',
           html: `<div style="background-color: ${isEmergency ? '#DC2626' : '#0D9488'}; width: 14px; height: 14px; border-radius: 50%; border: 2px solid #FFFFFF; box-shadow: 0 2px 6px rgba(0,0,0,0.3);"></div>`,
@@ -434,10 +434,16 @@ export const HospitalFinderPage = () => {
 
         const marker = L.marker([fac.lat, fac.lng], { icon: facIcon }).addTo(map);
         marker.bindPopup(`
-          <div style="font-family: sans-serif; font-size: 12px; max-width: 200px;">
-            <strong style="color: #0F172A; display: block;">${fac.name}</strong>
-            <span style="color: #475569; display: block; font-size: 11px;">${fac.address}</span>
-            <span style="color: #0D9488; font-weight: bold;">${fac.distanceKm} km away</span>
+          <div style="font-family: sans-serif; font-size: 12px; max-width: 220px; padding: 2px;">
+            <strong style="color: #0F172A; display: block; font-size: 13px;">${fac.name}</strong>
+            <span style="color: #475569; display: block; font-size: 11px; margin-top: 2px;">${fac.address}</span>
+            <div style="margin-top: 6px; font-weight: bold; color: #0D9488; font-size: 11px; display: flex; align-items: center; justify-between;">
+              <span>${fac.distanceKm} km away</span>
+              ${fac.openStatus ? `<span style="color: #059669;">${fac.openStatus}</span>` : ''}
+            </div>
+            <a href="${fac.directionsUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; margin-top: 8px; font-[#0F172A]; font-weight: bold; font-size: 11px; text-decoration: underline;">
+              Get Directions →
+            </a>
           </div>
         `);
       });
@@ -445,7 +451,8 @@ export const HospitalFinderPage = () => {
   }, [userCoords, facilities]);
 
   const categories = [
-    'All',
+    'Hospitals',
+    'Clinics',
     'General Physician',
     'Cardiologist',
     'Dermatologist',
@@ -465,17 +472,19 @@ export const HospitalFinderPage = () => {
         <div>
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-xs text-emerald-800 font-bold uppercase tracking-wider">OpenStreetMap Real-Time Engine</span>
+            <span className="text-xs text-emerald-800 font-bold uppercase tracking-wider">Real-Time OpenStreetMap Engine</span>
           </div>
           <h1 className="text-2.5xl font-extrabold text-[#0F172A] tracking-tight mt-0.5">
             24/7 Hospital & Healthcare Finder
           </h1>
           <p className="text-xs font-normal text-slate-500">
-            Real nearby hospitals, specialist clinics, pharmacies, and emergency centers based on live geolocation
+            {locationGranted && userCoords
+              ? `Healthcare facilities near ${userCoords.name.split(',')[0]}`
+              : 'Find healthcare near you using browser GPS or manual location'
+            }
           </p>
         </div>
 
-        {/* Helpline CTAs */}
         <div className="flex gap-2 flex-wrap">
           <Button 
             variant="sos" 
@@ -492,24 +501,24 @@ export const HospitalFinderPage = () => {
         </div>
       </div>
 
-      {/* Report-Aware Medical Need Recommendation */}
+      {/* Report-Aware Medical Need Cautious Suggestion */}
       {reportAdvice && (
         <Card className="p-5 bg-teal-50/60 border border-teal-200 rounded-2xl shadow-xs space-y-3">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-3">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-xl bg-white text-[#0D9488] flex items-center justify-center font-bold border border-teal-200 shadow-2xs">
                 <Sparkles className="w-4 h-4 text-[#0D9488]" />
               </div>
               <div>
-                <h3 className="text-sm font-extrabold text-[#0F172A]">Report-Aware Specialist Recommendation</h3>
+                <h3 className="text-sm font-extrabold text-[#0F172A]">Healthcare Navigation Suggestion</h3>
                 <p className="text-xs text-slate-600 font-normal">
-                  Identified flagged biomarker: <strong className="text-[#0F172A] font-bold">{reportAdvice.biomarker} ({reportAdvice.value})</strong>
+                  Flagged report biomarker: <strong className="text-[#0F172A] font-bold">{reportAdvice.biomarker} ({reportAdvice.value})</strong>
                 </p>
               </div>
             </div>
             
             <button
-              onClick={() => handleCategorySelect(reportAdvice.suggestedCategory)}
+              onClick={() => handleCategoryChange(reportAdvice.suggestedCategory)}
               className="px-3.5 py-1.5 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-2xs transition-colors"
             >
               <Stethoscope className="w-3.5 h-3.5 text-[#0D9488]" />
@@ -523,254 +532,376 @@ export const HospitalFinderPage = () => {
         </Card>
       )}
 
-      {/* Location Selector Card */}
-      <Card className="p-6 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-4">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
-          <div>
-            <h3 className="text-base font-extrabold text-[#0F172A] flex items-center gap-2">
-              <MapPin className="w-4.5 h-4.5 text-[#0D9488]" /> Select Location
-            </h3>
-            <p className="text-xs text-slate-500 font-medium mt-0.5">Choose live GPS detection or enter city/pincode manually</p>
+      {/* Location Access Prompt UI (Shown when location has not been granted) */}
+      {!locationGranted && (
+        <Card className="p-8 text-center bg-white border border-slate-200 rounded-2xl space-y-5 shadow-sm max-w-2xl mx-auto">
+          <div className="w-14 h-14 rounded-2xl bg-teal-50 text-[#0D9488] flex items-center justify-center mx-auto border border-teal-200 shadow-2xs">
+            <Compass className="w-7 h-7" />
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap">
-            <button
-              onClick={handleUseCurrentLocation}
-              disabled={locLoading}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer border ${
-                locationMode === 'current'
-                  ? 'bg-[#0F172A] text-white border-slate-800 shadow-xs'
-                  : 'bg-white text-slate-800 hover:bg-slate-50 border-slate-200'
-              }`}
-            >
-              <Compass className={`w-4 h-4 ${locationMode === 'current' ? 'text-[#0D9488]' : 'text-slate-500'}`} />
-              <span>{locLoading ? 'Locating...' : 'Use My Current Location'}</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Manual Location Form */}
-        <form onSubmit={handleManualSearch} className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1">
-            <input
-              type="text"
-              value={manualQuery}
-              onChange={(e) => setManualQuery(e.target.value)}
-              placeholder="Enter City Name or Pincode (e.g., Mumbai, New Delhi, 110001)"
-              className="med-input text-xs"
-            />
-          </div>
-          <Button
-            variant="primary"
-            size="md"
-            type="submit"
-            loading={locLoading}
-            icon={Search}
-            className="bg-[#0F172A] hover:bg-[#1E293B] rounded-xl text-xs font-semibold py-2.5 px-5 shrink-0 cursor-pointer"
-          >
-            Search Location
-          </Button>
-        </form>
-
-        {userCoords && (
-          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs flex items-center justify-between flex-wrap gap-2">
-            <span className="text-slate-600 font-medium truncate">
-              Active Location: <strong className="text-[#0F172A] font-bold">{userCoords.name}</strong> ({userCoords.lat.toFixed(4)}, {userCoords.lng.toFixed(4)})
-            </span>
-            <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-[11px] font-bold border border-emerald-200 flex items-center gap-1">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> GPS Locked
-            </span>
-          </div>
-        )}
-      </Card>
-
-      {/* Category Specialty Filter Pills */}
-      <div className="space-y-2">
-        <label className="block text-xs font-bold text-[#0F172A]">Medical Facility Category</label>
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
-          {categories.map((cat) => {
-            const isSelected = category === cat;
-            const isEmergency = cat === 'Emergency Hospital';
-            return (
-              <button
-                key={cat}
-                onClick={() => handleCategorySelect(cat)}
-                className={`px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer border ${
-                  isSelected
-                    ? isEmergency 
-                      ? 'bg-rose-600 text-white border-rose-700 shadow-xs'
-                      : 'bg-[#0F172A] text-white border-slate-800 shadow-xs'
-                    : isEmergency
-                    ? 'bg-rose-50 text-rose-800 border-rose-200 hover:bg-rose-100'
-                    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
-                }`}
-              >
-                {isEmergency && <Siren className="w-3.5 h-3.5 inline mr-1 text-rose-400" />}
-                {cat}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Main Content Grid: Facilities List + Interactive OpenStreetMap */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
-        {/* Left: Facilities List */}
-        <div className="lg:col-span-7 space-y-4">
-          
-          <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
-            <span>
-              Real-time results for: <strong className="text-[#0F172A] font-bold">{category}</strong>
-            </span>
-            <span>{facilities.length} Verified Facilities Found</span>
+          <div className="space-y-2">
+            <h2 className="text-xl font-extrabold text-[#0F172A]">Find healthcare near you</h2>
+            <p className="text-xs text-slate-600 font-normal leading-relaxed">
+              Location access is required to find healthcare facilities near you. Use your browser's GPS position or enter your city manually.
+            </p>
           </div>
 
-          {/* Loading Skeleton */}
-          {loadingFacilities && (
-            <div className="space-y-4">
-              {[1, 2, 3].map((i) => (
-                <Card key={i} className="p-6 bg-white border border-slate-200 rounded-2xl animate-pulse space-y-3">
-                  <div className="h-4 bg-slate-200 rounded w-3/4" />
-                  <div className="h-3 bg-slate-200 rounded w-1/2" />
-                  <div className="h-3 bg-slate-200 rounded w-full" />
-                </Card>
-              ))}
+          {locationDenied && (
+            <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-800 font-semibold">
+              ⚠️ Location access was denied in browser settings. Please click "Enter Location Manually" below or allow GPS access.
             </div>
           )}
 
-          {/* Error / Empty State */}
-          {!loadingFacilities && errorMsg && (
-            <Card className="p-8 text-center bg-white border border-slate-200 rounded-2xl space-y-4 shadow-xs">
-              <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center mx-auto border border-amber-200">
-                <AlertTriangle className="w-6 h-6" />
-              </div>
-              <div className="space-y-1.5 max-w-md mx-auto">
-                <h3 className="text-base font-extrabold text-[#0F172A]">Nearby Healthcare Data Unavailable</h3>
-                <p className="text-xs text-slate-600 leading-relaxed font-normal">{errorMsg}</p>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                icon={RefreshCw}
-                className="rounded-xl text-xs font-semibold border-slate-200"
-                onClick={() => userCoords && fetchNearbyFacilities(userCoords.lat, userCoords.lng, category, manualQuery)}
-              >
-                Retry Search
-              </Button>
-            </Card>
-          )}
-
-          {/* Real OpenStreetMap Facility Cards */}
-          {!loadingFacilities && !errorMsg && facilities.map((fac) => (
-            <Card 
-              key={fac.id} 
-              className={`p-6 space-y-3.5 bg-white border rounded-2xl shadow-xs transition-all ${
-                selectedFacility?.id === fac.id ? 'border-[#0D9488] ring-2 ring-[#0D9488]/20' : 'border-slate-200 hover:border-slate-300'
-              }`}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+            <Button
+              variant="primary"
+              size="md"
+              icon={Compass}
+              loading={locLoading}
+              onClick={handleUseCurrentLocation}
+              className="bg-[#0F172A] hover:bg-[#1E293B] py-3 px-6 text-xs font-semibold rounded-xl w-full sm:w-auto cursor-pointer"
             >
-              <div className="flex justify-between items-start gap-3">
-                <div>
-                  <h3 className="text-base font-extrabold text-[#0F172A]">{fac.name}</h3>
-                  <p className="text-xs text-[#0D9488] font-bold mt-0.5">{fac.type}</p>
-                </div>
+              {locLoading ? 'Finding healthcare facilities near you...' : 'Use My Current Location'}
+            </Button>
 
-                {fac.emergencyOpen ? (
-                  <span className="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-800 text-xs font-bold border border-rose-200 shrink-0">
-                    24/7 Emergency
-                  </span>
-                ) : (
-                  <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold border border-slate-200 shrink-0">
-                    {fac.openingHours || 'Healthcare Clinic'}
-                  </span>
-                )}
+            <Button
+              variant="secondary"
+              size="md"
+              icon={MapPin}
+              onClick={() => {
+                const city = prompt("Enter your City or Pincode:", manualQuery || "Mumbai");
+                if (city) {
+                  setManualQuery(city);
+                  handleManualSearch();
+                }
+              }}
+              className="py-3 px-6 text-xs font-semibold rounded-xl bg-slate-50 border-slate-200 text-[#0F172A] hover:bg-slate-100 w-full sm:w-auto cursor-pointer"
+            >
+              Enter Location Manually
+            </Button>
+          </div>
+        </Card>
+      )}
+
+      {/* Location Bar & Real Search Interface (Shown after Location is set) */}
+      {locationGranted && (
+        <>
+          {/* Active Location Info & Controls */}
+          <Card className="p-6 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+              <div>
+                <h3 className="text-base font-extrabold text-[#0F172A] flex items-center gap-2">
+                  <MapPin className="w-4.5 h-4.5 text-[#0D9488]" /> Active Location
+                </h3>
+                <p className="text-xs text-slate-500 font-medium mt-0.5">
+                  Healthcare facilities near <strong className="text-[#0F172A]">{userCoords?.name?.split(',')[0]}</strong>
+                </p>
               </div>
 
-              <p className="text-xs text-slate-600 flex items-start gap-1.5 font-normal">
-                <MapPin className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" /> 
-                <span>{fac.address}</span>
-              </p>
-
-              <div className="flex items-center justify-between text-xs pt-2.5 border-t border-slate-100 text-slate-600 font-medium flex-wrap gap-2">
-                <span className="flex items-center gap-1 font-bold text-[#0F172A]">
-                  <Compass className="w-3.5 h-3.5 text-[#0D9488]" /> {fac.distanceKm} km away
-                </span>
-                <span>Driving ETA: ~{fac.etaMins} mins</span>
-                {fac.phone && (
-                  <span className="text-slate-700 font-semibold">{fac.phone}</span>
-                )}
-              </div>
-
-              <div className="flex items-center gap-2 pt-2 flex-wrap">
-                {fac.phone && (
-                  <Button
-                    variant="sos"
-                    size="sm"
-                    className="py-2 px-3 text-xs font-semibold rounded-xl cursor-pointer"
-                    icon={Phone}
-                    onClick={() => {
-                      toast.success(`Dialing ${fac.name}...`);
-                      window.open(`tel:${fac.phone}`);
-                    }}
-                  >
-                    Call ({fac.phone})
-                  </Button>
-                )}
-
-                <a
-                  href={fac.directionsUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="py-2 px-3.5 text-xs font-semibold rounded-xl bg-slate-50 border border-slate-200 text-[#0F172A] hover:bg-slate-100 flex items-center gap-1.5 transition-colors"
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  onClick={handleUseCurrentLocation}
+                  disabled={locLoading}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer border ${
+                    locationMode === 'current'
+                      ? 'bg-[#0F172A] text-white border-slate-800 shadow-xs'
+                      : 'bg-white text-slate-800 hover:bg-slate-50 border-slate-200'
+                  }`}
                 >
-                  <Navigation className="w-3.5 h-3.5 text-[#0D9488]" />
-                  <span>Get Directions</span>
-                  <ExternalLink className="w-3 h-3 text-slate-400" />
-                </a>
+                  <Compass className={`w-4 h-4 ${locationMode === 'current' ? 'text-[#0D9488]' : 'text-slate-500'}`} />
+                  <span>{locLoading ? 'Locating...' : 'Near Me'}</span>
+                </button>
+              </div>
+            </div>
 
+            {/* Real Search Bar & Filters Form */}
+            <form onSubmit={handleApplySearch} className="grid grid-cols-1 sm:grid-cols-12 gap-3 text-xs">
+              
+              {/* Search Bar Input */}
+              <div className="sm:col-span-6 relative">
+                <input
+                  type="text"
+                  value={searchKeyword}
+                  onChange={(e) => setSearchKeyword(e.target.value)}
+                  placeholder="Search healthcare facilities... (e.g. hospital, cardiologist, lab)"
+                  className="med-input text-xs pl-9"
+                />
+                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+              </div>
+
+              {/* Search Radius Dropdown */}
+              <div className="sm:col-span-2">
+                <select
+                  value={radiusKm}
+                  onChange={(e) => handleRadiusChange(Number(e.target.value))}
+                  className="med-input text-xs"
+                >
+                  <option value={5}>Radius: 5 km</option>
+                  <option value={10}>Radius: 10 km</option>
+                  <option value={25}>Radius: 25 km</option>
+                </select>
+              </div>
+
+              {/* Sort By Dropdown */}
+              <div className="sm:col-span-2">
+                <select
+                  value={sortBy}
+                  onChange={(e) => handleSortChange(e.target.value)}
+                  className="med-input text-xs"
+                >
+                  <option value="distance">Sort: Distance</option>
+                  <option value="relevance">Sort: Relevance</option>
+                  <option value="rating">Sort: Rating</option>
+                </select>
+              </div>
+
+              {/* Search Submit Button */}
+              <div className="sm:col-span-2">
                 <Button
-                  variant="outline"
-                  size="sm"
-                  className="py-2 px-3 text-xs font-semibold rounded-xl border-slate-200 text-slate-700 hover:bg-slate-50 ml-auto cursor-pointer"
-                  onClick={() => setSelectedFacility(fac)}
+                  variant="primary"
+                  size="md"
+                  type="submit"
+                  loading={loadingFacilities}
+                  className="bg-[#0F172A] hover:bg-[#1E293B] rounded-xl text-xs font-semibold py-2.5 w-full cursor-pointer"
                 >
-                  View Details
+                  Search
                 </Button>
               </div>
 
-            </Card>
-          ))}
-
-        </div>
-
-        {/* Right: Interactive OpenStreetMap Container */}
-        <div className="lg:col-span-5 space-y-4">
-          <Card className="p-4 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-3">
-            <div className="flex items-center justify-between text-xs font-bold text-[#0F172A]">
-              <span className="flex items-center gap-1.5">
-                <Compass className="w-4 h-4 text-[#0D9488]" /> Live Interactive Map
-              </span>
-              <span className="text-[#0D9488]">OpenStreetMap Engine</span>
-            </div>
-
-            {/* Map Canvas Container */}
-            <div 
-              ref={mapContainerRef} 
-              className="w-full h-[420px] rounded-xl border border-slate-200 bg-slate-100 z-10" 
-            />
-
-            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1 text-slate-600 font-normal">
-              <span className="font-bold text-[#0F172A] block">Map Legend:</span>
-              <div className="flex items-center gap-4 text-[11px] pt-0.5">
-                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-[#0F172A] border border-[#0D9488]" /> Your Location</span>
-                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-[#0D9488]" /> Healthcare Clinic</span>
-                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-rose-600" /> Emergency Hospital</span>
-              </div>
-            </div>
+            </form>
           </Card>
-        </div>
 
-      </div>
+          {/* Category Specialty Filter Pills */}
+          <div className="space-y-2">
+            <label className="block text-xs font-bold text-[#0F172A]">Facility Category</label>
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+              {categories.map((cat) => {
+                const isSelected = category === cat;
+                const isEmergency = cat === 'Emergency Hospital';
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => handleCategoryChange(cat)}
+                    className={`px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer border ${
+                      isSelected
+                        ? isEmergency 
+                          ? 'bg-rose-600 text-white border-rose-700 shadow-xs'
+                          : 'bg-[#0F172A] text-white border-slate-800 shadow-xs'
+                        : isEmergency
+                        ? 'bg-rose-50 text-rose-800 border-rose-200 hover:bg-rose-100'
+                        : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                    }`}
+                  >
+                    {isEmergency && <Siren className="w-3.5 h-3.5 inline mr-1 text-rose-400" />}
+                    {cat}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Main Grid: Real API Facility Cards + Interactive OpenStreetMap */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            {/* Left: Real API Facility Cards */}
+            <div className="lg:col-span-7 space-y-4">
+              
+              <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
+                <span>
+                  Real API results for: <strong className="text-[#0F172A] font-bold">{category}</strong> ({radiusKm} km radius)
+                </span>
+                <span>{facilities.length} Facilities Found</span>
+              </div>
+
+              {/* Loading State */}
+              {loadingFacilities && (
+                <Card className="p-8 text-center bg-white border border-slate-200 rounded-2xl space-y-3">
+                  <div className="w-8 h-8 border-4 border-[#0F172A] border-t-transparent rounded-full animate-spin mx-auto" />
+                  <p className="text-xs font-extrabold text-[#0F172A]">Finding healthcare facilities near you...</p>
+                </Card>
+              )}
+
+              {/* Error State (NO Fake Fallbacks) */}
+              {!loadingFacilities && fetchError && (
+                <Card className="p-8 text-center bg-white border border-slate-200 rounded-2xl space-y-4 shadow-xs">
+                  <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto border border-rose-200">
+                    <AlertTriangle className="w-6 h-6" />
+                  </div>
+                  <div className="space-y-1.5 max-w-md mx-auto">
+                    <h3 className="text-base font-extrabold text-[#0F172A]">We couldn't retrieve nearby healthcare facilities right now.</h3>
+                    <p className="text-xs text-slate-600 font-normal">{fetchError}</p>
+                  </div>
+                  <div className="flex justify-center gap-3 pt-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      icon={RefreshCw}
+                      className="rounded-xl text-xs font-semibold border-slate-200"
+                      onClick={() => userCoords && fetchRealFacilitiesFromAPI(userCoords.lat, userCoords.lng, category, searchKeyword, radiusKm, sortBy)}
+                    >
+                      Try Again
+                    </Button>
+                  </div>
+                </Card>
+              )}
+
+              {/* Empty State (NO Fake Fallbacks) */}
+              {!loadingFacilities && !fetchError && facilities.length === 0 && (
+                <Card className="p-8 text-center bg-white border border-slate-200 rounded-2xl space-y-4 shadow-xs">
+                  <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-600 flex items-center justify-center mx-auto border border-slate-200">
+                    <Building2 className="w-6 h-6 text-slate-400" />
+                  </div>
+                  <div className="space-y-1.5 max-w-md mx-auto">
+                    <h3 className="text-base font-extrabold text-[#0F172A]">No healthcare facilities were found within {radiusKm} km.</h3>
+                    <p className="text-xs text-slate-600 font-normal">Try expanding your search radius to find results further out.</p>
+                  </div>
+                  <div className="flex justify-center gap-2 pt-2 flex-wrap">
+                    {radiusKm < 10 && (
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        className="rounded-xl text-xs font-semibold bg-[#0F172A]"
+                        onClick={() => handleRadiusChange(10)}
+                      >
+                        Search within 10 km
+                      </Button>
+                    )}
+                    {radiusKm < 25 && (
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        className="rounded-xl text-xs font-semibold bg-[#0F172A]"
+                        onClick={() => handleRadiusChange(25)}
+                      >
+                        Search within 25 km
+                      </Button>
+                    )}
+                  </div>
+                </Card>
+              )}
+
+              {/* Real API Facility Cards (100% Real API Data) */}
+              {!loadingFacilities && !fetchError && facilities.map((fac) => (
+                <Card 
+                  key={fac.id} 
+                  className={`p-6 space-y-3.5 bg-white border rounded-2xl shadow-xs transition-all ${
+                    selectedFacility?.id === fac.id ? 'border-[#0D9488] ring-2 ring-[#0D9488]/20' : 'border-slate-200 hover:border-slate-300'
+                  }`}
+                >
+                  <div className="flex justify-between items-start gap-3">
+                    <div>
+                      <h3 className="text-base font-extrabold text-[#0F172A]">{fac.name}</h3>
+                      <p className="text-xs text-[#0D9488] font-bold mt-0.5">{fac.type}</p>
+                    </div>
+
+                    {/* Open/Closed status — ONLY displayed if API provides it */}
+                    {fac.openStatus ? (
+                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-xs font-bold border border-emerald-200 shrink-0">
+                        {fac.openStatus}
+                      </span>
+                    ) : fac.emergencyConfirmed ? (
+                      <span className="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-800 text-xs font-bold border border-rose-200 shrink-0">
+                        24/7 Emergency Confirmed
+                      </span>
+                    ) : null}
+                  </div>
+
+                  {/* Real Address from API */}
+                  <p className="text-xs text-slate-600 flex items-start gap-1.5 font-normal">
+                    <MapPin className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" /> 
+                    <span>{fac.address}</span>
+                  </p>
+
+                  <div className="flex items-center justify-between text-xs pt-2.5 border-t border-slate-100 text-slate-600 font-medium flex-wrap gap-2">
+                    <span className="flex items-center gap-1 font-bold text-[#0F172A]">
+                      <Compass className="w-3.5 h-3.5 text-[#0D9488]" /> {fac.distanceKm} km away
+                    </span>
+
+                    {/* Rating — ONLY displayed if API provides it */}
+                    {fac.rating && (
+                      <span className="flex items-center gap-1 text-amber-600 font-bold">
+                        <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" /> {fac.rating}
+                      </span>
+                    )}
+
+                    {/* Phone — Displayed if API provides it, or explicit "Phone unavailable" */}
+                    <span className="text-slate-700 font-medium">
+                      {fac.phone ? `📞 ${fac.phone}` : <span className="text-slate-400 italic">Phone unavailable</span>}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2 pt-2 flex-wrap">
+                    {fac.phone && (
+                      <Button
+                        variant="sos"
+                        size="sm"
+                        className="py-2 px-3.5 text-xs font-semibold rounded-xl cursor-pointer"
+                        icon={Phone}
+                        onClick={() => {
+                          toast.success(`Dialing ${fac.name}...`);
+                          window.open(`tel:${fac.phone}`);
+                        }}
+                      >
+                        Call ({fac.phone})
+                      </Button>
+                    )}
+
+                    <a
+                      href={fac.directionsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="py-2 px-3.5 text-xs font-semibold rounded-xl bg-slate-50 border border-slate-200 text-[#0F172A] hover:bg-slate-100 flex items-center gap-1.5 transition-colors"
+                    >
+                      <Navigation className="w-3.5 h-3.5 text-[#0D9488]" />
+                      <span>Get Directions</span>
+                      <ExternalLink className="w-3 h-3 text-slate-400" />
+                    </a>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="py-2 px-3 text-xs font-semibold rounded-xl border-slate-200 text-slate-700 hover:bg-slate-50 ml-auto cursor-pointer"
+                      onClick={() => setSelectedFacility(fac)}
+                    >
+                      View Details
+                    </Button>
+                  </div>
+
+                </Card>
+              ))}
+
+            </div>
+
+            {/* Right: Interactive OpenStreetMap Container */}
+            <div className="lg:col-span-5 space-y-4">
+              <Card className="p-4 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-3">
+                <div className="flex items-center justify-between text-xs font-bold text-[#0F172A]">
+                  <span className="flex items-center gap-1.5">
+                    <Compass className="w-4 h-4 text-[#0D9488]" /> Live Interactive Map
+                  </span>
+                  <span className="text-[#0D9488]">OpenStreetMap Engine</span>
+                </div>
+
+                {/* Map Canvas Container */}
+                <div 
+                  ref={mapContainerRef} 
+                  className="w-full h-[420px] rounded-xl border border-slate-200 bg-slate-100 z-10" 
+                />
+
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1 text-slate-600 font-normal">
+                  <span className="font-bold text-[#0F172A] block">Map Legend:</span>
+                  <div className="flex items-center gap-4 text-[11px] pt-0.5">
+                    <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-[#0F172A] border border-[#0D9488]" /> Your Location</span>
+                    <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-[#0D9488]" /> Healthcare Facility</span>
+                    <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-rose-600" /> Emergency Hospital</span>
+                  </div>
+                </div>
+              </Card>
+            </div>
+
+          </div>
+        </>
+      )}
 
       {/* Facility Details Modal */}
       <Modal
@@ -786,19 +917,21 @@ export const HospitalFinderPage = () => {
                   <h4 className="font-extrabold text-sm text-[#0F172A]">{selectedFacility.name}</h4>
                   <p className="text-xs text-[#0D9488] font-bold">{selectedFacility.type}</p>
                 </div>
-                {selectedFacility.emergencyOpen && (
+                {selectedFacility.emergencyConfirmed && (
                   <span className="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-800 text-[11px] font-bold border border-rose-200">
-                    24/7 Emergency
+                    Emergency Service Confirmed
                   </span>
                 )}
               </div>
               <p className="text-slate-600 font-normal">{selectedFacility.address}</p>
-              <p className="text-[#0F172A] font-bold">Distance: {selectedFacility.distanceKm} km away (~{selectedFacility.etaMins} mins drive)</p>
+              <p className="text-[#0F172A] font-bold">Distance: {selectedFacility.distanceKm} km away</p>
             </div>
 
-            {selectedFacility.phone && (
-              <div className="p-3 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-between text-xs">
-                <span className="font-bold text-[#0F172A]">Phone: {selectedFacility.phone}</span>
+            <div className="p-3 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-between text-xs">
+              <span className="font-bold text-[#0F172A]">
+                Phone: {selectedFacility.phone || 'Phone unavailable'}
+              </span>
+              {selectedFacility.phone && (
                 <Button
                   variant="sos"
                   size="sm"
@@ -807,8 +940,8 @@ export const HospitalFinderPage = () => {
                 >
                   Call Now
                 </Button>
-              </div>
-            )}
+              )}
+            </div>
 
             {selectedFacility.website && (
               <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between text-xs">
