@@ -111,20 +111,62 @@ export async function extractTextFromImage(file) {
 }
 
 /**
+ * Exact Clinical Biomarker Patterns Dictionary
+ */
+const EXACT_PATTERNS = [
+  { key: 'haemoglobin', name: 'Haemoglobin (Hb)', defaultUnit: 'gm/dL' },
+  { key: 'hemoglobin', name: 'Haemoglobin (Hb)', defaultUnit: 'gm/dL' },
+  { key: 'total wbc count', name: 'Total WBC Count', defaultUnit: 'cell/cu.mm' },
+  { key: 'rbc count', name: 'RBC Count', defaultUnit: 'mil/cu.mm' },
+  { key: 'hematocrit', name: 'Hematocrit (HCT)', defaultUnit: '%' },
+  { key: 'hct', name: 'Hematocrit (HCT)', defaultUnit: '%' },
+  { key: 'mcv', name: 'MCV', defaultUnit: 'fL' },
+  { key: 'mchc', name: 'MCHC', defaultUnit: 'gm/dL' },
+  { key: 'mch', name: 'MCH', defaultUnit: 'pg' },
+  { key: 'rdw-cv', name: 'RDW-CV', defaultUnit: '%' },
+  { key: 'rdw-sd', name: 'RDW-SD', defaultUnit: 'fL' },
+  { key: 'platelet count', name: 'Platelet Count', defaultUnit: 'lac/cmm' },
+  { key: 'mpv', name: 'MPV', defaultUnit: 'fL' },
+  { key: 'pdw-sd', name: 'PDW-SD', defaultUnit: 'fL' },
+  { key: 'pct', name: 'PCT', defaultUnit: '%' },
+  { key: 'absolute neutrophils count', name: 'Absolute Neutrophils Count', defaultUnit: '/cumm' },
+  { key: 'absolute lymphocyte count', name: 'Absolute Lymphocyte Count', defaultUnit: '/cumm' },
+  { key: 'absolute eosinophil count', name: 'Absolute Eosinophil Count', defaultUnit: '/cumm' },
+  { key: 'absolute monocyte count', name: 'Absolute Monocyte Count', defaultUnit: '/cumm' },
+  { key: 'neutrophils', name: 'Neutrophils', defaultUnit: '%' },
+  { key: 'lymphocytes', name: 'Lymphocytes', defaultUnit: '%' },
+  { key: 'monocytes', name: 'Monocytes', defaultUnit: '%' },
+  { key: 'eosinophils', name: 'Eosinophils', defaultUnit: '%' },
+  { key: 'basophils', name: 'Basophils', defaultUnit: '%' },
+  { key: 'esr', name: 'ESR', defaultUnit: 'mm/hr' },
+  { key: 'sgpt', name: 'Alanine Aminotransferase (ALT)', defaultUnit: 'unit/L' },
+  { key: 'alt', name: 'Alanine Aminotransferase (ALT)', defaultUnit: 'unit/L' },
+  { key: 'crp', name: 'C-Reactive Protein (CRP)', defaultUnit: 'mg/L' },
+  { key: 'c-reactive protein', name: 'C-Reactive Protein (CRP)', defaultUnit: 'mg/L' },
+  { key: 'fasting glucose', name: 'Fasting Glucose', defaultUnit: 'mg/dL' },
+  { key: 'blood sugar', name: 'Blood Sugar', defaultUnit: 'mg/dL' },
+  { key: 'serum creatinine', name: 'Serum Creatinine', defaultUnit: 'mg/dL' },
+  { key: 'blood urea', name: 'Blood Urea', defaultUnit: 'mg/dL' },
+  { key: 'total cholesterol', name: 'Total Cholesterol', defaultUnit: 'mg/dL' },
+  { key: 'tsh', name: 'Thyroid Stimulating Hormone (TSH)', defaultUnit: 'uIU/mL' }
+];
+
+/**
  * Stage 1: Segment Document into Clean Candidate Medical Rows
  */
 function segmentDocumentRows(rawText) {
-  const testKeywords = [
+  const keywords = [
     'Haemoglobin', 'Hemoglobin', 'Total WBC Count', 'RBC Count', 'Hematocrit', 'HCT', 
     'Mean Corp Volume', 'MCV', 'Mean Corp Hb', 'MCH', 'MCHC', 'RDW-CV', 'RDW-SD', 
     'Platelet Count', 'MPV', 'PDW-SD', 'PCT', 'Neutrophils', 'Lymphocytes', 'Monocytes', 
-    'Eosinophils', 'Basophils', 'ESR', 'Alanine Aminotransferase', 'ALT', 'AST', 'SGPT', 
-    'SGOT', 'CRP', 'C-REACTIVE PROTEIN', 'Fasting Glucose', 'Blood Sugar', 'Serum Creatinine', 
-    'Blood Urea', 'Total Cholesterol', 'TSH'
+    'Eosinophils', 'Basophils', 'Absolute Neutrophils Count', 'Absolute Lymphocyte Count',
+    'Absolute Eosinophil Count', 'Absolute Monocyte Count', 'ESR', 'Alanine Aminotransferase', 
+    'ALT', 'SGPT', 'AST', 'SGOT', 'CRP', 'C-REACTIVE PROTEIN', 'Fasting Glucose', 'Blood Sugar', 
+    'Serum Creatinine', 'Blood Urea', 'Total Cholesterol', 'TSH'
   ];
 
   let preparedText = rawText;
-  for (const kw of testKeywords) {
+  for (const kw of keywords) {
     const regex = new RegExp(`(?<=\\s|^)(${kw})(?=\\s|\\:)`, 'gi');
     preparedText = preparedText.replace(regex, '\n$1');
   }
@@ -134,7 +176,7 @@ function segmentDocumentRows(rawText) {
 }
 
 /**
- * Stage 2: Classify Tokens and Extract (Test Name, Value, Unit, Reference Range, Source Text)
+ * Stage 2: Classify Tokens & Extract Isolated Biomarker Rows
  */
 export function parseBiomarkersFromText(rawText) {
   if (!rawText || typeof rawText !== 'string' || rawText.trim().length === 0) {
@@ -151,86 +193,95 @@ export function parseBiomarkersFromText(rawText) {
       continue;
     }
 
-    // Row Matcher Pattern:
-    // Group 1: Test Name
-    // Group 2: Result Value (e.g. 11.4, 13.3, 46.1, 65, 289000)
-    // Group 3: Unit (e.g. gm/dL, unit/L, mg/L, mm/hr, Lac/cmm, %)
-    // Group 4: Reference Range (e.g. 12.5 - 16.0, 5 - 35, 0 - 6, 0 - 20)
-    const rowMatch = line.match(/^([A-Za-z0-9\s\(\)\-\/]+?)\s+([<>]?\s*\d+(?:[\.,]\d+)?)\s*([A-Za-z\/\%\+\.\^0-9\-]+)?\s*(.*)$/);
+    const lowerLine = line.toLowerCase();
 
-    if (rowMatch) {
-      const rawName = rowMatch[1].trim();
-      const rawValue = rowMatch[2].trim();
-      const unit = rowMatch[3] ? rowMatch[3].trim() : 'Unit not provided';
-      let refStr = rowMatch[4] ? rowMatch[4].trim() : 'Reference range not provided';
+    for (const pattern of EXACT_PATTERNS) {
+      if (seenNames.has(pattern.name)) continue;
 
-      // Ensure reference range does NOT contain dates (e.g. 04/01/2026) or page headers
-      if (/\d{2}\/\d{2}\/\d{4}|\d{4}\s+\d{2}|page/i.test(refStr)) {
-        refStr = refStr.replace(/\d{2}\/\d{2}\/\d{4}.*$/, '').replace(/\d{4}\s+\d{2}.*$/, '').trim();
-        if (!refStr) refStr = 'Reference range not provided';
-      }
-
-      const numericValue = parseFloat(rawValue.replace(/,/g, '.').replace(/[^\d.]/g, ''));
-
-      if (!isNaN(numericValue) && rawName.length >= 2 && !seenNames.has(rawName) && !/complete blood|haematology|report|test description/i.test(rawName)) {
+      const regexKeyword = new RegExp(`\\b${pattern.key}\\b`, 'i');
+      if (regexKeyword.test(lowerLine)) {
         
-        // Clean display name normalization
-        let displayName = rawName;
-        if (/haemoglobin|hemoglobin/i.test(rawName)) displayName = 'Haemoglobin (Hb)';
-        else if (/alanine aminotransferase|alt/i.test(rawName)) displayName = 'Alanine Aminotransferase (ALT)';
-        else if (/crp|c-reactive/i.test(rawName)) displayName = 'C-Reactive Protein (CRP)';
-        else if (/esr/i.test(rawName)) displayName = 'Erythrocyte Sedimentation Rate (ESR)';
-        else if (/platelet/i.test(rawName)) displayName = 'Platelet Count';
-        else if (/wbc/i.test(rawName)) displayName = 'Total WBC Count';
-        else if (/rbc/i.test(rawName)) displayName = 'RBC Count';
+        // Find numerical value occurring AFTER keyword in the line
+        const keywordIdx = lowerLine.search(regexKeyword);
+        const subLine = line.substring(keywordIdx);
 
-        // Dynamic Status Evaluation from Extracted Value + Reference Range
-        let status = 'Normal';
-        let statusType = 'normal';
-        let statusSymbol = '✓';
+        const numberMatches = subLine.match(/([<>]?\s*\d+(?:[\.,]\d+)?)/g);
+        
+        if (numberMatches && numberMatches.length > 0) {
+          const rawValStr = numberMatches[0].trim();
+          const numericVal = parseFloat(rawValStr.replace(/,/g, '.').replace(/[^\d.]/g, ''));
 
-        const rangeMatch = refStr.match(/(\d+(?:[\.,]\d+)?)\s*[-–\sto]+\s*(\d+(?:[\.,]\d+)?)/);
-        if (rangeMatch) {
-          const low = parseFloat(rangeMatch[1]);
-          const high = parseFloat(rangeMatch[2]);
-          if (!isNaN(low) && numericValue < low) {
-            status = 'Low';
-            statusType = 'warning';
-            statusSymbol = '▼';
-          } else if (!isNaN(high) && numericValue > high) {
-            status = 'High';
-            statusType = 'warning';
-            statusSymbol = '▲';
+          if (isNaN(numericVal)) continue;
+
+          // Extract unit if present in line
+          let unit = pattern.defaultUnit;
+          const unitMatch = subLine.match(/(gm\/dL|g\/dL|mg\/dL|mg\/L|mmol\/L|mIU\/L|uIU\/mL|ng\/dL|µg\/dL|U\/L|unit\/L|ng\/mL|pg\/mL|cell\/cu\.mm|mil\/cu\.mm|cells\/µL|m\/µL|k\/µL|\/cumm|lac\/cmm|Lakhs\/cumm|mm\/hr|fL|pg|%)/i);
+          if (unitMatch) {
+            unit = unitMatch[0];
           }
-        } else {
-          const maxMatch = refStr.match(/<[\s]?(\d+(?:[\.,]\d+)?)/);
-          if (maxMatch) {
-            const maxVal = parseFloat(maxMatch[1]);
-            if (!isNaN(maxVal) && numericValue > maxVal) {
-              status = 'High';
-              statusType = 'warning';
-              statusSymbol = '▲';
+
+          // Extract reference range if present in line (ensuring no date leakage like 04/01/2026 or 2026 01)
+          let refRange = "Reference range not provided";
+          const refMatch = subLine.match(/(\d+(?:[\.,]\d+)?\s*[-–\sto]+\s*\d+(?:[\.,]\d+)?|<[\s]?\d+(?:[\.,]\d+)?|>[\s]?\d+(?:[\.,]\d+)?)/i);
+          if (refMatch) {
+            let candidateRef = refMatch[0].trim();
+            if (!/\d{2}\/\d{2}\/\d{4}|\d{4}\s+\d{2}/.test(candidateRef)) {
+              refRange = candidateRef;
             }
           }
+
+          // Dynamic Status Evaluation from Extracted Value + Reference Range
+          let status = 'Normal';
+          let statusType = 'normal';
+          let statusSymbol = '✓';
+
+          if (refRange !== "Reference range not provided") {
+            const parts = refRange.split(/[-–to]+/);
+            if (parts.length === 2) {
+              const low = parseFloat(parts[0]);
+              const high = parseFloat(parts[1]);
+              if (!isNaN(low) && numericVal < low) {
+                status = 'Low';
+                statusType = 'warning';
+                statusSymbol = '▼';
+              } else if (!isNaN(high) && numericVal > high) {
+                status = 'High';
+                statusType = 'warning';
+                statusSymbol = '▲';
+              }
+            } else {
+              const maxMatch = refRange.match(/<[\s]?(\d+(?:[\.,]\d+)?)/);
+              if (maxMatch) {
+                const maxVal = parseFloat(maxMatch[1]);
+                if (!isNaN(maxVal) && numericVal > maxVal) {
+                  status = 'High';
+                  statusType = 'warning';
+                  statusSymbol = '▲';
+                }
+              }
+            }
+          }
+
+          // Isolated source text (ONLY that single line!)
+          const cleanSnippet = subLine.length > 120 ? subLine.substring(0, 120) + '...' : subLine;
+
+          seenNames.add(pattern.name);
+          extractedResults.push({
+            id: `bm-${Date.now()}-${extractedResults.length}`,
+            name: pattern.name,
+            value: rawValStr,
+            numericValue: numericVal,
+            unit: unit,
+            refRange: refRange,
+            status: status,
+            statusType: statusType,
+            statusSymbol: statusSymbol,
+            sourceText: cleanSnippet,
+            confidence: 'High Confidence'
+          });
+
+          break;
         }
-
-        // Isolated source text (ONLY that single row!)
-        const isolatedSource = line.length > 120 ? line.substring(0, 120) + '...' : line;
-
-        seenNames.add(rawName);
-        extractedResults.push({
-          id: `bm-${Date.now()}-${extractedResults.length}`,
-          name: displayName,
-          value: rawValue,
-          numericValue: numericValue,
-          unit: unit,
-          refRange: refStr,
-          status: status,
-          statusType: statusType,
-          statusSymbol: statusSymbol,
-          sourceText: isolatedSource, // EXACT isolated row text ONLY!
-          confidence: 'High Confidence'
-        });
       }
     }
   }
@@ -250,7 +301,7 @@ export function generateDynamicAISummary(biomarkers, fileName) {
   const normal = biomarkers.filter(b => b.statusType === 'normal');
 
   if (flagged.length === 0) {
-    return `All ${biomarkers.length} extracted biomarker parameters (${biomarkers.map(b => b.name).join(', ')}) in "${fileName}" are within normal reference ranges.`;
+    return `All ${biomarkers.length} extracted biomarker parameters in "${fileName}" are within normal reference ranges.`;
   }
 
   const flaggedDesc = flagged.map(b => `${b.name}: ${b.value} ${b.unit} (${b.status})`).join('; ');
