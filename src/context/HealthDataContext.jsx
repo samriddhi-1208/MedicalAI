@@ -62,6 +62,8 @@ export const HealthDataProvider = ({ children }) => {
   const [loadingData, setLoadingData] = useState(false);
   const [apiError, setApiError] = useState(null);
 
+  const isAuthenticated = Boolean(token);
+
   // Synchronize authenticated user profile, reports, and medicines from backend
   useEffect(() => {
     async function syncUserData() {
@@ -103,7 +105,7 @@ export const HealthDataProvider = ({ children }) => {
             country: profileData.country || 'India',
             occupation: profileData.occupation || '',
             primaryPhysician: profileData.primary_physician || '',
-            profileCompleted: true
+            profileCompleted: profileData.profile_completed ?? true
           };
 
           setUserProfile(syncedUser);
@@ -194,10 +196,10 @@ export const HealthDataProvider = ({ children }) => {
           name: data.user.full_name || email.split('@')[0],
           email: data.user.email,
           phone: data.user.phone || '',
-          profileCompleted: true
+          profileCompleted: data.user.profile_completed ?? true
         };
       } else {
-        throw new Error(data.error || "Login failed.");
+        throw new Error(data.error || "Invalid email or password.");
       }
     } catch (err) {
       setLoadingData(false);
@@ -242,7 +244,7 @@ export const HealthDataProvider = ({ children }) => {
           id: data.user.id || data.user._id,
           name: data.user.full_name || name,
           email: data.user.email || email,
-          profileCompleted: false
+          profileCompleted: true
         };
       } else {
         throw new Error(data.error || "Registration failed.");
@@ -468,6 +470,8 @@ export const HealthDataProvider = ({ children }) => {
       value={{
         language,
         setLanguage,
+        isAuthenticated,
+        loadingAuth: loadingData,
         token,
         userProfile,
         setUserProfile,
