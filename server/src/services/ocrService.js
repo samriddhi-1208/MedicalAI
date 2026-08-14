@@ -1,5 +1,5 @@
 /**
- * Dynamic OCR & AI Biomarker Extraction Engine
+ * Dynamic OCR & AI Biomarker and Medication Extraction Engine
  * Parses uploaded lab report PDF/Image files and calls AI Service (Gemini API or Text OCR Engine)
  */
 
@@ -46,6 +46,23 @@ exports.processReportFile = async (fileObj) => {
     };
   });
 
+  const extractedMedications = (aiAnalysis.medications || []).map((m, idx) => ({
+    id: `extracted-med-${Date.now()}-${idx}`,
+    medicineName: m.medicineName || m.name || "Prescribed Medicine",
+    genericName: m.genericName || m.medicineName || "",
+    dose: m.dose || m.dosage || "1 tablet",
+    quantity: m.quantity || "1 tablet",
+    frequency: m.frequency || "Once daily",
+    timing: m.timing || "",
+    hasExactTime: Boolean(m.hasExactTime),
+    mealRelation: m.mealRelation || "After meal",
+    mealType: m.mealType || "Lunch",
+    delayMinutes: m.delayMinutes || 30,
+    duration: m.duration || "5 days",
+    durationDays: m.durationDays || 5,
+    specialInstructions: m.specialInstructions || ""
+  }));
+
   const hasWarning = biomarkers.some(b => b.statusType === 'warning');
 
   return {
@@ -57,7 +74,8 @@ exports.processReportFile = async (fileObj) => {
     status: hasWarning ? "Attention Needed" : "Optimal",
     statusType: hasWarning ? "warning" : "normal",
     biomarkers,
-    aiSummary: aiAnalysis.summary || `Extracted ${biomarkers.length} biomarker parameters directly from ${fileObj.originalname}.`,
+    extractedMedications,
+    aiSummary: aiAnalysis.summary || `Extracted ${biomarkers.length} biomarker parameters and ${extractedMedications.length} medication instructions from ${fileObj.originalname}.`,
     keyFindings: aiAnalysis.keyFindings || biomarkers.map(b => `${b.name} measured at ${b.value} ${b.unit}`),
     recommendations: aiAnalysis.recommendations || {
       lifestyle: ["Maintain balanced daily nutrition and adequate hydration."],

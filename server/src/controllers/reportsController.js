@@ -122,6 +122,7 @@ exports.uploadReport = async (req, res, next) => {
       status: newReport.status_flag,
       statusType: ocrResult.statusType || 'normal',
       biomarkers: ocrResult.biomarkers || [],
+      extractedMedications: ocrResult.extractedMedications || [],
       aiSummary: ocrResult.aiSummary,
       keyFindings: ocrResult.keyFindings || [],
       recommendations: ocrResult.recommendations || { lifestyle: [], medical: [] }

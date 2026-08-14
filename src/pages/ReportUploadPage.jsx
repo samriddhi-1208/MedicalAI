@@ -11,7 +11,11 @@ import {
   RefreshCw,
   ArrowRight,
   Info,
-  AlertTriangle
+  AlertTriangle,
+  Pill,
+  Clock,
+  Edit2,
+  Trash2
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
@@ -19,10 +23,11 @@ import { getTranslation } from '../utils/translations';
 import { analyzeUploadedDocument } from '../utils/reportParser';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
+import { Modal } from '../components/ui/Modal';
 
 export const ReportUploadPage = () => {
   const navigate = useNavigate();
-  const { addReport, userProfile, language } = useHealthData();
+  const { addReport, addMedicine, medicines, userProfile, language } = useHealthData();
   const t = (key) => getTranslation(language, key);
 
   const [selectedFile, setSelectedFile] = useState(null);
@@ -31,6 +36,21 @@ export const ReportUploadPage = () => {
   const [progress, setProgress] = useState(0);
   const [processingStatus, setProcessingStatus] = useState('');
   const [extractionError, setExtractionError] = useState(null);
+
+  // Verification Modal State for Extracted Medications
+  const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
+  const [pendingMedications, setPendingMedications] = useState([]);
+  const [editingMedIndex, setEditingMedIndex] = useState(null);
+  const [editFormData, setEditFormData] = useState({
+    medicineName: '',
+    dose: '1 tablet',
+    frequency: 'Once daily',
+    timing: '08:00 AM',
+    mealRelation: 'After meal',
+    mealType: 'Lunch',
+    delayMinutes: '30',
+    duration: '5 days'
+  });
 
   const handleDrag = (e) => {
     e.preventDefault();
@@ -79,8 +99,8 @@ export const ReportUploadPage = () => {
     setProcessingStatus("Reading document stream...");
 
     try {
-      setTimeout(() => { setProgress(45); setProcessingStatus("Extracting raw biomarkers & values (100% Dynamic Engine)..."); }, 600);
-      setTimeout(() => { setProgress(75); setProcessingStatus("Segmenting lab test rows & clinical reference ranges..."); }, 1200);
+      setTimeout(() => { setProgress(45); setProcessingStatus("Extracting raw biomarkers & medication instructions..."); }, 400);
+      setTimeout(() => { setProgress(75); setProcessingStatus("Segmenting lab test rows & clinical reference ranges..."); }, 800);
 
       // Perform 100% dynamic parsing on uploaded file
       const parsedData = await analyzeUploadedDocument(selectedFile);
@@ -89,14 +109,106 @@ export const ReportUploadPage = () => {
       // Add parsed report to context
       addReport(parsedData);
 
-      toast.success("✓ Medical document analyzed successfully!");
-      navigate('/app/analysis');
+      const extractedMeds = Array.isArray(parsedData.extractedMedications) ? parsedData.extractedMedications : [];
+
+      if (extractedMeds.length > 0) {
+        setPendingMedications(extractedMeds);
+        setIsVerificationModalOpen(true);
+        setUploading(false);
+      } else {
+        toast.success("✓ Report analyzed successfully. No medication instructions were found in this report.");
+        navigate('/app/analysis');
+      }
     } catch (err) {
       console.error(err);
       setUploading(false);
       setExtractionError("Failed to extract data from document. Please ensure file is a clear lab report.");
       toast.error("Document parsing failed.");
     }
+  };
+
+  const handleRemovePendingMed = (index) => {
+    setPendingMedications(prev => prev.filter((_, idx) => idx !== index));
+    toast.success("Medication removed from verification list.");
+  };
+
+  const handleOpenEditMed = (med, index) => {
+    setEditingMedIndex(index);
+    setEditFormData({
+      medicineName: med.medicineName || '',
+      dose: med.dose || '1 tablet',
+      frequency: med.frequency || 'Once daily',
+      timing: med.timing || med.scheduled_time || '08:00 AM',
+      mealRelation: med.mealRelation || 'After meal',
+      mealType: med.mealType || 'Lunch',
+      delayMinutes: String(med.delayMinutes || 30),
+      duration: med.duration || '5 days'
+    });
+  };
+
+  const handleSaveMedEdit = (e) => {
+    e.preventDefault();
+    if (editingMedIndex === null) return;
+
+    setPendingMedications(prev => prev.map((m, idx) => {
+      if (idx === editingMedIndex) {
+        return {
+          ...m,
+          medicineName: editFormData.medicineName,
+          dose: editFormData.dose,
+          frequency: editFormData.frequency,
+          timing: editFormData.timing,
+          scheduled_time: editFormData.timing,
+          mealRelation: editFormData.mealRelation,
+          mealType: editFormData.mealType,
+          delayMinutes: Number(editFormData.delayMinutes),
+          duration: editFormData.duration,
+          hasExactTime: true
+        };
+      }
+      return m;
+    }));
+
+    setEditingMedIndex(null);
+    toast.success("Medication details updated.");
+  };
+
+  const handleConfirmAllReminders = async () => {
+    if (pendingMedications.length === 0) {
+      setIsVerificationModalOpen(false);
+      navigate('/app/analysis');
+      return;
+    }
+
+    for (const med of pendingMedications) {
+      const scheduledTime = med.timing || med.scheduled_time || (med.mealRelation === 'After meal' ? '01:30 PM' : '08:00 AM');
+      const durDays = parseInt(med.duration || med.durationDays || 5) || 5;
+
+      const startDate = new Date();
+      const endDate = new Date();
+      endDate.setDate(startDate.getDate() + durDays);
+
+      await addMedicine({
+        name: med.medicineName,
+        dose: med.dose,
+        dosage: med.dose,
+        frequency: med.frequency,
+        scheduled_time: scheduledTime,
+        time: scheduledTime,
+        mealRelation: med.mealRelation,
+        mealType: med.mealType,
+        delayMinutes: med.delayMinutes || 30,
+        duration_days: durDays,
+        start_date: startDate.toISOString().split('T')[0],
+        end_date: endDate.toISOString().split('T')[0],
+        purpose: "Prescribed Medication",
+        instructions: med.specialInstructions || `Extracted from uploaded report`
+      });
+    }
+
+    setIsVerificationModalOpen(false);
+    toast.success(`✓ Created ${pendingMedications.length} medicine reminder(s)!`);
+    navigate('/app/dashboard');
   };
 
   return (
@@ -216,6 +328,141 @@ export const ReportUploadPage = () => {
           {t('mandatoryDisclaimer')}
         </p>
       </div>
+
+      {/* REQUIREMENT 4 & 5: EXTRACTED MEDICATION VERIFICATION SCREEN */}
+      <Modal
+        isOpen={isVerificationModalOpen}
+        onClose={() => setIsVerificationModalOpen(false)}
+        title="Medication Instructions Found in Report"
+      >
+        <div className="space-y-4 text-xs font-sans">
+          <div className="p-3.5 rounded-xl bg-[#EBF6F8] border border-[#2D90A6]/30 text-[#1A4B84] flex items-center gap-3">
+            <Pill className="w-6 h-6 text-[#2D90A6] shrink-0" />
+            <div>
+              <p className="font-extrabold text-sm">Verify Extracted Medication Instructions</p>
+              <p className="text-[11px] text-slate-600 font-normal">
+                We detected {pendingMedications.length} prescription instruction(s) in your document. Review dosage and reminder times before creating reminders.
+              </p>
+            </div>
+          </div>
+
+          {/* Medication Cards List */}
+          <div className="space-y-3 max-h-[340px] overflow-y-auto pr-1">
+            {pendingMedications.map((med, idx) => (
+              <Card key={med.id || idx} className="p-4 border border-slate-200 bg-white space-y-2.5 rounded-xl shadow-xs">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h4 className="font-extrabold text-sm text-[#1A4B84] flex items-center gap-1.5">
+                      💊 {med.medicineName}
+                    </h4>
+                    <p className="text-xs text-slate-500 font-medium">{med.dose} • {med.quantity}</p>
+                  </div>
+
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => handleOpenEditMed(med, idx)}
+                      className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 text-[11px] font-bold cursor-pointer inline-flex items-center gap-1"
+                    >
+                      <Edit2 className="w-3 h-3 text-[#2D90A6]" /> Edit
+                    </button>
+                    <button
+                      onClick={() => handleRemovePendingMed(idx)}
+                      className="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-700 hover:bg-rose-100 text-[11px] font-bold cursor-pointer inline-flex items-center gap-1"
+                    >
+                      <Trash2 className="w-3 h-3 text-[#DC2626]" /> Remove
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 p-2.5 rounded-lg bg-slate-50 border border-slate-200/80 text-[11px]">
+                  <p><span className="text-slate-500">Frequency:</span> <strong className="text-[#1A4B84] font-bold">{med.frequency}</strong></p>
+                  <p><span className="text-slate-500">Meal Relation:</span> <strong className="text-slate-800 font-semibold">{med.mealRelation} ({med.mealType})</strong></p>
+                  <p><span className="text-slate-500">Duration:</span> <strong className="text-slate-800 font-semibold">{med.duration}</strong></p>
+                  <p><span className="text-slate-500">Scheduled Time:</span> <strong className="text-[#2D90A6] font-bold">{med.timing || med.scheduled_time || '08:00 AM'}</strong></p>
+                </div>
+
+                {/* REQUIREMENT 3 & 6: Missing exact time prompt */}
+                {!med.hasExactTime && (
+                  <div className="p-2 rounded-lg bg-amber-50 border border-amber-200 text-[11px] text-amber-900 font-medium flex items-center justify-between">
+                    <span>Exact time not in report. Select reminder time:</span>
+                    <input
+                      type="text"
+                      value={med.timing || med.scheduled_time || '08:00 AM'}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setPendingMedications(prev => prev.map((m, i) => i === idx ? { ...m, timing: val, scheduled_time: val, hasExactTime: true } : m));
+                      }}
+                      className="px-2 py-0.5 rounded bg-white border border-amber-300 font-bold text-slate-800 w-24 text-center"
+                    />
+                  </div>
+                )}
+              </Card>
+            ))}
+          </div>
+
+          {/* Edit Individual Medication Form inside Verification Modal */}
+          {editingMedIndex !== null && (
+            <form onSubmit={handleSaveMedEdit} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+              <h5 className="font-extrabold text-xs text-[#1A4B84]">Edit {editFormData.medicineName} Details</h5>
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  type="text"
+                  value={editFormData.medicineName}
+                  onChange={(e) => setEditFormData({ ...editFormData, medicineName: e.target.value })}
+                  placeholder="Medicine Name"
+                  className="med-input text-xs"
+                />
+                <input
+                  type="text"
+                  value={editFormData.dose}
+                  onChange={(e) => setEditFormData({ ...editFormData, dose: e.target.value })}
+                  placeholder="Dose (e.g. 500 mg)"
+                  className="med-input text-xs"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  type="text"
+                  value={editFormData.timing}
+                  onChange={(e) => setEditFormData({ ...editFormData, timing: e.target.value })}
+                  placeholder="Reminder Time (e.g. 08:00 AM)"
+                  className="med-input text-xs"
+                />
+                <select
+                  value={editFormData.mealRelation}
+                  onChange={(e) => setEditFormData({ ...editFormData, mealRelation: e.target.value })}
+                  className="med-input text-xs"
+                >
+                  <option value="After meal">After meal</option>
+                  <option value="Before meal">Before meal</option>
+                  <option value="With meal">With meal</option>
+                  <option value="No meal relation">No meal relation</option>
+                </select>
+              </div>
+              <div className="flex justify-end gap-2 pt-1">
+                <Button size="sm" variant="secondary" type="button" onClick={() => setEditingMedIndex(null)}>Cancel</Button>
+                <Button size="sm" variant="primary" type="submit" className="bg-[#1A4B84]">Save Edit</Button>
+              </div>
+            </form>
+          )}
+
+          {/* Confirmation Action Button */}
+          <div className="flex justify-end gap-2 pt-3 border-t border-slate-200">
+            <Button variant="secondary" size="sm" onClick={() => navigate('/app/analysis')}>
+              Skip & View Analysis
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              icon={CheckCircle2}
+              onClick={handleConfirmAllReminders}
+              className="bg-[#1A4B84] hover:bg-[#143A66] py-2.5 px-6 font-bold text-xs cursor-pointer shadow-xs"
+            >
+              Confirm & Set Reminders
+            </Button>
+          </div>
+        </div>
+      </Modal>
 
     </div>
   );

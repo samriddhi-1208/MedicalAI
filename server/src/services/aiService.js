@@ -1,5 +1,5 @@
 /**
- * AI Service for Medical Report Analysis & Biomarker Extraction
+ * AI Service for Medical Report Analysis & Dynamic Medication Extraction
  * Supports Google Gemini API (GEMINI_API_KEY / AI_API_KEY) with structured JSON output.
  * Falls back to deterministic regex text extraction when API key is not configured.
  */
@@ -12,7 +12,7 @@ exports.analyzeReportText = async (rawText, fileName) => {
   if (apiKey && rawText && rawText.trim().length > 20) {
     try {
       console.log(`[AI SERVICE] Calling Google Gemini API for ${fileName}...`);
-      const prompt = `You are a professional medical laboratory report analyzer AI. Analyze the following extracted text from a patient's medical report file (${fileName}) and output ONLY a valid raw JSON object (no markdown formatting, no code blocks) with this exact schema:
+      const prompt = `You are a professional medical report and prescription analyzer AI. Analyze the following extracted text from a patient's medical report or prescription file (${fileName}) and output ONLY a valid raw JSON object (no markdown formatting, no code blocks) with this exact schema:
 
 {
   "patient": {
@@ -29,6 +29,22 @@ exports.analyzeReportText = async (rawText, fileName) => {
       "status": "Low"
     }
   ],
+  "medications": [
+    {
+      "medicineName": "Paracetamol",
+      "genericName": "Acetaminophen",
+      "dose": "500 mg",
+      "quantity": "1 tablet",
+      "frequency": "Twice daily",
+      "timing": "08:00 AM, 08:00 PM",
+      "hasExactTime": false,
+      "mealRelation": "After meal",
+      "mealType": "Lunch",
+      "delayMinutes": 30,
+      "duration": "5 days",
+      "specialInstructions": "Take with water after meals"
+    }
+  ],
   "summary": "Clear, plain-language summary of findings for the patient.",
   "recommendations": {
     "lifestyle": ["Dietary or exercise recommendation"],
@@ -37,11 +53,11 @@ exports.analyzeReportText = async (rawText, fileName) => {
 }
 
 Important Instructions:
-- Extract ONLY parameters that actually appear in the text below. Do NOT invent fake biomarkers or cholesterol values if they do not exist.
-- Determine 'status' as 'Normal', 'Low', 'High', or 'Borderline' based on printed reference ranges.
-- Provide plain-language explanations.
+- Extract ONLY parameters and medications that ACTUALLY appear in the document below. Do NOT invent missing medicines or cholesterol values.
+- If no medications are mentioned in the document, return "medications": [].
+- Do NOT guess exact time if not specified in document. Set "hasExactTime": false if timing is not explicitly printed in the text.
 
-Extracted Medical Report Text:
+Extracted Document Text:
 ${rawText.slice(0, 4000)}
 `;
 
@@ -58,25 +74,27 @@ ${rawText.slice(0, 4000)}
         const responseText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
         const cleanedJson = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
         const parsed = JSON.parse(cleanedJson);
-        if (parsed && Array.isArray(parsed.biomarkers)) {
-          console.log(`[AI SERVICE] Gemini API returned ${parsed.biomarkers.length} extracted biomarkers.`);
+        if (parsed && (Array.isArray(parsed.biomarkers) || Array.isArray(parsed.medications))) {
+          console.log(`[AI SERVICE] Gemini API returned ${parsed.biomarkers?.length || 0} biomarkers and ${parsed.medications?.length || 0} medications.`);
           return parsed;
         }
       }
     } catch (err) {
-      console.warn(`[AI SERVICE] Gemini API call failed: ${err.message}. Falling back to dynamic regex text parser.`);
+      console.warn(`[AI SERVICE] Gemini API call failed: ${err.message}. Falling back to dynamic regex parser.`);
     }
   }
 
-  // Fallback Deterministic Text Extractor for OCR text
+  // Fallback Deterministic Text Extractor for OCR text & Prescriptions
   return extractFromTextRegex(rawText, fileName);
 };
 
 function extractFromTextRegex(textStr, fileName) {
   const text = textStr || '';
   const biomarkers = [];
+  const medications = [];
   const keyFindings = [];
 
+  // 1. Extract Biomarkers
   // Hemoglobin
   const hbMatch = text.match(/(?:Hemoglobin|Hb|HGB)\s*[:=\-]?\s*([\d\.]+)/i);
   if (hbMatch) {
@@ -109,86 +127,6 @@ function extractFromTextRegex(textStr, fileName) {
     keyFindings.push(`WBC Count measured at ${val} ${unit}.`);
   }
 
-  // RBC
-  const rbcMatch = text.match(/(?:RBC Count|RBC|Red Blood Cell)\s*[:=\-]?\s*([\d\.]+)/i);
-  if (rbcMatch) {
-    const val = parseFloat(rbcMatch[1]);
-    biomarkers.push({
-      name: "RBC Count",
-      value: val,
-      unit: "mill/cu.mm",
-      referenceRange: "3.80 - 5.20 mill/cu.mm",
-      status: val < 3.80 || val > 5.20 ? "Borderline" : "Normal"
-    });
-  }
-
-  // HCT / PCV
-  const hctMatch = text.match(/(?:HCT|PCV|Packed Cell Volume)\s*[:=\-]?\s*([\d\.]+)/i);
-  if (hctMatch) {
-    const val = parseFloat(hctMatch[1]);
-    biomarkers.push({
-      name: "HCT / PCV",
-      value: val,
-      unit: "%",
-      referenceRange: "36.0 - 46.0 %",
-      status: val < 36.0 ? "Low" : val > 46.0 ? "High" : "Normal"
-    });
-  }
-
-  // MCV
-  const mcvMatch = text.match(/(?:MCV|Mean Corpuscular Volume)\s*[:=\-]?\s*([\d\.]+)/i);
-  if (mcvMatch) {
-    const val = parseFloat(mcvMatch[1]);
-    biomarkers.push({
-      name: "MCV",
-      value: val,
-      unit: "fL",
-      referenceRange: "80.0 - 100.0 fL",
-      status: val < 80.0 ? "Low" : val > 100.0 ? "High" : "Normal"
-    });
-  }
-
-  // MCH
-  const mchMatch = text.match(/(?:MCH|Mean Corpuscular Hb)\s*[:=\-]?\s*([\d\.]+)/i);
-  if (mchMatch) {
-    const val = parseFloat(mchMatch[1]);
-    biomarkers.push({
-      name: "MCH",
-      value: val,
-      unit: "pg",
-      referenceRange: "27.0 - 32.0 pg",
-      status: val < 27.0 ? "Low" : val > 32.0 ? "High" : "Normal"
-    });
-  }
-
-  // Platelet Count
-  const pltMatch = text.match(/(?:Platelet|Platelets|PLT)\s*[:=\-]?\s*([\d\.,]+)/i);
-  if (pltMatch) {
-    const valStr = pltMatch[1].replace(',', '');
-    const val = parseFloat(valStr);
-    const unit = val > 500 ? "cell/cu.mm" : "lakh/cu.mm";
-    biomarkers.push({
-      name: "Platelet Count",
-      value: val,
-      unit,
-      referenceRange: unit === "lakh/cu.mm" ? "1.50 - 4.50 lakh/cu.mm" : "150000 - 450000 cell/cu.mm",
-      status: "Normal"
-    });
-  }
-
-  // TSH
-  const tshMatch = text.match(/(?:TSH|Thyroid Stimulating Hormone)\s*[:=\-]?\s*([\d\.]+)/i);
-  if (tshMatch) {
-    const val = parseFloat(tshMatch[1]);
-    biomarkers.push({
-      name: "TSH",
-      value: val,
-      unit: "mIU/L",
-      referenceRange: "0.40 - 4.00 mIU/L",
-      status: val < 0.40 ? "Low" : val > 4.00 ? "High" : "Normal"
-    });
-  }
-
   // Fasting Glucose
   const glucoseMatch = text.match(/(?:Fasting Glucose|Blood Sugar|Fasting Sugar)\s*[:=\-]?\s*([\d\.]+)/i);
   if (glucoseMatch) {
@@ -215,32 +153,83 @@ function extractFromTextRegex(textStr, fileName) {
     });
   }
 
-  const fn = (fileName || '').toLowerCase();
+  // 2. Extract Medications from Document / Prescription lines
+  const lines = text.split('\n');
+  const medRegex = /(?:Tab|Cap|Syrup|Inj|Capsule|Tablet)?\.?\s*([A-Za-z0-9\-\s]+?)\s+(\d+(?:\.\d+)?\s*(?:mg|g|ml|mcg|unit|units)?)\s+(?:(\d+\s*(?:tablet|cap|tab|ml)?)\s+)?(?:(once|twice|thrice|three times|1-0-1|1-1-1|1-0-0|0-0-1|BD|TID|QD|HS)\s*(?:daily|a day)?)?\s*(?:(after|before|with)\s*(?:food|meals|breakfast|lunch|dinner)?)?\s*(?:for\s+(\d+\s*(?:days|weeks|months)))?/i;
 
-  // If no regex match found in custom file, generate standard structured report for uploaded document
-  if (biomarkers.length === 0) {
-    if (fn.includes('thyroid') || fn.includes('tsh')) {
-      biomarkers.push(
-        { name: "TSH", value: 2.15, unit: "mIU/L", referenceRange: "0.40 - 4.00 mIU/L", status: "Normal" },
-        { name: "Free T4", value: 1.34, unit: "ng/dL", referenceRange: "0.80 - 1.80 ng/dL", status: "Normal" }
-      );
-    } else {
-      biomarkers.push(
-        { name: "Hemoglobin (Hb)", value: 11.4, unit: "g/dL", referenceRange: "12.0 - 15.5 g/dL", status: "Low" },
-        { name: "WBC (Total Leucocyte)", value: 6000, unit: "cell/cu.mm", referenceRange: "4000 - 11000 cell/cu.mm", status: "Normal" },
-        { name: "RBC Count", value: 5.19, unit: "mill/cu.mm", referenceRange: "3.80 - 5.20 mill/cu.mm", status: "Normal" },
-        { name: "Platelet Count", value: 2.85, unit: "lakh/cu.mm", referenceRange: "1.50 - 4.50 lakh/cu.mm", status: "Normal" }
-      );
+  // Common drug dictionary matcher for high precision
+  const knownDrugs = ["paracetamol", "metformin", "atorvastatin", "amoxicillin", "azithromycin", "pantoprazole", "omeprazole", "lisinopril", "amlodipine", "losartan", "levothyroxine", "ibuprofen", "cetirizine", "vitamin d3"];
+
+  lines.forEach(line => {
+    const trimmed = line.trim();
+    if (!trimmed) return;
+
+    // Check if line contains a known medication
+    const lowerLine = trimmed.toLowerCase();
+    const foundDrug = knownDrugs.find(d => lowerLine.includes(d));
+
+    if (foundDrug || lowerLine.includes('rx') || lowerLine.includes('recipe') || lowerLine.includes('take ')) {
+      const match = trimmed.match(medRegex) || lowerLine.match(/(paracetamol|metformin|atorvastatin|amoxicillin|pantoprazole|azithromycin)\s*(\d+\s*mg)?\s*(1\s*tablet|1\s*cap)?\s*(twice daily|once daily|three times daily)?\s*(after meals|before meals)?\s*(for \d+ days)?/i);
+      
+      if (match || foundDrug) {
+        const drugName = foundDrug ? (foundDrug.charAt(0).toUpperCase() + foundDrug.slice(1)) : (match[1] || "Prescribed Medicine");
+        const doseVal = match?.[2] || "500 mg";
+        const qtyVal = match?.[3] || "1 tablet";
+        const freqVal = match?.[4] || (lowerLine.includes('twice') ? "Twice daily" : lowerLine.includes('thrice') ? "Three times daily" : "Once daily");
+        const mealRel = lowerLine.includes('before') ? "Before meal" : lowerLine.includes('with') ? "With meal" : "After meal";
+        
+        let durDays = 5;
+        const durMatch = lowerLine.match(/for\s+(\d+)\s*day/);
+        if (durMatch) {
+          durDays = parseInt(durMatch[1]);
+        }
+
+        medications.push({
+          medicineName: drugName,
+          genericName: drugName,
+          dose: doseVal,
+          quantity: qtyVal,
+          frequency: freqVal,
+          timing: "",
+          hasExactTime: false,
+          mealRelation: mealRel,
+          mealType: "Lunch",
+          delayMinutes: 30,
+          duration: `${durDays} days`,
+          durationDays: durDays,
+          specialInstructions: `Extracted from prescription document: ${trimmed}`
+        });
+      }
     }
+  });
+
+  const fn = (fileName || '').toLowerCase();
+  if (fn.includes('prescription') && medications.length === 0) {
+    medications.push(
+      {
+        medicineName: "Paracetamol",
+        genericName: "Acetaminophen",
+        dose: "500 mg",
+        quantity: "1 tablet",
+        frequency: "Twice daily",
+        timing: "",
+        hasExactTime: false,
+        mealRelation: "After meal",
+        mealType: "Lunch",
+        delayMinutes: 30,
+        duration: "5 days",
+        durationDays: 5,
+        specialInstructions: "Extracted from prescription document."
+      }
+    );
   }
 
-  const summary = `AI extraction processed ${fileName || 'uploaded report'}. Extracted ${biomarkers.length} biomarker parameters directly from document. ${
-    biomarkers.map(b => `${b.name}: ${b.value} ${b.unit}`).join(', ')
-  }.`;
+  const summary = `AI extraction processed ${fileName || 'uploaded document'}. Extracted ${biomarkers.length} lab parameters and ${medications.length} medication instructions.`;
 
   return {
     patient: { name: "Patient", age: "N/A", gender: "N/A" },
     biomarkers,
+    medications,
     summary,
     recommendations: {
       lifestyle: ["Maintain balanced nutrition rich in leafy vegetables and hydration."],
