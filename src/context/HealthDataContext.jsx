@@ -3,11 +3,26 @@ import toast from 'react-hot-toast';
 import confetti from 'canvas-confetti';
 
 const HealthDataContext = createContext();
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+// Dynamic API Base URL Sanitizer (Guarantees valid /api endpoint regardless of environment variable format)
+const rawApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+let cleanUrl = rawApiUrl.trim().replace(/\/+$/, '');
+if (!cleanUrl.endsWith('/api')) {
+  cleanUrl = cleanUrl + '/api';
+}
+const API_BASE = cleanUrl;
 
 function getAuthHeaders() {
   const token = localStorage.getItem('medguardian_token');
   return token ? { 'Authorization': `Bearer ${token}` } : {};
+}
+
+async function safeParseJson(res) {
+  const contentType = res.headers.get('content-type') || '';
+  if (contentType.includes('application/json')) {
+    return await res.json();
+  }
+  throw new Error(`Backend API returned unexpected non-JSON response (${res.status}). Please check Render backend deployment status.`);
 }
 
 export const HealthDataProvider = ({ children }) => {
@@ -69,7 +84,7 @@ export const HealthDataProvider = ({ children }) => {
         // 1. Verify session & profile
         const profileRes = await fetch(`${API_BASE}/auth/me`, { headers });
         if (profileRes.ok) {
-          const profileData = await profileRes.json();
+          const profileData = await safeParseJson(profileRes);
           const syncedUser = {
             id: profileData.id || profileData._id,
             name: profileData.full_name || profileData.name,
@@ -97,7 +112,7 @@ export const HealthDataProvider = ({ children }) => {
           // 2. Fetch authenticated user's reports from backend (EXCLUSIVELY scoped to req.user.id)
           const rRes = await fetch(`${API_BASE}/reports`, { headers });
           if (rRes.ok) {
-            const rData = await rRes.json();
+            const rData = await safeParseJson(rRes);
             const safeReports = Array.isArray(rData) ? rData : [];
             setReports(safeReports);
             if (syncedUser.id) {
@@ -108,7 +123,7 @@ export const HealthDataProvider = ({ children }) => {
           // 3. Fetch authenticated user's medicines from backend (EXCLUSIVELY scoped to req.user.id)
           const mRes = await fetch(`${API_BASE}/medicines`, { headers });
           if (mRes.ok) {
-            const mData = await mRes.json();
+            const mData = await safeParseJson(mRes);
             const safeMeds = (Array.isArray(mData) ? mData : []).map(m => ({
               id: m.id || m._id,
               name: m.name,
@@ -133,7 +148,7 @@ export const HealthDataProvider = ({ children }) => {
           // 4. Fetch authenticated user's emergency contacts
           const cRes = await fetch(`${API_BASE}/sos/contacts`, { headers });
           if (cRes.ok) {
-            const cData = await cRes.json();
+            const cData = await safeParseJson(cRes);
             setEmergencyContacts(Array.isArray(cData) ? cData : []);
           }
         } else if (profileRes.status === 401) {
@@ -170,8 +185,9 @@ export const HealthDataProvider = ({ children }) => {
         body: JSON.stringify({ email, password })
       });
 
+      const data = await safeParseJson(res);
+
       if (res.ok) {
-        const data = await res.json();
         authToken = data.token;
         userObj = {
           id: data.user.id || data.user._id,
@@ -181,7 +197,6 @@ export const HealthDataProvider = ({ children }) => {
           profileCompleted: true
         };
       } else {
-        const data = await res.json();
         throw new Error(data.error || "Login failed.");
       }
     } catch (err) {
@@ -219,8 +234,9 @@ export const HealthDataProvider = ({ children }) => {
         body: JSON.stringify({ name, email, password })
       });
 
+      const data = await safeParseJson(res);
+
       if (res.ok) {
-        const data = await res.json();
         authToken = data.token;
         userObj = {
           id: data.user.id || data.user._id,
@@ -229,7 +245,6 @@ export const HealthDataProvider = ({ children }) => {
           profileCompleted: false
         };
       } else {
-        const data = await res.json();
         throw new Error(data.error || "Registration failed.");
       }
     } catch (err) {
@@ -342,7 +357,7 @@ export const HealthDataProvider = ({ children }) => {
         body: JSON.stringify(medData)
       });
       if (res.ok) {
-        const created = await res.json();
+        const created = await safeParseJson(res);
         const formatted = {
           id: created.id || created._id,
           name: created.name,
