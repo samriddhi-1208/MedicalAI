@@ -209,37 +209,48 @@ export const DashboardPage = () => {
         </Card>
       )}
 
-      {/* MEDICAL DASHBOARD METRICS: SHOWN ONLY WHEN REAL REPORTS EXIST */}
+      {/* MEDICAL DASHBOARD METRICS: ALL EXTRACTED BIOMARKERS SHOWN FOR RETURNING USER */}
       {hasReports && !loadingData && (
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-extrabold text-[#1A4B84]">{t('healthMetrics')}</h2>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <h2 className="text-lg font-extrabold text-[#1A4B84]">{t('healthMetrics')}</h2>
+              <p className="text-xs text-slate-500 font-medium">
+                Based on your uploaded report ({latestReport?.title || 'Medical Report'} — <span className="font-bold text-slate-800">{latestReport?.date || latestReport?.report_date || 'Recent'}</span>)
+              </p>
+            </div>
+
             <button 
               onClick={() => navigate('/app/analysis')}
-              className="text-xs font-bold text-[#2D90A6] hover:underline flex items-center gap-1 cursor-pointer"
+              className="text-xs font-bold text-[#2D90A6] hover:underline flex items-center gap-1 cursor-pointer shrink-0"
             >
               <span>{t('viewAllTrends')}</span> <TrendingUp className="w-3.5 h-3.5" />
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {extractedBiomarkers.length > 0 ? (
-              extractedBiomarkers.slice(0, 3).map((bm, index) => (
-                <HealthMetricCard 
-                  key={bm.id || index}
-                  name={bm.name}
-                  value={bm.value}
-                  unit={bm.unit}
-                  status={bm.status || 'Normal'}
-                  statusType={bm.status?.toLowerCase().includes('high') || bm.status?.toLowerCase().includes('low') ? 'warning' : 'normal'}
-                  statusSymbol={bm.status?.toLowerCase().includes('high') ? '▲' : bm.status?.toLowerCase().includes('low') ? '▼' : '✓'}
-                  refRange={bm.refRange || bm.reference_range || 'Standard'}
-                  trend="stable"
-                />
-              ))
+              extractedBiomarkers.map((bm, index) => {
+                const statusVal = bm.status || bm.status_flag || 'Normal';
+                const isWarning = String(statusVal).toLowerCase().includes('high') || String(statusVal).toLowerCase().includes('low') || String(statusVal).toLowerCase().includes('warning') || String(statusVal).toLowerCase().includes('borderline');
+                
+                return (
+                  <HealthMetricCard 
+                    key={bm.id || index}
+                    name={bm.name || bm.biomarker_name}
+                    value={bm.value}
+                    unit={bm.unit}
+                    status={statusVal}
+                    statusType={isWarning ? 'warning' : 'normal'}
+                    statusSymbol={String(statusVal).toLowerCase().includes('high') ? '▲' : String(statusVal).toLowerCase().includes('low') ? '▼' : '✓'}
+                    refRange={bm.refRange || bm.referenceRange || bm.reference_range || 'Standard'}
+                    trend="stable"
+                  />
+                );
+              })
             ) : (
-              <div className="col-span-3 p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-500 font-medium text-center">
-                Report parsed. View details in AI Diagnostic Analysis.
+              <div className="col-span-4 p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-500 font-medium text-center">
+                Report parsed successfully. View full diagnostic analysis.
               </div>
             )}
           </div>
@@ -262,7 +273,7 @@ export const DashboardPage = () => {
             />
           ) : null}
 
-          {/* REQUIREMENT 16: TODAY'S MEDICINES DASHBOARD WIDGET */}
+          {/* TODAY'S MEDICINES DASHBOARD WIDGET */}
           <Card className="p-5 space-y-4 bg-white border border-slate-200 rounded-2xl shadow-xs">
             <div className="flex items-center justify-between">
               <h3 className="text-base font-extrabold text-[#1A4B84] flex items-center gap-2">
