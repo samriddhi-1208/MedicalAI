@@ -4,7 +4,7 @@ import confetti from 'canvas-confetti';
 import { MOCK_REPORTS } from '../data/mockData';
 
 const HealthDataContext = createContext();
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 function getAuthHeaders() {
   const token = localStorage.getItem('medguardian_token');
