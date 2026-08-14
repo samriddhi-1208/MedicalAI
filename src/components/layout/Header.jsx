@@ -52,17 +52,17 @@ export const Header = ({ collapsed }) => {
 
   return (
     <header
-      className={`fixed top-0 right-0 z-20 h-16 bg-white border-b border-slate-200 transition-all duration-200 flex items-center justify-between px-4 sm:px-6 shadow-2xs ${
+      className={`fixed top-0 right-0 z-20 h-16 bg-white border-b border-slate-200 transition-all duration-200 flex items-center justify-between px-2.5 sm:px-6 shadow-2xs ${
         collapsed ? 'md:left-20' : 'md:left-64'
-      } left-0`}
+      } left-0 overflow-x-hidden`}
     >
-      {/* Left Info */}
-      <div className="flex items-center gap-3 min-w-0">
+      {/* Left Title & Info */}
+      <div className="flex items-center gap-2 min-w-0 flex-1">
         <div className="min-w-0">
-          <h1 className="text-base sm:text-lg font-bold text-[#1A4B84] leading-tight truncate tracking-tight">
+          <h1 className="text-sm sm:text-lg font-bold text-[#1A4B84] leading-tight truncate tracking-tight max-w-[120px] sm:max-w-none">
             {getPageTitle(location.pathname)}
           </h1>
-          <p className="text-xs font-medium text-slate-500 hidden sm:block truncate mt-0.5">
+          <p className="text-xs font-medium text-slate-500 hidden md:block truncate mt-0.5">
             {t('patient')}: <span className="font-bold text-slate-800">{displayName}</span> • {t('clinicalWorkspace')}
           </p>
         </div>
@@ -72,17 +72,17 @@ export const Header = ({ collapsed }) => {
         </span>
       </div>
 
-      {/* Right Actions */}
-      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+      {/* Right Controls Container */}
+      <div className="flex items-center gap-1 sm:gap-2.5 shrink-0">
         
-        {/* Prominent Direct Language Switcher Pills at Top Header */}
-        <div className="flex items-center p-1 rounded-xl bg-slate-100 border border-slate-200 gap-1 text-xs shadow-2xs">
+        {/* Compact Responsive Multi-Lingual Switcher */}
+        <div className="flex items-center p-0.5 sm:p-1 rounded-xl bg-slate-100 border border-slate-200 gap-0.5 sm:gap-1 text-[11px] sm:text-xs">
           <button
             onClick={() => {
               setLanguage('EN');
               toast.success("Switched to English");
             }}
-            className={`px-2.5 py-1 rounded-lg font-extrabold transition-all cursor-pointer ${
+            className={`px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-lg font-extrabold transition-all cursor-pointer ${
               language === 'EN'
                 ? 'bg-[#1A4B84] text-white shadow-2xs scale-105'
                 : 'text-slate-700 hover:text-slate-900 hover:bg-slate-200/60'
@@ -97,7 +97,7 @@ export const Header = ({ collapsed }) => {
               setLanguage('HI');
               toast.success("भाषा बदलकर हिंदी की गई (Hindi)");
             }}
-            className={`px-2.5 py-1 rounded-lg font-extrabold transition-all cursor-pointer ${
+            className={`px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-lg font-extrabold transition-all cursor-pointer ${
               language === 'HI'
                 ? 'bg-[#1A4B84] text-white shadow-2xs scale-105'
                 : 'text-slate-700 hover:text-slate-900 hover:bg-slate-200/60'
@@ -112,7 +112,7 @@ export const Header = ({ collapsed }) => {
               setLanguage('GU');
               toast.success("ભાષા બદલીને ગુજરાતી કરવામાં આવી (Gujarati)");
             }}
-            className={`px-2.5 py-1 rounded-lg font-extrabold transition-all cursor-pointer ${
+            className={`px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-lg font-extrabold transition-all cursor-pointer ${
               language === 'GU'
                 ? 'bg-[#1A4B84] text-white shadow-2xs scale-105'
                 : 'text-slate-700 hover:text-slate-900 hover:bg-slate-200/60'
@@ -126,21 +126,22 @@ export const Header = ({ collapsed }) => {
         {/* Emergency SOS Button */}
         <button
           onClick={() => navigate('/app/sos')}
-          className="med-btn med-btn-emergency text-xs sm:text-sm py-1.5 px-3 sm:px-4 font-bold shrink-0 cursor-pointer rounded-xl"
+          className="med-btn med-btn-emergency text-xs py-1 sm:py-1.5 px-2 sm:px-3.5 font-bold shrink-0 cursor-pointer rounded-xl flex items-center gap-1"
         >
-          <Siren className="w-4 h-4" /> <span>{t('emergencySOS')}</span>
+          <Siren className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> 
+          <span className="inline sm:inline">{t('emergencySOS')}</span>
         </button>
 
         {/* Notifications */}
         <div className="relative">
           <button
             onClick={() => setNotifOpen(!notifOpen)}
-            className="p-2 rounded-xl text-slate-600 hover:bg-slate-100 relative border border-slate-200 cursor-pointer transition-colors"
+            className="p-1.5 sm:p-2 rounded-xl text-slate-600 hover:bg-slate-100 relative border border-slate-200 cursor-pointer transition-colors"
             aria-label="Notifications"
           >
-            <Bell className="w-4.5 h-4.5" />
+            <Bell className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
             {notifications.length > 0 && (
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#2D90A6] rounded-full" />
+              <span className="absolute top-1 right-1 w-2 h-2 bg-[#2D90A6] rounded-full" />
             )}
           </button>
 
@@ -158,9 +159,9 @@ export const Header = ({ collapsed }) => {
         <div className="relative">
           <button
             onClick={() => setProfileOpen(!profileOpen)}
-            className="flex items-center gap-1.5 p-1 rounded-xl hover:bg-slate-100 cursor-pointer transition-colors"
+            className="flex items-center gap-1 p-0.5 rounded-xl hover:bg-slate-100 cursor-pointer transition-colors"
           >
-            <div className="w-8 h-8 rounded-full bg-[#1A4B84] text-white font-bold text-xs flex items-center justify-center border border-slate-300 shadow-2xs">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#1A4B84] text-white font-bold text-xs flex items-center justify-center border border-slate-300 shadow-2xs">
               {displayName ? displayName.charAt(0) : 'S'}
             </div>
             <ChevronDown className="w-3.5 h-3.5 text-slate-500 hidden sm:block" />

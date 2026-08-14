@@ -244,7 +244,7 @@ export const HealthDataProvider = ({ children }) => {
           id: data.user.id || data.user._id,
           name: data.user.full_name || name,
           email: data.user.email || email,
-          profileCompleted: true
+          profileCompleted: false // NEW USERS MUST COMPLETE ONBOARDING PROFILE SETUP FIRST
         };
       } else {
         throw new Error(data.error || "Registration failed.");
