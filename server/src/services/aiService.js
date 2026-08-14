@@ -133,7 +133,7 @@ function universalClinicalExtractor(textStr, fileName) {
     vitals.push({ name: "Blood Pressure", value: bpMatch[1], unit: bpMatch[2] || "mmHg" });
   }
 
-  const hrMatch = text.match(/(?:Heart Rate|Pulse|Pulse Rate|HR)\s*[:=\-]?\s*(\d{2,3})\s*(bpm|/min)?/i);
+  const hrMatch = text.match(/(?:Heart Rate|Pulse|Pulse Rate|HR)\s*[:=\-]?\s*(\d{2,3})\s*(bpm|\/min)?/i);
   if (hrMatch) {
     vitals.push({ name: "Heart Rate", value: hrMatch[1], unit: "bpm" });
   }
@@ -149,9 +149,6 @@ function universalClinicalExtractor(textStr, fileName) {
   }
 
   // 2. Extract Lab Parameters line-by-line using Universal Clinical Regex
-  // Matches: [Parameter Name] [Value] [Unit] [Reference Range]
-  const labLineRegex = /^\s*([A-Za-z0-9\(\)\-\s\/]+?)\s*[:=]?\s*([<>]?\s*\d+(?:\.\d+)?)\s*(g\/dL|mg\/dL|mg\/L|mmol\/L|mIU\/L|uIU\/mL|µg\/dL|U\/L|unit\/L|ng\/mL|pg\/mL|cell\/cu\.mm|cells\/µL|mil\/cu\.mm|lac\/cmm|lakh\/µL|Lakhs\/cumm|mm\/hr|fL|pg|%|k\/mcL)?\s*(?:[\(\[]?(\d+(?:\.\d+)?\s*[-–\sto]+\s*\d+(?:\.\d+)?|<[\s]?\d+(?:\.\d+)?)[\)\]]?)?/i;
-
   const knownTests = [
     { key: "hemoglobin", name: "Hemoglobin", unit: "g/dL", ref: "12.0 - 15.5" },
     { key: "hb", name: "Hemoglobin", unit: "g/dL", ref: "12.0 - 15.5" },
@@ -181,7 +178,6 @@ function universalClinicalExtractor(textStr, fileName) {
     if (!trimmed || trimmed.length < 3) return;
     const lower = trimmed.toLowerCase();
 
-    // Skip metadata headers
     if (/patient|registration|sample id|hospital|pathology|doctor|consultant|date/i.test(trimmed) && !/haemoglobin|hemoglobin|wbc|rbc|platelet|glucose|creatinine/i.test(trimmed)) {
       return;
     }
