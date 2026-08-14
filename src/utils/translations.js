@@ -57,6 +57,15 @@ export const translations = {
     attention: "Attention",
     critical: "Critical",
 
+    // Empty States & Data Isolation
+    noMedicalDataAvailable: "No medical data available yet.",
+    uploadReportToAnalyze: "Upload your medical report to analyze your health data.",
+    noMedicineRemindersYet: "No medicine reminders yet.",
+    todaysMedicines: "Today's Medicines",
+    addMedicine: "+ Add Medicine",
+    loadingMedicalData: "Loading your medical data...",
+    unableToLoadMedicalData: "Unable to load medical data. Please try again.",
+
     // Medical Reports / Upload
     dynamicDocAnalyzer: "Dynamic Medical Document Analyzer",
     uploadMedicalReport: "Upload Medical Report",
@@ -212,6 +221,15 @@ export const translations = {
     attention: "ध्यान दें",
     critical: "गंभीर",
 
+    // Empty States & Data Isolation
+    noMedicalDataAvailable: "अभी तक कोई मेडिकल डेटा उपलब्ध नहीं है।",
+    uploadReportToAnalyze: "अपने स्वास्थ्य डेटा का विश्लेषण करने के लिए अपनी मेडिकल रिपोर्ट अपलोड करें।",
+    noMedicineRemindersYet: "अभी तक कोई दवा रिमाइंडर्स नहीं हैं।",
+    todaysMedicines: "आज की दवाइयाँ",
+    addMedicine: "+ दवा जोड़ें",
+    loadingMedicalData: "आपका मेडिकल डेटा लोड हो रहा है...",
+    unableToLoadMedicalData: "मेडिकल डेटा लोड करने में असमर्थ। कृपया पुनः प्रयास करें।",
+
     // Medical Reports / Upload
     dynamicDocAnalyzer: "डायनामिक मेडिकल दस्तावेज़ विश्लेषक",
     uploadMedicalReport: "मेडिकल रिपोर्ट अपलोड करें",
@@ -366,6 +384,15 @@ export const translations = {
     low: "ઓછું",
     attention: "ધ્યાન આપો",
     critical: "ગંભીર",
+
+    // Empty States & Data Isolation
+    noMedicalDataAvailable: "હજુ સુધી કોઈ મેડિકલ ડેટા ઉપલબ્ધ નથી.",
+    uploadReportToAnalyze: "તમારા આરોગ્ય ડેટાનું વિશ્લેષણ કરવા માટે તમારો મેડિકલ રિપોર્ટ અપલોડ કરો.",
+    noMedicineRemindersYet: "હજુ સુધી કોઈ દવા રિમાઇન્ડર્સ નથી.",
+    todaysMedicines: "આજની દવાઓ",
+    addMedicine: "+ દવા ઉમેરો",
+    loadingMedicalData: "તમારો મેડિકલ ડેટા લોડ થઈ રહ્યો છે...",
+    unableToLoadMedicalData: "મેડિકલ ડેટા લોડ કરવામાં અસમર્થ. કૃપા કરીને ફરી પ્રયાસ કરો.",
 
     // Medical Reports / Upload
     dynamicDocAnalyzer: "ડાયનેમિક મેડિકલ દસ્તાવેજ વિશ્લેષક",

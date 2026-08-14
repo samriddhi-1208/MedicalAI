@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import confetti from 'canvas-confetti';
-import { MOCK_REPORTS } from '../data/mockData';
 
 const HealthDataContext = createContext();
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -21,34 +20,16 @@ export const HealthDataProvider = ({ children }) => {
     localStorage.setItem('medguardian_language', newLang);
   };
 
-  // Initialize token and profile - auto-purge any old cached demo sessions from browser localStorage
+  // Initialize token and userProfile cleanly without cross-user contamination
   const [token, setToken] = useState(() => {
-    const storedToken = localStorage.getItem('medguardian_token');
-    const storedProfile = localStorage.getItem('medguardian_user_profile');
-    if (storedProfile) {
-      try {
-        const parsed = JSON.parse(storedProfile);
-        if (parsed.email === 'laxmi12345@gmail.com' || parsed.email === 'laxmi.manapure@example.com' || parsed.email === 'patient@example.com') {
-          localStorage.removeItem('medguardian_token');
-          localStorage.removeItem('medguardian_user_profile');
-          return null;
-        }
-      } catch (e) {}
-    }
-    return storedToken || null;
+    return localStorage.getItem('medguardian_token') || null;
   });
 
   const [userProfile, setUserProfile] = useState(() => {
     try {
       const saved = localStorage.getItem('medguardian_user_profile');
       if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed.email === 'laxmi12345@gmail.com' || parsed.email === 'laxmi.manapure@example.com' || parsed.email === 'patient@example.com') {
-          localStorage.removeItem('medguardian_token');
-          localStorage.removeItem('medguardian_user_profile');
-          return null;
-        }
-        return parsed;
+        return JSON.parse(saved);
       }
       return null;
     } catch (e) {
@@ -56,53 +37,36 @@ export const HealthDataProvider = ({ children }) => {
     }
   });
 
-  // State: Reports (with auto-purge for old broken cached reports)
-  const [reports, setReports] = useState(() => {
-    try {
-      const saved = localStorage.getItem('medguardian_reports');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          // Purge if cached report contains old broken values (e.g. 26% or date 2026 01 as ref range)
-          const isOldFormat = parsed.some(r => 
-            Array.isArray(r.biomarkers) && r.biomarkers.some(b => 
-              b.value === 12.8 || b.value === '26' || b.value === 26 || String(b.refRange).includes('2026') || b.name === 'Fasting Blood Glucose'
-            )
-          );
-          if (!isOldFormat) {
-            return parsed;
-          }
-        }
-      }
-    } catch (e) {}
-    localStorage.removeItem('medguardian_reports');
-    return MOCK_REPORTS;
-  });
-
+  // State: User-specific medical reports & medicines (MUST DEFAULT TO EMPTY ARRAY FOR NEW USERS)
+  const [reports, setReports] = useState([]);
   const [medicines, setMedicines] = useState([]);
   const [emergencyContacts, setEmergencyContacts] = useState([]);
   const [sosLogs, setSosLogs] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [activeReportId, setActiveReportId] = useState(null);
-  const [loadingAuth, setLoadingAuth] = useState(false);
+  const [loadingData, setLoadingData] = useState(false);
+  const [apiError, setApiError] = useState(null);
 
-  // Synchronize authenticated user profile & data from backend when logged in
+  // Synchronize authenticated user profile, reports, and medicines from backend
   useEffect(() => {
     async function syncUserData() {
       const storedToken = localStorage.getItem('medguardian_token');
       if (!storedToken) {
         setToken(null);
         setUserProfile(null);
-        setReports(MOCK_REPORTS);
+        setReports([]);
         setMedicines([]);
         setEmergencyContacts([]);
         return;
       }
 
+      setLoadingData(true);
+      setApiError(null);
+
       try {
         const headers = { 'Authorization': `Bearer ${storedToken}` };
         
-        // Try to verify session & sync profile from database
+        // 1. Verify session & profile
         const profileRes = await fetch(`${API_BASE}/auth/me`, { headers });
         if (profileRes.ok) {
           const profileData = await profileRes.json();
@@ -130,24 +94,43 @@ export const HealthDataProvider = ({ children }) => {
           setUserProfile(syncedUser);
           localStorage.setItem('medguardian_user_profile', JSON.stringify(syncedUser));
 
-          // Fetch authenticated user's reports from backend if online
+          // 2. Fetch authenticated user's reports from backend (EXCLUSIVELY scoped to req.user.id)
           const rRes = await fetch(`${API_BASE}/reports`, { headers });
           if (rRes.ok) {
             const rData = await rRes.json();
-            if (Array.isArray(rData) && rData.length > 0) {
-              setReports(rData);
-              localStorage.setItem('medguardian_reports', JSON.stringify(rData));
+            const safeReports = Array.isArray(rData) ? rData : [];
+            setReports(safeReports);
+            if (syncedUser.id) {
+              localStorage.setItem(`medguardian_reports_${syncedUser.id}`, JSON.stringify(safeReports));
             }
           }
 
-          // Fetch authenticated user's medicines
+          // 3. Fetch authenticated user's medicines from backend (EXCLUSIVELY scoped to req.user.id)
           const mRes = await fetch(`${API_BASE}/medicines`, { headers });
           if (mRes.ok) {
             const mData = await mRes.json();
-            setMedicines(Array.isArray(mData) ? mData : []);
+            const safeMeds = (Array.isArray(mData) ? mData : []).map(m => ({
+              id: m.id || m._id,
+              name: m.name,
+              dose: m.dose || m.dosage || '1 tablet',
+              dosage: m.dosage || m.dose || '1 tablet',
+              frequency: m.frequency || 'Once daily',
+              scheduledTime: m.scheduled_time || m.time || '08:00 AM',
+              time: m.scheduled_time || m.time || '08:00 AM',
+              timeSlot: m.time_slot || 'Morning',
+              mealRelation: m.meal_relation || 'After meal',
+              mealType: m.meal_type || 'Lunch',
+              delayMinutes: m.delay_minutes || 30,
+              purpose: m.purpose || 'General Wellness',
+              totalPills: m.total_pills ?? 30,
+              pillsRemaining: m.pills_remaining ?? 30,
+              isPaused: m.is_paused || false,
+              taken: m.is_taken || false
+            }));
+            setMedicines(safeMeds);
           }
 
-          // Fetch authenticated user's emergency contacts
+          // 4. Fetch authenticated user's emergency contacts
           const cRes = await fetch(`${API_BASE}/sos/contacts`, { headers });
           if (cRes.ok) {
             const cData = await cRes.json();
@@ -158,17 +141,25 @@ export const HealthDataProvider = ({ children }) => {
           logout();
         }
       } catch (err) {
-        console.log("[AUTH] Server sync note (offline or network error):", err.message);
+        console.warn("[AUTH] Network or offline note:", err.message);
+        setApiError("Unable to connect to backend server.");
+      } finally {
+        setLoadingData(false);
       }
     }
 
     if (token) {
       syncUserData();
+    } else {
+      setReports([]);
+      setMedicines([]);
+      setEmergencyContacts([]);
     }
   }, [token]);
 
   // Auth Action: Sign In
   const login = async (email, password) => {
+    setLoadingData(true);
     let userObj = null;
     let authToken = null;
 
@@ -187,43 +178,20 @@ export const HealthDataProvider = ({ children }) => {
           name: data.user.full_name || email.split('@')[0],
           email: data.user.email,
           phone: data.user.phone || '',
-          dateOfBirth: data.user.date_of_birth || '',
-          age: data.user.age || 0,
-          gender: data.user.gender || 'Female',
-          height: data.user.height || '',
-          heightUnit: data.user.height_unit || 'cm',
-          weight: data.user.weight || '',
-          weightUnit: data.user.weight_unit || 'kg',
-          bloodGroup: data.user.blood_group || 'Not Known',
-          city: data.user.city || '',
-          state: data.user.state || '',
-          country: data.user.country || 'India',
-          occupation: data.user.occupation || '',
-          primaryPhysician: data.user.primary_physician || '',
           profileCompleted: true
         };
       } else {
         const data = await res.json();
-        if (data.error && data.error.includes("Invalid")) {
-          throw new Error(data.error);
-        }
+        throw new Error(data.error || "Login failed.");
       }
     } catch (err) {
-      if (err.message.includes("Invalid")) {
-        throw err;
-      }
-      console.log("[AUTH] Login network fallback:", err.message);
+      setLoadingData(false);
+      throw err;
     }
 
-    if (!userObj) {
-      authToken = 'token-' + Date.now();
-      userObj = {
-        id: 'usr-' + Date.now(),
-        name: email.split('@')[0],
-        email: email,
-        profileCompleted: true
-      };
-    }
+    // Reset user-specific state before loading new user data
+    setReports([]);
+    setMedicines([]);
 
     localStorage.setItem('medguardian_token', authToken);
     localStorage.setItem('medguardian_user_profile', JSON.stringify(userObj));
@@ -234,12 +202,13 @@ export const HealthDataProvider = ({ children }) => {
     return userObj;
   };
 
-  // Auth Action: Register Account
+  // Auth Action: Register Account (MUST START WITH 0 MEDICAL DATA)
   const signup = async ({ name, email, password, confirmPassword }) => {
     if (password !== confirmPassword) {
       throw new Error("Passwords do not match. Please re-enter your password.");
     }
 
+    setLoadingData(true);
     let userObj = null;
     let authToken = null;
 
@@ -261,32 +230,23 @@ export const HealthDataProvider = ({ children }) => {
         };
       } else {
         const data = await res.json();
-        if (data.error) throw new Error(data.error);
+        throw new Error(data.error || "Registration failed.");
       }
     } catch (err) {
-      if (err.message.includes("already exists") || err.message.includes("required") || err.message.includes("Password must contain")) {
-        throw err;
-      }
-      console.log("[AUTH] Signup network fallback:", err.message);
+      setLoadingData(false);
+      throw err;
     }
 
-    if (!userObj) {
-      authToken = 'token-' + Date.now();
-      userObj = {
-        id: 'usr-' + Date.now(),
-        name: name,
-        email: email,
-        profileCompleted: false
-      };
-    }
+    // NEW USERS MUST START WITH 100% EMPTY MEDICAL DASHBOARD
+    setReports([]);
+    setMedicines([]);
+    setEmergencyContacts([]);
 
     localStorage.setItem('medguardian_token', authToken);
     localStorage.setItem('medguardian_user_profile', JSON.stringify(userObj));
     setToken(authToken);
     setUserProfile(userObj);
-    setReports(MOCK_REPORTS);
-    setMedicines([]);
-    setEmergencyContacts([]);
+    
     toast.success(`Account created successfully!`);
     return userObj;
   };
@@ -340,197 +300,187 @@ export const HealthDataProvider = ({ children }) => {
     localStorage.setItem('medguardian_user_profile', JSON.stringify(updatedUser));
   };
 
-  // Auth Action: Sign Out
+  // Auth Action: Sign Out (RESET ALL USER STATE IMMEDIATELY)
   const logout = () => {
     localStorage.removeItem('medguardian_token');
     localStorage.removeItem('medguardian_user_profile');
-    localStorage.removeItem('medguardian_user_email');
-    localStorage.removeItem('medguardian_user_name');
+    if (userProfile?.id) {
+      localStorage.removeItem(`medguardian_reports_${userProfile.id}`);
+      localStorage.removeItem(`medguardian_medicines_${userProfile.id}`);
+    }
     localStorage.removeItem('medguardian_reports');
+    
     setToken(null);
     setUserProfile(null);
-    setReports(MOCK_REPORTS);
+    setReports([]);
     setMedicines([]);
     setEmergencyContacts([]);
     setSosLogs([]);
     setNotifications([]);
     setActiveReportId(null);
+    setApiError(null);
     toast.success("Signed out successfully.");
   };
-
-  const activeReport = (Array.isArray(reports) && reports.length > 0) ? reports[0] : null;
 
   const addReport = (newReport) => {
     setReports(prev => {
       const updated = [newReport, ...(Array.isArray(prev) ? prev : [])];
-      localStorage.setItem('medguardian_reports', JSON.stringify(updated));
+      if (userProfile?.id) {
+        localStorage.setItem(`medguardian_reports_${userProfile.id}`, JSON.stringify(updated));
+      }
       return updated;
     });
     setActiveReportId(newReport.id);
   };
 
-  const toggleMedicineTaken = async (id) => {
-    setMedicines(prev => (Array.isArray(prev) ? prev : []).map(m => {
-      if (m.id === id) {
-        const nextState = !m.taken;
-        if (nextState) {
-          toast.success(`Dose logged: ${m.name}`);
-          confetti({ particleCount: 40, spread: 50, origin: { y: 0.8 } });
-        }
-        return { 
-          ...m, 
-          taken: nextState,
-          pillsRemaining: nextState ? Math.max(0, m.pillsRemaining - 1) : m.pillsRemaining + 1
-        };
-      }
-      return m;
-    }));
-
-    try {
-      await fetch(`${API_BASE}/medicines/${id}/take`, { 
-        method: 'PUT',
-        headers: getAuthHeaders()
-      });
-    } catch (err) {}
-  };
-
-  const addMedicine = async (newMed) => {
+  // Medicine CRUD Methods
+  const addMedicine = async (medData) => {
     try {
       const res = await fetch(`${API_BASE}/medicines`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-        body: JSON.stringify(newMed)
+        body: JSON.stringify(medData)
       });
       if (res.ok) {
-        const data = await res.json();
-        setMedicines(prev => [data, ...prev]);
-        toast.success(`Added ${newMed.name} to medication schedule`);
-        return;
+        const created = await res.json();
+        const formatted = {
+          id: created.id || created._id,
+          name: created.name,
+          dose: created.dose || created.dosage || medData.dose || '1 tablet',
+          dosage: created.dosage || created.dose || medData.dosage || '1 tablet',
+          frequency: created.frequency || medData.frequency || 'Once daily',
+          scheduledTime: created.scheduled_time || medData.scheduled_time || medData.time || '08:00 AM',
+          time: created.scheduled_time || medData.time || '08:00 AM',
+          timeSlot: created.time_slot || medData.timeSlot || 'Morning',
+          mealRelation: created.meal_relation || medData.mealRelation || 'After meal',
+          mealType: created.meal_type || medData.mealType || 'Lunch',
+          delayMinutes: created.delay_minutes || medData.delayMinutes || 30,
+          purpose: created.purpose || medData.purpose || 'General Wellness',
+          totalPills: created.total_pills ?? parseInt(medData.totalPills || 30),
+          pillsRemaining: created.pills_remaining ?? parseInt(medData.totalPills || 30),
+          isPaused: false,
+          taken: false
+        };
+        setMedicines(prev => [formatted, ...(Array.isArray(prev) ? prev : [])]);
+        toast.success(`Medicine reminder added: ${created.name}`);
+        return formatted;
       }
-    } catch (err) {}
+    } catch (err) {
+      console.error("Add medicine error:", err);
+    }
+  };
+
+  const updateMedicine = async (id, updatedData) => {
+    try {
+      const res = await fetch(`${API_BASE}/medicines/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+        body: JSON.stringify(updatedData)
+      });
+      if (res.ok) {
+        setMedicines(prev => (Array.isArray(prev) ? prev : []).map(m => m.id === id ? { ...m, ...updatedData } : m));
+        toast.success("Medicine reminder updated.");
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const deleteMedicine = async (id) => {
-    setMedicines(prev => prev.filter(m => m.id !== id));
-    toast.success("Medication removed");
+    setMedicines(prev => (Array.isArray(prev) ? prev : []).filter(m => m.id !== id));
+    toast.success("Medicine reminder removed.");
     try {
-      await fetch(`${API_BASE}/medicines/${id}`, { 
+      await fetch(`${API_BASE}/medicines/${id}`, {
         method: 'DELETE',
         headers: getAuthHeaders()
       });
     } catch (err) {}
   };
 
-  const addEmergencyContact = async (contact) => {
-    try {
-      const res = await fetch(`${API_BASE}/sos/contacts`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-        body: JSON.stringify(contact)
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setEmergencyContacts(prev => [...prev, data]);
-        toast.success(`Added ${contact.name} to emergency contacts`);
-        return;
+  const toggleMedicinePause = async (id) => {
+    setMedicines(prev => (Array.isArray(prev) ? prev : []).map(m => {
+      if (m.id === id) {
+        const nextPaused = !m.isPaused;
+        toast.success(nextPaused ? `Paused reminder: ${m.name}` : `Resumed reminder: ${m.name}`);
+        return { ...m, isPaused: nextPaused };
       }
-    } catch (err) {}
-  };
-
-  const deleteEmergencyContact = (id) => {
-    setEmergencyContacts(prev => prev.filter(c => c.id !== id));
-    toast.success("Emergency contact removed");
-  };
-
-  const triggerSOS = async (locationText = "Current GPS Position") => {
-    const safeC = Array.isArray(emergencyContacts) ? emergencyContacts : [];
-    const newLog = {
-      id: `sos-log-${Date.now().toString().slice(-4)}`,
-      timestamp: new Date().toLocaleString(),
-      triggerType: "Manual Emergency SOS Triggered",
-      location: locationText,
-      status: "Dispatched",
-      dispatchedTo: safeC.map(c => c.name)
-    };
-    setSosLogs(prev => [newLog, ...prev]);
-    toast.error("🚨 EMERGENCY SOS DISPATCHED TO CONTACTS!", { duration: 5000 });
-    confetti({ particleCount: 80, spread: 70, origin: { y: 0.5 } });
+      return m;
+    }));
 
     try {
-      await fetch(`${API_BASE}/sos/trigger`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-        body: JSON.stringify({ triggerType: "Manual SOS Button", notes: locationText })
+      await fetch(`${API_BASE}/medicines/${id}/pause`, {
+        method: 'PATCH',
+        headers: getAuthHeaders()
       });
     } catch (err) {}
   };
 
-  const updateUserProfile = async (updates) => {
-    const res = await fetch(`${API_BASE}/auth/profile`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-      body: JSON.stringify(updates)
+  const toggleMedicineTaken = async (id) => {
+    setMedicines(prev => (Array.isArray(prev) ? prev : []).map(m => {
+      if (m.id === id) {
+        const nextTaken = !m.taken;
+        if (nextTaken) {
+          toast.success(`Dose marked as taken: ${m.name}`);
+          confetti({ particleCount: 40, spread: 50, origin: { y: 0.8 } });
+        }
+        return { 
+          ...m, 
+          taken: nextTaken,
+          pillsRemaining: nextTaken ? Math.max(0, (m.pillsRemaining || 30) - 1) : (m.pillsRemaining || 30) + 1
+        };
+      }
+      return m;
+    }));
+
+    try {
+      await fetch(`${API_BASE}/medicines/${id}/taken`, { 
+        method: 'PATCH',
+        headers: getAuthHeaders()
+      });
+    } catch (err) {}
+  };
+
+  const updateUserProfile = (newProfileData) => {
+    setUserProfile(prev => {
+      const updated = { ...prev, ...newProfileData };
+      localStorage.setItem('medguardian_user_profile', JSON.stringify(updated));
+      return updated;
     });
-
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error || "Failed to update profile");
-    }
-
-    const updated = await res.json();
-    const newProfile = {
-      ...userProfile,
-      name: updated.full_name || userProfile.name,
-      phone: updated.phone ?? userProfile.phone,
-      dateOfBirth: updated.date_of_birth ?? userProfile.dateOfBirth,
-      age: updated.age ?? userProfile.age,
-      gender: updated.gender ?? userProfile.gender,
-      height: updated.height ?? userProfile.height,
-      heightUnit: updated.height_unit ?? userProfile.heightUnit,
-      weight: updated.weight ?? userProfile.weight,
-      weightUnit: updated.weight_unit ?? userProfile.weightUnit,
-      bloodGroup: updated.blood_group ?? userProfile.bloodGroup,
-      city: updated.city ?? userProfile.city,
-      state: updated.state ?? userProfile.state,
-      country: updated.country ?? userProfile.country,
-      occupation: updated.occupation ?? userProfile.occupation,
-      primaryPhysician: updated.primary_physician ?? userProfile.primaryPhysician,
-      profileCompleted: true
-    };
-
-    setUserProfile(newProfile);
-    localStorage.setItem('medguardian_user_profile', JSON.stringify(newProfile));
   };
 
   return (
-    <HealthDataContext.Provider value={{
-      language,
-      setLanguage,
-      token,
-      isAuthenticated: !!token && !!userProfile,
-      userProfile,
-      loadingAuth,
-      login,
-      signup,
-      completeOnboarding,
-      logout,
-      reports: Array.isArray(reports) ? reports : [],
-      activeReportId,
-      setActiveReportId,
-      activeReport,
-      addReport,
-      medicines: Array.isArray(medicines) ? medicines : [],
-      toggleMedicineTaken,
-      addMedicine,
-      deleteMedicine,
-      emergencyContacts: Array.isArray(emergencyContacts) ? emergencyContacts : [],
-      addEmergencyContact,
-      deleteEmergencyContact,
-      sosLogs,
-      triggerSOS,
-      notifications,
-      updateUserProfile
-    }}>
+    <HealthDataContext.Provider
+      value={{
+        language,
+        setLanguage,
+        token,
+        userProfile,
+        setUserProfile,
+        updateUserProfile,
+        reports,
+        setReports,
+        medicines,
+        setMedicines,
+        emergencyContacts,
+        setEmergencyContacts,
+        sosLogs,
+        notifications,
+        activeReportId,
+        setActiveReportId,
+        loadingData,
+        apiError,
+        login,
+        signup,
+        completeOnboarding,
+        logout,
+        addReport,
+        addMedicine,
+        updateMedicine,
+        deleteMedicine,
+        toggleMedicinePause,
+        toggleMedicineTaken
+      }}
+    >
       {children}
     </HealthDataContext.Provider>
   );
@@ -538,6 +488,8 @@ export const HealthDataProvider = ({ children }) => {
 
 export const useHealthData = () => {
   const context = useContext(HealthDataContext);
-  if (!context) throw new Error('useHealthData must be used within HealthDataProvider');
+  if (!context) {
+    throw new Error('useHealthData must be used within a HealthDataProvider');
+  }
   return context;
 };

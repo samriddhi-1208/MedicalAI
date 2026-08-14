@@ -4,16 +4,23 @@ const medicineSchema = new mongoose.Schema(
   {
     user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     name: { type: String, required: true },
-    dosage: { type: String, default: '500 mg' },
-    frequency: { type: String, default: 'Once Daily' },
+    dose: { type: String, default: '1 tablet' },
+    dosage: { type: String, default: '1 tablet' },
+    frequency: { type: String, default: 'Once daily' }, // 'Once daily', 'Twice daily', 'Three times daily', 'Custom'
+    scheduled_time: { type: String, default: '08:00 AM' }, // e.g. '08:00 AM'
     time_slot: { type: String, default: 'Morning' },
-    scheduled_time: { type: String, default: '08:00 AM' },
+    meal_relation: { type: String, default: 'After meal' }, // 'Before meal', 'With meal', 'After meal', 'No meal relation'
+    meal_type: { type: String, default: 'Lunch' }, // 'Breakfast', 'Lunch', 'Dinner'
+    delay_minutes: { type: Number, default: 30 },
     purpose: { type: String, default: 'General Wellness' },
     total_pills: { type: Number, default: 30 },
-    pills_remaining: { type: Number, default: 30 }
+    pills_remaining: { type: Number, default: 30 },
+    is_paused: { type: Boolean, default: false },
+    is_taken: { type: Boolean, default: false },
+    last_taken_at: { type: Date, default: null }
   },
   {
-    timestamps: true,
+    timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
     toJSON: { virtuals: true },
     toObject: { virtuals: true }
   }

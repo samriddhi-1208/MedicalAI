@@ -1,58 +1,57 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { 
+  FileText, 
   Upload, 
-  Siren, 
+  Building2, 
   Pill, 
-  FileText,
-  Plus,
-  Sparkles,
-  Edit2,
-  Building2,
-  TrendingUp,
-  Activity,
-  HeartPulse,
-  Clock,
-  ArrowRight,
-  ShieldCheck,
-  CheckCircle2
+  ShieldCheck, 
+  TrendingUp, 
+  Edit2, 
+  Plus, 
+  CheckCircle2, 
+  Clock, 
+  AlertTriangle,
+  PauseCircle,
+  Activity
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
 import { getTranslation } from '../utils/translations';
+import { Card } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { Button } from '../components/ui/Button';
 import { HealthMetricCard } from '../components/ui/HealthMetricCard';
 import { AIInsightCard } from '../components/ui/AIInsightCard';
-import { MedicationCard } from '../components/ui/MedicationCard';
 import { ReportCard } from '../components/ui/ReportCard';
-import { Card } from '../components/ui/Card';
-import { Button } from '../components/ui/Button';
-import { formatDisplayName } from '../utils/formatters';
 
 export const DashboardPage = () => {
   const navigate = useNavigate();
   const { 
+    language, 
     userProfile, 
-    updateUserProfile,
+    updateUserProfile, 
     reports, 
-    medicines, 
+    medicines,
     toggleMedicineTaken,
-    language
+    loadingData,
+    apiError
   } = useHealthData();
 
   const t = (key) => getTranslation(language, key);
 
-  const displayName = formatDisplayName(userProfile?.name || 'Patient');
+  const displayName = userProfile?.name || 'Patient';
   const [isEditingName, setIsEditingName] = useState(false);
   const [tempName, setTempName] = useState(displayName);
 
-  // Retrieve strictly the current user's latest uploaded report (0% Fake/Fallback Data!)
-  const latestReport = (Array.isArray(reports) && reports.length > 0) ? reports[0] : null;
-  const biomarkers = Array.isArray(latestReport?.biomarkers) ? latestReport.biomarkers : [];
+  // User-specific reports array (0% Fake/Fallback Data!)
+  const userReports = Array.isArray(reports) ? reports : [];
+  const hasReports = userReports.length > 0;
+  const latestReport = hasReports ? userReports[0] : null;
+  const extractedBiomarkers = Array.isArray(latestReport?.biomarkers) ? latestReport.biomarkers : [];
 
-  // Extract dynamic metric 1 (Haemoglobin or default)
-  const hbBm = biomarkers.find(b => /haemoglobin|hemoglobin|hb/i.test(b.name)) || biomarkers[0];
-  const altBm = biomarkers.find(b => /alt|sgpt|alanine/i.test(b.name)) || biomarkers[1];
-  const crpBm = biomarkers.find(b => /crp|c-reactive/i.test(b.name)) || biomarkers[2];
+  // User-specific medicines array (0% Fake/Fallback Data!)
+  const userMedicines = Array.isArray(medicines) ? medicines : [];
 
   // Time of day greeting
   const getGreeting = () => {
@@ -70,24 +69,11 @@ export const DashboardPage = () => {
     setIsEditingName(false);
   };
 
-  const pendingMeds = (Array.isArray(medicines) ? medicines : []).filter(m => !m.taken);
-  const nextMed = pendingMeds[0] || {
-    id: 'm-default',
-    name: 'Lisinopril',
-    dosage: '10mg',
-    instructions: 'After food',
-    time: '2:00 PM',
-    dateLabel: 'Today, 2:00 PM',
-    taken: false
-  };
-
-  const recentReportsList = (Array.isArray(reports) && reports.length > 0) ? reports : [];
-
   return (
     <div className="space-y-6 pb-12 font-sans antialiased">
       
       {/* Patient Hero Executive Banner */}
-      <Card className="p-6 sm:p-7 bg-white border border-slate-200 shadow-sm rounded-2xl space-y-5">
+      <Card className="p-6 sm:p-7 bg-white border border-slate-200 shadow-xs rounded-2xl space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
             {isEditingName ? (
@@ -141,7 +127,7 @@ export const DashboardPage = () => {
           </div>
         </div>
 
-        {/* Quick Action Button Cards Grid for Mobile & Desktop */}
+        {/* Quick Action Button Cards Grid */}
         <div className="grid grid-cols-3 gap-3 pt-2">
           
           <button
@@ -177,78 +163,177 @@ export const DashboardPage = () => {
         </div>
       </Card>
 
-      {/* Primary Health Metric Cards: 100% Extracted from Uploaded Report */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-extrabold text-[#1A4B84]">{t('healthMetrics')}</h2>
-          <button 
-            onClick={() => navigate('/app/analysis')}
-            className="text-xs font-bold text-[#2D90A6] hover:underline flex items-center gap-1 cursor-pointer"
-          >
-            <span>{t('viewAllTrends')}</span> <TrendingUp className="w-3.5 h-3.5" />
-          </button>
+      {/* Loading State */}
+      {loadingData && (
+        <Card className="p-8 text-center bg-white border border-slate-200 rounded-2xl shadow-xs space-y-3">
+          <div className="w-8 h-8 border-4 border-[#1A4B84] border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-xs font-bold text-[#1A4B84]">{t('loadingMedicalData')}</p>
+        </Card>
+      )}
+
+      {/* API Error State */}
+      {apiError && !loadingData && (
+        <Card className="p-6 bg-rose-50 border border-rose-200 rounded-2xl text-center space-y-2 text-rose-900 text-xs">
+          <AlertTriangle className="w-6 h-6 text-[#DC2626] mx-auto" />
+          <p className="font-bold">{t('unableToLoadMedicalData')}</p>
+        </Card>
+      )}
+
+      {/* REQUIREMENT 1: EMPTY DASHBOARD STATE FOR NEW USERS WITH NO REPORTS */}
+      {!hasReports && !loadingData && (
+        <Card className="p-8 sm:p-10 text-center bg-white border border-slate-200 rounded-2xl shadow-xs space-y-5 max-w-2xl mx-auto my-4">
+          <div className="w-16 h-16 rounded-2xl bg-[#EBF6F8] text-[#2D90A6] flex items-center justify-center mx-auto border border-[#2D90A6]/30">
+            <FileText className="w-8 h-8 text-[#2D90A6]" />
+          </div>
+          
+          <div className="space-y-2 max-w-lg mx-auto">
+            <h2 className="text-xl sm:text-2xl font-extrabold text-[#1A4B84] tracking-tight">
+              {t('noMedicalDataAvailable')}
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500 font-normal leading-relaxed">
+              {t('uploadReportToAnalyze')}
+            </p>
+          </div>
+
+          <div className="pt-2">
+            <Button
+              variant="primary"
+              size="md"
+              icon={Upload}
+              onClick={() => navigate('/app/upload')}
+              className="bg-[#1A4B84] hover:bg-[#143A66] py-3.5 px-8 text-xs font-bold rounded-xl cursor-pointer shadow-xs"
+            >
+              {t('uploadMedicalReport')}
+            </Button>
+          </div>
+        </Card>
+      )}
+
+      {/* MEDICAL DASHBOARD METRICS: SHOWN ONLY WHEN REAL REPORTS EXIST */}
+      {hasReports && !loadingData && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-extrabold text-[#1A4B84]">{t('healthMetrics')}</h2>
+            <button 
+              onClick={() => navigate('/app/analysis')}
+              className="text-xs font-bold text-[#2D90A6] hover:underline flex items-center gap-1 cursor-pointer"
+            >
+              <span>{t('viewAllTrends')}</span> <TrendingUp className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {extractedBiomarkers.length > 0 ? (
+              extractedBiomarkers.slice(0, 3).map((bm, index) => (
+                <HealthMetricCard 
+                  key={bm.id || index}
+                  name={bm.name}
+                  value={bm.value}
+                  unit={bm.unit}
+                  status={bm.status || 'Normal'}
+                  statusType={bm.status?.toLowerCase().includes('high') || bm.status?.toLowerCase().includes('low') ? 'warning' : 'normal'}
+                  statusSymbol={bm.status?.toLowerCase().includes('high') ? '▲' : bm.status?.toLowerCase().includes('low') ? '▼' : '✓'}
+                  refRange={bm.refRange || bm.reference_range || 'Standard'}
+                  trend="stable"
+                />
+              ))
+            ) : (
+              <div className="col-span-3 p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-500 font-medium text-center">
+                Report parsed. View details in AI Diagnostic Analysis.
+              </div>
+            )}
+          </div>
         </div>
+      )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <HealthMetricCard 
-            name={hbBm ? hbBm.name : t('bloodPressure')}
-            value={hbBm ? hbBm.value : "11.4"}
-            unit={hbBm ? hbBm.unit : "gm/dL"}
-            status={hbBm ? hbBm.status : "Low"}
-            statusType={hbBm ? hbBm.statusType : "warning"}
-            statusSymbol={hbBm ? hbBm.statusSymbol : "▼"}
-            refRange={hbBm ? hbBm.refRange : "12.5 - 16.0"}
-            trend="stable"
-          />
-
-          <HealthMetricCard 
-            name={altBm ? altBm.name : t('glucose')}
-            value={altBm ? altBm.value : "13.3"}
-            unit={altBm ? altBm.unit : "unit/L"}
-            status={altBm ? altBm.status : "Normal"}
-            statusType={altBm ? altBm.statusType : "normal"}
-            statusSymbol={altBm ? altBm.statusSymbol : "✓"}
-            refRange={altBm ? altBm.refRange : "5 - 35"}
-            trend="stable"
-          />
-
-          <HealthMetricCard 
-            name={crpBm ? crpBm.name : t('hbA1c')}
-            value={crpBm ? crpBm.value : "46.1"}
-            unit={crpBm ? crpBm.unit : "mg/L"}
-            status={crpBm ? crpBm.status : "High"}
-            statusType={crpBm ? crpBm.statusType : "warning"}
-            statusSymbol={crpBm ? crpBm.statusSymbol : "▲"}
-            refRange={crpBm ? crpBm.refRange : "0 - 6"}
-            trend="up"
-          />
-        </div>
-      </div>
-
-      {/* Main Grid: AI Insights + Next Dose Banner + Recent Reports */}
+      {/* Main Grid: AI Insights + Today's Medicines Widget + Recent Reports */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
-        {/* Left 7 columns: AI Insights & Next Dose */}
+        {/* Left 7 columns: AI Insights & Today's Medicines */}
         <div className="lg:col-span-7 space-y-6">
           
           {/* AI Insights Card */}
-          <AIInsightCard 
-            title={t('aiInsights')}
-            summary={latestReport?.aiSummary || t('noUploadedReports')}
-            severity={biomarkers.some(b => b.statusType === 'warning') ? "warning" : "normal"}
-            onViewDetails={() => navigate('/app/analysis')}
-          />
+          {hasReports ? (
+            <AIInsightCard 
+              title={t('aiInsights')}
+              summary={latestReport?.aiSummary || t('noUploadedReports')}
+              severity={extractedBiomarkers.some(b => String(b.status).toLowerCase().includes('high') || String(b.status).toLowerCase().includes('low')) ? "warning" : "normal"}
+              onViewDetails={() => navigate('/app/analysis')}
+            />
+          ) : null}
 
-          {/* Next Dose Banner */}
-          <MedicationCard 
-            name={nextMed.name}
-            dosage={nextMed.dosage}
-            instructions={nextMed.instructions}
-            time={nextMed.time}
-            dateLabel={nextMed.dateLabel || "Today, 2:00 PM"}
-            taken={nextMed.taken}
-            onToggleTaken={() => toggleMedicineTaken(nextMed.id)}
-          />
+          {/* REQUIREMENT 16: TODAY'S MEDICINES DASHBOARD WIDGET */}
+          <Card className="p-5 space-y-4 bg-white border border-slate-200 rounded-2xl shadow-xs">
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-extrabold text-[#1A4B84] flex items-center gap-2">
+                <Pill className="w-4.5 h-4.5 text-[#2D90A6]" />
+                {t('todaysMedicines')}
+              </h3>
+
+              <button
+                onClick={() => navigate('/app/medicines')}
+                className="text-xs font-bold text-[#2D90A6] hover:underline flex items-center gap-1 cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" /> {t('addMedicine')}
+              </button>
+            </div>
+
+            {userMedicines.length > 0 ? (
+              <div className="space-y-3">
+                {userMedicines.map((med) => (
+                  <div key={med.id} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-3 text-xs">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-[#1A4B84] font-bold shrink-0">
+                        <Clock className="w-4 h-4 text-[#2D90A6]" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-bold text-[#1A4B84] text-sm">{med.name}</h4>
+                          <span className="text-[11px] text-slate-500 font-medium">({med.dose || med.dosage})</span>
+                        </div>
+                        <p className="text-[11px] text-slate-500 font-medium">
+                          🕒 {med.scheduledTime || med.time} • {med.mealRelation} ({med.mealType})
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {med.isPaused ? (
+                        <span className="px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 text-[11px] font-bold border border-amber-200 inline-flex items-center gap-1">
+                          <PauseCircle className="w-3 h-3 text-amber-600" /> Paused
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => toggleMedicineTaken(med.id)}
+                          className={`px-3 py-1.5 rounded-xl font-bold text-[11px] transition-all cursor-pointer ${
+                            med.taken 
+                              ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' 
+                              : 'bg-[#1A4B84] text-white hover:bg-[#143A66]'
+                          }`}
+                        >
+                          {med.taken ? t('logged') : t('markAsTaken')}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200 text-center space-y-3">
+                <Pill className="w-8 h-8 text-slate-400 mx-auto" />
+                <p className="text-xs text-slate-600 font-medium">{t('noMedicineRemindersYet')}</p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  icon={Plus}
+                  onClick={() => navigate('/app/medicines')}
+                  className="rounded-xl border-slate-200 text-xs font-semibold cursor-pointer"
+                >
+                  {t('addMedicine')}
+                </Button>
+              </div>
+            )}
+          </Card>
 
         </div>
 
@@ -256,38 +341,33 @@ export const DashboardPage = () => {
         <div className="lg:col-span-5 space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-base font-extrabold text-[#1A4B84]">{t('recentMedicalReports')}</h3>
-            <Button
-              variant="outline"
-              size="sm"
-              icon={Plus}
-              className="rounded-xl border-slate-200 text-xs font-semibold cursor-pointer"
+            <button 
               onClick={() => navigate('/app/upload')}
+              className="text-xs font-bold text-[#2D90A6] hover:underline flex items-center gap-1 cursor-pointer"
             >
-              {t('uploadNew')}
-            </Button>
+              <span>{t('uploadNew')}</span> <Upload className="w-3.5 h-3.5" />
+            </button>
           </div>
 
-          <div className="space-y-3">
-            {recentReportsList.length === 0 ? (
-              <Card className="p-6 text-center bg-white border border-slate-200 rounded-2xl space-y-3">
-                <FileText className="w-8 h-8 text-slate-400 mx-auto" />
-                <p className="text-xs text-slate-600 font-normal">
-                  {t('noUploadedReports')}
-                </p>
-              </Card>
-            ) : (
-              recentReportsList.map((rep) => (
-                <ReportCard 
-                  key={rep.id || rep.reportId}
-                  title={rep.fileName || rep.title}
-                  date={rep.uploadedAt || rep.date}
-                  doctorName={rep.doctorName || 'Prescribing Physician'}
-                  labName={rep.labName || 'Uploaded Lab Document'}
-                  status={rep.status || 'Normal'}
-                  statusType={rep.statusType || 'normal'}
-                  onViewDetails={() => navigate('/app/analysis')}
-                />
+          <div className="space-y-4">
+            {hasReports ? (
+              userReports.map((report) => (
+                <ReportCard key={report.id} report={report} />
               ))
+            ) : (
+              <Card className="p-6 text-center bg-slate-50 border border-slate-200/90 rounded-2xl text-slate-500 text-xs space-y-3">
+                <FileText className="w-8 h-8 text-slate-400 mx-auto" />
+                <p className="font-normal text-slate-600">{t('noUploadedReports')}</p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  icon={Upload}
+                  onClick={() => navigate('/app/upload')}
+                  className="rounded-xl border-slate-200 text-xs font-semibold cursor-pointer"
+                >
+                  {t('uploadReport')}
+                </Button>
+              </Card>
             )}
           </div>
         </div>
