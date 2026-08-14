@@ -111,7 +111,7 @@ export const HealthDataProvider = ({ children }) => {
           setUserProfile(syncedUser);
           localStorage.setItem('medguardian_user_profile', JSON.stringify(syncedUser));
 
-          // 2. Fetch authenticated user's reports from backend (EXCLUSIVELY scoped to req.user.id)
+          // 2. Fetch authenticated user's saved reports from backend (EXCLUSIVELY scoped to req.user.id)
           const rRes = await fetch(`${API_BASE}/reports`, { headers });
           if (rRes.ok) {
             const rData = await safeParseJson(rRes);
@@ -119,6 +119,14 @@ export const HealthDataProvider = ({ children }) => {
             setReports(safeReports);
             if (syncedUser.id) {
               localStorage.setItem(`medguardian_reports_${syncedUser.id}`, JSON.stringify(safeReports));
+            }
+          } else {
+            // Offline fallback to user-scoped localStorage
+            if (syncedUser.id) {
+              const cached = localStorage.getItem(`medguardian_reports_${syncedUser.id}`);
+              if (cached) {
+                setReports(JSON.parse(cached));
+              }
             }
           }
 
@@ -244,7 +252,7 @@ export const HealthDataProvider = ({ children }) => {
           id: data.user.id || data.user._id,
           name: data.user.full_name || name,
           email: data.user.email || email,
-          profileCompleted: false // NEW USERS MUST COMPLETE ONBOARDING PROFILE SETUP FIRST
+          profileCompleted: false
         };
       } else {
         throw new Error(data.error || "Registration failed.");
@@ -264,7 +272,7 @@ export const HealthDataProvider = ({ children }) => {
     setToken(authToken);
     setUserProfile(userObj);
     
-    toast.success(`Account created successfully!`);
+    toast.success(`Account created successfully! Please set up your profile details.`);
     return userObj;
   };
 
@@ -339,15 +347,47 @@ export const HealthDataProvider = ({ children }) => {
     toast.success("Signed out successfully.");
   };
 
-  const addReport = (newReport) => {
+  // Permanently save medical report to MongoDB & LocalStorage for next time
+  const addReport = async (reportData, fileObj = null) => {
+    let savedReport = reportData;
+
+    if (fileObj) {
+      try {
+        const formData = new FormData();
+        formData.append('report', fileObj);
+
+        const res = await fetch(`${API_BASE}/reports`, {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: formData
+        });
+
+        if (res.ok) {
+          const resData = await safeParseJson(res);
+          if (resData.report) {
+            savedReport = {
+              ...reportData,
+              ...resData.report,
+              id: resData.report.id || reportData.reportId
+            };
+          }
+        }
+      } catch (err) {
+        console.warn("[REPORTS] Backend save note:", err.message);
+      }
+    }
+
     setReports(prev => {
-      const updated = [newReport, ...(Array.isArray(prev) ? prev : [])];
+      const existing = Array.isArray(prev) ? prev : [];
+      const filtered = existing.filter(r => r.id !== savedReport.id);
+      const updated = [savedReport, ...filtered];
       if (userProfile?.id) {
         localStorage.setItem(`medguardian_reports_${userProfile.id}`, JSON.stringify(updated));
       }
       return updated;
     });
-    setActiveReportId(newReport.id);
+    setActiveReportId(savedReport.id);
+    return savedReport;
   };
 
   // Medicine CRUD Methods

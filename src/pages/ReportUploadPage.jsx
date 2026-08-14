@@ -106,8 +106,8 @@ export const ReportUploadPage = () => {
       const parsedData = await analyzeUploadedDocument(selectedFile);
       setProgress(100);
 
-      // Add parsed report to context
-      addReport(parsedData);
+      // Save report permanently to MongoDB & LocalStorage for future sessions
+      const savedReport = await addReport(parsedData, selectedFile);
 
       const extractedMeds = Array.isArray(parsedData.extractedMedications) ? parsedData.extractedMedications : [];
 
