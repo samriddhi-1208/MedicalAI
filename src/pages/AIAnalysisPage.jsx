@@ -130,7 +130,9 @@ export const AIAnalysisPage = () => {
           </div>
           <div>
             <span className="text-slate-500 block">Report File</span>
-            <strong className="text-slate-800 font-bold">{latestReport.file_name || latestReport.fileName || 'Report.pdf'}</strong>
+            <strong className="text-slate-800 font-bold block truncate max-w-[180px]" title={latestReport.file_name || latestReport.fileName}>
+              {latestReport.file_name || latestReport.fileName || 'Report.pdf'}
+            </strong>
           </div>
           <div>
             <span className="text-slate-500 block">Report Date</span>

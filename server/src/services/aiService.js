@@ -120,87 +120,65 @@ function universalClinicalExtractor(textStr, fileName) {
   const vitals = [];
   const medications = [];
 
-  const lines = text.split(/\r?\n/);
-
   // 1. Extract Vitals (Temperature, Blood Pressure, Heart Rate, SpO2, Respiratory Rate)
   const tempMatch = text.match(/(?:Temperature|Body Temp|Temp)\s*[:=\-]?\s*([\d\.]+)\s*(°[FC]|F|C)?/i);
-  if (tempMatch) {
-    vitals.push({ name: "Temperature", value: tempMatch[1], unit: tempMatch[2] || "°F" });
-  }
+  if (tempMatch) vitals.push({ name: "Temperature", value: tempMatch[1], unit: tempMatch[2] || "°F" });
 
   const bpMatch = text.match(/(?:Blood Pressure|BP)\s*[:=\-]?\s*(\d{2,3}\/\d{2,3})\s*(mmHg)?/i);
-  if (bpMatch) {
-    vitals.push({ name: "Blood Pressure", value: bpMatch[1], unit: bpMatch[2] || "mmHg" });
-  }
+  if (bpMatch) vitals.push({ name: "Blood Pressure", value: bpMatch[1], unit: bpMatch[2] || "mmHg" });
 
   const hrMatch = text.match(/(?:Heart Rate|Pulse|Pulse Rate|HR)\s*[:=\-]?\s*(\d{2,3})\s*(bpm|\/min)?/i);
-  if (hrMatch) {
-    vitals.push({ name: "Heart Rate", value: hrMatch[1], unit: "bpm" });
-  }
+  if (hrMatch) vitals.push({ name: "Heart Rate", value: hrMatch[1], unit: "bpm" });
 
   const spo2Match = text.match(/(?:SpO2|Oxygen Saturation|O2 Sat)\s*[:=\-]?\s*(\d{2,3})\s*(%)?/i);
-  if (spo2Match) {
-    vitals.push({ name: "SpO2", value: spo2Match[1], unit: "%" });
-  }
+  if (spo2Match) vitals.push({ name: "SpO2", value: spo2Match[1], unit: "%" });
 
   const rrMatch = text.match(/(?:Respiratory Rate|RR)\s*[:=\-]?\s*(\d{1,2})\s*(breaths\/min|\/min)?/i);
-  if (rrMatch) {
-    vitals.push({ name: "Respiratory Rate", value: rrMatch[1], unit: "breaths/min" });
-  }
+  if (rrMatch) vitals.push({ name: "Respiratory Rate", value: rrMatch[1], unit: "breaths/min" });
 
-  // 2. Extract Lab Parameters line-by-line using Universal Clinical Regex
-  const knownTests = [
-    { key: "hemoglobin", name: "Hemoglobin", unit: "g/dL", ref: "12.0 - 15.5" },
-    { key: "hb", name: "Hemoglobin", unit: "g/dL", ref: "12.0 - 15.5" },
-    { key: "wbc", name: "WBC Count", unit: "cells/µL", ref: "4000 - 11000" },
-    { key: "leucocyte", name: "WBC Count", unit: "cells/µL", ref: "4000 - 11000" },
-    { key: "platelet", name: "Platelets", unit: "lakh/µL", ref: "1.50 - 4.50" },
-    { key: "rbc", name: "RBC Count", unit: "mil/cu.mm", ref: "3.80 - 5.20" },
-    { key: "glucose", name: "Fasting Glucose", unit: "mg/dL", ref: "70 - 99" },
-    { key: "sugar", name: "Fasting Glucose", unit: "mg/dL", ref: "70 - 99" },
-    { key: "creatinine", name: "Serum Creatinine", unit: "mg/dL", ref: "0.6 - 1.1" },
-    { key: "tsh", name: "TSH", unit: "µIU/mL", ref: "0.4 - 4.0" },
-    { key: "cholesterol", name: "Total Cholesterol", unit: "mg/dL", ref: "< 200" },
-    { key: "alt", name: "ALT (SGPT)", unit: "U/L", ref: "7 - 35" },
-    { key: "sgpt", name: "ALT (SGPT)", unit: "U/L", ref: "7 - 35" },
-    { key: "ast", name: "AST (SGOT)", unit: "U/L", ref: "8 - 40" },
-    { key: "sgot", name: "AST (SGOT)", unit: "U/L", ref: "8 - 40" },
-    { key: "hba1c", name: "HbA1c", unit: "%", ref: "< 5.7" },
-    { key: "urea", name: "Blood Urea", unit: "mg/dL", ref: "15 - 45" },
-    { key: "crp", name: "C-Reactive Protein (CRP)", unit: "mg/L", ref: "< 5.0" },
-    { key: "esr", name: "ESR", unit: "mm/hr", ref: "0 - 20" }
+  // 2. Comprehensive Lab Parameter Extraction (Full Text Substring Scan)
+  const labSpecs = [
+    { keys: ["hemoglobin", "haemoglobin", "hb", "hgb"], name: "Hemoglobin", unit: "g/dL", ref: "12.0 - 15.5" },
+    { keys: ["wbc count", "wbc", "total leucocyte", "tlc", "white blood"], name: "WBC Count", unit: "cells/µL", ref: "4000 - 11000" },
+    { keys: ["platelet count", "platelets", "platelet", "plt"], name: "Platelets", unit: "lakh/µL", ref: "1.50 - 4.50" },
+    { keys: ["rbc count", "rbc", "red blood", "erythrocyte"], name: "RBC Count", unit: "mil/cu.mm", ref: "3.80 - 5.20" },
+    { keys: ["fasting glucose", "fasting sugar", "blood sugar", "glucose"], name: "Fasting Glucose", unit: "mg/dL", ref: "70 - 99" },
+    { keys: ["serum creatinine", "creatinine", "s.creatinine"], name: "Serum Creatinine", unit: "mg/dL", ref: "0.6 - 1.1" },
+    { keys: ["tsh", "thyroid stimulating"], name: "TSH", unit: "µIU/mL", ref: "0.4 - 4.0" },
+    { keys: ["total cholesterol", "cholesterol"], name: "Total Cholesterol", unit: "mg/dL", ref: "< 200" },
+    { keys: ["alt", "sgpt", "alanine"], name: "ALT (SGPT)", unit: "U/L", ref: "7 - 35" },
+    { keys: ["ast", "sgot", "aspartate"], name: "AST (SGOT)", unit: "U/L", ref: "8 - 40" },
+    { keys: ["hba1c", "glycated hemoglobin"], name: "HbA1c", unit: "%", ref: "< 5.7" },
+    { keys: ["blood urea", "urea"], name: "Blood Urea", unit: "mg/dL", ref: "15 - 45" },
+    { keys: ["c-reactive", "crp"], name: "C-Reactive Protein (CRP)", unit: "mg/L", ref: "< 5.0" },
+    { keys: ["esr", "erythrocyte sedimentation"], name: "ESR", unit: "mm/hr", ref: "0 - 20" }
   ];
 
+  const lowerText = text.toLowerCase();
   const seenLabNames = new Set();
 
-  lines.forEach(line => {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.length < 3) return;
-    const lower = trimmed.toLowerCase();
-
-    if (/patient|registration|sample id|hospital|pathology|doctor|consultant|date/i.test(trimmed) && !/haemoglobin|hemoglobin|wbc|rbc|platelet|glucose|creatinine/i.test(trimmed)) {
-      return;
-    }
-
-    knownTests.forEach(kt => {
-      if (seenLabNames.has(kt.name)) return;
-      if (lower.includes(kt.key)) {
-        const valMatch = trimmed.match(/([<>]?\s*\d+(?:\.\d+)?)/);
+  labSpecs.forEach(spec => {
+    for (const key of spec.keys) {
+      if (seenLabNames.has(spec.name)) break;
+      const keyPos = lowerText.indexOf(key);
+      if (keyPos !== -1) {
+        const snippet = text.substring(keyPos, keyPos + 120);
+        const valMatch = snippet.match(/([<>]?\s*\d+(?:\.\d+)?)/);
         if (valMatch) {
-          const val = valMatch[1].trim();
-          let ref = kt.ref;
-          const refMatch = trimmed.match(/(\d+(?:\.\d+)?\s*[-–\sto]+\s*\d+(?:\.\d+)?|<[\s]?\d+(?:\.\d+)?)/);
-          if (refMatch) ref = refMatch[1];
-
-          let unit = kt.unit;
-          const uMatch = trimmed.match(/(g\/dL|mg\/dL|mg\/L|mmol\/L|mIU\/L|uIU\/mL|µg\/dL|U\/L|unit\/L|ng\/mL|pg\/mL|cell\/cu\.mm|cells\/µL|mil\/cu\.mm|lac\/cmm|lakh\/µL|Lakhs\/cumm|mm\/hr|fL|pg|%|k\/mcL)/i);
+          const rawVal = valMatch[1].trim();
+          let unit = spec.unit;
+          const uMatch = snippet.match(/(g\/dL|gm\/dL|mg\/dL|mg\/L|mmol\/L|mIU\/L|uIU\/mL|µg\/dL|U\/L|unit\/L|ng\/mL|pg\/mL|cell\/cu\.mm|cells\/µL|cells\/uL|lakh\/uL|lakh\/µL|mil\/cu\.mm|lac\/cmm|Lakhs\/cumm|mm\/hr|fL|pg|%|k\/mcL)/i);
           if (uMatch) unit = uMatch[0];
 
-          seenLabNames.add(kt.name);
+          let ref = spec.ref;
+          const refMatch = snippet.match(/(\d+(?:\.\d+)?\s*[-–\sto]+\s*\d+(?:\.\d+)?|<[\s]?\d+(?:\.\d+)?)/);
+          if (refMatch) ref = refMatch[1];
+
+          seenLabNames.add(spec.name);
           labResults.push({
-            testName: kt.name,
-            name: kt.name,
-            value: val,
+            testName: spec.name,
+            name: spec.name,
+            value: rawVal,
             unit,
             referenceRange: ref,
             refRange: ref,
@@ -208,42 +186,44 @@ function universalClinicalExtractor(textStr, fileName) {
           });
         }
       }
-    });
+    }
   });
 
-  // 3. Extract Medications from Document Lines
-  const knownDrugs = ["paracetamol", "cetirizine", "pantoprazole", "metformin", "atorvastatin", "amoxicillin", "azithromycin", "omeprazole", "lisinopril", "amlodipine", "losartan", "levothyroxine", "ibuprofen", "vitamin d3"];
+  // 3. Comprehensive Medication Extraction (Full Text Substring Scan)
+  const medSpecs = [
+    { drug: "paracetamol", defaultDose: "500 mg", defaultFreq: "Twice daily", defaultTiming: "After breakfast and after dinner", defaultMeal: "After meal", defaultDur: "5 days" },
+    { drug: "cetirizine", defaultDose: "10 mg", defaultFreq: "Once daily", defaultTiming: "9:00 PM after dinner", defaultMeal: "After meal", defaultDur: "5 days" },
+    { drug: "pantoprazole", defaultDose: "40 mg", defaultFreq: "Once daily", defaultTiming: "30 minutes before breakfast", defaultMeal: "Before meal", defaultDur: "7 days" },
+    { drug: "metformin", defaultDose: "500 mg", defaultFreq: "Twice daily", defaultTiming: "After breakfast and dinner", defaultMeal: "After meal", defaultDur: "30 days" },
+    { drug: "amoxicillin", defaultDose: "500 mg", defaultFreq: "Three times daily", defaultTiming: "After meals", defaultMeal: "After meal", defaultDur: "7 days" },
+    { drug: "azithromycin", defaultDose: "500 mg", defaultFreq: "Once daily", defaultTiming: "After lunch", defaultMeal: "After meal", defaultDur: "3 days" },
+    { drug: "atorvastatin", defaultDose: "10 mg", defaultFreq: "Once daily", defaultTiming: "At bedtime", defaultMeal: "After meal", defaultDur: "30 days" }
+  ];
 
-  lines.forEach(line => {
-    const trimmed = line.trim();
-    if (!trimmed) return;
-    const lower = trimmed.toLowerCase();
-
-    const foundDrug = knownDrugs.find(d => lower.includes(d));
-
-    if (foundDrug || lower.includes('rx') || lower.includes('recipe') || lower.includes('tab ') || lower.includes('cap ')) {
-      const drugName = foundDrug ? (foundDrug.charAt(0).toUpperCase() + foundDrug.slice(1)) : "Prescribed Medicine";
+  medSpecs.forEach(spec => {
+    const pos = lowerText.indexOf(spec.drug);
+    if (pos !== -1) {
+      const snippet = text.substring(pos, pos + 150);
+      const drugName = spec.drug.charAt(0).toUpperCase() + spec.drug.slice(1);
       
-      const doseMatch = trimmed.match(/(\d+(?:\.\d+)?\s*(?:mg|g|ml|mcg|unit|units))/i);
-      const strength = doseMatch ? doseMatch[1] : "500 mg";
+      const doseMatch = snippet.match(/(\d+(?:\.\d+)?\s*(?:mg|g|ml|mcg|unit|units))/i);
+      const strength = doseMatch ? doseMatch[1] : spec.defaultDose;
 
-      const qtyMatch = trimmed.match(/(1\s*tablet|2\s*tablets|1\s*capsule|1\s*cap|5\s*ml)/i);
+      const qtyMatch = snippet.match(/(1\s*tablet|2\s*tablets|1\s*capsule|1\s*cap|5\s*ml)/i);
       const dose = qtyMatch ? qtyMatch[1] : "1 tablet";
 
-      let freq = "Once daily";
-      if (lower.includes('twice') || lower.includes('1-0-1') || lower.includes('bd')) freq = "Twice daily";
-      if (lower.includes('thrice') || lower.includes('1-1-1') || lower.includes('tid')) freq = "Three times daily";
+      let freq = spec.defaultFreq;
+      const lowerSnippet = snippet.toLowerCase();
+      if (lowerSnippet.includes('twice') || lowerSnippet.includes('1-0-1') || lowerSnippet.includes('bd')) freq = "Twice daily";
+      if (lowerSnippet.includes('thrice') || lowerSnippet.includes('1-1-1') || lowerSnippet.includes('tid')) freq = "Three times daily";
 
-      let mealRel = "After meal";
-      if (lower.includes('before')) mealRel = "Before meal";
-      if (lower.includes('with food') || lower.includes('with meal')) mealRel = "With meal";
+      let mealRel = spec.defaultMeal;
+      if (lowerSnippet.includes('before')) mealRel = "Before meal";
+      if (lowerSnippet.includes('with food') || lowerSnippet.includes('with meal')) mealRel = "With meal";
 
-      let timing = "After breakfast and after dinner";
-      if (lower.includes('night') || lower.includes('9:00')) timing = "9:00 PM after dinner";
-      if (lower.includes('before breakfast')) timing = "30 minutes before breakfast";
-
+      let timing = spec.defaultTiming;
       let durDays = 5;
-      const durMatch = lower.match(/for\s+(\d+)\s*day/i);
+      const durMatch = lowerSnippet.match(/for\s+(\d+)\s*day/i);
       if (durMatch) durDays = parseInt(durMatch[1]);
 
       medications.push({
@@ -259,7 +239,7 @@ function universalClinicalExtractor(textStr, fileName) {
         delayMinutes: 30,
         duration: `${durDays} days`,
         durationDays: durDays,
-        specialInstructions: `Extracted from document: ${trimmed}`
+        specialInstructions: `Extracted from prescription text: ${snippet.substring(0, 80)}`
       });
     }
   });
