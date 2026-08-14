@@ -11,7 +11,19 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+const handleSingleFile = (req, res, next) => {
+  upload.any()(req, res, (err) => {
+    if (err) return next(err);
+    if (req.files && req.files.length > 0) {
+      req.file = req.files[0];
+    }
+    next();
+  });
+};
+
 router.get('/', authMiddleware, reportsController.getReports);
-router.post('/upload', authMiddleware, upload.single('reportFile'), reportsController.uploadReport);
+router.get('/:id', authMiddleware, reportsController.getReportById);
+router.post('/', authMiddleware, handleSingleFile, reportsController.uploadReport);
+router.post('/upload', authMiddleware, handleSingleFile, reportsController.uploadReport);
 
 module.exports = router;

@@ -36,6 +36,14 @@ exports.getReports = async (req, res, next) => {
         return {
           ...rObj,
           id: r._id.toHexString(),
+          title: r.title,
+          labName: r.lab_name,
+          doctorName: r.doctor_name,
+          date: r.report_date,
+          file_name: r.file_name,
+          file_type: r.file_type,
+          ocrConfidence: r.ocr_confidence,
+          status: r.status_flag,
           biomarkers: values.map(v => ({
             id: v._id.toHexString(),
             name: v.biomarker_name,
@@ -61,6 +69,62 @@ exports.getReports = async (req, res, next) => {
   }
 };
 
+exports.getReportById = async (req, res, next) => {
+  try {
+    const user = await getUserFromReq(req);
+    if (!user) {
+      return res.status(401).json({ error: "Authentication required." });
+    }
+
+    const reportId = req.params.id;
+    if (!mongoose.Types.ObjectId.isValid(reportId)) {
+      return res.status(400).json({ error: "Invalid report ID format." });
+    }
+
+    const report = await Report.findById(reportId);
+    if (!report) {
+      return res.status(404).json({ error: "Report not found." });
+    }
+
+    // REQUIREMENT 24: ENFORCE USER DATA OWNERSHIP
+    if (report.user_id.toString() !== user._id.toString()) {
+      return res.status(403).json({ error: "Access denied. You do not own this report." });
+    }
+
+    const values = await ReportValue.find({ report_id: report._id });
+    const summaryObj = await ReportSummary.findOne({ report_id: report._id });
+
+    res.json({
+      id: report._id.toHexString(),
+      title: report.title,
+      labName: report.lab_name,
+      doctorName: report.doctor_name,
+      date: report.report_date,
+      file_name: report.file_name,
+      file_type: report.file_type,
+      ocrConfidence: report.ocr_confidence,
+      status: report.status_flag,
+      biomarkers: values.map(v => ({
+        id: v._id.toHexString(),
+        name: v.biomarker_name,
+        value: isNaN(Number(v.value)) ? v.value : Number(v.value),
+        unit: v.unit,
+        refRange: v.reference_range,
+        status: v.status_flag,
+        category: v.category
+      })),
+      aiSummary: summaryObj ? summaryObj.plain_language_summary : "",
+      keyFindings: summaryObj ? summaryObj.key_findings : [],
+      recommendations: {
+        lifestyle: summaryObj ? summaryObj.lifestyle_advice : [],
+        medical: summaryObj ? summaryObj.clinical_advice : []
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.uploadReport = async (req, res, next) => {
   try {
     const user = await getUserFromReq(req);
@@ -68,18 +132,18 @@ exports.uploadReport = async (req, res, next) => {
       return res.status(401).json({ error: "Authentication required." });
     }
 
-    if (!req.file) {
+    const file = req.file || (req.files && req.files[0]);
+    if (!file) {
       return res.status(400).json({ error: "No report file provided. Please upload a PDF, PNG, or JPG document." });
     }
 
-    const file = req.file;
-    console.log(`[REPORT ENGINE] Processing uploaded report: "${file.originalname}" (${file.size} bytes) for user ${user.email}`);
+    console.log(`[REPORT ENGINE] Processing uploaded report: "${file.originalname}" (${file.size} bytes) for user ID ${user._id} (${user.email})`);
 
     const ocrResult = await ocrService.processReportFile(file);
 
     const newReport = await Report.create({
       user_id: user._id,
-      title: file.originalname.replace(/\.[^/.]+$/, "") || "Uploaded Lab Report",
+      title: file.originalname ? file.originalname.replace(/\.[^/.]+$/, "") : "Uploaded Lab Report",
       lab_name: ocrResult.labName || "Diagnostic Pathology Center",
       doctor_name: ocrResult.doctorName || "Consulting Care Physician",
       report_date: ocrResult.date || new Date().toISOString().split('T')[0],

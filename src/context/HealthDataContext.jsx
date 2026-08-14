@@ -354,6 +354,7 @@ export const HealthDataProvider = ({ children }) => {
     if (fileObj) {
       try {
         const formData = new FormData();
+        formData.append('reportFile', fileObj);
         formData.append('report', fileObj);
 
         const res = await fetch(`${API_BASE}/reports`, {
