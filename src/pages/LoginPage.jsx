@@ -13,6 +13,11 @@ export const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  React.useEffect(() => {
+    // Silent background warmup ping to Render backend REST API
+    fetch('https://medicalai-backend-5ycw.onrender.com/api/health').catch(() => {});
+  }, []);
+
   const handleLogin = async (e) => {
     e.preventDefault();
     if (!email || !password) {
