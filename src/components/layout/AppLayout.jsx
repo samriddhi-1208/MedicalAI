@@ -8,15 +8,17 @@ export const AppLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] flex flex-col font-sans relative">
+    <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] flex flex-col font-sans relative w-full max-w-full overflow-x-hidden">
       <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
       <Header collapsed={collapsed} />
       <main
-        className={`pt-20 pb-24 md:pb-12 px-4 sm:px-6 lg:px-8 transition-all duration-200 flex-1 w-full max-w-7xl mx-auto ${
-          collapsed ? 'md:ml-20' : 'md:ml-64'
+        className={`pt-20 pb-28 md:pb-12 px-3 sm:px-6 transition-all duration-200 flex-1 min-w-0 w-full ${
+          collapsed ? 'md:pl-24' : 'md:pl-72'
         }`}
       >
-        <Outlet />
+        <div className="max-w-7xl mx-auto w-full min-w-0">
+          <Outlet />
+        </div>
       </main>
       <MobileBottomNav />
     </div>

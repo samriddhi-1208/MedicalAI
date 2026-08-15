@@ -123,14 +123,14 @@ export const AIAnalysisPage = () => {
         <h3 className="text-xs font-bold text-[#2D90A6] uppercase tracking-wider flex items-center gap-2">
           <User className="w-4 h-4 text-[#2D90A6]" /> Patient Identification & Metadata
         </h3>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
           <div>
             <span className="text-slate-500 block">Patient Name</span>
-            <strong className="text-[#1A4B84] font-extrabold text-sm">{userProfile?.name || 'Patient'}</strong>
+            <strong className="text-[#0F172A] font-black text-sm">{userProfile?.name || 'Patient'}</strong>
           </div>
-          <div>
+          <div className="min-w-0">
             <span className="text-slate-500 block">Report File</span>
-            <strong className="text-slate-800 font-bold block truncate max-w-[180px]" title={latestReport.file_name || latestReport.fileName}>
+            <strong className="text-slate-800 font-bold block truncate max-w-full" title={latestReport.file_name || latestReport.fileName}>
               {latestReport.file_name || latestReport.fileName || 'Report.pdf'}
             </strong>
           </div>
@@ -146,13 +146,13 @@ export const AIAnalysisPage = () => {
       </Card>
 
       {/* AI Clinical Summary Banner */}
-      <Card className="p-6 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-3">
-        <div className="flex items-center justify-between">
+      <Card className="p-5 sm:p-6 bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-3">
+        <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-[#2D90A6]" />
-            <h2 className="text-base font-extrabold text-[#1A4B84]">{t('aiClinicalSummary')}</h2>
+            <Sparkles className="w-5 h-5 text-[#0D9488]" />
+            <h2 className="text-base font-black text-[#0F172A]">{t('aiClinicalSummary')}</h2>
           </div>
-          <span className="px-3 py-1 rounded-full bg-[#EBF6F8] text-[#2D90A6] font-bold text-xs border border-[#2D90A6]/30">
+          <span className="px-3 py-1 rounded-full bg-[#F0FDF4] text-[#0D9488] font-bold text-xs border border-[#0D9488]/30">
             {t('extractedFromDoc')}
           </span>
         </div>
@@ -164,15 +164,15 @@ export const AIAnalysisPage = () => {
 
       {/* Vital Signs Grid (If extracted) */}
       {vitals.length > 0 && (
-        <Card className="p-5 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-3">
-          <h3 className="text-sm font-extrabold text-[#1A4B84] flex items-center gap-2">
-            <HeartPulse className="w-4.5 h-4.5 text-[#2D90A6]" /> Vital Signs
+        <Card className="p-5 bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-3">
+          <h3 className="text-sm font-black text-[#0F172A] flex items-center gap-2">
+            <HeartPulse className="w-4.5 h-4.5 text-[#0D9488]" /> Vital Signs
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
             {vitals.map((v, i) => (
               <div key={i} className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-center space-y-1">
-                <span className="text-slate-500 font-medium block">{v.name}</span>
-                <span className="text-lg font-black text-[#1A4B84]">
+                <span className="text-slate-500 font-medium block truncate">{v.name}</span>
+                <span className="text-base sm:text-lg font-black text-[#0F172A]">
                   {v.value} <span className="text-xs font-bold text-slate-600">{v.unit}</span>
                 </span>
               </div>
@@ -184,7 +184,7 @@ export const AIAnalysisPage = () => {
       {/* Extracted Lab Results Table */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-base font-extrabold text-[#1A4B84]">{t('individualBiomarkerFindings')}</h3>
+          <h3 className="text-base font-black text-[#0F172A]">{t('individualBiomarkerFindings')}</h3>
           <span className="text-xs font-semibold text-slate-500">
             {biomarkers.length} {biomarkers.length === 1 ? t('parameterParsed') : t('parametersParsed')}
           </span>
@@ -193,13 +193,12 @@ export const AIAnalysisPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
           {biomarkers.map((bm, idx) => {
             const isNormal = String(bm.status || bm.statusType).toLowerCase() === 'normal';
-            const isExpanded = expandedSources[idx];
 
             return (
-              <Card key={idx} className="p-4 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-3">
+              <Card key={idx} className="p-4 bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-3">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <h4 className="font-extrabold text-sm text-[#1A4B84]">{bm.name || bm.biomarker_name}</h4>
+                    <h4 className="font-black text-sm text-[#0F172A]">{bm.name || bm.biomarker_name}</h4>
                     <p className="text-slate-500 font-medium mt-0.5">Category: {bm.category || 'Clinical Diagnostic'}</p>
                   </div>
 
@@ -214,7 +213,7 @@ export const AIAnalysisPage = () => {
                 <div className="flex items-baseline justify-between p-3 rounded-xl bg-slate-50 border border-slate-200">
                   <div>
                     <span className="text-xs font-bold text-slate-500 block">Measured Value</span>
-                    <span className="text-lg font-black text-[#1A4B84]">
+                    <span className="text-base sm:text-lg font-black text-[#0F172A]">
                       {bm.value} <span className="text-xs font-bold text-slate-600">{bm.unit}</span>
                     </span>
                   </div>
@@ -232,23 +231,23 @@ export const AIAnalysisPage = () => {
 
       {/* Extracted Medications Section */}
       {medications.length > 0 && (
-        <Card className="p-5 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-4">
-          <h3 className="text-base font-extrabold text-[#1A4B84] flex items-center gap-2">
-            <Pill className="w-4.5 h-4.5 text-[#2D90A6]" /> Extracted Medication Instructions ({medications.length})
+        <Card className="p-5 bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-4">
+          <h3 className="text-base font-black text-[#0F172A] flex items-center gap-2">
+            <Pill className="w-4.5 h-4.5 text-[#0D9488]" /> Extracted Medication Instructions ({medications.length})
           </h3>
           <div className="space-y-3">
             {medications.map((m, idx) => (
               <div key={idx} className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2 text-xs">
-                <div className="flex justify-between items-center">
-                  <h4 className="font-extrabold text-sm text-[#1A4B84]">💊 {m.medicineName || m.name}</h4>
-                  <span className="px-2.5 py-0.5 rounded-full bg-[#EBF6F8] text-[#2D90A6] font-bold">
+                <div className="flex justify-between items-center flex-wrap gap-1">
+                  <h4 className="font-black text-sm text-[#0F172A]">💊 {m.medicineName || m.name}</h4>
+                  <span className="px-2.5 py-0.5 rounded-full bg-[#F0FDF4] text-[#0D9488] font-bold">
                     {m.dose || m.strength || '1 tablet'}
                   </span>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] text-slate-600">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-[11px] text-slate-600">
                   <p><span className="text-slate-500">Frequency:</span> <strong className="text-slate-800">{m.frequency}</strong></p>
                   <p><span className="text-slate-500">Meal Relation:</span> <strong className="text-slate-800">{m.mealRelation}</strong></p>
-                  <p><span className="text-slate-500">Timing:</span> <strong className="text-[#2D90A6]">{m.timing || 'As prescribed'}</strong></p>
+                  <p><span className="text-slate-500">Timing:</span> <strong className="text-[#0D9488]">{m.timing || 'As prescribed'}</strong></p>
                   <p><span className="text-slate-500">Duration:</span> <strong className="text-slate-800">{m.duration || '5 days'}</strong></p>
                 </div>
               </div>

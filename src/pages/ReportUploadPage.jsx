@@ -5,19 +5,12 @@ import {
   FileText, 
   Sparkles, 
   CheckCircle2, 
-  AlertCircle, 
-  ShieldCheck, 
   File, 
-  RefreshCw,
-  ArrowRight,
   Info,
   AlertTriangle,
   Pill,
-  Clock,
   Edit2,
   Trash2,
-  FileSearch,
-  Cpu,
   Check
 } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -30,7 +23,7 @@ import { Modal } from '../components/ui/Modal';
 
 export const ReportUploadPage = () => {
   const navigate = useNavigate();
-  const { addReport, addMedicine, medicines, userProfile, language } = useHealthData();
+  const { addReport, addMedicine, language } = useHealthData();
   const t = (key) => getTranslation(language, key);
 
   const [selectedFile, setSelectedFile] = useState(null);
@@ -106,14 +99,11 @@ export const ReportUploadPage = () => {
       setTimeout(() => { setActiveStep(3); setProcessingStatus("Step 3/5: Extracting lab test results & vitals..."); }, 500);
       setTimeout(() => { setActiveStep(4); setProcessingStatus("Step 4/5: Running AI diagnostic summary analysis..."); }, 1000);
 
-      // Perform dynamic parsing on uploaded file
       const parsedData = await analyzeUploadedDocument(selectedFile);
       setActiveStep(5);
       setProcessingStatus("Step 5/5: Document parsed successfully!");
 
-      // Save report permanently to MongoDB & LocalStorage
-      const savedReport = await addReport(parsedData, selectedFile);
-
+      await addReport(parsedData, selectedFile);
       const extractedMeds = Array.isArray(parsedData.extractedMedications) ? parsedData.extractedMedications : [];
 
       if (extractedMeds.length > 0) {
@@ -207,6 +197,7 @@ export const ReportUploadPage = () => {
         start_date: startDate.toISOString().split('T')[0],
         end_date: endDate.toISOString().split('T')[0],
         purpose: "Prescribed Medication",
+        source_title: selectedFile ? selectedFile.name : 'Uploaded Report',
         instructions: med.specialInstructions || `Extracted from uploaded report`
       });
     }
@@ -225,15 +216,15 @@ export const ReportUploadPage = () => {
   ];
 
   return (
-    <div className="space-y-6 pb-12 font-sans antialiased max-w-4xl mx-auto">
+    <div className="space-y-5 pb-12 font-sans antialiased max-w-4xl mx-auto w-full min-w-0">
       
       {/* Upload Header */}
-      <div className="border-b border-slate-200 pb-4">
+      <div className="border-b border-slate-200/90 pb-3.5">
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-[#0D9488] animate-pulse" />
           <span className="text-xs text-[#0D9488] font-extrabold uppercase tracking-wider">{t('dynamicDocAnalyzer')}</span>
         </div>
-        <h1 className="text-2.5xl font-black text-[#0F172A] tracking-tight mt-0.5">
+        <h1 className="text-xl sm:text-2.5xl font-black text-[#0F172A] tracking-tight mt-0.5">
           {t('uploadMedicalReport')}
         </h1>
         <p className="text-xs text-slate-500 font-normal mt-0.5">
@@ -241,8 +232,9 @@ export const ReportUploadPage = () => {
         </p>
       </div>
 
-      {/* REQUIREMENT 24: AI PROCESSING TRANSPARENT STEPPER */}
-      <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs">
+      {/* REQUIREMENT 5: DESKTOP VS MOBILE STEPPER */}
+      {/* Desktop Stepper */}
+      <div className="hidden md:block p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs">
         <div className="flex items-center justify-between">
           {steps.map((s) => {
             const isCompleted = activeStep > s.num;
@@ -270,36 +262,51 @@ export const ReportUploadPage = () => {
         </div>
       </div>
 
-      {/* Drag and Drop Zone */}
-      <Card className="p-8 bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-6 text-center">
+      {/* Mobile Compact Progress Stepper */}
+      <div className="md:hidden p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-2">
+        <div className="flex items-center justify-between text-xs font-black text-[#0F172A]">
+          <span>Step {activeStep} of 5</span>
+          <span className="text-[#0D9488] font-bold">{steps[activeStep - 1]?.label}</span>
+        </div>
+        <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200/60">
+          <div 
+            className="bg-[#0D9488] h-2 rounded-full transition-all duration-300"
+            style={{ width: `${activeStep * 20}%` }}
+          />
+        </div>
+      </div>
+
+      {/* REQUIREMENT 6: MOBILE COMPACT UPLOAD CARD */}
+      <Card className="p-5 sm:p-8 bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-5 text-center w-full min-w-0">
         
         <div
           onDragEnter={handleDrag}
           onDragOver={handleDrag}
           onDragLeave={handleDrag}
           onDrop={handleDrop}
-          className={`p-10 rounded-2xl border-2 border-dashed transition-all ${
+          className={`p-6 sm:p-10 rounded-2xl border-2 border-dashed transition-all ${
             dragActive
               ? 'border-[#0D9488] bg-slate-50 scale-[1.01]'
               : 'border-slate-300 bg-slate-50/60 hover:bg-slate-50'
           }`}
         >
-          <div className="w-16 h-16 rounded-2xl bg-[#0F172A] text-white flex items-center justify-center mx-auto shadow-md mb-4">
-            <Upload className="w-8 h-8 text-[#0D9488]" />
+          <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-[#0F172A] text-white flex items-center justify-center mx-auto shadow-md mb-3 sm:mb-4">
+            <Upload className="w-6 h-6 sm:w-8 sm:h-8 text-[#0D9488]" />
           </div>
 
-          <p className="text-sm font-extrabold text-[#0F172A]">
-            {t('dragDropText')}
+          <p className="text-xs sm:text-sm font-extrabold text-[#0F172A]">
+            <span className="hidden sm:inline">{t('dragDropText')}</span>
+            <span className="sm:hidden">Tap below to select a medical report</span>
           </p>
 
-          <p className="text-xs text-slate-500 font-medium mt-1">
-            {t('supportedFormats')} • {t('maxSize')}
+          <p className="text-[11px] sm:text-xs text-slate-500 font-medium mt-1">
+            PDF, JPG, JPEG or PNG • Max 15 MB
           </p>
 
-          <div className="mt-6">
-            <label className="px-6 py-3 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white text-xs font-bold cursor-pointer inline-flex items-center gap-2 transition-colors shadow-2xs">
+          <div className="mt-4 sm:mt-6">
+            <label className="w-full sm:w-auto min-h-[48px] px-6 py-3 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white text-xs sm:text-sm font-bold cursor-pointer inline-flex items-center justify-center gap-2 transition-colors shadow-2xs">
               <File className="w-4 h-4 text-[#0D9488]" />
-              <span>{t('browseFiles')}</span>
+              <span>Browse Files</span>
               <input
                 type="file"
                 accept=".pdf,.jpg,.jpeg,.png"
@@ -310,14 +317,18 @@ export const ReportUploadPage = () => {
           </div>
         </div>
 
-        {/* Selected File Details */}
+        {/* REQUIREMENT 7: SELECTED FILE CARD WITH FILENAME WRAP FIX */}
         {selectedFile && (
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between text-xs text-left animate-in fade-in duration-150">
-            <div className="flex items-center gap-3">
-              <FileText className="w-6 h-6 text-[#0D9488]" />
-              <div>
-                <p className="font-extrabold text-sm text-[#0F172A] truncate max-w-xs">{selectedFile.name}</p>
-                <p className="text-slate-500 font-medium">{(selectedFile.size / 1024).toFixed(1)} KB • {selectedFile.type}</p>
+          <div className="p-3.5 sm:p-4 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-left w-full min-w-0">
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <FileText className="w-6 h-6 text-[#0D9488] shrink-0" />
+              <div className="min-w-0 flex-1">
+                <p className="font-black text-xs sm:text-sm text-[#0F172A] break-all line-clamp-2">
+                  {selectedFile.name}
+                </p>
+                <p className="text-slate-500 font-medium text-[11px]">
+                  {(selectedFile.size / 1024).toFixed(1)} KB • {selectedFile.type.includes('pdf') ? 'PDF' : 'IMAGE'}
+                </p>
               </div>
             </div>
 
@@ -327,9 +338,9 @@ export const ReportUploadPage = () => {
               icon={Sparkles}
               loading={uploading}
               onClick={handleUploadAndAnalyze}
-              className="bg-[#0F172A] hover:bg-[#1E293B] py-2.5 px-6 text-xs font-bold rounded-xl cursor-pointer"
+              className="bg-[#0F172A] hover:bg-[#1E293B] py-3 px-6 text-xs font-bold rounded-xl cursor-pointer w-full sm:w-auto min-h-[48px] shrink-0"
             >
-              {uploading ? t('extractingData') : t('uploadAndAnalyze')}
+              {uploading ? 'Processing Document...' : 'Upload & Analyze'}
             </Button>
           </div>
         )}
@@ -371,7 +382,7 @@ export const ReportUploadPage = () => {
         </p>
       </div>
 
-      {/* EXTRACTED MEDICATION VERIFICATION MODAL */}
+      {/* REQUIREMENTS 9, 10, 11: MEDICATION VERIFICATION RESPONSIVE MODAL */}
       <Modal
         isOpen={isVerificationModalOpen}
         onClose={() => setIsVerificationModalOpen(false)}
@@ -381,42 +392,42 @@ export const ReportUploadPage = () => {
           <div className="p-3.5 rounded-xl bg-slate-100 border border-slate-200 text-[#0F172A] flex items-center gap-3">
             <Pill className="w-6 h-6 text-[#0D9488] shrink-0" />
             <div>
-              <p className="font-extrabold text-sm">Verify Extracted Medication Instructions</p>
+              <p className="font-black text-sm">Verify Extracted Medications</p>
               <p className="text-[11px] text-slate-600 font-normal">
-                We detected {pendingMedications.length} prescription instruction(s) in your document. Review dosage and reminder times before creating reminders.
+                Review dosages and reminder times before saving to your schedule.
               </p>
             </div>
           </div>
 
-          {/* Medication Cards List */}
-          <div className="space-y-3 max-h-[340px] overflow-y-auto pr-1">
+          {/* Medication Cards List - Stacked 1 Column on Mobile */}
+          <div className="space-y-3 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
             {pendingMedications.map((med, idx) => (
               <Card key={med.id || idx} className="p-4 border border-slate-200 bg-white space-y-2.5 rounded-xl shadow-2xs">
                 <div className="flex justify-between items-start">
                   <div>
-                    <h4 className="font-extrabold text-sm text-[#0F172A] flex items-center gap-1.5">
+                    <h4 className="font-black text-sm text-[#0F172A] flex items-center gap-1.5">
                       💊 {med.medicineName}
                     </h4>
-                    <p className="text-xs text-slate-500 font-medium">{med.dose} • {med.quantity}</p>
+                    <p className="text-xs text-slate-500 font-bold">{med.dose} • {med.quantity}</p>
                   </div>
 
-                  <div className="flex gap-1">
+                  <div className="flex gap-1 shrink-0">
                     <button
                       onClick={() => handleOpenEditMed(med, idx)}
-                      className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 text-[11px] font-bold cursor-pointer inline-flex items-center gap-1"
+                      className="px-2.5 py-1.5 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 text-[11px] font-bold cursor-pointer inline-flex items-center gap-1 min-h-[36px]"
                     >
-                      <Edit2 className="w-3 h-3 text-[#0D9488]" /> Edit
+                      <Edit2 className="w-3.5 h-3.5 text-[#0D9488]" /> Edit
                     </button>
                     <button
                       onClick={() => handleRemovePendingMed(idx)}
-                      className="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-700 hover:bg-rose-100 text-[11px] font-bold cursor-pointer inline-flex items-center gap-1"
+                      className="px-2.5 py-1.5 rounded-lg bg-rose-50 text-rose-700 hover:bg-rose-100 text-[11px] font-bold cursor-pointer inline-flex items-center gap-1 min-h-[36px]"
                     >
-                      <Trash2 className="w-3 h-3 text-[#DC2626]" /> Remove
+                      <Trash2 className="w-3.5 h-3.5 text-[#DC2626]" /> Remove
                     </button>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 p-2.5 rounded-lg bg-slate-50 border border-slate-200/80 text-[11px]">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-2.5 rounded-lg bg-slate-50 border border-slate-200/80 text-[11px]">
                   <p><span className="text-slate-500">Frequency:</span> <strong className="text-[#0F172A] font-bold">{med.frequency}</strong></p>
                   <p><span className="text-slate-500">Meal Relation:</span> <strong className="text-slate-800 font-semibold">{med.mealRelation} ({med.mealType})</strong></p>
                   <p><span className="text-slate-500">Duration:</span> <strong className="text-slate-800 font-semibold">{med.duration}</strong></p>
@@ -430,7 +441,7 @@ export const ReportUploadPage = () => {
           {editingMedIndex !== null && (
             <form onSubmit={handleSaveMedEdit} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
               <h5 className="font-extrabold text-xs text-[#0F172A]">Edit {editFormData.medicineName} Details</h5>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <input
                   type="text"
                   value={editFormData.medicineName}
@@ -446,7 +457,7 @@ export const ReportUploadPage = () => {
                   className="med-input text-xs"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <input
                   type="text"
                   value={editFormData.timing}
@@ -472,9 +483,9 @@ export const ReportUploadPage = () => {
             </form>
           )}
 
-          {/* Confirmation Action Button */}
-          <div className="flex justify-end gap-2 pt-3 border-t border-slate-200">
-            <Button variant="secondary" size="sm" onClick={() => navigate('/app/analysis')}>
+          {/* Touch Friendly Action Buttons */}
+          <div className="flex flex-col sm:flex-row justify-end gap-2 pt-3 border-t border-slate-200">
+            <Button variant="secondary" size="sm" onClick={() => navigate('/app/analysis')} className="w-full sm:w-auto min-h-[44px]">
               Skip & View Analysis
             </Button>
             <Button
@@ -482,7 +493,7 @@ export const ReportUploadPage = () => {
               size="sm"
               icon={CheckCircle2}
               onClick={handleConfirmAllReminders}
-              className="bg-[#0F172A] hover:bg-[#1E293B] py-2.5 px-6 font-bold text-xs cursor-pointer shadow-2xs"
+              className="bg-[#0F172A] hover:bg-[#1E293B] py-3 px-6 font-extrabold text-xs cursor-pointer shadow-2xs w-full sm:w-auto min-h-[48px]"
             >
               Confirm & Set Reminders
             </Button>

@@ -130,65 +130,65 @@ export const DashboardPage = () => {
           </div>
         </div>
 
-        {/* 6. QUICK ACTIONS BAR */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+        {/* QUICK ACTIONS BAR */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2">
           
           <button
             onClick={() => navigate('/app/upload')}
-            className="p-3.5 rounded-xl bg-slate-50 hover:bg-slate-100/90 border border-slate-200/90 text-left space-y-1.5 cursor-pointer transition-all hover:scale-[1.01] min-h-[64px]"
+            className="p-3 rounded-xl bg-slate-50 hover:bg-slate-100/90 border border-slate-200/90 text-left space-y-1 cursor-pointer transition-all hover:scale-[1.01] min-h-[60px] w-full min-w-0"
           >
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-[#0F172A] text-white flex items-center justify-center shrink-0">
-                <Upload className="w-4 h-4 text-[#0D9488]" />
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#0F172A] text-white flex items-center justify-center shrink-0">
+                <Upload className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#0D9488]" />
               </div>
-              <div>
-                <span className="block text-xs font-extrabold text-[#0F172A]">Upload Report</span>
-                <span className="block text-[11px] font-medium text-slate-500">Analyze a medical report</span>
+              <div className="min-w-0 flex-1">
+                <span className="block text-[11px] sm:text-xs font-extrabold text-[#0F172A] truncate">Upload Report</span>
+                <span className="block text-[10px] font-medium text-slate-500 truncate">Analyze report</span>
               </div>
             </div>
           </button>
 
           <button
             onClick={() => navigate('/app/hospitals')}
-            className="p-3.5 rounded-xl bg-slate-50 hover:bg-slate-100/90 border border-slate-200/90 text-left space-y-1.5 cursor-pointer transition-all hover:scale-[1.01] min-h-[64px]"
+            className="p-3 rounded-xl bg-slate-50 hover:bg-slate-100/90 border border-slate-200/90 text-left space-y-1 cursor-pointer transition-all hover:scale-[1.01] min-h-[60px] w-full min-w-0"
           >
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-[#0F172A] text-white flex items-center justify-center shrink-0">
-                <Building2 className="w-4 h-4 text-[#0D9488]" />
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#0F172A] text-white flex items-center justify-center shrink-0">
+                <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#0D9488]" />
               </div>
-              <div>
-                <span className="block text-xs font-extrabold text-[#0F172A]">Find Hospital</span>
-                <span className="block text-[11px] font-medium text-slate-500">Find nearby care</span>
+              <div className="min-w-0 flex-1">
+                <span className="block text-[11px] sm:text-xs font-extrabold text-[#0F172A] truncate">Find Hospital</span>
+                <span className="block text-[10px] font-medium text-slate-500 truncate">Nearby care</span>
               </div>
             </div>
           </button>
 
           <button
             onClick={() => navigate('/app/medicines')}
-            className="p-3.5 rounded-xl bg-slate-50 hover:bg-slate-100/90 border border-slate-200/90 text-left space-y-1.5 cursor-pointer transition-all hover:scale-[1.01] min-h-[64px]"
+            className="p-3 rounded-xl bg-slate-50 hover:bg-slate-100/90 border border-slate-200/90 text-left space-y-1 cursor-pointer transition-all hover:scale-[1.01] min-h-[60px] w-full min-w-0"
           >
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-[#0F172A] text-white flex items-center justify-center shrink-0">
-                <Pill className="w-4 h-4 text-[#0D9488]" />
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#0F172A] text-white flex items-center justify-center shrink-0">
+                <Pill className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#0D9488]" />
               </div>
-              <div>
-                <span className="block text-xs font-extrabold text-[#0F172A]">Medicines</span>
-                <span className="block text-[11px] font-medium text-slate-500">View today's schedule</span>
+              <div className="min-w-0 flex-1">
+                <span className="block text-[11px] sm:text-xs font-extrabold text-[#0F172A] truncate">Medicines</span>
+                <span className="block text-[10px] font-medium text-slate-500 truncate">Today's schedule</span>
               </div>
             </div>
           </button>
 
           <button
             onClick={() => navigate('/app/sos')}
-            className="p-3.5 rounded-xl bg-rose-50/80 hover:bg-rose-100/80 border border-rose-200/90 text-left space-y-1.5 cursor-pointer transition-all hover:scale-[1.01] min-h-[64px]"
+            className="p-3 rounded-xl bg-rose-50/80 hover:bg-rose-100/80 border border-rose-200/90 text-left space-y-1 cursor-pointer transition-all hover:scale-[1.01] min-h-[60px] w-full min-w-0"
           >
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-[#DC2626] text-white flex items-center justify-center shrink-0">
-                <Siren className="w-4 h-4 text-white" />
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#DC2626] text-white flex items-center justify-center shrink-0">
+                <Siren className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
               </div>
-              <div>
-                <span className="block text-xs font-extrabold text-rose-900">Emergency SOS</span>
-                <span className="block text-[11px] font-medium text-rose-700">Get urgent assistance</span>
+              <div className="min-w-0 flex-1">
+                <span className="block text-[11px] sm:text-xs font-extrabold text-rose-900 truncate">Emergency SOS</span>
+                <span className="block text-[10px] font-medium text-rose-700 truncate">Urgent assist</span>
               </div>
             </div>
           </button>
