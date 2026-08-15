@@ -573,6 +573,9 @@ export const HealthDataProvider = ({ children }) => {
     } catch (err) {}
   };
 
+  const isAuthenticated = Boolean(token);
+  const loadingAuth = loadingData;
+
   return (
     <HealthDataContext.Provider
       value={{
@@ -580,6 +583,8 @@ export const HealthDataProvider = ({ children }) => {
         language,
         setAppLanguage,
         token,
+        isAuthenticated,
+        loadingAuth,
         userProfile,
         reports,
         medicines,
