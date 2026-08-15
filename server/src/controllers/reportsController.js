@@ -33,6 +33,18 @@ exports.getReports = async (req, res, next) => {
         const summaryObj = await ReportSummary.findOne({ report_id: r._id });
 
         const rObj = r.toObject();
+        const mappedBiomarkers = values.map(v => ({
+          id: v._id.toHexString(),
+          name: v.biomarker_name,
+          testName: v.biomarker_name,
+          value: isNaN(Number(v.value)) ? v.value : Number(v.value),
+          unit: v.unit,
+          refRange: v.reference_range,
+          referenceRange: v.reference_range,
+          status: v.status_flag,
+          category: v.category
+        }));
+
         return {
           ...rObj,
           id: r._id.toHexString(),
@@ -44,15 +56,8 @@ exports.getReports = async (req, res, next) => {
           file_type: r.file_type,
           ocrConfidence: r.ocr_confidence,
           status: r.status_flag,
-          biomarkers: values.map(v => ({
-            id: v._id.toHexString(),
-            name: v.biomarker_name,
-            value: isNaN(Number(v.value)) ? v.value : Number(v.value),
-            unit: v.unit,
-            refRange: v.reference_range,
-            status: v.status_flag,
-            category: v.category
-          })),
+          biomarkers: mappedBiomarkers,
+          labResults: mappedBiomarkers,
           aiSummary: summaryObj ? summaryObj.plain_language_summary : "",
           keyFindings: summaryObj ? summaryObj.key_findings : [],
           recommendations: {
@@ -86,13 +91,24 @@ exports.getReportById = async (req, res, next) => {
       return res.status(404).json({ error: "Report not found." });
     }
 
-    // REQUIREMENT 24: ENFORCE USER DATA OWNERSHIP
     if (report.user_id.toString() !== user._id.toString()) {
       return res.status(403).json({ error: "Access denied. You do not own this report." });
     }
 
     const values = await ReportValue.find({ report_id: report._id });
     const summaryObj = await ReportSummary.findOne({ report_id: report._id });
+
+    const mappedBiomarkers = values.map(v => ({
+      id: v._id.toHexString(),
+      name: v.biomarker_name,
+      testName: v.biomarker_name,
+      value: isNaN(Number(v.value)) ? v.value : Number(v.value),
+      unit: v.unit,
+      refRange: v.reference_range,
+      referenceRange: v.reference_range,
+      status: v.status_flag,
+      category: v.category
+    }));
 
     res.json({
       id: report._id.toHexString(),
@@ -104,15 +120,8 @@ exports.getReportById = async (req, res, next) => {
       file_type: report.file_type,
       ocrConfidence: report.ocr_confidence,
       status: report.status_flag,
-      biomarkers: values.map(v => ({
-        id: v._id.toHexString(),
-        name: v.biomarker_name,
-        value: isNaN(Number(v.value)) ? v.value : Number(v.value),
-        unit: v.unit,
-        refRange: v.reference_range,
-        status: v.status_flag,
-        category: v.category
-      })),
+      biomarkers: mappedBiomarkers,
+      labResults: mappedBiomarkers,
       aiSummary: summaryObj ? summaryObj.plain_language_summary : "",
       keyFindings: summaryObj ? summaryObj.key_findings : [],
       recommendations: {
@@ -153,10 +162,27 @@ exports.uploadReport = async (req, res, next) => {
       status_flag: ocrResult.status || "Analyzed"
     });
 
-    if (ocrResult.biomarkers && ocrResult.biomarkers.length > 0) {
-      const valuesToInsert = ocrResult.biomarkers.map(bm => ({
+    const combinedBiomarkers = [
+      ...(Array.isArray(ocrResult.biomarkers) ? ocrResult.biomarkers : []),
+      ...(Array.isArray(ocrResult.labResults) ? ocrResult.labResults : [])
+    ];
+
+    // Deduplicate by name
+    const uniqueBiomarkers = [];
+    const seenNames = new Set();
+
+    combinedBiomarkers.forEach(bm => {
+      const name = bm.name || bm.testName;
+      if (name && !seenNames.has(name)) {
+        seenNames.add(name);
+        uniqueBiomarkers.push(bm);
+      }
+    });
+
+    if (uniqueBiomarkers.length > 0) {
+      const valuesToInsert = uniqueBiomarkers.map(bm => ({
         report_id: newReport._id,
-        biomarker_name: bm.name,
+        biomarker_name: bm.name || bm.testName,
         value: String(bm.value),
         unit: bm.unit || '',
         reference_range: bm.refRange || bm.referenceRange || '',
@@ -185,7 +211,8 @@ exports.uploadReport = async (req, res, next) => {
       ocrConfidence: newReport.ocr_confidence,
       status: newReport.status_flag,
       statusType: ocrResult.statusType || 'normal',
-      biomarkers: ocrResult.biomarkers || [],
+      biomarkers: uniqueBiomarkers,
+      labResults: uniqueBiomarkers,
       extractedMedications: ocrResult.extractedMedications || [],
       aiSummary: ocrResult.aiSummary,
       keyFindings: ocrResult.keyFindings || [],
