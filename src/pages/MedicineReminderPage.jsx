@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Pill, 
   Plus, 
@@ -10,7 +11,12 @@ import {
   PauseCircle,
   PlayCircle,
   Edit2,
-  Calendar
+  Calendar,
+  Upload,
+  Info,
+  History,
+  ShieldCheck,
+  CheckSquare
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
@@ -21,6 +27,7 @@ import { Button } from '../components/ui/Button';
 import { Modal } from '../components/ui/Modal';
 
 export const MedicineReminderPage = () => {
+  const navigate = useNavigate();
   const { 
     language,
     medicines, 
@@ -47,7 +54,8 @@ export const MedicineReminderPage = () => {
     mealRelation: 'After meal',
     mealType: 'Lunch',
     delayMinutes: '30',
-    purpose: 'General Wellness',
+    durationDays: '5',
+    purpose: 'Prescribed Medication',
     totalPills: '30'
   });
 
@@ -58,10 +66,13 @@ export const MedicineReminderPage = () => {
   }, []);
 
   const safeMedicines = Array.isArray(medicines) ? medicines : [];
-  const takenCount = safeMedicines.filter(m => m.taken).length;
   const totalCount = safeMedicines.length;
-  const adherencePercent = totalCount > 0 ? Math.round((takenCount / totalCount) * 100) : 0;
-  const lowRefills = safeMedicines.filter(m => (m.pillsRemaining || 30) <= 5);
+  const takenCount = safeMedicines.filter(m => m.taken).length;
+  const hasMedicines = totalCount > 0;
+
+  // REQUIREMENT 14: ADHERENCE RATE FORMULA (DO NOT SHOW 0% WHEN ZERO MEDS)
+  const adherencePercent = hasMedicines ? Math.round((takenCount / totalCount) * 100) : null;
+  const lowRefills = safeMedicines.filter(m => (m.pillsRemaining || m.pills_remaining || 30) <= 5);
 
   const handleOpenAdd = () => {
     setEditingMedId(null);
@@ -76,7 +87,8 @@ export const MedicineReminderPage = () => {
       mealRelation: 'After meal',
       mealType: 'Lunch',
       delayMinutes: '30',
-      purpose: 'General Wellness',
+      durationDays: '5',
+      purpose: 'Prescribed Medication',
       totalPills: '30'
     });
     setIsAddModalOpen(true);
@@ -95,8 +107,9 @@ export const MedicineReminderPage = () => {
       mealRelation: med.mealRelation || 'After meal',
       mealType: med.mealType || 'Lunch',
       delayMinutes: String(med.delayMinutes || 30),
-      purpose: med.purpose || 'General Wellness',
-      totalPills: String(med.totalPills || 30)
+      durationDays: String(med.durationDays || 5),
+      purpose: med.purpose || 'Prescribed Medication',
+      totalPills: String(med.totalPills || med.total_pills || 30)
     });
     setIsAddModalOpen(true);
   };
@@ -119,10 +132,10 @@ export const MedicineReminderPage = () => {
         meal_type: formData.mealType,
         mealType: formData.mealType,
         delay_minutes: Number(formData.delayMinutes),
-        delayMinutes: Number(formData.delayMinutes),
+        duration_days: Number(formData.durationDays),
         purpose: formData.purpose,
         total_pills: parseInt(formData.totalPills || 30),
-        totalPills: parseInt(formData.totalPills || 30)
+        pills_remaining: parseInt(formData.totalPills || 30)
       });
     } else {
       addMedicine({
@@ -136,6 +149,8 @@ export const MedicineReminderPage = () => {
         mealRelation: formData.mealRelation,
         mealType: formData.mealType,
         delayMinutes: Number(formData.delayMinutes),
+        duration_days: Number(formData.durationDays),
+        source_title: 'Manual Entry',
         purpose: formData.purpose,
         totalPills: formData.totalPills
       });
@@ -150,74 +165,151 @@ export const MedicineReminderPage = () => {
       {/* Header Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/90 pb-4">
         <div>
-          <h1 className="text-2.5xl font-black text-[#0F172A] tracking-tight flex items-center gap-2.5">
-            <Pill className="w-7 h-7 text-[#0D9488]" /> Today's Medications & Schedule
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#0D9488] animate-pulse" />
+            <span className="text-xs text-[#0D9488] font-extrabold uppercase tracking-wider">Prescription Schedule</span>
+          </div>
+          <h1 className="text-2.5xl font-black text-[#0F172A] tracking-tight mt-0.5 flex items-center gap-2.5">
+            <Pill className="w-7 h-7 text-[#0D9488]" /> Today's Medication Schedule
           </h1>
           <p className="text-xs font-normal text-slate-500 mt-0.5">
-            View prescribed timings, meal relations, dosages, and confirm taken doses
+            Confirmed prescriptions from uploaded reports and custom medication reminders
           </p>
         </div>
 
-        <Button
-          variant="primary"
-          size="md"
-          icon={Plus}
-          className="bg-[#0F172A] hover:bg-[#1E293B] text-xs font-bold rounded-xl cursor-pointer shadow-2xs"
-          onClick={handleOpenAdd}
-        >
-          {t('addMedicine')}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="md"
+            icon={Upload}
+            onClick={() => navigate('/app/upload')}
+            className="text-xs font-bold rounded-xl border-slate-200 cursor-pointer"
+          >
+            Upload Prescription
+          </Button>
+
+          <Button
+            variant="primary"
+            size="md"
+            icon={Plus}
+            className="bg-[#0F172A] hover:bg-[#1E293B] text-xs font-bold rounded-xl cursor-pointer shadow-2xs"
+            onClick={handleOpenAdd}
+          >
+            + Add Medicine
+          </Button>
+        </div>
       </div>
 
-      {/* Adherence & Supply Stats Grid */}
+      {/* Adherence & Refill Alert Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         
+        {/* Adherence Rate Card */}
         <Card className="p-5 bg-gradient-to-br from-[#0F172A] to-[#1E293B] text-white border border-[#0F172A] flex items-center justify-between rounded-2xl shadow-2xs">
           <div>
             <p className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Today's Adherence Rate</p>
-            <p className="text-3.5xl font-black text-white mt-1">{adherencePercent}%</p>
-            <p className="text-xs text-slate-300 font-medium mt-1">{takenCount} of {totalCount} doses logged</p>
+            {hasMedicines ? (
+              <>
+                <p className="text-3.5xl font-black text-white mt-1">{adherencePercent}%</p>
+                <p className="text-xs text-slate-300 font-medium mt-1">{takenCount} of {totalCount} doses logged</p>
+              </>
+            ) : (
+              <>
+                <p className="text-base font-extrabold text-slate-300 mt-2">No medications scheduled today.</p>
+                <p className="text-xs text-slate-400 font-medium mt-1">Upload a prescription to begin tracking.</p>
+              </>
+            )}
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-white/10 text-emerald-400 flex items-center justify-center font-bold text-lg border border-white/10">
+          <div className="w-12 h-12 rounded-2xl bg-white/10 text-emerald-400 flex items-center justify-center font-bold text-lg border border-white/10 shrink-0">
             ✓
           </div>
         </Card>
 
+        {/* REQUIREMENT 15: REFILL WARNING CARD */}
         <Card className="p-5 md:col-span-2 bg-white border border-slate-200/90 flex flex-col justify-between rounded-2xl shadow-2xs">
           <div className="flex justify-between items-center">
             <span className="text-xs font-bold text-[#0F172A] flex items-center gap-1.5 uppercase tracking-wider">
               <AlertCircle className="w-4 h-4 text-amber-600" /> Refill Warning Threshold ({lowRefills.length})
             </span>
-            <Badge variant="warning">Supply Alert</Badge>
+            <Badge variant={lowRefills.length > 0 ? "warning" : "normal"}>
+              {lowRefills.length > 0 ? "Refill Alert" : "Supply Normal"}
+            </Badge>
           </div>
 
-          {lowRefills.length > 0 ? (
-            <div className="space-y-1 mt-2 text-xs">
-              {lowRefills.map(m => (
-                <p key={m.id} className="text-slate-700">
-                  ⚠️ <strong className="text-[#0F172A]">{m.name}</strong>: Only <span className="text-amber-800 font-bold">{m.pillsRemaining} doses</span> remaining in supply.
-                </p>
-              ))}
-            </div>
+          {hasMedicines ? (
+            lowRefills.length > 0 ? (
+              <div className="space-y-1 mt-2 text-xs">
+                {lowRefills.map(m => (
+                  <p key={m.id} className="text-slate-700">
+                    ⚠️ <strong className="text-[#0F172A]">{m.name}</strong>: Only <span className="text-amber-800 font-bold">{m.pillsRemaining || m.pills_remaining} doses remaining</span> in supply (Refill needed in {m.pillsRemaining || m.pills_remaining} days).
+                  </p>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-slate-500 font-medium mt-2">
+                All active prescription supplies are sufficient for over 7 days.
+              </p>
+            )
           ) : (
-            <p className="text-xs text-slate-500 font-medium mt-2">All prescribed medication supplies are currently sufficient for over 7 days.</p>
+            <p className="text-xs text-slate-500 font-medium mt-2">
+              No active refills tracked. Upload a prescription report to automatically track supply thresholds.
+            </p>
           )}
         </Card>
 
       </div>
 
-      {/* REQUIREMENTS 12 & 13: TODAY'S MEDICATIONS TIMELINE SCHEDULE */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-base font-extrabold text-[#0F172A]">Today's Schedule Timeline</h2>
-        </div>
+      {/* REQUIREMENT 16: NEW USER EMPTY STATE (0 MEDICATIONS) */}
+      {!hasMedicines && (
+        <Card className="p-8 sm:p-12 text-center bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-5 max-w-2xl mx-auto my-6">
+          <div className="w-16 h-16 rounded-2xl bg-slate-100 text-[#0D9488] flex items-center justify-center mx-auto border border-slate-200">
+            <Pill className="w-8 h-8 text-[#0D9488]" />
+          </div>
+          
+          <div className="space-y-2 max-w-lg mx-auto">
+            <h2 className="text-xl sm:text-2xl font-black text-[#0F172A] tracking-tight">
+              No medications scheduled
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500 font-normal leading-relaxed">
+              Upload a prescription or add a medication manually to create your medication schedule.
+            </p>
+          </div>
 
-        {safeMedicines.length > 0 ? (
+          <div className="flex justify-center gap-3 pt-2">
+            <Button
+              variant="outline"
+              size="md"
+              icon={Upload}
+              onClick={() => navigate('/app/upload')}
+              className="border-slate-200 py-3 px-6 text-xs font-bold rounded-xl cursor-pointer"
+            >
+              Upload Medical Report
+            </Button>
+
+            <Button
+              variant="primary"
+              size="md"
+              icon={Plus}
+              onClick={handleOpenAdd}
+              className="bg-[#0F172A] hover:bg-[#1E293B] py-3 px-6 text-xs font-bold rounded-xl cursor-pointer shadow-2xs"
+            >
+              Add Medicine
+            </Button>
+          </div>
+        </Card>
+      )}
+
+      {/* REQUIREMENTS 7, 8, 17, 18, 19: TODAY'S MEDICATIONS TIMELINE SCHEDULE */}
+      {hasMedicines && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base font-black text-[#0F172A]">Today's Medication Schedule ({totalCount})</h2>
+          </div>
+
           <div className="relative border-l-2 border-slate-200/90 ml-4 pl-6 space-y-6">
             {safeMedicines.map((med, idx) => (
               <div key={med.id || idx} className="relative">
                 {/* Timeline Dot */}
-                <div className={`absolute -left-[31px] top-1.5 w-4 h-4 rounded-full border-2 bg-white ${
+                <div className={`absolute -left-[31px] top-2 w-4 h-4 rounded-full border-2 bg-white ${
                   med.taken ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-[#0F172A]'
                 }`} />
 
@@ -225,14 +317,15 @@ export const MedicineReminderPage = () => {
                   med.isPaused ? 'border-amber-200 opacity-80 bg-amber-50/20' : 'border-slate-200/90'
                 }`}>
                   
+                  {/* Top Row: Time, Name, Dose, Source Tag, Edit/Delete Actions */}
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 flex-wrap">
                       <span className="px-3 py-1 rounded-xl bg-slate-100 font-black text-xs text-[#0F172A] border border-slate-200/80 flex items-center gap-1.5">
                         <Clock className="w-3.5 h-3.5 text-[#0D9488]" />
                         {med.scheduledTime || med.time || '08:00 AM'}
                       </span>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <h3 className="text-base font-black text-[#0F172A]">💊 {med.name}</h3>
                         <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-xs font-bold border border-slate-200">
                           {med.dose || med.dosage || '1 tablet'}
@@ -240,25 +333,25 @@ export const MedicineReminderPage = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
                       <button
                         onClick={() => handleOpenEdit(med)}
                         className="p-1.5 text-slate-400 hover:text-[#0F172A] rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
-                        title="Edit medicine"
+                        title="Edit medication schedule"
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => deleteMedicine(med.id)}
                         className="p-1.5 text-slate-400 hover:text-[#DC2626] rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
-                        title="Delete medicine"
+                        title="Delete medication"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
 
-                  {/* Clear UX Schedule Info Grid */}
+                  {/* Schedule Attribute Grid */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs p-3 rounded-xl bg-slate-50 border border-slate-200/80">
                     <div>
                       <span className="text-slate-500 block">Frequency</span>
@@ -270,20 +363,33 @@ export const MedicineReminderPage = () => {
                     </div>
                     <div>
                       <span className="text-slate-500 block">Duration / Supply</span>
-                      <strong className="text-slate-800 font-bold">{med.pillsRemaining ?? 30} doses left</strong>
+                      <strong className="text-slate-800 font-bold">{med.pillsRemaining ?? med.pills_remaining ?? 30} doses left</strong>
                     </div>
                     <div>
-                      <span className="text-slate-500 block">Indication</span>
+                      <span className="text-slate-500 block">Indication / Purpose</span>
                       <strong className="text-[#0D9488] font-bold">{med.purpose || 'Prescription'}</strong>
                     </div>
                   </div>
 
-                  {/* Actions Row */}
+                  {/* REQUIREMENT 17: MEDICATION SOURCE DISCLOSURE */}
+                  <div className="flex items-center justify-between text-[11px] text-slate-500 font-medium">
+                    <span className="inline-flex items-center gap-1 text-slate-600">
+                      <FileText className="w-3.5 h-3.5 text-[#0D9488]" /> Source: <strong className="text-slate-800 font-bold">{med.sourceTitle || 'Prescription Schedule'}</strong>
+                    </span>
+
+                    {med.instructions && (
+                      <span className="text-slate-500 truncate max-w-xs">
+                        Instructions: {med.instructions}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Actions Row: Status Badge, Pause/Resume, Mark as Taken */}
                   <div className="flex items-center justify-between pt-1">
                     <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
                       med.taken ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'
                     }`}>
-                      Status: {med.taken ? 'Logged' : 'Upcoming'}
+                      Status: {med.taken ? 'Logged' : med.isPaused ? 'Paused' : 'Upcoming'}
                     </span>
 
                     <div className="flex items-center gap-2">
@@ -318,25 +424,35 @@ export const MedicineReminderPage = () => {
               </div>
             ))}
           </div>
-        ) : (
-          <Card className="p-10 text-center bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-4 max-w-xl mx-auto my-6">
-            <Pill className="w-12 h-12 text-slate-300 mx-auto" />
-            <div className="space-y-1">
-              <h3 className="text-lg font-extrabold text-[#0F172A]">No Medicine Reminders Configured</h3>
-              <p className="text-xs text-slate-500 font-normal">Add your daily prescriptions and set custom timers based on meal relations.</p>
-            </div>
-            <Button
-              variant="primary"
-              size="md"
-              icon={Plus}
-              onClick={handleOpenAdd}
-              className="bg-[#0F172A] hover:bg-[#1E293B] text-xs font-bold rounded-xl cursor-pointer"
-            >
-              {t('addMedicine')}
-            </Button>
-          </Card>
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* REQUIREMENT 20: MEDICATION HISTORY LOG */}
+      {hasMedicines && (
+        <Card className="p-6 space-y-4 bg-white border border-slate-200/90 rounded-2xl shadow-2xs">
+          <div className="flex items-center justify-between">
+            <h3 className="text-base font-black text-[#0F172A] flex items-center gap-2">
+              <History className="w-4.5 h-4.5 text-[#0D9488]" /> Medication History Log
+            </h3>
+          </div>
+
+          <div className="space-y-2 text-xs">
+            {safeMedicines.map((m) => (
+              <div key={m.id} className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
+                <div>
+                  <p className="font-extrabold text-[#0F172A]">{m.name} ({m.dose || m.dosage})</p>
+                  <p className="text-slate-500 text-[11px]">{m.scheduledTime || m.time} • {m.mealRelation}</p>
+                </div>
+                <span className={`px-2.5 py-1 rounded-full font-bold text-[10px] ${
+                  m.taken ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-700'
+                }`}>
+                  {m.taken ? 'Taken ✓' : 'Scheduled'}
+                </span>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
 
       {/* Add / Edit Prescription Modal */}
       <Modal
@@ -457,12 +573,12 @@ export const MedicineReminderPage = () => {
 
           <div className="grid grid-cols-2 gap-3">
             <div className="med-form-group">
-              <label className="block font-bold text-[#0F172A] mb-1">Purpose / Indication</label>
+              <label className="block font-bold text-[#0F172A] mb-1">Duration (Days)</label>
               <input
-                type="text"
-                value={formData.purpose}
-                onChange={(e) => setFormData({ ...formData, purpose: e.target.value })}
-                placeholder="e.g. Pain relief, Diabetes control"
+                type="number"
+                value={formData.durationDays}
+                onChange={(e) => setFormData({ ...formData, durationDays: e.target.value })}
+                placeholder="5"
                 className="med-input"
               />
             </div>

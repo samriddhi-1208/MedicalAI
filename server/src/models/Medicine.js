@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 const medicineSchema = new mongoose.Schema(
   {
     user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    report_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Report', default: null },
+    report_id: { type: String, default: null },
+    source_title: { type: String, default: 'Prescription' },
     name: { type: String, required: true },
     dose: { type: String, default: '1 tablet' },
     dosage: { type: String, default: '1 tablet' },
@@ -13,7 +14,7 @@ const medicineSchema = new mongoose.Schema(
     meal_relation: { type: String, default: 'After meal' }, // 'Before meal', 'With meal', 'After meal', 'No meal relation'
     meal_type: { type: String, default: 'Lunch' }, // 'Breakfast', 'Lunch', 'Dinner'
     delay_minutes: { type: Number, default: 30 },
-    duration_days: { type: Number, default: null },
+    duration_days: { type: Number, default: 5 },
     start_date: { type: String, default: () => new Date().toISOString().split('T')[0] },
     end_date: { type: String, default: null },
     instructions: { type: String, default: '' },

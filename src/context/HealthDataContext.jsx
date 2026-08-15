@@ -431,7 +431,9 @@ export const HealthDataProvider = ({ children }) => {
               mealRelation: m.meal_relation || 'After meal',
               mealType: m.meal_type || 'Lunch',
               delayMinutes: m.delay_minutes || 30,
-              purpose: m.purpose || 'General Wellness',
+              durationDays: m.duration_days || 5,
+              sourceTitle: m.source_title || medData.source_title || 'Prescription',
+              purpose: m.purpose || 'Prescribed Medication',
               totalPills: m.total_pills ?? 30,
               pillsRemaining: m.pills_remaining ?? 30,
               isPaused: m.is_paused || false,
@@ -450,13 +452,15 @@ export const HealthDataProvider = ({ children }) => {
           dose: medData.dose || '1 tablet',
           dosage: medData.dose || '1 tablet',
           frequency: medData.frequency || 'Once daily',
-          scheduledTime: medData.scheduled_time || '08:00 AM',
-          time: medData.scheduled_time || '08:00 AM',
+          scheduledTime: medData.scheduled_time || medData.time || '08:00 AM',
+          time: medData.scheduled_time || medData.time || '08:00 AM',
           timeSlot: medData.timeSlot || 'Morning',
-          mealRelation: medData.meal_relation || 'After meal',
-          mealType: medData.meal_type || 'Lunch',
+          mealRelation: medData.meal_relation || medData.mealRelation || 'After meal',
+          mealType: medData.meal_type || medData.mealType || 'Lunch',
           delayMinutes: medData.delay_minutes || 30,
-          purpose: medData.purpose || 'General Wellness',
+          durationDays: medData.duration_days || 5,
+          sourceTitle: medData.source_title || 'Prescription',
+          purpose: medData.purpose || 'Prescribed Medication',
           totalPills: medData.totalPills || 30,
           pillsRemaining: medData.totalPills || 30,
           isPaused: false,
@@ -464,8 +468,32 @@ export const HealthDataProvider = ({ children }) => {
         };
 
         setMedicines(prev => [localMed, ...prev]);
-        toast.success(`Medicine reminder saved locally for ${localMed.name}`);
+        toast.success(`Medicine reminder saved for ${localMed.name}`);
         return localMed;
+      };
+
+      const updateMedicine = async (id, medUpdates) => {
+        setMedicines(prev => prev.map(m => {
+          if (m.id === id) {
+            return {
+              ...m,
+              ...medUpdates,
+              scheduledTime: medUpdates.scheduled_time || medUpdates.time || m.scheduledTime,
+              mealRelation: medUpdates.meal_relation || medUpdates.mealRelation || m.mealRelation
+            };
+          }
+          return m;
+        }));
+
+        toast.success("Medication reminder updated.");
+
+        try {
+          await fetch(`${API_BASE}/medicines/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+            body: JSON.stringify(medUpdates)
+          });
+        } catch (err) {}
       };
 
       const toggleMedicineTaken = async (id) => {
@@ -600,8 +628,10 @@ export const HealthDataProvider = ({ children }) => {
         logout,
         addReport,
         addMedicine,
+        updateMedicine,
         toggleMedicineTaken,
         togglePauseMedicine,
+        toggleMedicinePause: togglePauseMedicine,
         deleteMedicine,
         addEmergencyContact,
         triggerSOS,

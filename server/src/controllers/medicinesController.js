@@ -14,7 +14,6 @@ async function getUserFromReq(req) {
     const foundByEmail = await User.findOne({ email: req.user.email.toLowerCase() });
     if (foundByEmail) return foundByEmail;
   }
-  // NEVER fall back to a default/random user!
   return null;
 }
 
@@ -53,8 +52,16 @@ exports.addMedicine = async (req, res, next) => {
       mealType,
       delay_minutes,
       delayMinutes,
+      duration_days,
+      durationDays,
+      start_date,
+      end_date,
+      instructions,
       purpose,
-      totalPills
+      totalPills,
+      total_pills,
+      source_title,
+      report_id
     } = req.body;
 
     if (!name) {
@@ -63,6 +70,8 @@ exports.addMedicine = async (req, res, next) => {
 
     const newMed = await Medicine.create({
       user_id: user._id,
+      report_id: report_id || null,
+      source_title: source_title || 'Prescription Schedule',
       name,
       dose: dose || dosage || '1 tablet',
       dosage: dose || dosage || '1 tablet',
@@ -72,9 +81,13 @@ exports.addMedicine = async (req, res, next) => {
       meal_relation: meal_relation || mealRelation || 'After meal',
       meal_type: meal_type || mealType || 'Lunch',
       delay_minutes: Number(delay_minutes || delayMinutes || 30),
-      purpose: purpose || 'General Wellness',
-      total_pills: parseInt(totalPills) || 30,
-      pills_remaining: parseInt(totalPills) || 30,
+      duration_days: Number(duration_days || durationDays || 5),
+      start_date: start_date || new Date().toISOString().split('T')[0],
+      end_date: end_date || null,
+      instructions: instructions || '',
+      purpose: purpose || 'Prescribed Medication',
+      total_pills: parseInt(total_pills || totalPills || 30),
+      pills_remaining: parseInt(total_pills || totalPills || 30),
       is_paused: false,
       is_taken: false
     });
