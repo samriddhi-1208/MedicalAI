@@ -103,7 +103,15 @@ export const ReportUploadPage = () => {
       setActiveStep(5);
       setProcessingStatus("Step 5/5: Document parsed successfully!");
 
-      await addReport(parsedData, selectedFile);
+      const savedReport = await addReport(parsedData, selectedFile);
+
+      if (savedReport && savedReport.isDuplicate) {
+        toast.info("This report has already been uploaded. Viewing existing stored record.");
+        setUploading(false);
+        navigate('/app/analysis');
+        return;
+      }
+
       const extractedMeds = Array.isArray(parsedData.extractedMedications) ? parsedData.extractedMedications : [];
 
       if (extractedMeds.length > 0) {

@@ -146,6 +146,58 @@ exports.uploadReport = async (req, res, next) => {
       return res.status(400).json({ error: "No report file provided. Please upload a PDF, PNG, or JPG document." });
     }
 
+    // REQUIREMENT 9: DUPLICATE PREVENTION (Check if user already uploaded this file)
+    const existingReport = await Report.findOne({
+      user_id: user._id,
+      file_name: file.originalname
+    });
+
+    if (existingReport) {
+      console.log(`[REPORT ENGINE] Duplicate report detected for user ${user._id}: "${file.originalname}". Returning existing report record.`);
+      
+      const values = await ReportValue.find({ report_id: existingReport._id });
+      const summaryObj = await ReportSummary.findOne({ report_id: existingReport._id });
+
+      const mappedBiomarkers = values.map(v => ({
+        id: v._id.toHexString(),
+        name: v.biomarker_name,
+        testName: v.biomarker_name,
+        value: isNaN(Number(v.value)) ? v.value : Number(v.value),
+        unit: v.unit,
+        refRange: v.reference_range,
+        referenceRange: v.reference_range,
+        status: v.status_flag,
+        category: v.category
+      }));
+
+      const populatedExisting = {
+        id: existingReport._id.toHexString(),
+        title: existingReport.title,
+        labName: existingReport.lab_name,
+        doctorName: existingReport.doctor_name,
+        date: existingReport.report_date,
+        file_name: existingReport.file_name,
+        file_type: existingReport.file_type,
+        ocrConfidence: existingReport.ocr_confidence,
+        status: existingReport.status_flag,
+        biomarkers: mappedBiomarkers,
+        labResults: mappedBiomarkers,
+        extractedMedications: [],
+        aiSummary: summaryObj ? summaryObj.plain_language_summary : "Report previously parsed.",
+        keyFindings: summaryObj ? summaryObj.key_findings : [],
+        recommendations: {
+          lifestyle: summaryObj ? summaryObj.lifestyle_advice : [],
+          medical: summaryObj ? summaryObj.clinical_advice : []
+        }
+      };
+
+      return res.status(200).json({ 
+        report: populatedExisting, 
+        isDuplicate: true, 
+        message: "This report has already been uploaded. Viewing existing stored record." 
+      });
+    }
+
     console.log(`[REPORT ENGINE] Processing uploaded report: "${file.originalname}" (${file.size} bytes) for user ID ${user._id} (${user.email})`);
 
     const ocrResult = await ocrService.processReportFile(file);
@@ -219,7 +271,7 @@ exports.uploadReport = async (req, res, next) => {
       recommendations: ocrResult.recommendations || { lifestyle: [], medical: [] }
     };
 
-    res.status(201).json({ report: populatedReport });
+    res.status(201).json({ report: populatedReport, isDuplicate: false });
   } catch (error) {
     next(error);
   }

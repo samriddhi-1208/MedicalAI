@@ -354,20 +354,6 @@ export const HealthDataProvider = ({ children }) => {
 
       const addReport = async (reportData, fileObj = null) => {
         let savedReport = { ...reportData };
-        if (!savedReport.id) {
-          savedReport.id = savedReport.reportId || `rep-${Date.now()}`;
-        }
-
-        setReports(prev => {
-          const existing = Array.isArray(prev) ? prev : [];
-          const filtered = existing.filter(r => r.id !== savedReport.id);
-          const updated = [savedReport, ...filtered];
-          if (userProfile?.id) {
-            localStorage.setItem(`medguardian_reports_${userProfile.id}`, JSON.stringify(updated));
-          }
-          return updated;
-        });
-        setActiveReportId(savedReport.id);
 
         if (fileObj) {
           try {
@@ -387,25 +373,42 @@ export const HealthDataProvider = ({ children }) => {
                 const backendReport = {
                   ...savedReport,
                   ...resData.report,
-                  id: resData.report.id || savedReport.id
+                  id: resData.report.id || resData.report._id,
+                  isDuplicate: Boolean(resData.isDuplicate)
                 };
+
                 setReports(prev => {
                   const existing = Array.isArray(prev) ? prev : [];
-                  const filtered = existing.filter(r => r.id !== savedReport.id && r.id !== backendReport.id);
+                  const filtered = existing.filter(r => r.id !== backendReport.id && r.file_name !== backendReport.file_name);
                   const updated = [backendReport, ...filtered];
                   if (userProfile?.id) {
                     localStorage.setItem(`medguardian_reports_${userProfile.id}`, JSON.stringify(updated));
                   }
                   return updated;
                 });
+                setActiveReportId(backendReport.id);
                 return backendReport;
               }
             }
           } catch (err) {
-            console.warn("[REPORTS] Async backend save note:", err.message);
+            console.warn("[REPORTS] Backend upload note:", err.message);
           }
         }
 
+        if (!savedReport.id) {
+          savedReport.id = savedReport.reportId || `rep-${Date.now()}`;
+        }
+
+        setReports(prev => {
+          const existing = Array.isArray(prev) ? prev : [];
+          const filtered = existing.filter(r => r.id !== savedReport.id);
+          const updated = [savedReport, ...filtered];
+          if (userProfile?.id) {
+            localStorage.setItem(`medguardian_reports_${userProfile.id}`, JSON.stringify(updated));
+          }
+          return updated;
+        });
+        setActiveReportId(savedReport.id);
         return savedReport;
       };
 
