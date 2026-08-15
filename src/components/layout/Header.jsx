@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { 
   Siren, 
@@ -6,8 +6,7 @@ import {
   LogOut, 
   ShieldCheck, 
   User, 
-  Settings,
-  Sparkles
+  Settings
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../../context/HealthDataContext';
@@ -22,8 +21,20 @@ export const Header = ({ collapsed }) => {
   
   const displayName = formatDisplayName(userProfile?.name);
   const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef(null);
 
   const t = (key) => getTranslation(language, key);
+
+  // Close profile dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
+        setProfileOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleSignOut = () => {
     setProfileOpen(false);
@@ -48,9 +59,9 @@ export const Header = ({ collapsed }) => {
 
   return (
     <header
-      className={`fixed top-0 right-0 z-20 h-16 bg-white border-b border-slate-200/90 transition-all duration-200 flex items-center justify-between px-3 sm:px-6 shadow-2xs ${
+      className={`fixed top-0 right-0 z-40 h-16 bg-white border-b border-slate-200/90 transition-all duration-200 flex items-center justify-between px-3 sm:px-6 shadow-2xs ${
         collapsed ? 'md:left-20' : 'md:left-64'
-      } left-0 overflow-x-hidden`}
+      } left-0`}
     >
       {/* Left Title & Workspace Info */}
       <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -132,46 +143,53 @@ export const Header = ({ collapsed }) => {
         <NotificationDropdown />
 
         {/* Profile Avatar Dropdown */}
-        <div className="relative">
+        <div className="relative" ref={profileRef}>
           <button
-            onClick={() => setProfileOpen(!profileOpen)}
-            className="flex items-center gap-1.5 p-1 rounded-xl hover:bg-slate-100 cursor-pointer transition-colors"
+            onClick={() => setProfileOpen(prev => !prev)}
+            className="flex items-center gap-1.5 p-1 rounded-xl hover:bg-slate-100 cursor-pointer transition-all active:scale-95 border border-transparent hover:border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0D9488]"
+            aria-label="User Profile Menu"
           >
-            <div className="w-8 h-8 rounded-full bg-[#0F172A] text-white font-extrabold text-xs flex items-center justify-center border border-slate-300 shadow-2xs">
-              {displayName ? displayName.charAt(0) : 'S'}
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#0F172A] text-white font-black text-xs flex items-center justify-center border border-slate-300 shadow-2xs ring-2 ring-slate-100">
+              {displayName ? displayName.charAt(0).toUpperCase() : 'S'}
             </div>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-500 hidden sm:block" />
+            <ChevronDown className={`w-3.5 h-3.5 text-slate-500 hidden sm:block transition-transform duration-150 ${profileOpen ? 'rotate-180' : ''}`} />
           </button>
 
           {profileOpen && (
-            <div className="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 py-2 text-xs animate-in fade-in duration-150">
-              <div className="px-4 py-2.5 border-b border-slate-100">
-                <p className="font-extrabold text-[#0F172A] text-sm">{displayName}</p>
+            <div className="absolute right-0 mt-2 w-60 bg-white border border-slate-200/90 rounded-2xl shadow-2xl z-50 py-2 text-xs divide-y divide-slate-100">
+              <div className="px-4 py-3">
+                <p className="font-black text-[#0F172A] text-sm">{displayName}</p>
                 <p className="text-slate-500 text-[11px] truncate font-medium">{userProfile?.email || ''}</p>
               </div>
-              <Link 
-                to="/app/profile" 
-                onClick={() => setProfileOpen(false)} 
-                className="px-4 py-2.5 font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-2"
-              >
-                <User className="w-4 h-4 text-[#0D9488]" />
-                <span>{t('personalHealthProfile')}</span>
-              </Link>
-              <Link 
-                to="/app/settings" 
-                onClick={() => setProfileOpen(false)} 
-                className="px-4 py-2.5 font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-2"
-              >
-                <Settings className="w-4 h-4 text-slate-400" />
-                <span>{t('applicationSettings')}</span>
-              </Link>
-              <button
-                onClick={handleSignOut}
-                className="w-full text-left px-4 py-2.5 font-extrabold text-rose-600 hover:bg-rose-50 flex items-center gap-2 cursor-pointer border-t border-slate-100 mt-1"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>Sign Out</span>
-              </button>
+
+              <div className="py-1">
+                <Link 
+                  to="/app/profile" 
+                  onClick={() => setProfileOpen(false)} 
+                  className="px-4 py-2.5 font-bold text-slate-700 hover:bg-slate-50 hover:text-[#0F172A] flex items-center gap-2.5 transition-colors"
+                >
+                  <User className="w-4 h-4 text-[#0D9488]" />
+                  <span>{t('personalHealthProfile')}</span>
+                </Link>
+                <Link 
+                  to="/app/settings" 
+                  onClick={() => setProfileOpen(false)} 
+                  className="px-4 py-2.5 font-bold text-slate-700 hover:bg-slate-50 hover:text-[#0F172A] flex items-center gap-2.5 transition-colors"
+                >
+                  <Settings className="w-4 h-4 text-slate-400" />
+                  <span>{t('applicationSettings')}</span>
+                </Link>
+              </div>
+
+              <div className="pt-1">
+                <button
+                  onClick={handleSignOut}
+                  className="w-full text-left px-4 py-2.5 font-black text-rose-600 hover:bg-rose-50 flex items-center gap-2.5 cursor-pointer transition-colors"
+                >
+                  <LogOut className="w-4 h-4 text-rose-600" />
+                  <span>Sign Out</span>
+                </button>
+              </div>
             </div>
           )}
         </div>
