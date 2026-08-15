@@ -12,14 +12,17 @@ import {
   Clock, 
   AlertTriangle,
   PauseCircle,
-  Activity
+  Activity,
+  Siren,
+  Sparkles,
+  ArrowRight,
+  HeartPulse
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
 import { getTranslation } from '../utils/translations';
 import { Card } from '../components/ui/Card';
-import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { HealthMetricCard } from '../components/ui/HealthMetricCard';
 import { AIInsightCard } from '../components/ui/AIInsightCard';
@@ -48,7 +51,7 @@ export const DashboardPage = () => {
   const userReports = Array.isArray(reports) ? reports : [];
   const hasReports = userReports.length > 0;
   const latestReport = hasReports ? userReports[0] : null;
-  const extractedBiomarkers = Array.isArray(latestReport?.biomarkers) ? latestReport.biomarkers : [];
+  const extractedBiomarkers = Array.isArray(latestReport?.biomarkers) ? latestReport.biomarkers : (Array.isArray(latestReport?.labResults) ? latestReport.labResults : []);
 
   // User-specific medicines array (0% Fake/Fallback Data!)
   const userMedicines = Array.isArray(medicines) ? medicines : [];
@@ -70,10 +73,10 @@ export const DashboardPage = () => {
   };
 
   return (
-    <div className="space-y-6 pb-12 font-sans antialiased">
+    <div className="space-y-6 pb-12 font-sans antialiased max-w-7xl mx-auto">
       
-      {/* Patient Hero Executive Banner */}
-      <Card className="p-6 sm:p-7 bg-white border border-slate-200 shadow-xs rounded-2xl space-y-5">
+      {/* Patient Greeting & Header Bar */}
+      <Card className="p-6 bg-white border border-slate-200/90 shadow-2xs rounded-2xl space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
             {isEditingName ? (
@@ -82,25 +85,25 @@ export const DashboardPage = () => {
                   type="text"
                   value={tempName}
                   onChange={(e) => setTempName(e.target.value)}
-                  className="med-input text-lg font-bold max-w-md"
+                  className="med-input text-base font-bold max-w-md"
                   autoFocus
                 />
                 <button
                   onClick={saveName}
-                  className="px-4 py-2 rounded-xl bg-[#1A4B84] text-white text-xs font-semibold hover:bg-[#143A66] cursor-pointer"
+                  className="px-3.5 py-2 rounded-xl bg-[#0F172A] text-white text-xs font-bold hover:bg-[#1E293B] cursor-pointer"
                 >
                   {t('save')}
                 </button>
                 <button
                   onClick={() => setIsEditingName(false)}
-                  className="px-3 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-semibold hover:bg-slate-200 cursor-pointer"
+                  className="px-3.5 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200 cursor-pointer"
                 >
                   {t('cancel')}
                 </button>
               </div>
             ) : (
               <div className="flex items-center gap-3 flex-wrap">
-                <h1 className="text-2.5xl sm:text-3xl font-extrabold text-[#1A4B84] tracking-tight leading-snug">
+                <h1 className="text-2xl sm:text-2.5xl font-black text-[#0F172A] tracking-tight leading-snug">
                   {getGreeting()}, {displayName}
                 </h1>
                 <button
@@ -108,56 +111,86 @@ export const DashboardPage = () => {
                     setTempName(displayName);
                     setIsEditingName(true);
                   }}
-                  className="px-2.5 py-1 rounded-lg bg-slate-50 text-slate-700 hover:bg-slate-100 text-xs font-semibold transition-colors inline-flex items-center gap-1.5 border border-slate-200 cursor-pointer"
+                  className="px-2.5 py-1 rounded-lg bg-slate-50 text-slate-600 hover:bg-slate-100 text-[11px] font-bold transition-colors inline-flex items-center gap-1.5 border border-slate-200 cursor-pointer"
                   title="Edit Patient Name"
                 >
-                  <Edit2 className="w-3 h-3 text-[#2D90A6]" /> {t('editName')}
+                  <Edit2 className="w-3 h-3 text-[#0D9488]" /> {t('editName')}
                 </button>
               </div>
             )}
-            <p className="text-xs sm:text-sm font-normal text-slate-500">
-              {t('healthOverviewToday')}
+            <p className="text-xs font-medium text-slate-500">
+              Here's your health overview for today.
             </p>
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2D90A6] bg-[#EBF6F8] px-3.5 py-1.5 rounded-full border border-[#2D90A6]/30">
-              <ShieldCheck className="w-4 h-4 text-[#2D90A6]" /> {t('medguardianActive')}
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0D9488] bg-slate-100 px-3.5 py-1.5 rounded-full border border-slate-200">
+              <ShieldCheck className="w-4 h-4 text-[#0D9488]" /> {t('medguardianActive')}
             </span>
           </div>
         </div>
 
-        {/* Quick Action Button Cards Grid */}
-        <div className="grid grid-cols-3 gap-3 pt-2">
+        {/* 6. QUICK ACTIONS BAR */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
           
           <button
             onClick={() => navigate('/app/upload')}
-            className="p-4 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200/90 text-center space-y-2 cursor-pointer transition-all hover:scale-[1.02] min-h-[44px]"
+            className="p-3.5 rounded-xl bg-slate-50 hover:bg-slate-100/90 border border-slate-200/90 text-left space-y-1.5 cursor-pointer transition-all hover:scale-[1.01] min-h-[64px]"
           >
-            <div className="w-9 h-9 rounded-xl bg-[#1A4B84] text-white flex items-center justify-center mx-auto shadow-2xs">
-              <Upload className="w-4.5 h-4.5 text-[#2D90A6]" />
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-[#0F172A] text-white flex items-center justify-center shrink-0">
+                <Upload className="w-4 h-4 text-[#0D9488]" />
+              </div>
+              <div>
+                <span className="block text-xs font-extrabold text-[#0F172A]">Upload Report</span>
+                <span className="block text-[11px] font-medium text-slate-500">Analyze a medical report</span>
+              </div>
             </div>
-            <span className="block text-xs font-bold text-[#1A4B84]">{t('uploadReport')}</span>
           </button>
 
           <button
             onClick={() => navigate('/app/hospitals')}
-            className="p-4 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200/90 text-center space-y-2 cursor-pointer transition-all hover:scale-[1.02] min-h-[44px]"
+            className="p-3.5 rounded-xl bg-slate-50 hover:bg-slate-100/90 border border-slate-200/90 text-left space-y-1.5 cursor-pointer transition-all hover:scale-[1.01] min-h-[64px]"
           >
-            <div className="w-9 h-9 rounded-xl bg-[#1A4B84] text-white flex items-center justify-center mx-auto shadow-2xs">
-              <Building2 className="w-4.5 h-4.5 text-[#2D90A6]" />
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-[#0F172A] text-white flex items-center justify-center shrink-0">
+                <Building2 className="w-4 h-4 text-[#0D9488]" />
+              </div>
+              <div>
+                <span className="block text-xs font-extrabold text-[#0F172A]">Find Hospital</span>
+                <span className="block text-[11px] font-medium text-slate-500">Find nearby care</span>
+              </div>
             </div>
-            <span className="block text-xs font-bold text-[#1A4B84]">{t('findHospitalQuick')}</span>
           </button>
 
           <button
             onClick={() => navigate('/app/medicines')}
-            className="p-4 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200/90 text-center space-y-2 cursor-pointer transition-all hover:scale-[1.02] min-h-[44px]"
+            className="p-3.5 rounded-xl bg-slate-50 hover:bg-slate-100/90 border border-slate-200/90 text-left space-y-1.5 cursor-pointer transition-all hover:scale-[1.01] min-h-[64px]"
           >
-            <div className="w-9 h-9 rounded-xl bg-[#1A4B84] text-white flex items-center justify-center mx-auto shadow-2xs">
-              <Pill className="w-4.5 h-4.5 text-[#2D90A6]" />
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-[#0F172A] text-white flex items-center justify-center shrink-0">
+                <Pill className="w-4 h-4 text-[#0D9488]" />
+              </div>
+              <div>
+                <span className="block text-xs font-extrabold text-[#0F172A]">Medicines</span>
+                <span className="block text-[11px] font-medium text-slate-500">View today's schedule</span>
+              </div>
             </div>
-            <span className="block text-xs font-bold text-[#1A4B84]">{t('medicine')}</span>
+          </button>
+
+          <button
+            onClick={() => navigate('/app/sos')}
+            className="p-3.5 rounded-xl bg-rose-50/80 hover:bg-rose-100/80 border border-rose-200/90 text-left space-y-1.5 cursor-pointer transition-all hover:scale-[1.01] min-h-[64px]"
+          >
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-[#DC2626] text-white flex items-center justify-center shrink-0">
+                <Siren className="w-4 h-4 text-white" />
+              </div>
+              <div>
+                <span className="block text-xs font-extrabold text-rose-900">Emergency SOS</span>
+                <span className="block text-[11px] font-medium text-rose-700">Get urgent assistance</span>
+              </div>
+            </div>
           </button>
 
         </div>
@@ -165,9 +198,9 @@ export const DashboardPage = () => {
 
       {/* Loading State */}
       {loadingData && (
-        <Card className="p-8 text-center bg-white border border-slate-200 rounded-2xl shadow-xs space-y-3">
-          <div className="w-8 h-8 border-4 border-[#1A4B84] border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-xs font-bold text-[#1A4B84]">{t('loadingMedicalData')}</p>
+        <Card className="p-8 text-center bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-3">
+          <div className="w-8 h-8 border-4 border-[#0F172A] border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-xs font-bold text-[#0F172A]">{t('loadingMedicalData')}</p>
         </Card>
       )}
 
@@ -179,19 +212,19 @@ export const DashboardPage = () => {
         </Card>
       )}
 
-      {/* REQUIREMENT 1: EMPTY DASHBOARD STATE FOR NEW USERS WITH NO REPORTS */}
+      {/* 8. EMPTY DASHBOARD STATE FOR NEW USER (0 REPORTS) */}
       {!hasReports && !loadingData && (
-        <Card className="p-8 sm:p-10 text-center bg-white border border-slate-200 rounded-2xl shadow-xs space-y-5 max-w-2xl mx-auto my-4">
-          <div className="w-16 h-16 rounded-2xl bg-[#EBF6F8] text-[#2D90A6] flex items-center justify-center mx-auto border border-[#2D90A6]/30">
-            <FileText className="w-8 h-8 text-[#2D90A6]" />
+        <Card className="p-8 sm:p-10 text-center bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-4 max-w-2xl mx-auto my-4">
+          <div className="w-14 h-14 rounded-2xl bg-slate-100 text-[#0D9488] flex items-center justify-center mx-auto border border-slate-200">
+            <FileText className="w-7 h-7 text-[#0D9488]" />
           </div>
           
-          <div className="space-y-2 max-w-lg mx-auto">
-            <h2 className="text-xl sm:text-2xl font-extrabold text-[#1A4B84] tracking-tight">
-              {t('noMedicalDataAvailable')}
+          <div className="space-y-1.5 max-w-lg mx-auto">
+            <h2 className="text-xl font-extrabold text-[#0F172A] tracking-tight">
+              Your health dashboard is ready.
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500 font-normal leading-relaxed">
-              {t('uploadReportToAnalyze')}
+            <p className="text-xs text-slate-500 font-normal leading-relaxed">
+              Upload your first medical report to see personalized health metrics here.
             </p>
           </div>
 
@@ -201,28 +234,28 @@ export const DashboardPage = () => {
               size="md"
               icon={Upload}
               onClick={() => navigate('/app/upload')}
-              className="bg-[#1A4B84] hover:bg-[#143A66] py-3.5 px-8 text-xs font-bold rounded-xl cursor-pointer shadow-xs"
+              className="bg-[#0F172A] hover:bg-[#1E293B] py-3 px-8 text-xs font-bold rounded-xl cursor-pointer shadow-2xs"
             >
-              {t('uploadMedicalReport')}
+              Upload Medical Report
             </Button>
           </div>
         </Card>
       )}
 
-      {/* MEDICAL DASHBOARD METRICS: ALL EXTRACTED BIOMARKERS SHOWN FOR RETURNING USER */}
+      {/* 7. HEALTH METRICS SECTION (EXTRACTED PARAMETERS SHOWN FOR RETURNING USERS) */}
       {hasReports && !loadingData && (
         <div className="space-y-3">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-              <h2 className="text-lg font-extrabold text-[#1A4B84]">{t('healthMetrics')}</h2>
-              <p className="text-xs text-slate-500 font-medium">
-                Based on your uploaded report ({latestReport?.title || 'Medical Report'} — <span className="font-bold text-slate-800">{latestReport?.date || latestReport?.report_date || 'Recent'}</span>)
+              <h2 className="text-base font-extrabold text-[#0F172A] tracking-tight">Health Metrics</h2>
+              <p className="text-xs text-slate-500 font-medium mt-0.5">
+                Based on your most recent uploaded report ({latestReport?.title || latestReport?.fileName || 'Medical Report'} — <span className="font-bold text-slate-800">{latestReport?.date || latestReport?.report_date || 'Recent'}</span>)
               </p>
             </div>
 
             <button 
               onClick={() => navigate('/app/analysis')}
-              className="text-xs font-bold text-[#2D90A6] hover:underline flex items-center gap-1 cursor-pointer shrink-0"
+              className="text-xs font-bold text-[#0D9488] hover:underline flex items-center gap-1 cursor-pointer shrink-0"
             >
               <span>{t('viewAllTrends')}</span> <TrendingUp className="w-3.5 h-3.5" />
             </button>
@@ -237,7 +270,7 @@ export const DashboardPage = () => {
                 return (
                   <HealthMetricCard 
                     key={bm.id || index}
-                    name={bm.name || bm.biomarker_name}
+                    name={bm.name || bm.testName || bm.biomarker_name}
                     value={bm.value}
                     unit={bm.unit}
                     status={statusVal}
@@ -249,7 +282,7 @@ export const DashboardPage = () => {
                 );
               })
             ) : (
-              <div className="col-span-4 p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-500 font-medium text-center">
+              <div className="col-span-4 p-4 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-500 font-medium text-center">
                 Report parsed successfully. View full diagnostic analysis.
               </div>
             )}
@@ -267,23 +300,23 @@ export const DashboardPage = () => {
           {hasReports ? (
             <AIInsightCard 
               title={t('aiInsights')}
-              summary={latestReport?.aiSummary || t('noUploadedReports')}
+              summary={latestReport?.aiSummary || latestReport?.clinicalSummary || t('noUploadedReports')}
               severity={extractedBiomarkers.some(b => String(b.status).toLowerCase().includes('high') || String(b.status).toLowerCase().includes('low')) ? "warning" : "normal"}
               onViewDetails={() => navigate('/app/analysis')}
             />
           ) : null}
 
           {/* TODAY'S MEDICINES DASHBOARD WIDGET */}
-          <Card className="p-5 space-y-4 bg-white border border-slate-200 rounded-2xl shadow-xs">
+          <Card className="p-5 space-y-4 bg-white border border-slate-200/90 rounded-2xl shadow-2xs">
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-extrabold text-[#1A4B84] flex items-center gap-2">
-                <Pill className="w-4.5 h-4.5 text-[#2D90A6]" />
+              <h3 className="text-base font-extrabold text-[#0F172A] flex items-center gap-2">
+                <Pill className="w-4.5 h-4.5 text-[#0D9488]" />
                 {t('todaysMedicines')}
               </h3>
 
               <button
                 onClick={() => navigate('/app/medicines')}
-                className="text-xs font-bold text-[#2D90A6] hover:underline flex items-center gap-1 cursor-pointer"
+                className="text-xs font-bold text-[#0D9488] hover:underline flex items-center gap-1 cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" /> {t('addMedicine')}
               </button>
@@ -292,14 +325,14 @@ export const DashboardPage = () => {
             {userMedicines.length > 0 ? (
               <div className="space-y-3">
                 {userMedicines.map((med) => (
-                  <div key={med.id} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-3 text-xs">
+                  <div key={med.id} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-3 text-xs">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-[#1A4B84] font-bold shrink-0">
-                        <Clock className="w-4 h-4 text-[#2D90A6]" />
+                      <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-[#0F172A] font-bold shrink-0">
+                        <Clock className="w-4 h-4 text-[#0D9488]" />
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <h4 className="font-bold text-[#1A4B84] text-sm">{med.name}</h4>
+                          <h4 className="font-extrabold text-[#0F172A] text-sm">{med.name}</h4>
                           <span className="text-[11px] text-slate-500 font-medium">({med.dose || med.dosage})</span>
                         </div>
                         <p className="text-[11px] text-slate-500 font-medium">
@@ -316,10 +349,10 @@ export const DashboardPage = () => {
                       ) : (
                         <button
                           onClick={() => toggleMedicineTaken(med.id)}
-                          className={`px-3 py-1.5 rounded-xl font-bold text-[11px] transition-all cursor-pointer ${
+                          className={`px-3.5 py-1.5 rounded-xl font-bold text-[11px] transition-all cursor-pointer ${
                             med.taken 
                               ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' 
-                              : 'bg-[#1A4B84] text-white hover:bg-[#143A66]'
+                              : 'bg-[#0F172A] text-white hover:bg-[#1E293B]'
                           }`}
                         >
                           {med.taken ? t('logged') : t('markAsTaken')}
@@ -330,7 +363,7 @@ export const DashboardPage = () => {
                 ))}
               </div>
             ) : (
-              <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200 text-center space-y-3">
+              <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200/80 text-center space-y-3">
                 <Pill className="w-8 h-8 text-slate-400 mx-auto" />
                 <p className="text-xs text-slate-600 font-medium">{t('noMedicineRemindersYet')}</p>
                 <Button
@@ -351,10 +384,10 @@ export const DashboardPage = () => {
         {/* Right 5 columns: Recent Medical Reports */}
         <div className="lg:col-span-5 space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-base font-extrabold text-[#1A4B84]">{t('recentMedicalReports')}</h3>
+            <h3 className="text-base font-extrabold text-[#0F172A]">{t('recentMedicalReports')}</h3>
             <button 
               onClick={() => navigate('/app/upload')}
-              className="text-xs font-bold text-[#2D90A6] hover:underline flex items-center gap-1 cursor-pointer"
+              className="text-xs font-bold text-[#0D9488] hover:underline flex items-center gap-1 cursor-pointer"
             >
               <span>{t('uploadNew')}</span> <Upload className="w-3.5 h-3.5" />
             </button>
@@ -366,7 +399,7 @@ export const DashboardPage = () => {
                 <ReportCard key={report.id} report={report} />
               ))
             ) : (
-              <Card className="p-6 text-center bg-slate-50 border border-slate-200/90 rounded-2xl text-slate-500 text-xs space-y-3">
+              <Card className="p-6 text-center bg-slate-50 border border-slate-200/80 rounded-2xl text-slate-500 text-xs space-y-3">
                 <FileText className="w-8 h-8 text-slate-400 mx-auto" />
                 <p className="font-normal text-slate-600">{t('noUploadedReports')}</p>
                 <Button

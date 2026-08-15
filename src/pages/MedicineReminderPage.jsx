@@ -10,7 +10,7 @@ import {
   PauseCircle,
   PlayCircle,
   Edit2,
-  Bell
+  Calendar
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
@@ -51,7 +51,6 @@ export const MedicineReminderPage = () => {
     totalPills: '30'
   });
 
-  // Request browser notification permission for medicine reminders
   useEffect(() => {
     if ('Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission();
@@ -146,22 +145,24 @@ export const MedicineReminderPage = () => {
   };
 
   return (
-    <div className="space-y-6 pb-12 font-sans antialiased">
+    <div className="space-y-6 pb-12 font-sans antialiased max-w-5xl mx-auto">
       
       {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/90 pb-4">
         <div>
-          <h1 className="text-2.5xl font-extrabold text-[#1A4B84] tracking-tight flex items-center gap-2.5">
-            <Pill className="w-7 h-7 text-[#2D90A6]" /> Medicine Reminders & Adherence
+          <h1 className="text-2.5xl font-black text-[#0F172A] tracking-tight flex items-center gap-2.5">
+            <Pill className="w-7 h-7 text-[#0D9488]" /> Today's Medications & Schedule
           </h1>
-          <p className="text-xs font-normal text-slate-500 mt-1">Configure your personalized prescription schedule, meal relations, and timer notifications</p>
+          <p className="text-xs font-normal text-slate-500 mt-0.5">
+            View prescribed timings, meal relations, dosages, and confirm taken doses
+          </p>
         </div>
 
         <Button
           variant="primary"
           size="md"
           icon={Plus}
-          className="bg-[#1A4B84] hover:bg-[#143A66] text-xs font-semibold rounded-xl cursor-pointer shadow-xs"
+          className="bg-[#0F172A] hover:bg-[#1E293B] text-xs font-bold rounded-xl cursor-pointer shadow-2xs"
           onClick={handleOpenAdd}
         >
           {t('addMedicine')}
@@ -171,10 +172,10 @@ export const MedicineReminderPage = () => {
       {/* Adherence & Supply Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         
-        <Card className="p-5 bg-gradient-to-br from-[#1A4B84] to-[#143A66] text-white border border-[#1A4B84] flex items-center justify-between rounded-2xl shadow-xs">
+        <Card className="p-5 bg-gradient-to-br from-[#0F172A] to-[#1E293B] text-white border border-[#0F172A] flex items-center justify-between rounded-2xl shadow-2xs">
           <div>
-            <p className="text-xs font-bold text-slate-200 uppercase tracking-wider">Today's Adherence Rate</p>
-            <p className="text-3.5xl font-extrabold text-white mt-1">{adherencePercent}%</p>
+            <p className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Today's Adherence Rate</p>
+            <p className="text-3.5xl font-black text-white mt-1">{adherencePercent}%</p>
             <p className="text-xs text-slate-300 font-medium mt-1">{takenCount} of {totalCount} doses logged</p>
           </div>
           <div className="w-12 h-12 rounded-2xl bg-white/10 text-emerald-400 flex items-center justify-center font-bold text-lg border border-white/10">
@@ -182,9 +183,9 @@ export const MedicineReminderPage = () => {
           </div>
         </Card>
 
-        <Card className="p-5 md:col-span-2 bg-white border border-slate-200 flex flex-col justify-between rounded-2xl shadow-xs">
+        <Card className="p-5 md:col-span-2 bg-white border border-slate-200/90 flex flex-col justify-between rounded-2xl shadow-2xs">
           <div className="flex justify-between items-center">
-            <span className="text-xs font-bold text-[#1A4B84] flex items-center gap-1.5 uppercase tracking-wider">
+            <span className="text-xs font-bold text-[#0F172A] flex items-center gap-1.5 uppercase tracking-wider">
               <AlertCircle className="w-4 h-4 text-amber-600" /> Refill Warning Threshold ({lowRefills.length})
             </span>
             <Badge variant="warning">Supply Alert</Badge>
@@ -194,7 +195,7 @@ export const MedicineReminderPage = () => {
             <div className="space-y-1 mt-2 text-xs">
               {lowRefills.map(m => (
                 <p key={m.id} className="text-slate-700">
-                  ⚠️ <strong className="text-[#1A4B84]">{m.name}</strong>: Only <span className="text-amber-800 font-bold">{m.pillsRemaining} doses</span> remaining in supply.
+                  ⚠️ <strong className="text-[#0F172A]">{m.name}</strong>: Only <span className="text-amber-800 font-bold">{m.pillsRemaining} doses</span> remaining in supply.
                 </p>
               ))}
             </div>
@@ -205,108 +206,123 @@ export const MedicineReminderPage = () => {
 
       </div>
 
-      {/* Medicines CRUD Schedule */}
+      {/* REQUIREMENTS 12 & 13: TODAY'S MEDICATIONS TIMELINE SCHEDULE */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-base font-extrabold text-[#1A4B84]">Active Prescriptions ({safeMedicines.length})</h3>
+          <h2 className="text-base font-extrabold text-[#0F172A]">Today's Schedule Timeline</h2>
         </div>
 
         {safeMedicines.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {safeMedicines.map((med) => (
-              <Card key={med.id} className={`p-5 space-y-4 bg-white border rounded-2xl shadow-xs transition-all ${med.isPaused ? 'border-amber-200 opacity-80 bg-amber-50/20' : 'border-slate-200'}`}>
-                
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-[#EBF6F8] text-[#1A4B84] flex items-center justify-center shrink-0 border border-[#2D90A6]/30 font-bold">
-                      <Pill className="w-5 h-5 text-[#2D90A6]" />
+          <div className="relative border-l-2 border-slate-200/90 ml-4 pl-6 space-y-6">
+            {safeMedicines.map((med, idx) => (
+              <div key={med.id || idx} className="relative">
+                {/* Timeline Dot */}
+                <div className={`absolute -left-[31px] top-1.5 w-4 h-4 rounded-full border-2 bg-white ${
+                  med.taken ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-[#0F172A]'
+                }`} />
+
+                <Card className={`p-5 space-y-3 bg-white border rounded-2xl shadow-2xs transition-all ${
+                  med.isPaused ? 'border-amber-200 opacity-80 bg-amber-50/20' : 'border-slate-200/90'
+                }`}>
+                  
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                    <div className="flex items-center gap-3">
+                      <span className="px-3 py-1 rounded-xl bg-slate-100 font-black text-xs text-[#0F172A] border border-slate-200/80 flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-[#0D9488]" />
+                        {med.scheduledTime || med.time || '08:00 AM'}
+                      </span>
+
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-base font-black text-[#0F172A]">💊 {med.name}</h3>
+                        <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-xs font-bold border border-slate-200">
+                          {med.dose || med.dosage || '1 tablet'}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleOpenEdit(med)}
+                        className="p-1.5 text-slate-400 hover:text-[#0F172A] rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+                        title="Edit medicine"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => deleteMedicine(med.id)}
+                        className="p-1.5 text-slate-400 hover:text-[#DC2626] rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
+                        title="Delete medicine"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Clear UX Schedule Info Grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+                    <div>
+                      <span className="text-slate-500 block">Frequency</span>
+                      <strong className="text-[#0F172A] font-bold">{med.frequency || 'Once daily'}</strong>
                     </div>
                     <div>
-                      <div className="flex items-center gap-2">
-                        <h4 className="text-sm font-extrabold text-[#1A4B84]">{med.name}</h4>
-                        {med.isPaused && (
-                          <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-100 text-amber-800 border border-amber-300">
-                            Paused
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-xs text-slate-500 font-medium">{med.dose || med.dosage} • {med.frequency}</p>
+                      <span className="text-slate-500 block">Meal Relation</span>
+                      <strong className="text-slate-800 font-bold">{med.mealRelation || 'After meal'} ({med.mealType || 'Lunch'})</strong>
+                    </div>
+                    <div>
+                      <span className="text-slate-500 block">Duration / Supply</span>
+                      <strong className="text-slate-800 font-bold">{med.pillsRemaining ?? 30} doses left</strong>
+                    </div>
+                    <div>
+                      <span className="text-slate-500 block">Indication</span>
+                      <strong className="text-[#0D9488] font-bold">{med.purpose || 'Prescription'}</strong>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={() => handleOpenEdit(med)}
-                      className="p-1.5 text-slate-400 hover:text-[#1A4B84] rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
-                      title="Edit medicine"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => deleteMedicine(med.id)}
-                      className="p-1.5 text-slate-400 hover:text-[#DC2626] rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
-                      title="Delete medicine"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                  {/* Actions Row */}
+                  <div className="flex items-center justify-between pt-1">
+                    <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
+                      med.taken ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'
+                    }`}>
+                      Status: {med.taken ? 'Logged' : 'Upcoming'}
+                    </span>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => toggleMedicinePause(med.id)}
+                        className={`px-3 py-1.5 rounded-xl font-bold text-xs border transition-colors cursor-pointer flex items-center gap-1 ${
+                          med.isPaused 
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100' 
+                            : 'bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100'
+                        }`}
+                      >
+                        {med.isPaused ? <PlayCircle className="w-3.5 h-3.5" /> : <PauseCircle className="w-3.5 h-3.5" />}
+                        {med.isPaused ? 'Resume' : 'Pause'}
+                      </button>
+
+                      <Button
+                        variant={med.taken ? 'emerald' : 'primary'}
+                        size="sm"
+                        icon={med.taken ? Check : Pill}
+                        disabled={med.isPaused}
+                        className={`text-xs font-bold rounded-xl cursor-pointer ${
+                          med.taken ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-[#0F172A] hover:bg-[#1E293B] text-white'
+                        }`}
+                        onClick={() => toggleMedicineTaken(med.id)}
+                      >
+                        {med.taken ? t('logged') : t('markAsTaken')}
+                      </Button>
+                    </div>
                   </div>
-                </div>
 
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-700 space-y-1.5">
-                  <p className="flex justify-between items-center">
-                    <span className="text-slate-500">Scheduled Time:</span>
-                    <strong className="text-[#1A4B84] flex items-center gap-1 font-bold">
-                      <Clock className="w-3.5 h-3.5 text-[#2D90A6]" /> {med.scheduledTime || med.time} ({med.timeSlot || 'Morning'})
-                    </strong>
-                  </p>
-                  <p className="flex justify-between items-center">
-                    <span className="text-slate-500">Meal Relation:</span>
-                    <strong className="text-slate-800 font-semibold">{med.mealRelation} ({med.delayMinutes} mins delay after {med.mealType})</strong>
-                  </p>
-                  <p className="flex justify-between items-center">
-                    <span className="text-slate-500">Pills Remaining:</span>
-                    <strong className={(med.pillsRemaining || 30) <= 5 ? 'text-amber-800 font-bold' : 'text-slate-800 font-bold'}>{med.pillsRemaining ?? 30} of {med.totalPills ?? 30}</strong>
-                  </p>
-                </div>
-
-                <div className="flex justify-between items-center pt-1">
-                  <Badge variant="info">{med.purpose || 'General Wellness'}</Badge>
-
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => toggleMedicinePause(med.id)}
-                      className={`px-3 py-1.5 rounded-xl font-semibold text-xs border transition-colors cursor-pointer flex items-center gap-1 ${
-                        med.isPaused 
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100' 
-                          : 'bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100'
-                      }`}
-                    >
-                      {med.isPaused ? <PlayCircle className="w-3.5 h-3.5" /> : <PauseCircle className="w-3.5 h-3.5" />}
-                      {med.isPaused ? 'Resume' : 'Pause'}
-                    </button>
-
-                    <Button
-                      variant={med.taken ? 'emerald' : 'primary'}
-                      size="sm"
-                      icon={med.taken ? Check : Pill}
-                      disabled={med.isPaused}
-                      className={`text-xs font-semibold rounded-xl cursor-pointer ${
-                        med.taken ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-[#1A4B84] hover:bg-[#143A66] text-white'
-                      }`}
-                      onClick={() => toggleMedicineTaken(med.id)}
-                    >
-                      {med.taken ? t('logged') : t('markAsTaken')}
-                    </Button>
-                  </div>
-                </div>
-              </Card>
+                </Card>
+              </div>
             ))}
           </div>
         ) : (
-          <Card className="p-10 text-center bg-white border border-slate-200 rounded-2xl shadow-xs space-y-4 max-w-xl mx-auto my-6">
+          <Card className="p-10 text-center bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-4 max-w-xl mx-auto my-6">
             <Pill className="w-12 h-12 text-slate-300 mx-auto" />
             <div className="space-y-1">
-              <h3 className="text-lg font-extrabold text-[#1A4B84]">No Medicine Reminders Configured</h3>
+              <h3 className="text-lg font-extrabold text-[#0F172A]">No Medicine Reminders Configured</h3>
               <p className="text-xs text-slate-500 font-normal">Add your daily prescriptions and set custom timers based on meal relations.</p>
             </div>
             <Button
@@ -314,7 +330,7 @@ export const MedicineReminderPage = () => {
               size="md"
               icon={Plus}
               onClick={handleOpenAdd}
-              className="bg-[#1A4B84] hover:bg-[#143A66] text-xs font-bold rounded-xl cursor-pointer"
+              className="bg-[#0F172A] hover:bg-[#1E293B] text-xs font-bold rounded-xl cursor-pointer"
             >
               {t('addMedicine')}
             </Button>
@@ -331,7 +347,7 @@ export const MedicineReminderPage = () => {
         <form onSubmit={handleSubmit} className="space-y-3.5 text-xs font-sans">
           
           <div className="med-form-group">
-            <label className="block font-bold text-[#1A4B84] mb-1">Medicine Name *</label>
+            <label className="block font-bold text-[#0F172A] mb-1">Medicine Name *</label>
             <input
               type="text"
               required
@@ -344,7 +360,7 @@ export const MedicineReminderPage = () => {
 
           <div className="grid grid-cols-2 gap-3">
             <div className="med-form-group">
-              <label className="block font-bold text-[#1A4B84] mb-1">Dose / Quantity *</label>
+              <label className="block font-bold text-[#0F172A] mb-1">Dose / Quantity *</label>
               <input
                 type="text"
                 required
@@ -356,7 +372,7 @@ export const MedicineReminderPage = () => {
             </div>
 
             <div className="med-form-group">
-              <label className="block font-bold text-[#1A4B84] mb-1">Frequency *</label>
+              <label className="block font-bold text-[#0F172A] mb-1">Frequency *</label>
               <select
                 value={formData.frequency}
                 onChange={(e) => setFormData({ ...formData, frequency: e.target.value })}
@@ -372,7 +388,7 @@ export const MedicineReminderPage = () => {
 
           <div className="grid grid-cols-2 gap-3">
             <div className="med-form-group">
-              <label className="block font-bold text-[#1A4B84] mb-1">Scheduled Time *</label>
+              <label className="block font-bold text-[#0F172A] mb-1">Scheduled Time *</label>
               <input
                 type="text"
                 required
@@ -384,7 +400,7 @@ export const MedicineReminderPage = () => {
             </div>
 
             <div className="med-form-group">
-              <label className="block font-bold text-[#1A4B84] mb-1">Time Slot</label>
+              <label className="block font-bold text-[#0F172A] mb-1">Time Slot</label>
               <select
                 value={formData.timeSlot}
                 onChange={(e) => setFormData({ ...formData, timeSlot: e.target.value })}
@@ -400,7 +416,7 @@ export const MedicineReminderPage = () => {
 
           <div className="grid grid-cols-3 gap-3">
             <div className="med-form-group">
-              <label className="block font-bold text-[#1A4B84] mb-1">Meal Relation</label>
+              <label className="block font-bold text-[#0F172A] mb-1">Meal Relation</label>
               <select
                 value={formData.mealRelation}
                 onChange={(e) => setFormData({ ...formData, mealRelation: e.target.value })}
@@ -414,7 +430,7 @@ export const MedicineReminderPage = () => {
             </div>
 
             <div className="med-form-group">
-              <label className="block font-bold text-[#1A4B84] mb-1">Meal Type</label>
+              <label className="block font-bold text-[#0F172A] mb-1">Meal Type</label>
               <select
                 value={formData.mealType}
                 onChange={(e) => setFormData({ ...formData, mealType: e.target.value })}
@@ -428,7 +444,7 @@ export const MedicineReminderPage = () => {
             </div>
 
             <div className="med-form-group">
-              <label className="block font-bold text-[#1A4B84] mb-1">Delay (Mins)</label>
+              <label className="block font-bold text-[#0F172A] mb-1">Delay (Mins)</label>
               <input
                 type="number"
                 value={formData.delayMinutes}
@@ -441,7 +457,7 @@ export const MedicineReminderPage = () => {
 
           <div className="grid grid-cols-2 gap-3">
             <div className="med-form-group">
-              <label className="block font-bold text-[#1A4B84] mb-1">Purpose / Indication</label>
+              <label className="block font-bold text-[#0F172A] mb-1">Purpose / Indication</label>
               <input
                 type="text"
                 value={formData.purpose}
@@ -452,7 +468,7 @@ export const MedicineReminderPage = () => {
             </div>
 
             <div className="med-form-group">
-              <label className="block font-bold text-[#1A4B84] mb-1">Total Pill Count</label>
+              <label className="block font-bold text-[#0F172A] mb-1">Total Pill Count</label>
               <input
                 type="number"
                 value={formData.totalPills}
@@ -467,7 +483,7 @@ export const MedicineReminderPage = () => {
             <Button variant="secondary" size="sm" type="button" onClick={() => setIsAddModalOpen(false)}>
               Cancel
             </Button>
-            <Button variant="primary" size="sm" type="submit" className="bg-[#1A4B84] hover:bg-[#143A66]">
+            <Button variant="primary" size="sm" type="submit" className="bg-[#0F172A] hover:bg-[#1E293B]">
               {editingMedId ? "Update Schedule" : "Save Reminder"}
             </Button>
           </div>
