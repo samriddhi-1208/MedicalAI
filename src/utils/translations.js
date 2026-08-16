@@ -62,7 +62,7 @@ export const translations = {
     uploadReportToAnalyze: "Upload your medical report to analyze your health data.",
     noMedicineRemindersYet: "No medicine reminders yet.",
     todaysMedicines: "Today's Medicines",
-    addMedicine: "+ Add Medicine",
+    addMedicine: "Add Medicine",
     loadingMedicalData: "Loading your medical data...",
     unableToLoadMedicalData: "Unable to load medical data. Please try again.",
 

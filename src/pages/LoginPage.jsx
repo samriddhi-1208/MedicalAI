@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowRight, Lock, Mail, Activity, Eye, EyeOff } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -6,17 +6,25 @@ import { useHealthData } from '../context/HealthDataContext';
 
 export const LoginPage = () => {
   const navigate = useNavigate();
-  const { login } = useHealthData();
+  const { login, API_BASE } = useHealthData();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  React.useEffect(() => {
-    // Silent background warmup ping to Render backend REST API
-    fetch('https://medicalai-backend-5ycw.onrender.com/api/health').catch(() => {});
-  }, []);
+  useEffect(() => {
+    // Proactive background warmup ping to wake up Render free tier container immediately on page land
+    const warmUpBackend = () => {
+      fetch(`${API_BASE}/health`, { mode: 'no-cors' }).catch(() => {});
+    };
+    warmUpBackend();
+  }, [API_BASE]);
+
+  const handleInputFocus = () => {
+    // Secondary warmup ping on input focus to ensure server is hot
+    fetch(`${API_BASE}/health`, { mode: 'no-cors' }).catch(() => {});
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -28,7 +36,7 @@ export const LoginPage = () => {
     setLoading(true);
     try {
       await login(email, password);
-      // Navigate directly to Patient Dashboard
+      // Instant sub-second navigation to Patient Dashboard
       navigate('/app/dashboard');
     } catch (err) {
       toast.error(err.message || "Invalid email or password.");
@@ -74,6 +82,7 @@ export const LoginPage = () => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  onFocus={handleInputFocus}
                   placeholder="patient@example.com"
                   className="med-input w-full block !pl-11"
                   required
@@ -97,6 +106,7 @@ export const LoginPage = () => {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  onFocus={handleInputFocus}
                   placeholder="••••••••••••"
                   className="med-input w-full block !pl-11 !pr-10"
                   required

@@ -195,7 +195,7 @@ export const MedicineReminderPage = () => {
             className="bg-[#0F172A] hover:bg-[#1E293B] text-xs font-bold rounded-xl cursor-pointer shadow-2xs"
             onClick={handleOpenAdd}
           >
-            + Add Medicine
+            Add Medicine
           </Button>
         </div>
       </div>
