@@ -312,7 +312,7 @@ export const EmergencySOSPage = () => {
                 <div className="flex items-center gap-2">
                   <h4 className="font-extrabold text-sm text-[#1A4B84]">{contact.name}</h4>
                   {contact.isPrimary && (
-                    <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold">PRIMARY</span>
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold">{t('primaryBadge')}</span>
                   )}
                 </div>
                 <p className="text-slate-500 font-medium">{contact.relation} • {contact.phone}</p>
@@ -326,7 +326,7 @@ export const EmergencySOSPage = () => {
                   }}
                   className="px-3 py-1.5 rounded-xl bg-[#1A4B84] text-white font-bold hover:bg-[#143A66] cursor-pointer"
                 >
-                  Call
+                  {t('callBtn')}
                 </button>
                 {!contact.isPrimary && (
                   <button

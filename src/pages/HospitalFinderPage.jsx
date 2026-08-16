@@ -77,8 +77,11 @@ const ensureLeafletLoaded = () => {
   });
 };
 
+import { getTranslation } from '../utils/translations';
+
 export const HospitalFinderPage = () => {
-  const { reports, userProfile } = useHealthData();
+  const { reports, userProfile, language } = useHealthData();
+  const t = (key) => getTranslation(language, key);
   const mapContainerRef = useRef(null);
   const leafletMapRef = useRef(null);
   const markersRef = useRef({});
@@ -493,15 +496,15 @@ export const HospitalFinderPage = () => {
         <div>
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-xs text-emerald-800 font-bold uppercase tracking-wider">OpenStreetMap Real-Time Location Engine</span>
+            <span className="text-xs text-emerald-800 font-bold uppercase tracking-wider">{t('osmLocationEngine')}</span>
           </div>
           <h1 className="text-2.5xl font-extrabold text-[#0F172A] tracking-tight mt-0.5">
-            24/7 Hospital & Healthcare Finder
+            {t('hospitalFinder247')}
           </h1>
           <p className="text-xs font-normal text-slate-500">
             {locationState === 'granted' && userCoords
-              ? `Healthcare facilities near ${userCoords.name.split(',')[0]}`
-              : 'Find healthcare near you using browser GPS or manual location'
+              ? `${t('facilitiesNear')} ${userCoords.name.split(',')[0]}`
+              : t('hospitalFinderSubtitle')
             }
           </p>
         </div>
@@ -517,7 +520,7 @@ export const HospitalFinderPage = () => {
               window.open("tel:108");
             }}
           >
-            108 Ambulance Hotline
+            {t('ambulanceHotline')}
           </Button>
         </div>
       </div>
@@ -525,7 +528,7 @@ export const HospitalFinderPage = () => {
       {/* Privacy Notice */}
       <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 flex items-center gap-2">
         <Info className="w-4 h-4 text-[#0D9488] shrink-0" />
-        <span>Your location is used only to find nearby healthcare facilities and is never stored permanently.</span>
+        <span>{t('locationPrivacyNotice')}</span>
       </div>
 
       {/* Medical-AI Cautious Healthcare Guidance */}
@@ -567,15 +570,15 @@ export const HospitalFinderPage = () => {
           </div>
 
           <div className="space-y-2">
-            <h2 className="text-xl font-extrabold text-[#0F172A]">Find healthcare near you</h2>
+            <h2 className="text-xl font-extrabold text-[#0F172A]">{t('findHealthcareNearYou')}</h2>
             <p className="text-xs text-slate-600 font-normal leading-relaxed">
-              Location access is required to find healthcare facilities near you. Click below to allow browser GPS or enter your city manually.
+              {t('locationAccessReq')}
             </p>
           </div>
 
           {locationState === 'denied' && (
             <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 font-semibold space-y-1">
-              <p>⚠️ Location access was denied. Please allow location access or search for a city manually below.</p>
+              <p>⚠️ {t('locationDeniedWarning')}</p>
             </div>
           )}
 
@@ -588,7 +591,7 @@ export const HospitalFinderPage = () => {
               onClick={handleUseCurrentLocation}
               className="bg-[#0F172A] hover:bg-[#1E293B] py-3 px-6 text-xs font-semibold rounded-xl w-full sm:w-auto cursor-pointer"
             >
-              {locationState === 'loading' ? 'Finding healthcare facilities near you...' : 'Use My Current Location'}
+              {locationState === 'loading' ? t('loadingMedicalData') : t('useCurrentLocation')}
             </Button>
 
             <Button
@@ -604,7 +607,7 @@ export const HospitalFinderPage = () => {
               }}
               className="py-3 px-6 text-xs font-semibold rounded-xl bg-slate-50 border-slate-200 text-[#0F172A] hover:bg-slate-100 w-full sm:w-auto cursor-pointer"
             >
-              Enter Location Manually
+              {t('enterLocationManually')}
             </Button>
           </div>
         </Card>

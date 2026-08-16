@@ -162,18 +162,18 @@ export const MedicineReminderPage = () => {
   return (
     <div className="space-y-6 pb-12 font-sans antialiased max-w-5xl mx-auto">
       
-      {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/90 pb-4">
+      {/* Header Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-[#0D9488] animate-pulse" />
-            <span className="text-xs text-[#0D9488] font-extrabold uppercase tracking-wider">Prescription Schedule</span>
+            <span className="text-xs text-[#0D9488] font-extrabold uppercase tracking-wider">{t('prescriptionScheduleBadge')}</span>
           </div>
           <h1 className="text-2.5xl font-black text-[#0F172A] tracking-tight mt-0.5 flex items-center gap-2.5">
-            <Pill className="w-7 h-7 text-[#0D9488]" /> Today's Medication Schedule
+            <Pill className="w-7 h-7 text-[#0D9488]" /> {t('todaysMedicationSchedule')}
           </h1>
           <p className="text-xs font-normal text-slate-500 mt-0.5">
-            Confirmed prescriptions from uploaded reports and custom medication reminders
+            {t('confirmedPrescriptionsSub')}
           </p>
         </div>
 
@@ -185,7 +185,7 @@ export const MedicineReminderPage = () => {
             onClick={() => navigate('/app/upload')}
             className="text-xs font-bold rounded-xl border-slate-200 cursor-pointer"
           >
-            Upload Prescription
+            {t('uploadPrescriptionBtn')}
           </Button>
 
           <Button
@@ -195,7 +195,7 @@ export const MedicineReminderPage = () => {
             className="bg-[#0F172A] hover:bg-[#1E293B] text-xs font-bold rounded-xl cursor-pointer shadow-2xs"
             onClick={handleOpenAdd}
           >
-            Add Medicine
+            {t('addMedicine')}
           </Button>
         </div>
       </div>
@@ -206,16 +206,16 @@ export const MedicineReminderPage = () => {
         {/* Adherence Rate Card */}
         <Card className="p-5 bg-gradient-to-br from-[#0F172A] to-[#1E293B] text-white border border-[#0F172A] flex items-center justify-between rounded-2xl shadow-2xs">
           <div>
-            <p className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Today's Adherence Rate</p>
+            <p className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">{t('todaysAdherenceRate')}</p>
             {hasMedicines ? (
               <>
                 <p className="text-3.5xl font-black text-white mt-1">{adherencePercent}%</p>
-                <p className="text-xs text-slate-300 font-medium mt-1">{takenCount} of {totalCount} doses logged</p>
+                <p className="text-xs text-slate-300 font-medium mt-1">{takenCount} {t('of')} {totalCount} {t('dosesLogged')}</p>
               </>
             ) : (
               <>
-                <p className="text-base font-extrabold text-slate-300 mt-2">No medications scheduled today.</p>
-                <p className="text-xs text-slate-400 font-medium mt-1">Upload a prescription to begin tracking.</p>
+                <p className="text-base font-extrabold text-slate-300 mt-2">{t('noMedsScheduledToday')}</p>
+                <p className="text-xs text-slate-400 font-medium mt-1">{t('uploadPrescriptionToTrack')}</p>
               </>
             )}
           </div>
@@ -228,10 +228,10 @@ export const MedicineReminderPage = () => {
         <Card className="p-5 md:col-span-2 bg-white border border-slate-200/90 flex flex-col justify-between rounded-2xl shadow-2xs">
           <div className="flex justify-between items-center">
             <span className="text-xs font-bold text-[#0F172A] flex items-center gap-1.5 uppercase tracking-wider">
-              <AlertCircle className="w-4 h-4 text-amber-600" /> Refill Warning Threshold ({lowRefills.length})
+              <AlertCircle className="w-4 h-4 text-amber-600" /> {t('refillWarningThreshold')} ({lowRefills.length})
             </span>
             <Badge variant={lowRefills.length > 0 ? "warning" : "normal"}>
-              {lowRefills.length > 0 ? "Refill Alert" : "Supply Normal"}
+              {lowRefills.length > 0 ? t('refillAlert') : t('supplyNormal')}
             </Badge>
           </div>
 
@@ -240,22 +240,21 @@ export const MedicineReminderPage = () => {
               <div className="space-y-1 mt-2 text-xs">
                 {lowRefills.map(m => (
                   <p key={m.id} className="text-slate-700">
-                    ⚠️ <strong className="text-[#0F172A]">{m.name}</strong>: Only <span className="text-amber-800 font-bold">{m.pillsRemaining || m.pills_remaining} doses remaining</span> in supply (Refill needed in {m.pillsRemaining || m.pills_remaining} days).
+                    ⚠️ <strong className="text-[#0F172A]">{m.name}</strong>: Only <span className="text-amber-800 font-bold">{m.pillsRemaining || m.pills_remaining} doses remaining</span> in supply.
                   </p>
                 ))}
               </div>
             ) : (
               <p className="text-xs text-slate-500 font-medium mt-2">
-                All active prescription supplies are sufficient for over 7 days.
+                All active prescription supplies are sufficient.
               </p>
             )
           ) : (
             <p className="text-xs text-slate-500 font-medium mt-2">
-              No active refills tracked. Upload a prescription report to automatically track supply thresholds.
+              {t('noActiveRefillsTracked')}
             </p>
           )}
         </Card>
-
       </div>
 
       {/* REQUIREMENT 16: NEW USER EMPTY STATE (0 MEDICATIONS) */}
@@ -267,10 +266,10 @@ export const MedicineReminderPage = () => {
           
           <div className="space-y-2 max-w-lg mx-auto">
             <h2 className="text-xl sm:text-2xl font-black text-[#0F172A] tracking-tight">
-              No medications scheduled
+              {t('noMedsScheduledTitle')}
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 font-normal leading-relaxed">
-              Upload a prescription or add a medication manually to create your medication schedule.
+              {t('noMedsScheduledSub')}
             </p>
           </div>
 
@@ -282,7 +281,7 @@ export const MedicineReminderPage = () => {
               onClick={() => navigate('/app/upload')}
               className="border-slate-200 py-3 px-6 text-xs font-bold rounded-xl cursor-pointer"
             >
-              Upload Medical Report
+              {t('uploadMedicalReport')}
             </Button>
 
             <Button
@@ -290,9 +289,9 @@ export const MedicineReminderPage = () => {
               size="md"
               icon={Plus}
               onClick={handleOpenAdd}
-              className="bg-[#0F172A] hover:bg-[#1E293B] py-3 px-6 text-xs font-bold rounded-xl cursor-pointer shadow-2xs"
+              className="bg-[#0F172A] hover:bg-[#1E293B] py-3 px-6 text-xs font-bold rounded-xl cursor-pointer"
             >
-              Add Medicine
+              {t('addMedicine')}
             </Button>
           </div>
         </Card>
