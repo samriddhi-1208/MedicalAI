@@ -66,6 +66,18 @@ export const translations = {
     loadingMedicalData: "Loading your medical data...",
     unableToLoadMedicalData: "Unable to load medical data. Please try again.",
 
+    // Dashboard Quick Actions & Empty States
+    uploadReportTitle: "Upload Report",
+    analyzeReportSub: "Analyze report",
+    findHospitalTitle: "Find Hospital",
+    nearbyCareSub: "Nearby care",
+    medicinesTitle: "Medicines",
+    todaysScheduleSub: "Today's schedule",
+    emergencySOSTitle: "Emergency SOS",
+    urgentAssistSub: "Urgent assist",
+    yourDashboardReady: "Your health dashboard is ready.",
+    uploadFirstReportSub: "Upload your first medical report to see personalized health metrics here.",
+
     // Medical Reports / Upload
     dynamicDocAnalyzer: "Dynamic Medical Document Analyzer",
     uploadMedicalReport: "Upload Medical Report",
@@ -226,9 +238,21 @@ export const translations = {
     uploadReportToAnalyze: "अपने स्वास्थ्य डेटा का विश्लेषण करने के लिए अपनी मेडिकल रिपोर्ट अपलोड करें।",
     noMedicineRemindersYet: "अभी तक कोई दवा रिमाइंडर्स नहीं हैं।",
     todaysMedicines: "आज की दवाइयाँ",
-    addMedicine: "+ दवा जोड़ें",
+    addMedicine: "दवा जोड़ें",
     loadingMedicalData: "आपका मेडिकल डेटा लोड हो रहा है...",
     unableToLoadMedicalData: "मेडिकल डेटा लोड करने में असमर्थ। कृपया पुनः प्रयास करें।",
+
+    // Dashboard Quick Actions & Empty States
+    uploadReportTitle: "रिपोर्ट अपलोड करें",
+    analyzeReportSub: "रिपोर्ट का विश्लेषण करें",
+    findHospitalTitle: "अस्पताल खोजें",
+    nearbyCareSub: "नजदीकी देखभाल खोजें",
+    medicinesTitle: "दवाइयाँ",
+    todaysScheduleSub: "आज का शेड्यूल देखें",
+    emergencySOSTitle: "इमरजेंसी SOS",
+    urgentAssistSub: "तत्काल सहायता प्राप्त करें",
+    yourDashboardReady: "आपका स्वास्थ्य डैशबोर्ड तैयार है।",
+    uploadFirstReportSub: "व्यक्तिगत स्वास्थ्य मेट्रिक्स देखने के लिए अपनी पहली मेडिकल रिपोर्ट अपलोड करें।",
 
     // Medical Reports / Upload
     dynamicDocAnalyzer: "डायनामिक मेडिकल दस्तावेज़ विश्लेषक",
@@ -390,9 +414,21 @@ export const translations = {
     uploadReportToAnalyze: "તમારા આરોગ્ય ડેટાનું વિશ્લેષણ કરવા માટે તમારો મેડિકલ રિપોર્ટ અપલોડ કરો.",
     noMedicineRemindersYet: "હજુ સુધી કોઈ દવા રિમાઇન્ડર્સ નથી.",
     todaysMedicines: "આજની દવાઓ",
-    addMedicine: "+ દવા ઉમેરો",
+    addMedicine: "દવા ઉમેરો",
     loadingMedicalData: "તમારો મેડિકલ ડેટા લોડ થઈ રહ્યો છે...",
     unableToLoadMedicalData: "મેડિકલ ડેટા લોડ કરવામાં અસમર્થ. કૃપા કરીને ફરી પ્રયાસ કરો.",
+
+    // Dashboard Quick Actions & Empty States
+    uploadReportTitle: "રિપોર્ટ અપલોડ કરો",
+    analyzeReportSub: "રિપોર્ટનું વિશ્લેષણ કરો",
+    findHospitalTitle: "હોસ્પિટલ શોધો",
+    nearbyCareSub: "નજીકની સંભાળ શોધો",
+    medicinesTitle: "દવાઓ",
+    todaysScheduleSub: "આજનું શિડ્યુલ જુઓ",
+    emergencySOSTitle: "ઇમરજન્સી SOS",
+    urgentAssistSub: "તત્કાલ સહાય મેળવો",
+    yourDashboardReady: "તમારું સ્વાસ્થ્ય ડેશબોર્ડ તૈયાર છે.",
+    uploadFirstReportSub: "વ્યક્તિગત સ્વાસ્થ્ય મેટ્રિક્સ જોવા માટે તમારો પ્રથમ મેડિકલ રિપોર્ટ અપલોડ કરો.",
 
     // Medical Reports / Upload
     dynamicDocAnalyzer: "ડાયનેમિક મેડિકલ દસ્તાવેજ વિશ્લેષક",

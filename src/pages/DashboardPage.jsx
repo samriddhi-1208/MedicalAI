@@ -142,8 +142,8 @@ export const DashboardPage = () => {
                 <Upload className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#0D9488]" />
               </div>
               <div className="min-w-0 flex-1">
-                <span className="block text-[11px] sm:text-xs font-extrabold text-[#0F172A] truncate">Upload Report</span>
-                <span className="block text-[10px] font-medium text-slate-500 truncate">Analyze report</span>
+                <span className="block text-[11px] sm:text-xs font-extrabold text-[#0F172A] truncate">{t('uploadReportTitle')}</span>
+                <span className="block text-[10px] font-medium text-slate-500 truncate">{t('analyzeReportSub')}</span>
               </div>
             </div>
           </button>
@@ -157,8 +157,8 @@ export const DashboardPage = () => {
                 <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#0D9488]" />
               </div>
               <div className="min-w-0 flex-1">
-                <span className="block text-[11px] sm:text-xs font-extrabold text-[#0F172A] truncate">Find Hospital</span>
-                <span className="block text-[10px] font-medium text-slate-500 truncate">Nearby care</span>
+                <span className="block text-[11px] sm:text-xs font-extrabold text-[#0F172A] truncate">{t('findHospitalTitle')}</span>
+                <span className="block text-[10px] font-medium text-slate-500 truncate">{t('nearbyCareSub')}</span>
               </div>
             </div>
           </button>
@@ -172,8 +172,8 @@ export const DashboardPage = () => {
                 <Pill className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#0D9488]" />
               </div>
               <div className="min-w-0 flex-1">
-                <span className="block text-[11px] sm:text-xs font-extrabold text-[#0F172A] truncate">Medicines</span>
-                <span className="block text-[10px] font-medium text-slate-500 truncate">Today's schedule</span>
+                <span className="block text-[11px] sm:text-xs font-extrabold text-[#0F172A] truncate">{t('medicinesTitle')}</span>
+                <span className="block text-[10px] font-medium text-slate-500 truncate">{t('todaysScheduleSub')}</span>
               </div>
             </div>
           </button>
@@ -187,8 +187,8 @@ export const DashboardPage = () => {
                 <Siren className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
               </div>
               <div className="min-w-0 flex-1">
-                <span className="block text-[11px] sm:text-xs font-extrabold text-rose-900 truncate">Emergency SOS</span>
-                <span className="block text-[10px] font-medium text-rose-700 truncate">Urgent assist</span>
+                <span className="block text-[11px] sm:text-xs font-extrabold text-rose-900 truncate">{t('emergencySOSTitle')}</span>
+                <span className="block text-[10px] font-medium text-rose-700 truncate">{t('urgentAssistSub')}</span>
               </div>
             </div>
           </button>
@@ -221,10 +221,10 @@ export const DashboardPage = () => {
           
           <div className="space-y-1.5 max-w-lg mx-auto">
             <h2 className="text-xl font-extrabold text-[#0F172A] tracking-tight">
-              Your health dashboard is ready.
+              {t('yourDashboardReady')}
             </h2>
             <p className="text-xs text-slate-500 font-normal leading-relaxed">
-              Upload your first medical report to see personalized health metrics here.
+              {t('uploadFirstReportSub')}
             </p>
           </div>
 
@@ -236,7 +236,7 @@ export const DashboardPage = () => {
               onClick={() => navigate('/app/upload')}
               className="bg-[#0F172A] hover:bg-[#1E293B] py-3 px-8 text-xs font-bold rounded-xl cursor-pointer shadow-2xs"
             >
-              Upload Medical Report
+              {t('uploadMedicalReport')}
             </Button>
           </div>
         </Card>
