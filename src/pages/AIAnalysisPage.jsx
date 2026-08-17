@@ -39,15 +39,15 @@ export const AIAnalysisPage = () => {
   const [expandedSources, setExpandedSources] = useState({});
 
   const userReports = Array.isArray(reports) ? reports : [];
-  const [selectedReportId, setSelectedReportId] = useState(activeReportId || userReports[0]?.id);
+  const [selectedReportId, setSelectedReportId] = useState(() => activeReportId || userReports[0]?.id);
 
   React.useEffect(() => {
     if (activeReportId) {
       setSelectedReportId(activeReportId);
-    } else if (userReports.length > 0) {
+    } else if (userReports.length > 0 && !selectedReportId) {
       setSelectedReportId(userReports[0].id);
     }
-  }, [activeReportId, userReports]);
+  }, [activeReportId, reports?.length]);
 
   const toggleSource = (idx) => {
     setExpandedSources(prev => ({ ...prev, [idx]: !prev[idx] }));
