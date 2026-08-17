@@ -167,17 +167,17 @@ export const AIAnalysisPage = () => {
           </div>
           <div className="min-w-0">
             <span className="text-slate-500 block">Report File</span>
-            <strong className="text-slate-800 font-bold block truncate max-w-full" title={latestReport.file_name || latestReport.fileName}>
-              {latestReport.file_name || latestReport.fileName || 'Report.pdf'}
+            <strong className="text-slate-800 font-bold block truncate max-w-full" title={selectedReport.file_name || selectedReport.fileName}>
+              {selectedReport.file_name || selectedReport.fileName || 'Report.pdf'}
             </strong>
           </div>
           <div>
             <span className="text-slate-500 block">Report Date</span>
-            <strong className="text-slate-800 font-bold">{latestReport.date || latestReport.report_date || 'Recent'}</strong>
+            <strong className="text-slate-800 font-bold">{selectedReport.date || selectedReport.report_date || 'Recent'}</strong>
           </div>
           <div>
             <span className="text-slate-500 block">Extraction Confidence</span>
-            <strong className="text-emerald-700 font-bold">{latestReport.ocrConfidence || '99.4%'}</strong>
+            <strong className="text-emerald-700 font-bold">{selectedReport.ocrConfidence || '99.4%'}</strong>
           </div>
         </div>
       </Card>
@@ -195,7 +195,7 @@ export const AIAnalysisPage = () => {
         </div>
 
         <p className="text-xs text-slate-700 font-normal leading-relaxed">
-          {latestReport.aiSummary}
+          {selectedReport.aiSummary || selectedReport.summary || 'Clinical summary extracted.'}
         </p>
       </Card>
 
@@ -301,11 +301,11 @@ export const AIAnalysisPage = () => {
       >
         <div className="space-y-4 text-xs font-sans">
           <p className="text-slate-500 font-normal">
-            Below is the OCR text extracted from your uploaded medical document file ({latestReport.file_name || latestReport.fileName}):
+            Below is the OCR text extracted from your uploaded medical document file ({selectedReport.file_name || selectedReport.fileName}):
           </p>
 
           <div className="p-4 rounded-xl bg-slate-900 text-slate-100 font-mono text-xs max-h-96 overflow-y-auto whitespace-pre-wrap leading-relaxed">
-            {latestReport.rawText || latestReport.extractedText || "No raw text stream available."}
+            {selectedReport.rawText || selectedReport.extractedText || "No raw text stream available."}
           </div>
 
           <div className="flex justify-end pt-2">
