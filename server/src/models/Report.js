@@ -9,6 +9,8 @@ const reportSchema = new mongoose.Schema(
     report_date: { type: String, default: () => new Date().toISOString().split('T')[0] },
     file_name: { type: String },
     file_type: { type: String, default: 'application/pdf' },
+    file_size: { type: Number, default: 0 },
+    file_hash: { type: String, default: '' },
     ocr_confidence: { type: String, default: '98.9%' },
     status_flag: { type: String, default: 'Attention Needed' }
   },

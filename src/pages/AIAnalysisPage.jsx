@@ -32,19 +32,30 @@ import { Modal } from '../components/ui/Modal';
 
 export const AIAnalysisPage = () => {
   const navigate = useNavigate();
-  const { reports, userProfile, language } = useHealthData();
+  const { reports, activeReportId, setActiveReportId, language } = useHealthData();
   const t = (key) => getTranslation(language, key);
 
   const [viewOriginalModal, setViewOriginalModal] = useState(false);
   const [expandedSources, setExpandedSources] = useState({});
 
+  const userReports = Array.isArray(reports) ? reports : [];
+  const [selectedReportId, setSelectedReportId] = useState(activeReportId || userReports[0]?.id);
+
+  React.useEffect(() => {
+    if (activeReportId) {
+      setSelectedReportId(activeReportId);
+    } else if (userReports.length > 0) {
+      setSelectedReportId(userReports[0].id);
+    }
+  }, [activeReportId, userReports]);
+
   const toggleSource = (idx) => {
     setExpandedSources(prev => ({ ...prev, [idx]: !prev[idx] }));
   };
 
-  const latestReport = (Array.isArray(reports) && reports.length > 0) ? reports[0] : null;
+  const selectedReport = userReports.find(r => String(r.id) === String(selectedReportId)) || userReports[0] || null;
 
-  if (!latestReport) {
+  if (!selectedReport) {
     return (
       <div className="space-y-6 pb-12 font-sans antialiased max-w-4xl mx-auto text-center py-12">
         <Card className="p-10 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-4">
@@ -73,49 +84,75 @@ export const AIAnalysisPage = () => {
     );
   }
 
-  const biomarkers = Array.isArray(latestReport.biomarkers) ? latestReport.biomarkers : [];
-  const vitals = Array.isArray(latestReport.vitals) ? latestReport.vitals : [];
-  const medications = Array.isArray(latestReport.extractedMedications) ? latestReport.extractedMedications : (Array.isArray(latestReport.medications) ? latestReport.medications : []);
+  const biomarkers = Array.isArray(selectedReport.biomarkers) ? selectedReport.biomarkers : (Array.isArray(selectedReport.labResults) ? selectedReport.labResults : []);
+  const vitals = Array.isArray(selectedReport.vitals) ? selectedReport.vitals : [];
+  const medications = Array.isArray(selectedReport.extractedMedications) ? selectedReport.extractedMedications : (Array.isArray(selectedReport.medications) ? selectedReport.medications : []);
 
   return (
     <div className="space-y-6 pb-12 font-sans antialiased max-w-5xl mx-auto">
       
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#2D90A6] animate-pulse" />
-            <span className="text-xs text-[#2D90A6] font-bold uppercase tracking-wider">{t('statusReportParsed')}</span>
+      {/* Top Header & Document Switcher */}
+      <div className="space-y-3 border-b border-slate-200 pb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#0D9488] animate-pulse" />
+              <span className="text-xs text-[#0D9488] font-bold uppercase tracking-wider">{t('statusReportParsed')}</span>
+            </div>
+            <h1 className="text-2.5xl font-extrabold text-[#0F172A] tracking-tight mt-0.5">
+              {t('aiDiagnosticAnalysis')}
+            </h1>
+            <p className="text-xs text-slate-500 font-normal mt-0.5">
+              {t('reportId')}: <strong className="text-slate-800">{selectedReport.reportId || selectedReport.id}</strong> • {t('uploaded')}: {selectedReport.date || selectedReport.report_date || selectedReport.uploadedAt}
+            </p>
           </div>
-          <h1 className="text-2.5xl font-extrabold text-[#1A4B84] tracking-tight mt-0.5">
-            {t('aiDiagnosticAnalysis')}
-          </h1>
-          <p className="text-xs text-slate-500 font-normal mt-0.5">
-            {t('reportId')}: <strong className="text-slate-800">{latestReport.reportId || latestReport.id}</strong> • {t('uploaded')}: {latestReport.date || latestReport.report_date || latestReport.uploadedAt}
-          </p>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            <Button
+              variant="outline"
+              size="sm"
+              icon={Eye}
+              onClick={() => setViewOriginalModal(true)}
+              className="rounded-xl border-slate-200 text-xs font-semibold cursor-pointer"
+            >
+              {t('viewOriginalText')}
+            </Button>
+
+            <Button
+              variant="primary"
+              size="sm"
+              icon={Upload}
+              onClick={() => navigate('/app/upload')}
+              className="bg-[#0F172A] hover:bg-[#1E293B] text-xs font-semibold rounded-xl cursor-pointer"
+            >
+              {t('uploadNew')}
+            </Button>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap">
-          <Button
-            variant="outline"
-            size="sm"
-            icon={Eye}
-            onClick={() => setViewOriginalModal(true)}
-            className="rounded-xl border-slate-200 text-xs font-semibold cursor-pointer"
-          >
-            {t('viewOriginalText')}
-          </Button>
-
-          <Button
-            variant="primary"
-            size="sm"
-            icon={Download}
-            onClick={() => toast.success("Exporting report analysis as PDF...")}
-            className="bg-[#1A4B84] hover:bg-[#143A66] py-2 px-4 text-xs font-bold rounded-xl cursor-pointer"
-          >
-            {t('exportPDF')}
-          </Button>
-        </div>
+        {/* Multi-Report Document Selection Pill */}
+        {userReports.length > 1 && (
+          <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-teal-50/80 border border-teal-200 text-xs">
+            <div className="flex items-center gap-2">
+              <FileText className="w-4 h-4 text-[#0D9488] shrink-0" />
+              <span className="font-extrabold text-[#0F172A]">Viewing Report ({userReports.length} total saved):</span>
+            </div>
+            <select
+              value={selectedReport.id}
+              onChange={(e) => {
+                setSelectedReportId(e.target.value);
+                setActiveReportId(e.target.value);
+              }}
+              className="med-input text-xs font-bold text-[#0F172A] bg-white border-teal-300 py-1.5 px-3 rounded-xl shadow-2xs cursor-pointer max-w-xs"
+            >
+              {userReports.map((r, idx) => (
+                <option key={r.id} value={r.id}>
+                  📄 {r.title || r.file_name || `Report #${idx + 1}`} ({r.date || r.report_date})
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
 
       {/* Patient Information Banner */}

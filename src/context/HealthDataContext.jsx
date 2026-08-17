@@ -379,7 +379,7 @@ export const HealthDataProvider = ({ children }) => {
 
                 setReports(prev => {
                   const existing = Array.isArray(prev) ? prev : [];
-                  const filtered = existing.filter(r => r.id !== backendReport.id && r.file_name !== backendReport.file_name);
+                  const filtered = existing.filter(r => String(r.id) !== String(backendReport.id));
                   const updated = [backendReport, ...filtered];
                   if (userProfile?.id) {
                     localStorage.setItem(`medguardian_reports_${userProfile.id}`, JSON.stringify(updated));

@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const crypto = require('crypto');
+const fs = require('fs');
 const Report = require('../models/Report');
 const ReportValue = require('../models/ReportValue');
 const ReportSummary = require('../models/ReportSummary');
@@ -146,14 +148,26 @@ exports.uploadReport = async (req, res, next) => {
       return res.status(400).json({ error: "No report file provided. Please upload a PDF, PNG, or JPG document." });
     }
 
-    // REQUIREMENT 9: DUPLICATE PREVENTION (Check if user already uploaded this file)
-    const existingReport = await Report.findOne({
-      user_id: user._id,
-      file_name: file.originalname
-    });
+    // Compute SHA-256 hash of file content to detect REAL exact duplicate files
+    let fileBuffer = file.buffer;
+    if (!fileBuffer && file.path && fs.existsSync(file.path)) {
+      try {
+        fileBuffer = fs.readFileSync(file.path);
+      } catch (e) {}
+    }
+
+    const fileHash = fileBuffer ? crypto.createHash('sha256').update(fileBuffer).digest('hex') : null;
+
+    let existingReport = null;
+    if (fileHash) {
+      existingReport = await Report.findOne({
+        user_id: user._id,
+        file_hash: fileHash
+      });
+    }
 
     if (existingReport) {
-      console.log(`[REPORT ENGINE] Duplicate report detected for user ${user._id}: "${file.originalname}". Returning existing report record.`);
+      console.log(`[REPORT ENGINE] Exact content hash duplicate report detected for user ${user._id}: "${file.originalname}". Returning existing report record.`);
       
       const values = await ReportValue.find({ report_id: existingReport._id });
       const summaryObj = await ReportSummary.findOne({ report_id: existingReport._id });
@@ -194,11 +208,11 @@ exports.uploadReport = async (req, res, next) => {
       return res.status(200).json({ 
         report: populatedExisting, 
         isDuplicate: true, 
-        message: "This report has already been uploaded. Viewing existing stored record." 
+        message: "This report file has already been uploaded. Viewing existing stored record." 
       });
     }
 
-    console.log(`[REPORT ENGINE] Processing uploaded report: "${file.originalname}" (${file.size} bytes) for user ID ${user._id} (${user.email})`);
+    console.log(`[REPORT ENGINE] Processing NEW uploaded report: "${file.originalname}" (${file.size} bytes) for user ID ${user._id} (${user.email})`);
 
     const ocrResult = await ocrService.processReportFile(file);
 
@@ -210,6 +224,8 @@ exports.uploadReport = async (req, res, next) => {
       report_date: ocrResult.date || new Date().toISOString().split('T')[0],
       file_name: file.originalname,
       file_type: file.mimetype,
+      file_size: file.size || 0,
+      file_hash: fileHash || '',
       ocr_confidence: ocrResult.ocrConfidence || "99.2%",
       status_flag: ocrResult.status || "Analyzed"
     });
@@ -219,7 +235,7 @@ exports.uploadReport = async (req, res, next) => {
       ...(Array.isArray(ocrResult.labResults) ? ocrResult.labResults : [])
     ];
 
-    // Deduplicate by name
+    // Deduplicate by name within the same document
     const uniqueBiomarkers = [];
     const seenNames = new Set();
 
