@@ -71,6 +71,7 @@ const OnboardingRoute = ({ children }) => {
   return children;
 };
 
+// MedGuardian AI - Version 2.4.0 Production Build
 export default function App() {
   return (
     <ThemeProvider>
