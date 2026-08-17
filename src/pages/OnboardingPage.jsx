@@ -91,9 +91,25 @@ export const OnboardingPage = () => {
       return;
     }
 
-    if (weight && (isNaN(Number(weight)) || Number(weight) < 10 || Number(weight) > 300)) {
-      toast.error("Please enter a valid weight measurement (10-300 kg).");
+    if (heightUnit === 'ft' && (Number(height) < 1.3 || Number(height) > 8.5)) {
+      toast.error("Height in feet must be between 1.3 ft and 8.5 ft.");
       return;
+    }
+
+    if (weight) {
+      const numWeight = Number(weight);
+      if (isNaN(numWeight) || numWeight <= 0) {
+        toast.error("Please enter a valid weight measurement.");
+        return;
+      }
+      if (weightUnit === 'kg' && (numWeight < 10 || numWeight > 300)) {
+        toast.error("Weight in kg must be between 10 kg and 300 kg.");
+        return;
+      }
+      if (weightUnit === 'lbs' && (numWeight < 22 || numWeight > 660)) {
+        toast.error("Weight in lbs must be between 22 lbs and 660 lbs.");
+        return;
+      }
     }
 
     if (!city.trim()) {
@@ -249,19 +265,20 @@ export const OnboardingPage = () => {
               {/* Height & Unit */}
               <div className="med-form-group">
                 <label className="block text-xs font-bold text-[#0F172A] mb-1.5">Height <span className="text-rose-500">*</span></label>
-                <div className="grid grid-cols-4 gap-2">
+                <div className="flex gap-2">
                   <input
                     type="number"
+                    step="any"
                     required
                     value={height}
                     onChange={(e) => setHeight(e.target.value)}
-                    placeholder="e.g. 180"
-                    className="med-input col-span-3"
+                    placeholder={heightUnit === 'ft' ? "e.g. 5.9" : "e.g. 175"}
+                    className="med-input flex-1 min-w-0"
                   />
                   <select
                     value={heightUnit}
                     onChange={(e) => setHeightUnit(e.target.value)}
-                    className="med-input col-span-1"
+                    className="med-input w-24 shrink-0 font-bold"
                   >
                     <option value="cm">cm</option>
                     <option value="ft">ft</option>
@@ -273,18 +290,19 @@ export const OnboardingPage = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="med-form-group">
                   <label className="block text-xs font-bold text-[#0F172A] mb-1.5">Weight (Optional)</label>
-                  <div className="grid grid-cols-4 gap-2">
+                  <div className="flex gap-2">
                     <input
                       type="number"
+                      step="any"
                       value={weight}
                       onChange={(e) => setWeight(e.target.value)}
-                      placeholder="e.g. 70"
-                      className="med-input col-span-3"
+                      placeholder={weightUnit === 'lbs' ? "e.g. 150" : "e.g. 70"}
+                      className="med-input flex-1 min-w-0"
                     />
                     <select
                       value={weightUnit}
                       onChange={(e) => setWeightUnit(e.target.value)}
-                      className="med-input col-span-1"
+                      className="med-input w-24 shrink-0 font-bold"
                     >
                       <option value="kg">kg</option>
                       <option value="lbs">lbs</option>

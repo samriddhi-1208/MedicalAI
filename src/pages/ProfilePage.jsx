@@ -44,7 +44,9 @@ export const ProfilePage = () => {
     dob: userProfile?.dob || '',
     gender: userProfile?.gender || '',
     height: userProfile?.height || '',
+    heightUnit: userProfile?.heightUnit || 'cm',
     weight: userProfile?.weight || '',
+    weightUnit: userProfile?.weightUnit || 'kg',
     bloodGroup: userProfile?.bloodGroup || '',
     primaryPhysician: userProfile?.primaryPhysician || '',
     city: userProfile?.city || '',
@@ -70,7 +72,9 @@ export const ProfilePage = () => {
         dob: userProfile.dob || prev.dob,
         gender: userProfile.gender || prev.gender,
         height: userProfile.height || prev.height,
+        heightUnit: userProfile.heightUnit || prev.heightUnit,
         weight: userProfile.weight || prev.weight,
+        weightUnit: userProfile.weightUnit || prev.weightUnit,
         bloodGroup: userProfile.bloodGroup || prev.bloodGroup,
         primaryPhysician: userProfile.primaryPhysician || prev.primaryPhysician,
         city: userProfile.city || prev.city,
@@ -263,33 +267,51 @@ export const ProfilePage = () => {
             
             <div className="med-form-group">
               <label htmlFor="height">{t('height')}</label>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 <input
                   id="height"
                   type="number"
+                  step="any"
                   name="height"
                   value={formData.height}
                   onChange={handleChange}
-                  placeholder="e.g. 165"
-                  className="med-input text-xs"
+                  placeholder={formData.heightUnit === 'ft' ? "e.g. 5.9" : "e.g. 165"}
+                  className="med-input text-xs flex-1 min-w-0"
                 />
-                <span className="px-3 py-2 rounded-xl bg-slate-100 font-bold text-slate-700">cm</span>
+                <select
+                  name="heightUnit"
+                  value={formData.heightUnit}
+                  onChange={handleChange}
+                  className="med-input text-xs w-20 shrink-0 font-bold bg-slate-50"
+                >
+                  <option value="cm">cm</option>
+                  <option value="ft">ft</option>
+                </select>
               </div>
             </div>
 
             <div className="med-form-group">
               <label htmlFor="weight">{t('weight')}</label>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 <input
                   id="weight"
                   type="number"
+                  step="any"
                   name="weight"
                   value={formData.weight}
                   onChange={handleChange}
-                  placeholder="e.g. 58"
-                  className="med-input text-xs"
+                  placeholder={formData.weightUnit === 'lbs' ? "e.g. 130" : "e.g. 58"}
+                  className="med-input text-xs flex-1 min-w-0"
                 />
-                <span className="px-3 py-2 rounded-xl bg-slate-100 font-bold text-slate-700">kg</span>
+                <select
+                  name="weightUnit"
+                  value={formData.weightUnit}
+                  onChange={handleChange}
+                  className="med-input text-xs w-20 shrink-0 font-bold bg-slate-50"
+                >
+                  <option value="kg">kg</option>
+                  <option value="lbs">lbs</option>
+                </select>
               </div>
             </div>
 
