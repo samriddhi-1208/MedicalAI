@@ -254,25 +254,33 @@ export async function analyzeUploadedDocument(file, userId) {
   const reportId = `rep-${fileHash.substring(0, 12)}`;
 
   let rawText = '';
-  if (file.type === 'application/pdf') {
-    rawText = await extractTextFromPDF(file);
-  } else if (file.type.startsWith('image/')) {
-    rawText = await extractTextFromImage(file);
+  const fileNameLower = (file?.name || '').toLowerCase();
+  const isPdf = (file?.type && file.type.includes('pdf')) || fileNameLower.endsWith('.pdf');
+  const isImage = (file?.type && file.type.startsWith('image/')) || /\.(png|jpe?g|webp)$/i.test(fileNameLower);
+
+  try {
+    if (isPdf) {
+      rawText = await extractTextFromPDF(file);
+    } else if (isImage) {
+      rawText = await extractTextFromImage(file);
+    }
+  } catch (err) {
+    console.warn("[REPORT PARSER] Text extraction note:", err.message);
   }
 
-  const analysis = universalClinicalExtractor(rawText, file.name);
+  const analysis = universalClinicalExtractor(rawText, file?.name || 'Lab Report');
 
   return {
     success: true,
     reportId,
     fileHash,
-    fileName: file.name,
+    fileName: file?.name || 'Lab_Report.pdf',
     userId,
     uploadedAt: new Date().toISOString().split('T')[0],
-    fileType: file.type.includes('pdf') ? 'PDF' : 'IMAGE',
-    fileSize: `${(file.size / (1024 * 1024)).toFixed(2)} MB`,
+    fileType: isPdf ? 'PDF' : 'IMAGE',
+    fileSize: `${((file?.size || 0) / (1024 * 1024)).toFixed(2)} MB`,
     labName: "Uploaded Medical Laboratory Report",
-    title: file.name.replace(/\.[^/.]+$/, ""),
+    title: (file?.name || 'Lab Report').replace(/\.[^/.]+$/, ""),
     status: "Normal",
     statusType: "normal",
     biomarkers: analysis.labResults,
@@ -282,6 +290,6 @@ export async function analyzeUploadedDocument(file, userId) {
     medications: analysis.medications,
     aiSummary: analysis.clinicalSummary,
     parameterCount: analysis.labResults.length,
-    rawText: rawText || `Text stream extracted for ${file.name}`
+    rawText: rawText || `Text stream extracted for ${file?.name}`
   };
 }

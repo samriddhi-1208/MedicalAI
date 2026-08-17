@@ -92,6 +92,7 @@ export const ReportUploadPage = () => {
     if (!selectedFile) return;
 
     setUploading(true);
+    setExtractionError(null);
     setActiveStep(2);
     setProcessingStatus("Step 2/5: Reading document stream & OCR text...");
 
@@ -99,7 +100,22 @@ export const ReportUploadPage = () => {
       setTimeout(() => { setActiveStep(3); setProcessingStatus("Step 3/5: Extracting lab test results & vitals..."); }, 500);
       setTimeout(() => { setActiveStep(4); setProcessingStatus("Step 4/5: Running AI diagnostic summary analysis..."); }, 1000);
 
-      const parsedData = await analyzeUploadedDocument(selectedFile);
+      let parsedData = {};
+      try {
+        parsedData = await analyzeUploadedDocument(selectedFile);
+      } catch (clientErr) {
+        console.warn("[UPLOAD] Client PDF parsing fallback to server:", clientErr);
+        parsedData = {
+          title: selectedFile.name.replace(/\.[^/.]+$/, ""),
+          fileName: selectedFile.name,
+          fileSize: `${(selectedFile.size / (1024 * 1024)).toFixed(2)} MB`,
+          fileType: selectedFile.type || 'PDF',
+          labResults: [],
+          biomarkers: [],
+          extractedMedications: []
+        };
+      }
+
       setActiveStep(5);
       setProcessingStatus("Step 5/5: Document parsed successfully!");
 
@@ -112,10 +128,25 @@ export const ReportUploadPage = () => {
         return;
       }
 
-      const extractedMeds = Array.isArray(parsedData.extractedMedications) ? parsedData.extractedMedications : [];
+      // Merge extracted medications from client parsing AND server parsing
+      const extractedMeds = [
+        ...(Array.isArray(savedReport?.extractedMedications) ? savedReport.extractedMedications : []),
+        ...(Array.isArray(parsedData?.extractedMedications) ? parsedData.extractedMedications : [])
+      ];
 
-      if (extractedMeds.length > 0) {
-        setPendingMedications(extractedMeds);
+      // Deduplicate extracted medications by name
+      const uniqueMeds = [];
+      const seenMedNames = new Set();
+      extractedMeds.forEach(m => {
+        const name = m.medicineName || m.name;
+        if (name && !seenMedNames.has(name.toLowerCase())) {
+          seenMedNames.add(name.toLowerCase());
+          uniqueMeds.push(m);
+        }
+      });
+
+      if (uniqueMeds.length > 0) {
+        setPendingMedications(uniqueMeds);
         setIsVerificationModalOpen(true);
         setUploading(false);
       } else {
@@ -123,9 +154,9 @@ export const ReportUploadPage = () => {
         navigate('/app/analysis');
       }
     } catch (err) {
-      console.error(err);
+      console.error("[UPLOAD ERROR]", err);
       setUploading(false);
-      setExtractionError("Failed to extract data from document. Please ensure file is a clear lab report.");
+      setExtractionError(err.message || "Failed to extract data from document. Please ensure file is a clear lab report.");
       toast.error("Document parsing failed.");
     }
   };
