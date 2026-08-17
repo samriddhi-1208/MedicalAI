@@ -503,15 +503,23 @@ export const LandingPage = () => {
             ))}
           </div>
 
-          <div className="text-center pt-4">
+          <div className="text-center pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
             <Button
               variant="primary"
               size="md"
-              icon={Upload}
-              className="bg-[#0F172A] hover:bg-[#1E293B] py-3.5 px-8 text-sm font-semibold rounded-xl cursor-pointer"
-              onClick={handleUploadClick}
+              icon={ArrowRight}
+              className="bg-[#0F172A] hover:bg-[#1E293B] py-3.5 px-8 text-sm font-semibold rounded-xl cursor-pointer shadow-md"
+              onClick={() => navigate('/signup')}
             >
-              Get Started Now
+              Get Started (Create Account)
+            </Button>
+            <Button
+              variant="secondary"
+              size="md"
+              className="py-3.5 px-8 text-sm font-semibold rounded-xl bg-white border border-slate-300 hover:bg-slate-100 text-[#0F172A] cursor-pointer shadow-2xs"
+              onClick={() => navigate('/login')}
+            >
+              Already Have An Account? Sign In
             </Button>
           </div>
 

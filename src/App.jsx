@@ -41,11 +41,6 @@ const ProtectedRoute = ({ children }) => {
     return <Navigate to="/login" replace />;
   }
 
-  // Force onboarding if profile is incomplete
-  if (userProfile && !userProfile.profileCompleted) {
-    return <Navigate to="/complete-profile" replace />;
-  }
-
   return children;
 };
 
