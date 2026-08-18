@@ -17,6 +17,18 @@ async function getUserFromReq(req) {
   return null;
 }
 
+// Helper to verify if a timestamp falls on TODAY's calendar date in local timezone
+function isTakenToday(lastTakenAt) {
+  if (!lastTakenAt) return false;
+  const takenDate = new Date(lastTakenAt);
+  const today = new Date();
+  return (
+    takenDate.getFullYear() === today.getFullYear() &&
+    takenDate.getMonth() === today.getMonth() &&
+    takenDate.getDate() === today.getDate()
+  );
+}
+
 // Internal safe cleanup function to merge and remove duplicate database records for a user
 async function cleanupUserDuplicates(userId) {
   try {
@@ -59,7 +71,7 @@ async function cleanupUserDuplicates(userId) {
           idsToDelete.push(dup._id);
         }
 
-        // Preserve taken status on primary if any duplicate was taken
+        // Preserve taken status on primary if any duplicate was taken today
         if (hasTaken !== primary.is_taken || lastTakenAt !== primary.last_taken_at) {
           primary.is_taken = hasTaken;
           primary.last_taken_at = lastTakenAt || new Date();
@@ -88,7 +100,19 @@ exports.getMedicines = async (req, res, next) => {
     await cleanupUserDuplicates(user._id);
 
     const medicines = await Medicine.find({ user_id: user._id }).sort({ created_at: -1 });
-    res.json(medicines);
+
+    // Daily Schedule Reset: Reset is_taken = false if last_taken_at was on a PREVIOUS calendar day
+    const updatedMedicines = await Promise.all(
+      medicines.map(async (m) => {
+        if (m.is_taken && !isTakenToday(m.last_taken_at)) {
+          m.is_taken = false;
+          await m.save();
+        }
+        return m;
+      })
+    );
+
+    res.json(updatedMedicines);
   } catch (error) {
     next(error);
   }

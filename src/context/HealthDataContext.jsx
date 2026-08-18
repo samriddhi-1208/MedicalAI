@@ -1,75 +1,72 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 
-const HealthDataContext = createContext();
+const HealthDataContext = createContext(null);
 
-function getNormalizedApiUrl() {
-  const envUrl = import.meta.env.VITE_API_URL || '';
-  if (envUrl && envUrl.trim()) {
-    let clean = envUrl.trim().replace(/\/+$/, '');
-    if (!clean.endsWith('/api')) {
-      clean = `${clean}/api`;
-    }
-    return clean;
+const getNormalizedApiUrl = () => {
+  let envUrl = import.meta.env.VITE_API_URL;
+  if (!envUrl || envUrl.includes('localhost:5000')) {
+    envUrl = 'https://medicalai-backend-5ycw.onrender.com/api';
   }
-  return 'https://medicalai-backend-5ycw.onrender.com/api';
-}
+  envUrl = envUrl.trim().replace(/\/+$/, '');
+  if (!envUrl.endsWith('/api')) {
+    envUrl += '/api';
+  }
+  return envUrl;
+};
 
 const API_BASE = getNormalizedApiUrl();
 
-async function safeParseJson(res) {
-  try {
-    return await res.json();
-  } catch (e) {
-    return {};
-  }
+function isTakenToday(lastTakenAt) {
+  if (!lastTakenAt) return false;
+  const takenDate = new Date(lastTakenAt);
+  const today = new Date();
+  return (
+    takenDate.getFullYear() === today.getFullYear() &&
+    takenDate.getMonth() === today.getMonth() &&
+    takenDate.getDate() === today.getDate()
+  );
 }
 
 export const HealthDataProvider = ({ children }) => {
-  const [token, setToken] = useState(() => localStorage.getItem('medguardian_token') || null);
+  const [token, setToken] = useState(() => localStorage.getItem('medguardian_jwt_token') || null);
   const [userProfile, setUserProfile] = useState(() => {
-    const cached = localStorage.getItem('medguardian_user_profile');
-    return cached ? JSON.parse(cached) : null;
-  });
-
-  const [reports, setReports] = useState(() => {
-    if (userProfile?.id) {
-      const cached = localStorage.getItem(`medguardian_reports_${userProfile.id}`);
-      if (cached) return JSON.parse(cached);
+    try {
+      const saved = localStorage.getItem('medguardian_user_profile');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
     }
-    const globalCached = localStorage.getItem('medguardian_reports');
-    return globalCached ? JSON.parse(globalCached) : [];
   });
 
-  const [medicines, setMedicines] = useState(() => {
-    if (userProfile?.id) {
-      const cached = localStorage.getItem(`medguardian_medicines_${userProfile.id}`);
-      if (cached) return JSON.parse(cached);
-    }
-    return [];
-  });
-
+  const [reports, setReports] = useState([]);
+  const [medicines, setMedicines] = useState([]);
   const [emergencyContacts, setEmergencyContacts] = useState([]);
-  const [sosLogs, setSosLogs] = useState([]);
-  const [notifications, setNotifications] = useState([]);
-  const [activeReportId, setActiveReportId] = useState(() => reports[0]?.id || null);
-  const [language, setLanguageState] = useState(() => localStorage.getItem('medguardian_lang') || 'EN');
+  const [language, setLanguage] = useState(() => localStorage.getItem('medguardian_lang') || 'EN');
+  const [activeReportId, setActiveReportId] = useState(null);
   const [loadingData, setLoadingData] = useState(false);
+  const [loadingAuth, setLoadingAuth] = useState(false);
   const [apiError, setApiError] = useState(null);
 
-  const isAuthenticated = Boolean(token || localStorage.getItem('medguardian_token'));
-  const loadingAuth = loadingData;
-
-  const getAuthHeaders = () => ({
-    'Authorization': token ? `Bearer ${token}` : ''
-  });
-
-  const setAppLanguage = (langCode) => {
-    setLanguageState(langCode);
-    localStorage.setItem('medguardian_lang', langCode);
+  const getAuthHeaders = () => {
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    return headers;
   };
 
-  // Sync state with server upon login / token change
+  const safeParseJson = async (res) => {
+    try {
+      const text = await res.text();
+      return text ? JSON.parse(text) : null;
+    } catch (e) {
+      console.warn("[API] JSON parse warning:", e);
+      return null;
+    }
+  };
+
+  // Sync user profile, reports, medicines, and emergency contacts on mount or token change
   useEffect(() => {
     async function syncUserData() {
       if (!token) return;
@@ -77,24 +74,25 @@ export const HealthDataProvider = ({ children }) => {
       setApiError(null);
 
       try {
-        const [profileRes, reportsRes, medsRes, contactsRes] = await Promise.all([
+        const [meRes, reportsRes, medsRes, contactsRes] = await Promise.all([
           fetch(`${API_BASE}/auth/me`, { headers: getAuthHeaders() }).catch(() => null),
           fetch(`${API_BASE}/reports`, { headers: getAuthHeaders() }).catch(() => null),
           fetch(`${API_BASE}/medicines`, { headers: getAuthHeaders() }).catch(() => null),
           fetch(`${API_BASE}/emergency/contacts`, { headers: getAuthHeaders() }).catch(() => null)
         ]);
 
-        if (profileRes && profileRes.ok) {
-          const pData = await safeParseJson(profileRes);
-          const rawUser = pData.user || pData;
-          if (rawUser && (rawUser.email || rawUser.id || rawUser._id)) {
+        if (meRes && meRes.ok) {
+          const meData = await safeParseJson(meRes);
+          const rawUser = meData?.user || meData;
+
+          if (rawUser) {
             const updatedProfile = {
               id: rawUser.id || rawUser._id,
-              name: rawUser.full_name || rawUser.name || 'Patient',
-              email: rawUser.email,
+              name: rawUser.name || 'Patient',
+              email: rawUser.email || '',
               phone: rawUser.phone || '',
               dob: rawUser.dob || '',
-              gender: rawUser.gender || 'Female',
+              gender: rawUser.gender || 'Not Specified',
               height: rawUser.height || '',
               heightUnit: rawUser.height_unit || 'cm',
               weight: rawUser.weight || '',
@@ -124,7 +122,7 @@ export const HealthDataProvider = ({ children }) => {
             }
           }
 
-          // Parse Medicines (With Strict In-Memory Deduplication)
+          // Parse Medicines (With Strict In-Memory Deduplication & Daily Reset)
           if (medsRes && medsRes.ok) {
             const mData = await safeParseJson(medsRes);
             const safeMeds = (Array.isArray(mData) ? mData : []).map(m => ({
@@ -145,7 +143,7 @@ export const HealthDataProvider = ({ children }) => {
               totalPills: m.total_pills ?? 30,
               pillsRemaining: m.pills_remaining ?? 30,
               isPaused: m.is_paused || false,
-              taken: m.is_taken || false
+              taken: m.is_taken && isTakenToday(m.last_taken_at || m.lastTakenAt)
             }));
 
             // Deduplicate safely by identity key
@@ -165,7 +163,7 @@ export const HealthDataProvider = ({ children }) => {
             }
           }
 
-          // Parse Emergency Contacts (with fallback to /sos/contacts if 404)
+          // Parse Emergency Contacts
           let cData = [];
           if (contactsRes && contactsRes.ok) {
             cData = await safeParseJson(contactsRes);
@@ -198,384 +196,376 @@ export const HealthDataProvider = ({ children }) => {
   const login = async (email, password) => {
     setLoadingData(true);
     let userObj = null;
-    let authToken = null;
 
     try {
-      const cleanEmail = (email || '').toLowerCase().trim();
-      const res = await fetch(`${API_BASE}/auth/login`, {
+      let res = await fetch(`${API_BASE}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: cleanEmail, password })
+        body: JSON.stringify({ email: email.trim(), password })
       });
 
-      const data = await safeParseJson(res);
+      if (!res.ok) {
+        res = await fetch(`${API_BASE}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email.trim(), password })
+        });
+      }
 
-      if (res.ok) {
-        authToken = data.token;
-        const rawUser = data.user || data;
-        userObj = {
-          id: rawUser.id || rawUser._id,
-          name: rawUser.full_name || rawUser.name || cleanEmail.split('@')[0],
-          email: rawUser.email || cleanEmail,
-          phone: rawUser.phone || '',
-          profileCompleted: rawUser.profile_completed ?? true
+      const data = await safeParseJson(res);
+      if (res.ok && data && data.token) {
+        setToken(data.token);
+        localStorage.setItem('medguardian_jwt_token', data.token);
+
+        userObj = data.user || { name: email.split('@')[0], email };
+        const newProf = {
+          id: userObj.id || userObj._id,
+          name: userObj.name || email.split('@')[0],
+          email: userObj.email || email,
+          phone: userObj.phone || '',
+          gender: userObj.gender || 'Not Specified',
+          height: userObj.height || '',
+          weight: userObj.weight || '',
+          bloodGroup: userObj.blood_group || 'Not Known',
+          primaryPhysician: userObj.primary_physician || 'Dr. Aris Thorne',
+          country: userObj.country || 'India'
         };
+
+        setUserProfile(newProf);
+        localStorage.setItem('medguardian_user_profile', JSON.stringify(newProf));
+        toast.success(`Welcome back, ${newProf.name}!`);
+        return { success: true, user: newProf };
       } else {
-        throw new Error(data.error || "Invalid email or password.");
+        const errMsg = data?.error || data?.message || "Invalid email or password.";
+        toast.error(errMsg);
+        return { success: false, error: errMsg };
       }
     } catch (err) {
+      toast.error("Network error during login.");
+      return { success: false, error: "Network error." };
+    } finally {
       setLoadingData(false);
-      throw err;
     }
-
-    setToken(authToken);
-    setUserProfile(userObj);
-    localStorage.setItem('medguardian_token', authToken);
-    localStorage.setItem('medguardian_user_profile', JSON.stringify(userObj));
-    setLoadingData(false);
-    toast.success(`Welcome back, ${userObj.name}!`);
-    return userObj;
   };
 
-  const signup = async (param1, param2, param3) => {
+  const signup = async (name, email, password) => {
     setLoadingData(true);
-    let name = '';
-    let email = '';
-    let password = '';
-
-    if (typeof param1 === 'object' && param1 !== null) {
-      name = param1.name || param1.fullName || param1.full_name || '';
-      email = param1.email || '';
-      password = param1.password || '';
-    } else {
-      name = param1 || '';
-      email = param2 || '';
-      password = param3 || '';
-    }
-
-    const cleanEmail = email.toLowerCase().trim();
-    let userObj = null;
-    let authToken = null;
-
     try {
-      const res = await fetch(`${API_BASE}/auth/signup`, {
+      let res = await fetch(`${API_BASE}/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, full_name: name, email: cleanEmail, password })
+        body: JSON.stringify({ name: name.trim(), email: email.trim(), password })
       });
 
-      const data = await safeParseJson(res);
+      if (!res.ok) {
+        res = await fetch(`${API_BASE}/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: name.trim(), email: email.trim(), password })
+        });
+      }
 
-      if (res.ok) {
-        authToken = data.token;
-        const rawUser = data.user || data;
-        userObj = {
-          id: rawUser.id || rawUser._id,
-          name: rawUser.full_name || rawUser.name || name,
-          email: rawUser.email || cleanEmail,
-          profileCompleted: false
+      const data = await safeParseJson(res);
+      if (res.ok && data && data.token) {
+        setToken(data.token);
+        localStorage.setItem('medguardian_jwt_token', data.token);
+
+        const newProf = {
+          id: data.user?.id || data.user?._id,
+          name: data.user?.name || name,
+          email: data.user?.email || email,
+          gender: 'Not Specified',
+          bloodGroup: 'Not Known',
+          primaryPhysician: 'Dr. Aris Thorne',
+          country: 'India'
         };
+
+        setUserProfile(newProf);
+        localStorage.setItem('medguardian_user_profile', JSON.stringify(newProf));
+        toast.success("Account created successfully!");
+        return { success: true, user: newProf };
       } else {
-        throw new Error(data.error || "Registration failed.");
+        const errMsg = data?.error || data?.message || "Signup failed.";
+        toast.error(errMsg);
+        return { success: false, error: errMsg };
       }
     } catch (err) {
+      toast.error("Network error during registration.");
+      return { success: false, error: "Network error." };
+    } finally {
       setLoadingData(false);
-      throw err;
     }
-
-    setToken(authToken);
-    setUserProfile(userObj);
-    localStorage.setItem('medguardian_token', authToken);
-    localStorage.setItem('medguardian_user_profile', JSON.stringify(userObj));
-    setLoadingData(false);
-    toast.success("Account created successfully!");
-    return userObj;
   };
 
   const logout = () => {
-    localStorage.removeItem('medguardian_token');
-    localStorage.removeItem('medguardian_user_profile');
-    if (userProfile?.id) {
-      localStorage.removeItem(`medguardian_reports_${userProfile.id}`);
-      localStorage.removeItem(`medguardian_medicines_${userProfile.id}`);
-    }
     setToken(null);
     setUserProfile(null);
     setReports([]);
     setMedicines([]);
     setEmergencyContacts([]);
-    setActiveReportId(null);
-    setApiError(null);
-    toast.success("Signed out successfully.");
+    localStorage.removeItem('medguardian_jwt_token');
+    localStorage.removeItem('medguardian_user_profile');
+    toast.success("Logged out successfully.");
   };
 
-  const addReport = async (reportData, fileObj = null) => {
-    let savedReport = { ...reportData };
-
-    if (fileObj) {
-      try {
-        const formData = new FormData();
-        formData.append('reportFile', fileObj);
-        formData.append('report', fileObj);
-
-        const res = await fetch(`${API_BASE}/reports`, {
-          method: 'POST',
-          headers: getAuthHeaders(),
-          body: formData
-        });
-
-        if (res.ok) {
-          const resData = await safeParseJson(res);
-          if (resData.report) {
-            const backendReport = {
-              ...savedReport,
-              ...resData.report,
-              id: resData.report.id || resData.report._id,
-              isDuplicate: Boolean(resData.isDuplicate || resData.duplicate)
-            };
-
-            setReports(prev => {
-              const existing = Array.isArray(prev) ? prev : [];
-              const filtered = existing.filter(r => String(r.id) !== String(backendReport.id));
-              const updated = [backendReport, ...filtered];
-              if (userProfile?.id) {
-                localStorage.setItem(`medguardian_reports_${userProfile.id}`, JSON.stringify(updated));
-              }
-              return updated;
-            });
-            setActiveReportId(backendReport.id);
-            return backendReport;
-          }
-        }
-      } catch (err) {
-        console.warn("[REPORTS] Backend upload note:", err.message);
-      }
-    }
-
-    if (!savedReport.id) {
-      savedReport.id = savedReport.reportId || `rep-${Date.now()}`;
-    }
-
-    setReports(prev => {
-      const existing = Array.isArray(prev) ? prev : [];
-      const filtered = existing.filter(r => r.id !== savedReport.id);
-      const updated = [savedReport, ...filtered];
-      if (userProfile?.id) {
-        localStorage.setItem(`medguardian_reports_${userProfile.id}`, JSON.stringify(updated));
-      }
-      return updated;
+  const updateUserProfile = async (updatedFields) => {
+    setUserProfile(prev => {
+      const merged = { ...prev, ...updatedFields };
+      localStorage.setItem('medguardian_user_profile', JSON.stringify(merged));
+      return merged;
     });
-    setActiveReportId(savedReport.id);
-    return savedReport;
+
+    if (token) {
+      try {
+        await fetch(`${API_BASE}/auth/profile`, {
+          method: 'PUT',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(updatedFields)
+        });
+      } catch (e) {
+        console.warn("[API] Profile update sync note:", e);
+      }
+    }
   };
 
-  const addMedicine = async (medData) => {
+  const addReport = async (reportObj, fileFile) => {
+    if (!token) return null;
+
     try {
-      const res = await fetch(`${API_BASE}/medicines`, {
+      const formData = new FormData();
+      if (fileFile) {
+        formData.append('report', fileFile);
+      } else {
+        formData.append('title', reportObj.title || 'Lab Report');
+        formData.append('data', JSON.stringify(reportObj));
+      }
+
+      const headers = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const res = await fetch(`${API_BASE}/reports/upload`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-        body: JSON.stringify(medData)
+        headers,
+        body: formData
       });
 
-      if (res.ok) {
-        const m = await safeParseJson(res);
-        const newMed = {
-          id: m._id || m.id,
-          name: m.name,
-          dose: m.dose || m.dosage || '1 tablet',
-          dosage: m.dosage || m.dose || '1 tablet',
-          frequency: m.frequency || 'Once daily',
-          scheduledTime: m.scheduled_time || m.time || '08:00 AM',
-          time: m.scheduled_time || m.time || '08:00 AM',
-          timeSlot: m.time_slot || 'Morning',
-          mealRelation: m.meal_relation || 'After meal',
-          mealType: m.meal_type || 'Lunch',
-          delayMinutes: m.delay_minutes || 30,
-          durationDays: m.duration_days || 5,
-          sourceTitle: m.source_title || medData.source_title || 'Prescription',
-          purpose: m.purpose || 'Prescribed Medication',
-          totalPills: m.total_pills ?? 30,
-          pillsRemaining: m.pills_remaining ?? 30,
-          isPaused: m.is_paused || false,
-          taken: m.is_taken || false
-        };
+      const data = await safeParseJson(res);
 
-        setMedicines(prev => {
-          const existing = Array.isArray(prev) ? prev : [];
-          const filtered = existing.filter(item => String(item.id) !== String(newMed.id));
-          const updated = [newMed, ...filtered];
-          if (userProfile?.id) {
-            localStorage.setItem(`medguardian_medicines_${userProfile.id}`, JSON.stringify(updated));
-          }
-          return updated;
-        });
+      if (res.ok && data && data.report) {
+        if (data.isDuplicate || data.duplicate) {
+          return { ...data.report, isDuplicate: true, duplicate: true };
+        }
 
-        toast.success(`Medicine reminder saved for ${newMed.name}`);
-        return newMed;
+        setReports(prev => [data.report, ...prev]);
+        setActiveReportId(data.report.id || data.report._id);
+        return data.report;
       }
-    } catch (err) {}
+      return null;
+    } catch (err) {
+      console.error("[API] Upload report error:", err);
+      return null;
+    }
+  };
 
-    const localMed = {
-      id: `med-${Date.now()}`,
-      name: medData.name,
-      dose: medData.dose || '1 tablet',
-      dosage: medData.dose || '1 tablet',
-      frequency: medData.frequency || 'Once daily',
-      scheduledTime: medData.scheduled_time || medData.time || '08:00 AM',
-      time: medData.scheduled_time || medData.time || '08:00 AM',
-      timeSlot: medData.timeSlot || 'Morning',
-      mealRelation: medData.meal_relation || medData.mealRelation || 'After meal',
-      mealType: medData.meal_type || medData.mealType || 'Lunch',
-      delayMinutes: medData.delay_minutes || 30,
-      durationDays: medData.duration_days || 5,
-      sourceTitle: medData.source_title || 'Prescription',
-      purpose: medData.purpose || 'Prescribed Medication',
-      totalPills: medData.totalPills || 30,
-      pillsRemaining: medData.totalPills || 30,
+  const addMedicine = async (medObj) => {
+    // In-memory optimistic deduplication before POST
+    const k = `${(medObj.name || '').toLowerCase().trim()}|${(medObj.dose || medObj.dosage || '1 tablet').toLowerCase().trim()}|${(medObj.frequency || 'Once daily').toLowerCase().trim()}|${(medObj.scheduled_time || medObj.time || '08:00 AM').toLowerCase().trim()}`;
+
+    const existing = medicines.find(m => {
+      const exK = `${(m.name || '').toLowerCase().trim()}|${(m.dose || m.dosage || '1 tablet').toLowerCase().trim()}|${(m.frequency || 'Once daily').toLowerCase().trim()}|${(m.scheduledTime || m.time || '08:00 AM').toLowerCase().trim()}`;
+      return exK === k;
+    });
+
+    if (existing) {
+      return existing;
+    }
+
+    const tempId = `med-${Date.now()}`;
+    const newMed = {
+      id: tempId,
+      name: medObj.name,
+      dose: medObj.dose || medObj.dosage || '1 tablet',
+      dosage: medObj.dosage || medObj.dose || '1 tablet',
+      frequency: medObj.frequency || 'Once daily',
+      scheduledTime: medObj.scheduled_time || medObj.time || '08:00 AM',
+      time: medObj.scheduled_time || medObj.time || '08:00 AM',
+      timeSlot: medObj.timeSlot || 'Morning',
+      mealRelation: medObj.meal_relation || medObj.mealRelation || 'After meal',
+      mealType: medObj.meal_type || medObj.mealType || 'Lunch',
+      delayMinutes: medObj.delay_minutes || medObj.delayMinutes || 30,
+      durationDays: medObj.duration_days || medObj.durationDays || 5,
+      sourceTitle: medObj.source_title || 'Prescription Schedule',
+      purpose: medObj.purpose || 'Prescribed Medication',
+      totalPills: medObj.total_pills || medObj.totalPills || 30,
+      pillsRemaining: medObj.pills_remaining || medObj.totalPills || 30,
       isPaused: false,
       taken: false
     };
 
-    setMedicines(prev => {
-      const existing = Array.isArray(prev) ? prev : [];
-      const updated = [localMed, ...existing];
-      if (userProfile?.id) {
-        localStorage.setItem(`medguardian_medicines_${userProfile.id}`, JSON.stringify(updated));
+    setMedicines(prev => [newMed, ...prev]);
+
+    if (token) {
+      try {
+        const res = await fetch(`${API_BASE}/medicines`, {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(medObj)
+        });
+        const data = await safeParseJson(res);
+        if (res.ok && data) {
+          setMedicines(prev => prev.map(m => m.id === tempId ? { ...m, id: data._id || data.id } : m));
+        }
+      } catch (e) {
+        console.warn("[API] Add medicine note:", e);
       }
-      return updated;
-    });
-    toast.success(`Medicine reminder saved for ${localMed.name}`);
-    return localMed;
+    }
+
+    return newMed;
   };
 
-  const updateMedicine = async (id, medUpdates) => {
+  const updateMedicine = async (medId, updatedFields) => {
+    setMedicines(prev => prev.map(m => m.id === medId ? { ...m, ...updatedFields } : m));
+
+    if (token) {
+      try {
+        await fetch(`${API_BASE}/medicines/${medId}`, {
+          method: 'PUT',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(updatedFields)
+        });
+      } catch (e) {
+        console.warn("[API] Update medicine note:", e);
+      }
+    }
+  };
+
+  const deleteMedicine = async (medId) => {
+    setMedicines(prev => prev.filter(m => m.id !== medId));
+
+    if (token) {
+      try {
+        await fetch(`${API_BASE}/medicines/${medId}`, {
+          method: 'DELETE',
+          headers: getAuthHeaders()
+        });
+      } catch (e) {
+        console.warn("[API] Delete medicine note:", e);
+      }
+    }
+  };
+
+  const toggleMedicinePause = async (medId) => {
+    setMedicines(prev => prev.map(m => m.id === medId ? { ...m, isPaused: !m.isPaused } : m));
+
+    if (token) {
+      try {
+        await fetch(`${API_BASE}/medicines/${medId}/toggle-pause`, {
+          method: 'PATCH',
+          headers: getAuthHeaders()
+        });
+      } catch (e) {
+        console.warn("[API] Toggle pause note:", e);
+      }
+    }
+  };
+
+  const toggleMedicineTaken = async (medId) => {
     setMedicines(prev => prev.map(m => {
-      if (m.id === id) {
+      if (m.id === medId) {
+        const nextTaken = !m.taken;
         return {
           ...m,
-          ...medUpdates,
-          scheduledTime: medUpdates.scheduled_time || medUpdates.time || m.scheduledTime,
-          mealRelation: medUpdates.meal_relation || medUpdates.mealRelation || m.mealRelation
+          taken: nextTaken,
+          pillsRemaining: nextTaken ? Math.max(0, m.pillsRemaining - 1) : m.pillsRemaining
         };
       }
       return m;
     }));
 
-    toast.success("Medication reminder updated.");
-
-    try {
-      await fetch(`${API_BASE}/medicines/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-        body: JSON.stringify(medUpdates)
-      });
-    } catch (err) {}
+    if (token) {
+      try {
+        await fetch(`${API_BASE}/medicines/${medId}/taken`, {
+          method: 'PATCH',
+          headers: getAuthHeaders()
+        });
+      } catch (e) {
+        console.warn("[API] Toggle taken note:", e);
+      }
+    }
   };
 
-  const toggleMedicineTaken = async (id) => {
-    const now = new Date();
-    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const addEmergencyContact = async (contactObj) => {
+    const tempId = `c-${Date.now()}`;
+    const newC = { ...contactObj, id: tempId };
+    setEmergencyContacts(prev => [...prev, newC]);
 
-    setMedicines(prev => prev.map(m => {
-      if (m.id === id) {
-        const nextTaken = !m.taken;
-        if (nextTaken) {
-          toast.success(`✓ Marked ${m.name} as taken at ${timeStr}`);
+    if (token) {
+      try {
+        const res = await fetch(`${API_BASE}/emergency/contacts`, {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(contactObj)
+        });
+        const data = await safeParseJson(res);
+        if (res.ok && data) {
+          setEmergencyContacts(prev => prev.map(c => c.id === tempId ? { ...c, id: data._id || data.id } : c));
         }
-        return { 
-          ...m, 
-          taken: nextTaken, 
-          takenAt: nextTaken ? timeStr : null 
-        };
+      } catch (e) {
+        console.warn("[API] Add contact note:", e);
       }
-      return m;
-    }));
-
-    try {
-      await fetch(`${API_BASE}/medicines/${id}/taken`, {
-        method: 'PATCH',
-        headers: getAuthHeaders()
-      });
-    } catch (err) {}
+    }
   };
 
-  const togglePauseMedicine = async (id) => {
-    setMedicines(prev => prev.map(m => {
-      if (m.id === id) {
-        const nextPaused = !m.isPaused;
-        toast.success(nextPaused ? `Paused reminder for ${m.name}` : `Resumed reminder for ${m.name}`);
-        return { ...m, isPaused: nextPaused };
+  const deleteEmergencyContact = async (contactId) => {
+    setEmergencyContacts(prev => prev.filter(c => c.id !== contactId));
+
+    if (token) {
+      try {
+        await fetch(`${API_BASE}/emergency/contacts/${contactId}`, {
+          method: 'DELETE',
+          headers: getAuthHeaders()
+        });
+      } catch (e) {
+        console.warn("[API] Delete contact note:", e);
       }
-      return m;
-    }));
-
-    try {
-      await fetch(`${API_BASE}/medicines/${id}/pause`, {
-        method: 'PATCH',
-        headers: getAuthHeaders()
-      });
-    } catch (err) {}
+    }
   };
 
-  const deleteMedicine = async (id) => {
-    setMedicines(prev => prev.filter(m => m.id !== id));
-    toast.success("Medicine reminder removed.");
+  const activeReport = reports.find(r => r.id === activeReportId || r._id === activeReportId) || (reports.length > 0 ? reports[0] : null);
 
-    try {
-      await fetch(`${API_BASE}/medicines/${id}`, {
-        method: 'DELETE',
-        headers: getAuthHeaders()
-      });
-    } catch (err) {}
-  };
-
-  const updateUserProfile = async (profileData) => {
-    setUserProfile(prev => {
-      const updated = { ...prev, ...profileData };
-      localStorage.setItem('medguardian_user_profile', JSON.stringify(updated));
-      return updated;
-    });
-
-    try {
-      await fetch(`${API_BASE}/auth/profile`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-        body: JSON.stringify(profileData)
-      });
-    } catch (err) {}
+  const value = {
+    token,
+    userProfile,
+    updateUserProfile,
+    reports,
+    activeReport,
+    activeReportId,
+    setActiveReportId,
+    medicines,
+    emergencyContacts,
+    language,
+    setLanguage,
+    loadingData,
+    loadingAuth,
+    apiError,
+    login,
+    signup,
+    logout,
+    addReport,
+    addMedicine,
+    updateMedicine,
+    deleteMedicine,
+    toggleMedicinePause,
+    toggleMedicineTaken,
+    addEmergencyContact,
+    deleteEmergencyContact,
+    isAuthenticated: Boolean(token)
   };
 
   return (
-    <HealthDataContext.Provider
-      value={{
-        token,
-        isAuthenticated,
-        loadingAuth,
-        userProfile,
-        reports,
-        medicines,
-        emergencyContacts,
-        sosLogs,
-        notifications,
-        activeReportId,
-        setActiveReportId,
-        language,
-        setAppLanguage,
-        loadingData,
-        apiError,
-        API_BASE,
-        login,
-        signup,
-        logout,
-        addReport,
-        addMedicine,
-        updateMedicine,
-        toggleMedicineTaken,
-        togglePauseMedicine,
-        deleteMedicine,
-        updateUserProfile
-      }}
-    >
+    <HealthDataContext.Provider value={value}>
       {children}
     </HealthDataContext.Provider>
   );
