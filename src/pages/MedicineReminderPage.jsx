@@ -73,18 +73,17 @@ export const MedicineReminderPage = () => {
     });
   }, [latestReport, safeMedicines]);
 
-  // Generate today's doses from active medications
+  // Generate today's doses safely without duplicated dose entries
   const todayDoses = useMemo(() => {
     const doses = [];
     const now = new Date();
     const currentHour = now.getHours();
+    const seenDoseKeys = new Set();
 
     safeMedicines.forEach(m => {
       if (m.isPaused) return;
 
       const freqStr = (m.frequency || '').toLowerCase();
-
-      // Determine times based on frequency
       let times = [m.scheduledTime || m.time || '08:00 AM'];
       if (freqStr.includes('twice') || freqStr.includes('2x') || freqStr.includes('2 times')) {
         times = ['08:00 AM', '08:00 PM'];
@@ -93,37 +92,41 @@ export const MedicineReminderPage = () => {
       }
 
       times.forEach((tStr, index) => {
-        // Parse hour to determine upcoming vs missed
         const isPm = tStr.includes('PM');
         let h = parseInt(tStr.split(':')[0]) || 8;
         if (isPm && h < 12) h += 12;
         if (!isPm && h === 12) h = 0;
 
-        let status = 'upcoming';
-        if (m.taken) {
-          status = 'taken';
-        } else if (currentHour > h + 2) {
-          status = 'missed';
-        }
+        const doseKey = `${(m.name || '').toLowerCase().trim()}|${(m.dose || m.dosage || '').toLowerCase().trim()}|${tStr}`;
 
-        doses.push({
-          doseId: `${m.id}-dose-${index}`,
-          medId: m.id,
-          name: m.name,
-          dose: m.dose || m.dosage || '1 tablet',
-          timeStr: tStr,
-          hour: h,
-          mealRelation: m.mealRelation || m.meal_relation || 'After meals',
-          sourceTitle: m.sourceTitle || m.source_title || 'Prescribed',
-          taken: Boolean(m.taken),
-          takenAt: m.takenAt || (m.taken ? '8:04 AM' : null),
-          status,
-          originalMed: m
-        });
+        if (!seenDoseKeys.has(doseKey)) {
+          seenDoseKeys.add(doseKey);
+
+          let status = 'upcoming';
+          if (m.taken) {
+            status = 'taken';
+          } else if (currentHour > h + 2) {
+            status = 'missed';
+          }
+
+          doses.push({
+            doseId: `${m.id}-dose-${index}`,
+            medId: m.id,
+            name: m.name,
+            dose: m.dose || m.dosage || '1 tablet',
+            timeStr: tStr,
+            hour: h,
+            mealRelation: m.mealRelation || m.meal_relation || 'After meals',
+            sourceTitle: m.sourceTitle || m.source_title || 'Prescribed',
+            taken: Boolean(m.taken),
+            takenAt: m.takenAt || (m.taken ? '8:04 AM' : null),
+            status,
+            originalMed: m
+          });
+        }
       });
     });
 
-    // Sort chronologically by hour
     return doses.sort((a, b) => a.hour - b.hour);
   }, [safeMedicines]);
 
@@ -253,7 +256,7 @@ export const MedicineReminderPage = () => {
         </button>
       </div>
 
-      {/* 11. DAILY SUMMARY ROW (Subtle 4-box stats row) */}
+      {/* 11. DAILY SUMMARY ROW */}
       {safeMedicines.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
           <div className="p-3 rounded-lg bg-white border border-slate-200 shadow-2xs space-y-0.5">
@@ -300,7 +303,7 @@ export const MedicineReminderPage = () => {
         </div>
       )}
 
-      {/* 2. TODAY'S MEDICATION SCHEDULE (PRIMARY SECTION) */}
+      {/* 2. TODAY'S MEDICATION SCHEDULE */}
       <div className="bg-white border border-slate-200 rounded-lg p-5 space-y-4 shadow-2xs">
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center gap-2">
@@ -343,13 +346,12 @@ export const MedicineReminderPage = () => {
                       <div className="flex items-center gap-2 text-slate-500 font-normal flex-wrap">
                         <span>{dose.mealRelation}</span>
                         <span>•</span>
-                        {/* 5. MEDICATION SOURCE */}
                         <span className="truncate">
                           Source: <strong className="text-slate-700">{dose.sourceTitle || 'Uploaded report'}</strong>
                         </span>
                       </div>
 
-                      {/* 3. DOSE STATUS TAG */}
+                      {/* DOSE STATUS TAG */}
                       {isTaken && (
                         <p className="text-emerald-700 font-semibold text-[11px] flex items-center gap-1">
                           <Check className="w-3.5 h-3.5 text-emerald-600" />
@@ -365,7 +367,7 @@ export const MedicineReminderPage = () => {
                       )}
                     </div>
 
-                    {/* 4. MARK AS TAKEN ACTION */}
+                    {/* MARK AS TAKEN ACTION */}
                     <div className="shrink-0">
                       <button
                         onClick={() => toggleMedicineTaken(dose.medId)}
@@ -391,7 +393,7 @@ export const MedicineReminderPage = () => {
             })}
           </div>
         ) : (
-          /* 12. EMPTY STATE */
+          /* EMPTY STATE */
           <div className="p-8 text-center space-y-3 bg-slate-50 border border-slate-200/80 rounded-lg">
             <div className="w-10 h-10 rounded-lg bg-slate-200 text-slate-600 flex items-center justify-center mx-auto">
               <Pill className="w-5 h-5 text-slate-500" />
@@ -420,7 +422,7 @@ export const MedicineReminderPage = () => {
         )}
       </div>
 
-      {/* 7. ALL MEDICATIONS TABLE */}
+      {/* ALL MEDICATIONS TABLE */}
       <div className="bg-white border border-slate-200 rounded-lg p-5 space-y-3 shadow-2xs">
         <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
           <h3 className="text-sm font-bold text-[#0F172A]">All Active Medications</h3>
@@ -506,13 +508,13 @@ export const MedicineReminderPage = () => {
         )}
       </div>
 
-      {/* 13. SAFETY & CONFIRMATION FOOTER NOTE */}
+      {/* SAFETY & CONFIRMATION FOOTER NOTE */}
       <div className="p-3 rounded-md bg-slate-100 border border-slate-200 text-[11px] text-slate-600 flex items-center gap-2">
         <Info className="w-4 h-4 text-slate-500 shrink-0" />
         <span>Medication information is based on your uploaded records. Follow your healthcare professional's instructions.</span>
       </div>
 
-      {/* 8. MEDICATION DETAILS MODAL */}
+      {/* MEDICATION DETAILS MODAL */}
       {selectedDetailMed && (
         <Modal
           isOpen={isDetailModalOpen}
@@ -575,7 +577,7 @@ export const MedicineReminderPage = () => {
         </Modal>
       )}
 
-      {/* 9. ADD / EDIT MEDICINE FORM MODAL */}
+      {/* ADD / EDIT MEDICINE FORM MODAL */}
       <Modal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}

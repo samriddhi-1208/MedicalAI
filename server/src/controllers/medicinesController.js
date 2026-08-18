@@ -17,12 +17,75 @@ async function getUserFromReq(req) {
   return null;
 }
 
+// Internal safe cleanup function to merge and remove duplicate database records for a user
+async function cleanupUserDuplicates(userId) {
+  try {
+    const allMeds = await Medicine.find({ user_id: userId }).sort({ created_at: 1 });
+    if (allMeds.length <= 1) return;
+
+    const groups = {};
+    allMeds.forEach(m => {
+      const cleanName = (m.name || '').toLowerCase().trim();
+      const cleanDose = (m.dose || m.dosage || '1 tablet').toLowerCase().trim();
+      const cleanFreq = (m.frequency || 'Once daily').toLowerCase().trim();
+      const cleanTime = (m.scheduled_time || '08:00 AM').toLowerCase().trim();
+      
+      const key = `${cleanName}|${cleanDose}|${cleanFreq}|${cleanTime}`;
+
+      if (!groups[key]) {
+        groups[key] = [];
+      }
+      groups[key].push(m);
+    });
+
+    const idsToDelete = [];
+
+    for (const key in groups) {
+      const list = groups[key];
+      if (list.length > 1) {
+        // Primary record is the earliest created
+        const primary = list[0];
+        let hasTaken = primary.is_taken;
+        let lastTakenAt = primary.last_taken_at;
+
+        for (let i = 1; i < list.length; i++) {
+          const dup = list[i];
+          if (dup.is_taken) {
+            hasTaken = true;
+            if (!lastTakenAt || (dup.last_taken_at && dup.last_taken_at > lastTakenAt)) {
+              lastTakenAt = dup.last_taken_at;
+            }
+          }
+          idsToDelete.push(dup._id);
+        }
+
+        // Preserve taken status on primary if any duplicate was taken
+        if (hasTaken !== primary.is_taken || lastTakenAt !== primary.last_taken_at) {
+          primary.is_taken = hasTaken;
+          primary.last_taken_at = lastTakenAt || new Date();
+          await primary.save();
+        }
+      }
+    }
+
+    if (idsToDelete.length > 0) {
+      console.log(`[MEDICINE CLEANUP] Removing ${idsToDelete.length} duplicate medicine records for user ${userId}`);
+      await Medicine.deleteMany({ _id: { $in: idsToDelete } });
+    }
+  } catch (err) {
+    console.error("[MEDICINE CLEANUP ERROR]", err);
+  }
+}
+
 exports.getMedicines = async (req, res, next) => {
   try {
     const user = await getUserFromReq(req);
     if (!user) {
       return res.json([]);
     }
+
+    // Auto-run deduplication cleanup on fetch
+    await cleanupUserDuplicates(user._id);
 
     const medicines = await Medicine.find({ user_id: user._id }).sort({ created_at: -1 });
     res.json(medicines);
@@ -64,19 +127,38 @@ exports.addMedicine = async (req, res, next) => {
       report_id
     } = req.body;
 
-    if (!name) {
+    if (!name || !name.trim()) {
       return res.status(400).json({ error: "Medicine name is required." });
+    }
+
+    const cleanName = name.trim();
+    const cleanDose = (dose || dosage || '1 tablet').trim();
+    const cleanFreq = (frequency || 'Once daily').trim();
+    const cleanTime = (scheduled_time || time || '08:00 AM').trim();
+
+    // Idempotent Check: Check if equivalent medicine already exists for this user
+    const existingMed = await Medicine.findOne({
+      user_id: user._id,
+      name: { $regex: new RegExp(`^${cleanName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') },
+      dose: cleanDose,
+      frequency: cleanFreq,
+      scheduled_time: cleanTime
+    });
+
+    if (existingMed) {
+      console.log(`[MEDICINE ENGINE] Intercepted duplicate medicine creation request for user ${user._id}: "${cleanName}". Returning existing record.`);
+      return res.status(200).json(existingMed);
     }
 
     const newMed = await Medicine.create({
       user_id: user._id,
       report_id: report_id || null,
       source_title: source_title || 'Prescription Schedule',
-      name,
-      dose: dose || dosage || '1 tablet',
-      dosage: dose || dosage || '1 tablet',
-      frequency: frequency || 'Once daily',
-      scheduled_time: scheduled_time || time || '08:00 AM',
+      name: cleanName,
+      dose: cleanDose,
+      dosage: cleanDose,
+      frequency: cleanFreq,
+      scheduled_time: cleanTime,
       time_slot: timeSlot || 'Morning',
       meal_relation: meal_relation || mealRelation || 'After meal',
       meal_type: meal_type || mealType || 'Lunch',
@@ -205,6 +287,22 @@ exports.deleteMedicine = async (req, res, next) => {
     }
 
     res.json({ success: true, message: "Medicine reminder deleted." });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.cleanupDuplicates = async (req, res, next) => {
+  try {
+    const user = await getUserFromReq(req);
+    if (!user) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+
+    await cleanupUserDuplicates(user._id);
+    const cleanedMeds = await Medicine.find({ user_id: user._id }).sort({ created_at: -1 });
+
+    res.json({ success: true, count: cleanedMeds.length, medicines: cleanedMeds });
   } catch (error) {
     next(error);
   }

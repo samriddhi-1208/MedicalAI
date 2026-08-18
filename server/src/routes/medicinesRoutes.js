@@ -5,6 +5,7 @@ const authMiddleware = require('../middlewares/authMiddleware');
 
 router.get('/', authMiddleware, medicinesController.getMedicines);
 router.post('/', authMiddleware, medicinesController.addMedicine);
+router.post('/cleanup', authMiddleware, medicinesController.cleanupDuplicates);
 router.put('/:id', authMiddleware, medicinesController.updateMedicine);
 router.patch('/:id/pause', authMiddleware, medicinesController.togglePause);
 router.patch('/:id/taken', authMiddleware, medicinesController.logTaken);
