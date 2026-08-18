@@ -98,11 +98,21 @@ export const ReportUploadPage = () => {
     setUploading(true);
     setExtractionError(null);
     setActiveStep(2);
-    setProcessingStatus("Step 2/5: Checking SHA-256 duplicate status & reading file stream...");
+    setProcessingStatus("Step 2/5: Checking SHA-256 duplicate status & backend record...");
 
     try {
-      setTimeout(() => { setActiveStep(3); setProcessingStatus("Step 3/5: Extracting lab test results & vitals..."); }, 500);
-      setTimeout(() => { setActiveStep(4); setProcessingStatus("Step 4/5: Running AI diagnostic summary analysis..."); }, 1000);
+      // Step 1: Upload file to backend FIRST to run authoritative duplicate check BEFORE heavy client OCR
+      const savedReport = await addReport(null, selectedFile);
+
+      if (savedReport && (savedReport.isDuplicate || savedReport.duplicate)) {
+        setDuplicateReport(savedReport);
+        setIsDuplicateModalOpen(true);
+        setUploading(false);
+        return;
+      }
+
+      setActiveStep(3);
+      setProcessingStatus("Step 3/5: Extracting lab test results & vitals...");
 
       let parsedData = {};
       try {
@@ -122,15 +132,6 @@ export const ReportUploadPage = () => {
 
       setActiveStep(5);
       setProcessingStatus("Step 5/5: Document parsed successfully!");
-
-      const savedReport = await addReport(parsedData, selectedFile);
-
-      if (savedReport && (savedReport.isDuplicate || savedReport.duplicate)) {
-        setDuplicateReport(savedReport);
-        setIsDuplicateModalOpen(true);
-        setUploading(false);
-        return;
-      }
 
       // Merge extracted medications from client parsing AND server parsing
       const extractedMeds = [
@@ -297,7 +298,7 @@ export const ReportUploadPage = () => {
               <div className="space-y-1">
                 <p className="text-sm font-extrabold text-[#0F172A]">{selectedFile.name}</p>
                 <p className="text-xs text-slate-500 font-medium">
-                  {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB • Ready for cryptographic hash check & AI parsing
+                  {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB • Ready for SHA-256 duplicate check & AI parsing
                 </p>
               </div>
             ) : (

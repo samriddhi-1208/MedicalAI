@@ -179,16 +179,32 @@ exports.uploadReport = async (req, res, next) => {
 
     fileHash = fileBuffer ? crypto.createHash('sha256').update(fileBuffer).digest('hex') : null;
 
-    let existingReport = null;
+    const cleanTitle = file.originalname ? file.originalname.replace(/\.[^/.]+$/, "").trim() : "";
+
+    const queryOr = [];
     if (fileHash) {
+      queryOr.push({ file_hash: fileHash });
+    }
+    if (file.originalname && file.size) {
+      queryOr.push({ file_name: file.originalname, file_size: file.size });
+    }
+    if (file.originalname) {
+      queryOr.push({ file_name: file.originalname });
+    }
+    if (cleanTitle) {
+      queryOr.push({ title: cleanTitle });
+    }
+
+    let existingReport = null;
+    if (queryOr.length > 0) {
       existingReport = await Report.findOne({
         user_id: user._id,
-        file_hash: fileHash
+        $or: queryOr
       });
     }
 
     if (existingReport) {
-      console.log(`[REPORT ENGINE] Exact content hash duplicate report detected for user ${user._id}: "${file.originalname}". Returning existing report record.`);
+      console.log(`[REPORT ENGINE] Duplicate report detected for user ${user._id}: "${file.originalname}". Rejecting upload & returning existing record.`);
       
       const values = await ReportValue.find({ report_id: existingReport._id });
       const summaryObj = await ReportSummary.findOne({ report_id: existingReport._id });
@@ -244,7 +260,7 @@ exports.uploadReport = async (req, res, next) => {
 
     const newReport = await Report.create({
       user_id: user._id,
-      title: file.originalname ? file.originalname.replace(/\.[^/.]+$/, "") : "Uploaded Lab Report",
+      title: cleanTitle || "Uploaded Lab Report",
       lab_name: ocrResult.labName || "Diagnostic Pathology Center",
       doctor_name: ocrResult.doctorName || "Consulting Physician",
       report_date: ocrResult.date || new Date().toISOString().split('T')[0],
@@ -321,8 +337,8 @@ exports.uploadReport = async (req, res, next) => {
 
     res.status(201).json({ report: populatedReport, isDuplicate: false, duplicate: false });
   } catch (error) {
-    if (error.code === 11000 && fileHash && user) {
-      const existing = await Report.findOne({ user_id: user._id, file_hash: fileHash });
+    if (error.code === 11000 && user) {
+      const existing = await Report.findOne({ user_id: user._id });
       if (existing) {
         return res.status(200).json({
           report: existing,
