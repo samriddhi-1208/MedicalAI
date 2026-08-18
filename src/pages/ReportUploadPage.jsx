@@ -258,75 +258,41 @@ export const ReportUploadPage = () => {
     <div className="space-y-5 pb-12 font-sans antialiased max-w-4xl mx-auto w-full min-w-0">
       
       {/* Upload Header */}
-      <div className="border-b border-slate-200/90 pb-3.5">
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-[#0D9488] animate-pulse" />
-          <span className="text-xs text-[#0D9488] font-extrabold uppercase tracking-wider">{t('dynamicDocAnalyzer')}</span>
-        </div>
-        <h1 className="text-xl sm:text-2.5xl font-black text-[#0F172A] tracking-tight mt-0.5">
-          {t('uploadMedicalReport')}
+      <div className="border-b border-slate-200 pb-3">
+        <h1 className="text-xl font-bold text-[#0F172A]">
+          Upload Medical Report
         </h1>
         <p className="text-xs text-slate-500 font-normal mt-0.5">
-          {t('uploadSubtitle')}
+          Select or drag a PDF or image medical report to parse lab values and medication instructions.
         </p>
       </div>
 
-      {/* REQUIREMENT 5: DESKTOP VS MOBILE STEPPER */}
-      {/* Desktop Stepper */}
-      <div className="hidden md:block p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs">
-        <div className="flex items-center justify-between">
-          {steps.map((s) => {
-            const isCompleted = activeStep > s.num;
-            const isCurrent = activeStep === s.num;
-
-            return (
-              <div key={s.num} className="flex-1 flex flex-col items-center relative text-center">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs transition-all ${
-                  isCompleted 
-                    ? 'bg-emerald-600 text-white' 
-                    : isCurrent 
-                    ? 'bg-[#0F172A] text-white ring-4 ring-slate-200' 
-                    : 'bg-slate-100 text-slate-400'
-                }`}>
-                  {isCompleted ? <Check className="w-4 h-4" /> : s.num}
-                </div>
-                <span className={`text-[11px] font-bold mt-1.5 ${
-                  isCurrent ? 'text-[#0F172A]' : isCompleted ? 'text-emerald-700' : 'text-slate-400'
-                }`}>
-                  {s.label}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Mobile Compact Progress Stepper */}
-      <div className="md:hidden p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-2">
-        <div className="flex items-center justify-between text-xs font-black text-[#0F172A]">
+      {/* Progress Stepper */}
+      <div className="p-3.5 rounded-lg bg-white border border-slate-200 space-y-2">
+        <div className="flex items-center justify-between text-xs font-semibold text-[#0F172A]">
           <span>Step {activeStep} of 5</span>
-          <span className="text-[#0D9488] font-bold">{steps[activeStep - 1]?.label}</span>
+          <span className="text-[#0D9488] font-semibold">{steps[activeStep - 1]?.label}</span>
         </div>
-        <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200/60">
+        <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
           <div 
-            className="bg-[#0D9488] h-2 rounded-full transition-all duration-300"
+            className="bg-[#0F172A] h-1.5 rounded-full transition-all duration-300"
             style={{ width: `${activeStep * 20}%` }}
           />
         </div>
       </div>
 
-      {/* REQUIREMENT 6: MOBILE COMPACT UPLOAD CARD */}
-      <Card className="p-5 sm:p-8 bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-5 text-center w-full min-w-0">
+      {/* Upload Container */}
+      <div className="p-6 bg-white border border-slate-200 rounded-lg space-y-4 text-center w-full min-w-0">
         
         <div
           onDragEnter={handleDrag}
           onDragOver={handleDrag}
           onDragLeave={handleDrag}
           onDrop={handleDrop}
-          className={`p-6 sm:p-10 rounded-2xl border-2 border-dashed transition-all ${
+          className={`p-8 rounded-lg border-2 border-dashed transition-all ${
             dragActive
-              ? 'border-[#0D9488] bg-slate-50 scale-[1.01]'
-              : 'border-slate-300 bg-slate-50/60 hover:bg-slate-50'
+              ? 'border-[#0D9488] bg-slate-50'
+              : 'border-slate-300 bg-slate-50/50 hover:bg-slate-50'
           }`}
         >
           <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-[#0F172A] text-white flex items-center justify-center mx-auto shadow-md mb-3 sm:mb-4">
@@ -408,7 +374,7 @@ export const ReportUploadPage = () => {
           </div>
         )}
 
-      </Card>
+      </div>
 
       {/* Mandatory Medical Disclaimer Banner */}
       <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200 text-xs text-amber-900 space-y-1">

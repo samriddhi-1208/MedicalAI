@@ -258,169 +258,80 @@ export const HealthTimelinePage = () => {
   const modalPrev = modalDataPoints.length > 1 ? modalDataPoints[modalDataPoints.length - 2] : null;
 
   return (
-    <div className="space-y-6 pb-12 font-sans antialiased max-w-7xl mx-auto">
+    <div className="space-y-6 pb-12 font-sans text-[#0F172A] max-w-7xl mx-auto">
       
       {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/90 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-3">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#0D9488] animate-pulse" />
-            <span className="text-xs text-[#0D9488] font-extrabold uppercase tracking-wider">Longitudinal Analytics</span>
-          </div>
-          <h1 className="text-2.5xl font-black text-[#0F172A] tracking-tight mt-0.5">
-            {t('healthTrends')}
+          <h1 className="text-xl font-bold text-[#0F172A]">
+            Health Trends
           </h1>
           <p className="text-xs font-normal text-slate-500">
-            Track biomarker progressions extracted from your uploaded medical reports over time
+            Track biomarker progressions extracted from your uploaded medical reports over time.
           </p>
         </div>
 
         {hasReports && (
-          <Button
-            variant="primary"
-            size="sm"
-            icon={Upload}
+          <button
             onClick={() => navigate('/app/upload')}
-            className="bg-[#0F172A] hover:bg-[#1E293B] text-xs font-bold rounded-xl cursor-pointer shadow-2xs self-start sm:self-auto"
+            className="px-3.5 py-2 rounded-md bg-[#0F172A] hover:bg-[#1E293B] text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer self-start sm:self-auto"
           >
-            Upload Another Report
-          </Button>
+            <Upload className="w-3.5 h-3.5 text-[#0D9488]" /> Upload Another Report
+          </button>
         )}
       </div>
 
-      {/* REQUIREMENT 13: NEW USER EMPTY STATE (0 REPORTS) */}
+      {/* NEW USER EMPTY STATE (0 REPORTS) */}
       {!hasReports && (
-        <Card className="p-8 sm:p-12 text-center bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-5 max-w-2xl mx-auto my-6">
-          <div className="w-16 h-16 rounded-2xl bg-slate-100 text-[#0D9488] flex items-center justify-center mx-auto border border-slate-200">
-            <TrendingUp className="w-8 h-8 text-[#0D9488]" />
-          </div>
-          
-          <div className="space-y-2 max-w-lg mx-auto">
-            <h2 className="text-xl sm:text-2xl font-black text-[#0F172A] tracking-tight">
+        <div className="p-8 sm:p-12 text-center bg-white border border-slate-200 rounded-lg space-y-4 max-w-xl mx-auto my-6">
+          <div className="space-y-1.5">
+            <h2 className="text-lg font-bold text-[#0F172A]">
               Health Trends
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500 font-normal leading-relaxed">
+            <p className="text-xs text-slate-500 font-normal">
               Your health trends will appear here after you upload a medical report.
             </p>
           </div>
 
           <div className="pt-2">
-            <Button
-              variant="primary"
-              size="md"
-              icon={Upload}
+            <button
               onClick={() => navigate('/app/upload')}
-              className="bg-[#0F172A] hover:bg-[#1E293B] py-3.5 px-8 text-xs font-bold rounded-xl cursor-pointer shadow-2xs"
+              className="px-4 py-2 rounded-md bg-[#0F172A] hover:bg-[#1E293B] text-white text-xs font-semibold cursor-pointer"
             >
-              {t('uploadMedicalReport')}
-            </Button>
+              Upload Medical Report
+            </button>
           </div>
-        </Card>
-      )}
-
-      {/* REQUIREMENT 3: ONE REPORT BEHAVIOR (EXACT CARD GRID, NO GIANT BLANK CHART) */}
-      {hasReports && reportCount === 1 && (
-        <div className="space-y-6">
-          
-          {/* Header Summary Banner */}
-          <Card className="p-6 bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-2">
-            <div className="flex items-center gap-2 text-xs font-extrabold text-[#0D9488] uppercase tracking-wider">
-              <Sparkles className="w-4 h-4 text-[#0D9488]" /> HEALTH TRENDS
-            </div>
-            <h2 className="text-lg font-black text-[#0F172A] tracking-tight">
-              Based on your 1 uploaded medical report.
-            </h2>
-            <p className="text-xs text-slate-500 font-medium">
-              "Upload another report to start tracking changes over time."
-            </p>
-          </Card>
-
-          {/* Grid of Compact Biomarker Cards from Real Extracted Data */}
-          <div className="space-y-3">
-            <h3 className="text-base font-extrabold text-[#0F172A]">Latest Extracted Biomarker Findings ({totalBiomarkersCount})</h3>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {discoveredBiomarkerNames.map((bmName) => {
-                const points = biomarkerMap[bmName] || [];
-                const latest = points[points.length - 1];
-
-                return (
-                  <Card 
-                    key={bmName} 
-                    onClick={() => setDetailModalMetric(bmName)}
-                    className="p-5 bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-3 cursor-pointer hover:border-[#0D9488] hover:shadow-md transition-all"
-                  >
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="font-extrabold text-[#0F172A] truncate max-w-[140px]">{bmName}</span>
-                      <span className="px-2 py-0.5 text-[10px] font-extrabold rounded-full bg-emerald-100 text-emerald-800">
-                        ✓ Latest result
-                      </span>
-                    </div>
-
-                    <div className="flex items-baseline justify-between pt-1">
-                      <span className="text-2.5xl font-black text-[#0F172A] tracking-tight">
-                        {latest ? latest.value : 'N/A'}{' '}
-                        <span className="text-xs font-bold text-slate-500">{latest?.unit}</span>
-                      </span>
-                    </div>
-
-                    <div className="pt-2 border-t border-slate-100 flex justify-between text-[11px] text-slate-500">
-                      <span>Ref: <strong className="text-slate-700 font-semibold">{latest?.refRange || 'Standard'}</strong></span>
-                      <span className="font-bold text-[#0D9488]">{latest?.date}</span>
-                    </div>
-                  </Card>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="text-center pt-2">
-            <Button
-              variant="primary"
-              size="md"
-              icon={Upload}
-              onClick={() => navigate('/app/upload')}
-              className="bg-[#0F172A] hover:bg-[#1E293B] py-3 px-8 text-xs font-bold rounded-xl cursor-pointer shadow-2xs"
-            >
-              Upload Another Report
-            </Button>
-          </div>
-
         </div>
       )}
 
-      {/* REQUIREMENT 4: TWO OR MORE REPORTS BEHAVIOR (INTERACTIVE PROGRESSION CHARTS & TREND GRID) */}
-      {hasReports && reportCount >= 2 && (
-        <div className="space-y-6">
+      {/* TWO OR MORE REPORTS BEHAVIOR (PROGRESSION CHARTS & TREND GRID) */}
+      {hasReports && (
+        <div className="space-y-5">
           
           {/* Top Health Trend Summary */}
-          <Card className="p-6 bg-gradient-to-r from-[#0F172A] to-[#1E293B] text-white rounded-2xl shadow-2xs space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-xs font-extrabold text-[#0D9488] uppercase tracking-wider">
-                <Sparkles className="w-4 h-4 text-[#0D9488]" /> Health Trend Summary
-              </div>
-              <span className="px-3 py-1 rounded-full bg-white/10 text-white text-xs font-bold border border-white/10">
+          <div className="p-5 bg-white border border-slate-200 rounded-lg space-y-3">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+              <h2 className="text-sm font-bold text-[#0F172A]">Health Trend Summary</h2>
+              <span className="text-xs font-semibold text-slate-600">
                 {reportCount} Uploaded Reports
               </span>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
               <div>
-                <span className="text-[11px] font-bold text-slate-400 uppercase block">Biomarkers Tracked</span>
-                <span className="text-2xl font-black text-white">{totalBiomarkersCount} Parameters</span>
+                <span className="text-xs text-slate-500 block">Biomarkers Tracked</span>
+                <span className="text-lg font-bold text-[#0F172A]">{totalBiomarkersCount} Parameters</span>
               </div>
               <div>
-                <span className="text-[11px] font-bold text-slate-400 uppercase block">Latest Medical Report</span>
-                <span className="text-2xl font-black text-white">{userReports[0]?.date || userReports[0]?.report_date || 'Recent'}</span>
+                <span className="text-xs text-slate-500 block">Latest Medical Report</span>
+                <span className="text-lg font-bold text-[#0F172A]">{userReports[0]?.date || userReports[0]?.report_date || 'Recent'}</span>
               </div>
               <div>
-                <span className="text-[11px] font-bold text-slate-400 uppercase block">Longitudinal Monitoring</span>
-                <span className="text-2xl font-black text-emerald-400 flex items-center gap-1">
-                  Active <Activity className="w-5 h-5 text-emerald-400" />
-                </span>
+                <span className="text-xs text-slate-500 block">Longitudinal Monitoring</span>
+                <span className="text-lg font-bold text-[#0D9488]">Active</span>
               </div>
             </div>
-          </Card>
+          </div>
 
           {/* Main Chart Canvas & Dynamic Biomarker Selection */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
