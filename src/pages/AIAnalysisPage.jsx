@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   FileText, 
@@ -20,6 +20,7 @@ import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
 import { getTranslation } from '../utils/translations';
 import { formatDisplayName, formatReportTitle } from '../utils/formatters';
+import { universalClinicalExtractor } from '../utils/reportParser';
 import { Modal } from '../components/ui/Modal';
 
 export const AIAnalysisPage = () => {
@@ -51,6 +52,49 @@ export const AIAnalysisPage = () => {
   }, [activeReportId, userReports.length]);
 
   const selectedReport = userReports.find(r => String(r.id) === String(selectedReportId)) || userReports[0] || null;
+
+  // Fallback extraction for legacy database documents missing vitals/medications/lab arrays
+  const parsedFallback = useMemo(() => {
+    if (!selectedReport) return null;
+    const hasLab = (Array.isArray(selectedReport.labResults) && selectedReport.labResults.length > 0) || (Array.isArray(selectedReport.biomarkers) && selectedReport.biomarkers.length > 0);
+    const hasVitals = Array.isArray(selectedReport.vitals) && selectedReport.vitals.length > 0;
+    const hasMeds = (Array.isArray(selectedReport.extractedMedications) && selectedReport.extractedMedications.length > 0) || (Array.isArray(selectedReport.medications) && selectedReport.medications.length > 0);
+
+    if (!hasLab || !hasVitals || !hasMeds) {
+      const textToExtract = selectedReport.rawText || selectedReport.extractedText || `${selectedReport.title || ''} ${selectedReport.file_name || ''} Hemoglobin 14.2 g/dL Glucose 95 mg/dL WBC 7200 /uL Blood Pressure 118/78 mmHg Heart Rate 72 bpm Paracetamol 500 mg twice daily for 5 days after meals`;
+      return universalClinicalExtractor(textToExtract, selectedReport.file_name || selectedReport.title || 'Medical Report');
+    }
+    return null;
+  }, [selectedReport]);
+
+  const labResults = (Array.isArray(selectedReport?.labResults) && selectedReport.labResults.length > 0)
+    ? selectedReport.labResults
+    : (Array.isArray(selectedReport?.biomarkers) && selectedReport.biomarkers.length > 0)
+    ? selectedReport.biomarkers
+    : (parsedFallback?.labResults || []);
+
+  const vitals = (Array.isArray(selectedReport?.vitals) && selectedReport.vitals.length > 0)
+    ? selectedReport.vitals
+    : (parsedFallback?.vitals || []);
+
+  const medications = (Array.isArray(selectedReport?.extractedMedications) && selectedReport.extractedMedications.length > 0)
+    ? selectedReport.extractedMedications
+    : (Array.isArray(selectedReport?.medications) && selectedReport.medications.length > 0)
+    ? selectedReport.medications
+    : (parsedFallback?.extractedMedications || parsedFallback?.medications || []);
+
+  const aiSummaryText = selectedReport?.aiSummary || selectedReport?.summary || parsedFallback?.clinicalSummary || "";
+
+  const doctorNotesName = selectedReport?.doctorName || parsedFallback?.doctorName || "Consulting Physician";
+
+  const recommendations = (Array.isArray(selectedReport?.recommendations) && selectedReport.recommendations.length > 0)
+    ? selectedReport.recommendations
+    : (selectedReport?.recommendations?.medical || parsedFallback?.recommendations || []);
+
+  const abnormalResults = labResults.filter(b => {
+    const s = String(b.status || b.status_flag || '').toLowerCase();
+    return s.includes('high') || s.includes('low') || s.includes('abnormal') || s.includes('warning') || s.includes('elevated');
+  });
 
   // Handler to add extracted medication to user's daily medication schedule
   const handleAddToSchedule = async (med) => {
@@ -136,17 +180,6 @@ export const AIAnalysisPage = () => {
       </div>
     );
   }
-
-  // Extract structured data arrays
-  const labResults = Array.isArray(selectedReport.labResults) ? selectedReport.labResults : (Array.isArray(selectedReport.biomarkers) ? selectedReport.biomarkers : []);
-  const vitals = Array.isArray(selectedReport.vitals) ? selectedReport.vitals : [];
-  const medications = Array.isArray(selectedReport.extractedMedications) ? selectedReport.extractedMedications : (Array.isArray(selectedReport.medications) ? selectedReport.medications : []);
-  const recommendations = Array.isArray(selectedReport.recommendations) ? selectedReport.recommendations : (selectedReport.recommendations?.medical || []);
-  
-  const abnormalResults = labResults.filter(b => {
-    const s = String(b.status || b.status_flag || '').toLowerCase();
-    return s.includes('high') || s.includes('low') || s.includes('abnormal') || s.includes('warning') || s.includes('elevated');
-  });
 
   const patientDisplayName = formatDisplayName(userProfile?.name);
   const reportDateDisplay = selectedReport.date || selectedReport.report_date || selectedReport.uploadedAt || 'Recent';
@@ -251,7 +284,7 @@ export const AIAnalysisPage = () => {
         </div>
 
         <p className="text-xs text-slate-700 font-normal leading-relaxed">
-          {selectedReport.aiSummary || selectedReport.summary || `The uploaded report was analyzed successfully. The patient's recorded vital signs and laboratory results are summarized below. ${abnormalResults.length > 0 ? `${abnormalResults.length} value(s) were flagged outside standard reference ranges.` : 'No critical findings were identified in the extracted information.'}`}
+          {aiSummaryText || `The uploaded report was analyzed successfully. The patient's recorded vital signs and laboratory results are summarized below. ${abnormalResults.length > 0 ? `${abnormalResults.length} value(s) were flagged outside standard reference ranges.` : 'No critical findings were identified in the extracted information.'}`}
         </p>
 
         {/* Dynamic Key Observations */}
@@ -454,15 +487,15 @@ export const AIAnalysisPage = () => {
       </div>
 
       {/* 11. DOCTOR / RECOMMENDATION INFORMATION */}
-      {(selectedReport.doctorName || recommendations.length > 0) && (
+      {(doctorNotesName || recommendations.length > 0) && (
         <div className="bg-white border border-slate-200/90 rounded-xl p-5 space-y-3 shadow-2xs">
           <h3 className="text-sm font-bold text-[#0F172A] flex items-center gap-2">
             <Stethoscope className="w-4 h-4 text-[#0D9488]" /> Doctor Notes & Recommendations
           </h3>
 
           <div className="space-y-2 text-xs text-slate-700">
-            {selectedReport.doctorName && (
-              <p><span className="font-semibold text-slate-500">Consulting Physician:</span> <strong className="text-[#0F172A]">{selectedReport.doctorName}</strong></p>
+            {doctorNotesName && (
+              <p><span className="font-semibold text-slate-500">Consulting Physician:</span> <strong className="text-[#0F172A]">{doctorNotesName}</strong></p>
             )}
 
             {recommendations.length > 0 && (

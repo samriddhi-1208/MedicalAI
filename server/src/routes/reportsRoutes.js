@@ -23,6 +23,7 @@ const handleSingleFile = (req, res, next) => {
 
 router.get('/', authMiddleware, reportsController.getReports);
 router.get('/:id', authMiddleware, reportsController.getReportById);
+router.get('/:id/analysis', authMiddleware, reportsController.getReportById);
 router.post('/', authMiddleware, handleSingleFile, reportsController.uploadReport);
 router.post('/upload', authMiddleware, handleSingleFile, reportsController.uploadReport);
 
