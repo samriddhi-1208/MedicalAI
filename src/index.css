@@ -198,6 +198,7 @@ p, h1, h2, h3, h4, h5, h6, span, strong, td, th {
   font-size: 12px;
   font-weight: 700;
 }
+
 .med-badge-normal {
   background-color: #D1FAE5;
   color: #059669;
@@ -239,15 +240,51 @@ textarea {
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
-.med-input-unit {
-  display: inline-block !important;
-  width: 72px !important;
-  min-width: 72px !important;
-  max-width: 72px !important;
+/* Strict Unit Input Group System for Height & Weight Fields */
+.unit-input-group {
+  display: flex !important;
+  align-items: center !important;
+  width: 100% !important;
+  border: 1.5px solid #E2E8F0 !important;
+  border-radius: 12px !important;
+  background-color: #FFFFFF !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+.unit-input-group:focus-within {
+  border-color: #0F172A !important;
+  box-shadow: 0 0 0 3.5px rgba(13, 148, 136, 0.2) !important;
+}
+
+.unit-input-group input[type="number"],
+.unit-input-group input[type="text"] {
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
   min-height: 44px !important;
-  padding: 8px 6px !important;
-  text-align: center;
-  flex-shrink: 0 !important;
+  padding: 10px 14px !important;
+  margin: 0 !important;
+}
+
+.unit-input-group select {
+  flex: 0 0 90px !important;
+  width: 90px !important;
+  min-width: 90px !important;
+  max-width: 90px !important;
+  border: none !important;
+  border-left: 1.5px solid #E2E8F0 !important;
+  border-radius: 0 !important;
+  background-color: #F8FAFC !important;
+  font-weight: 800 !important;
+  min-height: 44px !important;
+  padding: 8px 10px !important;
+  cursor: pointer !important;
+  margin: 0 !important;
 }
 
 .relative-icon-input input {

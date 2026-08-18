@@ -284,7 +284,7 @@ export const OnboardingPage = () => {
               {/* Height & Unit (Unified Input Group) */}
               <div className="med-form-group">
                 <label className="block text-xs font-bold text-[#0F172A] mb-1.5">Height <span className="text-rose-500">*</span></label>
-                <div className="flex items-center w-full rounded-xl border border-slate-200 bg-white overflow-hidden focus-within:border-[#0F172A] focus-within:ring-2 focus-within:ring-[#0D9488]/20">
+                <div className="unit-input-group">
                   <input
                     type="number"
                     step="any"
@@ -292,12 +292,10 @@ export const OnboardingPage = () => {
                     value={height}
                     onChange={(e) => setHeight(e.target.value)}
                     placeholder={heightUnit === 'ft' ? "e.g. 5.9" : "e.g. 175"}
-                    className="flex-1 w-full px-3.5 py-2.5 text-sm font-semibold border-0 outline-none focus:outline-none bg-transparent text-[#0F172A]"
                   />
                   <select
                     value={heightUnit}
                     onChange={(e) => setHeightUnit(e.target.value)}
-                    className="w-20 px-2.5 py-2.5 text-xs font-extrabold bg-slate-100 border-0 border-l border-slate-200 outline-none focus:outline-none cursor-pointer shrink-0 text-[#0F172A]"
                   >
                     <option value="cm">cm</option>
                     <option value="ft">ft</option>
@@ -309,19 +307,17 @@ export const OnboardingPage = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="med-form-group">
                   <label className="block text-xs font-bold text-[#0F172A] mb-1.5">Weight (Optional)</label>
-                  <div className="flex items-center w-full rounded-xl border border-slate-200 bg-white overflow-hidden focus-within:border-[#0F172A] focus-within:ring-2 focus-within:ring-[#0D9488]/20">
+                  <div className="unit-input-group">
                     <input
                       type="number"
                       step="any"
                       value={weight}
                       onChange={(e) => setWeight(e.target.value)}
                       placeholder={weightUnit === 'lbs' ? "e.g. 150" : "e.g. 70"}
-                      className="flex-1 w-full px-3.5 py-2.5 text-sm font-semibold border-0 outline-none focus:outline-none bg-transparent text-[#0F172A]"
                     />
                     <select
                       value={weightUnit}
                       onChange={(e) => setWeightUnit(e.target.value)}
-                      className="w-20 px-2.5 py-2.5 text-xs font-extrabold bg-slate-100 border-0 border-l border-slate-200 outline-none focus:outline-none cursor-pointer shrink-0 text-[#0F172A]"
                     >
                       <option value="kg">kg</option>
                       <option value="lbs">lbs</option>
