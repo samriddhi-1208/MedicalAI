@@ -41,38 +41,38 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
 
   return (
     <aside
-      className={`fixed top-0 left-0 z-30 h-screen bg-white border-r border-slate-200/90 transition-all duration-200 hidden md:flex flex-col justify-between ${
+      className={`fixed top-0 left-0 z-30 h-screen bg-white border-r border-slate-200 transition-all duration-200 hidden md:flex flex-col justify-between ${
         collapsed ? 'w-20' : 'w-64'
       }`}
     >
       <div>
-        {/* Brand Logo Header */}
-        <div className="h-16 flex items-center justify-between px-5 border-b border-slate-200/90">
-          <NavLink to="/app/dashboard" className="flex items-center gap-3 overflow-hidden">
-            <div className="w-9 h-9 rounded-xl bg-[#0F172A] flex items-center justify-center text-white shrink-0 shadow-2xs">
-              <Activity className="w-5 h-5 text-[#0D9488]" />
+        {/* Brand Header */}
+        <div className="h-16 flex items-center justify-between px-4 border-b border-slate-200">
+          <NavLink to="/app/dashboard" className="flex items-center gap-2.5 overflow-hidden">
+            <div className="w-8 h-8 rounded-md bg-[#0F172A] flex items-center justify-center text-white shrink-0 font-bold">
+              <Activity className="w-4 h-4 text-[#0D9488]" />
             </div>
             {!collapsed && (
               <div className="flex flex-col justify-center">
-                <span className="font-black text-base text-[#0F172A] leading-none tracking-tight">
+                <span className="font-bold text-sm text-[#0F172A] leading-tight">
                   Med<span className="text-[#0D9488]">Guardian AI</span>
                 </span>
-                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">{t('clinicalWorkspace')}</span>
+                <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Clinical Workspace</span>
               </div>
             )}
           </NavLink>
 
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
-            aria-label="Toggle navigation bar"
+            className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+            aria-label="Toggle sidebar"
           >
             {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
           </button>
         </div>
 
-        {/* Navigation Section */}
-        <nav className="p-3 space-y-1">
+        {/* Navigation List */}
+        <nav className="p-2.5 space-y-1">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
@@ -81,18 +81,18 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
               <NavLink
                 key={item.path + item.label}
                 to={item.path}
-                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                className={`flex items-center gap-3 px-3 py-2 rounded-md text-xs font-semibold transition-colors ${
                   isActive
-                    ? 'bg-[#0F172A] text-white shadow-2xs'
-                    : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900'
+                    ? 'bg-[#0F172A] text-white'
+                    : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
                 }`}
                 title={collapsed ? item.label : undefined}
               >
-                <Icon className={`w-4.5 h-4.5 shrink-0 ${isActive ? 'text-[#0D9488]' : 'text-slate-400'}`} />
+                <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#0D9488]' : 'text-slate-400'}`} />
                 {!collapsed && <span className="truncate flex-1">{item.label}</span>}
                 {!collapsed && item.badge && (
-                  <span className={`px-2 py-0.5 text-[10px] font-extrabold rounded-full ${
-                    isActive ? 'bg-[#0D9488] text-white' : 'bg-slate-100 text-slate-700'
+                  <span className={`px-1.5 py-0.5 text-[10px] font-semibold rounded ${
+                    isActive ? 'bg-[#0D9488] text-white' : 'bg-slate-100 text-slate-700 border border-slate-200'
                   }`}>
                     {item.badge}
                   </span>
@@ -103,26 +103,26 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
         </nav>
       </div>
 
-      {/* Emergency SOS Fixed Bottom Shortcut */}
-      <div className="p-3 border-t border-slate-200/90">
+      {/* Emergency SOS Compact Shortcut */}
+      <div className="p-2.5 border-t border-slate-200">
         {!collapsed ? (
           <NavLink
             to="/app/sos"
-            className="flex items-center gap-3 p-3 rounded-xl bg-rose-50 hover:bg-rose-100/70 border border-rose-200/90 text-rose-800 transition-colors animate-sos-pulse"
+            className="flex items-center gap-2.5 p-2 rounded-md bg-red-50 hover:bg-red-100 border border-red-200 text-red-900 transition-colors"
           >
-            <Siren className="w-5 h-5 text-[#DC2626] shrink-0" />
-            <div className="text-left">
-              <p className="text-xs font-black text-rose-900">{t('emergencySOS')}</p>
-              <p className="text-[10px] font-bold text-rose-700">{t('oneClickDispatch')}</p>
+            <Siren className="w-4 h-4 text-red-600 shrink-0" />
+            <div className="text-left min-w-0">
+              <p className="text-xs font-bold text-red-900 truncate">Emergency SOS</p>
+              <p className="text-[10px] text-red-700 truncate">1-Click Dispatch</p>
             </div>
           </NavLink>
         ) : (
           <NavLink
             to="/app/sos"
-            className="flex items-center justify-center p-2.5 rounded-xl bg-rose-50 text-rose-600 border border-rose-200/90"
-            title={t('emergencySOS')}
+            className="flex items-center justify-center p-2 rounded-md bg-red-50 text-red-600 border border-red-200"
+            title="Emergency SOS"
           >
-            <Siren className="w-5 h-5 text-[#DC2626]" />
+            <Siren className="w-4 h-4 text-red-600" />
           </NavLink>
         )}
       </div>
