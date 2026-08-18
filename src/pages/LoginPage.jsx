@@ -1,25 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowRight, Lock, Mail, Activity, Eye, EyeOff } from 'lucide-react';
+import { ArrowRight, Lock, Mail, Activity, Eye, EyeOff, UserCheck } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
 
 export const LoginPage = () => {
   const navigate = useNavigate();
-  const { login, API_BASE, isAuthenticated } = useHealthData();
+  const { login, API_BASE, isAuthenticated, userProfile, logout } = useHealthData();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  // Automatically redirect logged-in users directly to dashboard
-  useEffect(() => {
-    const token = localStorage.getItem('medguardian_token');
-    if (isAuthenticated || token) {
-      window.location.href = '/app/dashboard';
-    }
-  }, [isAuthenticated]);
 
   useEffect(() => {
     // Proactive background warmup ping to wake up Render free tier container immediately on page land
@@ -43,9 +35,12 @@ export const LoginPage = () => {
 
     setLoading(true);
     try {
-      await login(email, password);
-      // Hard navigation to guarantee clean session mount in dashboard
-      window.location.href = '/app/dashboard';
+      const res = await login(email, password);
+      if (res && res.success) {
+        navigate('/app/dashboard');
+      } else {
+        setLoading(false);
+      }
     } catch (err) {
       toast.error(err.message || "Invalid email or password.");
       setLoading(false);
@@ -77,6 +72,36 @@ export const LoginPage = () => {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white border border-slate-200 py-8 px-6 shadow-xl shadow-slate-200/50 rounded-2xl sm:px-8 space-y-5">
           
+          {/* Active Session Info Banner (If already logged in) */}
+          {isAuthenticated && userProfile && (
+            <div className="p-4 rounded-xl bg-teal-50 border border-teal-200 text-xs space-y-2.5">
+              <div className="flex items-center gap-2 text-[#0D9488] font-bold">
+                <UserCheck className="w-4 h-4 shrink-0" />
+                <span>Currently Signed In</span>
+              </div>
+              <p className="text-slate-600">
+                You are currently logged in as <strong className="text-[#0F172A]">{userProfile.name || userProfile.email}</strong>.
+              </p>
+              <div className="flex items-center gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => navigate('/app/dashboard')}
+                  className="px-3.5 py-1.5 rounded-lg bg-[#0F172A] hover:bg-[#1E293B] text-white font-bold text-xs cursor-pointer flex items-center gap-1"
+                >
+                  <span>Go to Dashboard</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-[#0D9488]" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => logout()}
+                  className="px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs cursor-pointer"
+                >
+                  Switch Account
+                </button>
+              </div>
+            </div>
+          )}
+
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="med-form-group">
               <label htmlFor="email" className="block text-xs font-bold text-[#0F172A] mb-1.5">Email Address</label>
