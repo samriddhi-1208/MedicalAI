@@ -18,13 +18,18 @@ import { NotificationDropdown } from '../ui/NotificationDropdown';
 export const Header = ({ collapsed }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { userProfile, logout, language, setAppLanguage } = useHealthData();
+  const { userProfile, logout, language, setLanguage, setAppLanguage } = useHealthData();
   
   const displayName = formatDisplayName(userProfile?.name, userProfile?.email);
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef(null);
 
   const t = (key) => getTranslation(language, key);
+
+  const changeLanguage = (langCode) => {
+    if (typeof setLanguage === 'function') setLanguage(langCode);
+    if (typeof setAppLanguage === 'function') setAppLanguage(langCode);
+  };
 
   // Close profile dropdown when clicking outside
   useEffect(() => {
@@ -83,11 +88,11 @@ export const Header = ({ collapsed }) => {
       {/* Right Action Controls */}
       <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
         
-        {/* Language Selector Pill (Desktop Only) */}
-        <div className="hidden md:flex items-center p-1 rounded-xl bg-slate-100/90 border border-slate-200/80 gap-1 text-xs">
+        {/* Language Selector Pill */}
+        <div className="flex items-center p-1 rounded-xl bg-slate-100/90 border border-slate-200/80 gap-1 text-xs">
           <button
             onClick={() => {
-              setAppLanguage('EN');
+              changeLanguage('EN');
               toast.success("Switched to English");
             }}
             className={`px-2 py-0.5 rounded-lg font-bold transition-all cursor-pointer ${
@@ -102,7 +107,7 @@ export const Header = ({ collapsed }) => {
 
           <button
             onClick={() => {
-              setAppLanguage('HI');
+              changeLanguage('HI');
               toast.success("हिंदी भाषा चुनी गई (Hindi)");
             }}
             className={`px-2 py-0.5 rounded-lg font-bold transition-all cursor-pointer ${
@@ -117,7 +122,7 @@ export const Header = ({ collapsed }) => {
 
           <button
             onClick={() => {
-              setAppLanguage('GU');
+              changeLanguage('GU');
               toast.success("ગુજરાતી ભાષા પસંદ કરી (Gujarati)");
             }}
             className={`px-2 py-0.5 rounded-lg font-bold transition-all cursor-pointer ${

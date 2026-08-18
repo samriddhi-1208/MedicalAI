@@ -602,6 +602,11 @@ export const HealthDataProvider = ({ children }) => {
 
   const activeReport = reports.find(r => r.id === activeReportId || r._id === activeReportId) || (reports.length > 0 ? reports[0] : null);
 
+  const handleSetLanguage = (newLang) => {
+    setLanguage(newLang);
+    localStorage.setItem('medguardian_lang', newLang);
+  };
+
   const value = {
     token,
     userProfile,
@@ -615,7 +620,8 @@ export const HealthDataProvider = ({ children }) => {
     notifications,
     markNotificationsRead,
     language,
-    setLanguage,
+    setLanguage: handleSetLanguage,
+    setAppLanguage: handleSetLanguage,
     loadingData,
     loadingAuth,
     apiError,
