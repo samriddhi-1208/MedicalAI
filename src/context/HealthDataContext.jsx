@@ -71,25 +71,26 @@ export const HealthDataProvider = ({ children }) => {
 
         if (profileRes && profileRes.ok) {
           const pData = await safeParseJson(profileRes);
-          if (pData.user) {
+          const rawUser = pData.user || pData;
+          if (rawUser && (rawUser.email || rawUser.id || rawUser._id)) {
             const updatedProfile = {
-              id: pData.user.id || pData.user._id,
-              name: pData.user.full_name || pData.user.name || 'Patient',
-              email: pData.user.email,
-              phone: pData.user.phone || '',
-              dob: pData.user.dob || '',
-              gender: pData.user.gender || 'Female',
-              height: pData.user.height || '',
-              heightUnit: pData.user.height_unit || 'cm',
-              weight: pData.user.weight || '',
-              weightUnit: pData.user.weight_unit || 'kg',
-              bloodGroup: pData.user.blood_group || 'Not Known',
-              primaryPhysician: pData.user.primary_physician || 'Dr. Aris Thorne',
-              city: pData.user.city || '',
-              state: pData.user.state || '',
-              country: pData.user.country || 'India',
-              occupation: pData.user.occupation || '',
-              profileCompleted: pData.user.profile_completed ?? true
+              id: rawUser.id || rawUser._id,
+              name: rawUser.full_name || rawUser.name || 'Patient',
+              email: rawUser.email,
+              phone: rawUser.phone || '',
+              dob: rawUser.dob || '',
+              gender: rawUser.gender || 'Female',
+              height: rawUser.height || '',
+              heightUnit: rawUser.height_unit || 'cm',
+              weight: rawUser.weight || '',
+              weightUnit: rawUser.weight_unit || 'kg',
+              bloodGroup: rawUser.blood_group || 'Not Known',
+              primaryPhysician: rawUser.primary_physician || 'Dr. Aris Thorne',
+              city: rawUser.city || '',
+              state: rawUser.state || '',
+              country: rawUser.country || 'India',
+              occupation: rawUser.occupation || '',
+              profileCompleted: rawUser.profile_completed ?? true
             };
             setUserProfile(updatedProfile);
             localStorage.setItem('medguardian_user_profile', JSON.stringify(updatedProfile));
@@ -100,8 +101,8 @@ export const HealthDataProvider = ({ children }) => {
             const rData = await safeParseJson(reportsRes);
             const safeReports = Array.isArray(rData) ? rData : [];
             setReports(safeReports);
-            if (updatedProfile?.id) {
-              localStorage.setItem(`medguardian_reports_${updatedProfile.id}`, JSON.stringify(safeReports));
+            if (rawUser?.id) {
+              localStorage.setItem(`medguardian_reports_${rawUser.id}`, JSON.stringify(safeReports));
             }
             if (safeReports.length > 0 && !activeReportId) {
               setActiveReportId(safeReports[0].id || safeReports[0]._id);
@@ -144,8 +145,8 @@ export const HealthDataProvider = ({ children }) => {
             });
 
             setMedicines(deduplicated);
-            if (updatedProfile?.id) {
-              localStorage.setItem(`medguardian_medicines_${updatedProfile.id}`, JSON.stringify(deduplicated));
+            if (rawUser?.id) {
+              localStorage.setItem(`medguardian_medicines_${rawUser.id}`, JSON.stringify(deduplicated));
             }
           }
 
@@ -179,22 +180,24 @@ export const HealthDataProvider = ({ children }) => {
     let authToken = null;
 
     try {
+      const cleanEmail = (email || '').toLowerCase().trim();
       const res = await fetch(`${API_BASE}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email: cleanEmail, password })
       });
 
       const data = await safeParseJson(res);
 
       if (res.ok) {
         authToken = data.token;
+        const rawUser = data.user || data;
         userObj = {
-          id: data.user.id || data.user._id,
-          name: data.user.full_name || email.split('@')[0],
-          email: data.user.email,
-          phone: data.user.phone || '',
-          profileCompleted: data.user.profile_completed ?? true
+          id: rawUser.id || rawUser._id,
+          name: rawUser.full_name || rawUser.name || cleanEmail.split('@')[0],
+          email: rawUser.email || cleanEmail,
+          phone: rawUser.phone || '',
+          profileCompleted: rawUser.profile_completed ?? true
         };
       } else {
         throw new Error(data.error || "Invalid email or password.");
@@ -213,26 +216,42 @@ export const HealthDataProvider = ({ children }) => {
     return userObj;
   };
 
-  const signup = async (fullName, email, password) => {
+  const signup = async (param1, param2, param3) => {
     setLoadingData(true);
+    let name = '';
+    let email = '';
+    let password = '';
+
+    if (typeof param1 === 'object' && param1 !== null) {
+      name = param1.name || param1.fullName || param1.full_name || '';
+      email = param1.email || '';
+      password = param1.password || '';
+    } else {
+      name = param1 || '';
+      email = param2 || '';
+      password = param3 || '';
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
     let userObj = null;
     let authToken = null;
 
     try {
-      const res = await fetch(`${API_BASE}/auth/register`, {
+      const res = await fetch(`${API_BASE}/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ full_name: fullName, email, password })
+        body: JSON.stringify({ name, full_name: name, email: cleanEmail, password })
       });
 
       const data = await safeParseJson(res);
 
       if (res.ok) {
         authToken = data.token;
+        const rawUser = data.user || data;
         userObj = {
-          id: data.user.id || data.user._id,
-          name: data.user.full_name || fullName,
-          email: data.user.email,
+          id: rawUser.id || rawUser._id,
+          name: rawUser.full_name || rawUser.name || name,
+          email: rawUser.email || cleanEmail,
           profileCompleted: false
         };
       } else {
@@ -521,6 +540,7 @@ export const HealthDataProvider = ({ children }) => {
         setAppLanguage,
         loadingData,
         apiError,
+        API_BASE,
         login,
         signup,
         logout,

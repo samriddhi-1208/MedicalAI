@@ -11,17 +11,20 @@ async function getUserFromReq(req) {
     return await User.findById(userId);
   }
   if (req.user?.email) {
-    return await User.findOne({ email: req.user.email.toLowerCase() });
+    return await User.findOne({ email: req.user.email.toLowerCase().trim() });
   }
   return null;
 }
 
 exports.signup = async (req, res, next) => {
   try {
-    const { email, password, name } = req.body;
+    const { email, password, name, full_name, fullName } = req.body;
     
-    if (!email || !password || !name) {
-      return res.status(400).json({ error: "Name, email, and password are required." });
+    const displayName = (name || full_name || fullName || '').trim();
+    const cleanEmail = (email || '').toLowerCase().trim();
+
+    if (!cleanEmail || !password || !displayName) {
+      return res.status(400).json({ error: "Full name, email, and password are required." });
     }
 
     // Password Complexity Validation: 1 Uppercase, 1 Lowercase, 1 Number, 1 Special Char, Min 8 Chars
@@ -37,7 +40,7 @@ exports.signup = async (req, res, next) => {
       });
     }
 
-    const existing = await User.findOne({ email: email.toLowerCase() });
+    const existing = await User.findOne({ email: cleanEmail });
     if (existing) {
       return res.status(400).json({ error: "An account with this email already exists. Please sign in instead." });
     }
@@ -45,13 +48,13 @@ exports.signup = async (req, res, next) => {
     const passwordHash = await bcrypt.hash(password, 10);
 
     const newUser = await User.create({
-      email: email.toLowerCase(),
+      email: cleanEmail,
       password_hash: passwordHash,
-      full_name: name,
+      full_name: displayName,
       profile_completed: false
     });
 
-    console.log(`[AUTH] Registered new user in MongoDB: ID ${newUser.id} (${newUser.email}) - profile_completed: false`);
+    console.log(`[AUTH DIAGNOSTIC] Registered new user in MongoDB: ID ${newUser.id} (${newUser.email})`);
 
     const token = jwt.sign(
       { id: newUser.id, email: newUser.email, name: newUser.full_name },
@@ -76,12 +79,18 @@ exports.login = async (req, res, next) => {
       return res.status(400).json({ error: "Email and password are required." });
     }
 
-    const user = await User.findOne({ email: email.toLowerCase() });
+    const cleanEmail = email.toLowerCase().trim();
+
+    const user = await User.findOne({ email: cleanEmail });
+    console.log(`[AUTH DIAGNOSTIC] Login attempt for email: "${cleanEmail}" | User found in DB: ${Boolean(user)}`);
+
     if (!user) {
       return res.status(401).json({ error: "Invalid email or password." });
     }
 
     const isMatch = await bcrypt.compare(password, user.password_hash);
+    console.log(`[AUTH DIAGNOSTIC] Password verification match for user ID ${user.id}: ${isMatch}`);
+
     if (!isMatch) {
       return res.status(401).json({ error: "Invalid email or password." });
     }
@@ -95,7 +104,7 @@ exports.login = async (req, res, next) => {
     const userObj = user.toObject();
     delete userObj.password_hash;
 
-    console.log(`[AUTH] User signed in: ID ${user.id} (${user.email}) - profile_completed: ${user.profile_completed}`);
+    console.log(`[AUTH DIAGNOSTIC] JWT generated successfully for user ID ${user.id} (${user.email})`);
 
     res.json({ token, user: userObj });
   } catch (error) {
@@ -111,7 +120,7 @@ exports.getProfile = async (req, res, next) => {
     }
     const userObj = user.toObject();
     delete userObj.password_hash;
-    res.json(userObj);
+    res.json({ user: userObj, ...userObj });
   } catch (error) {
     next(error);
   }
@@ -146,8 +155,8 @@ exports.updateProfile = async (req, res, next) => {
     const userObj = updated.toObject();
     delete userObj.password_hash;
     
-    console.log(`[AUTH] Profile updated for ID ${updated.id}: profile_completed = ${updated.profile_completed}`);
-    res.json(userObj);
+    console.log(`[AUTH] Profile updated for ID ${updated.id}`);
+    res.json({ user: userObj, ...userObj });
   } catch (error) {
     next(error);
   }
