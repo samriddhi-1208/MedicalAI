@@ -5,8 +5,6 @@ const Report = require('../models/Report');
 const ReportValue = require('../models/ReportValue');
 const ReportSummary = require('../models/ReportSummary');
 const ocrService = require('../services/ocrService');
-const sosAlertService = require('../services/sosAlertService');
-const EmergencyContact = require('../models/EmergencyContact');
 const User = require('../models/User');
 
 async function getUserFromReq(req) {
@@ -55,8 +53,8 @@ exports.getReports = async (req, res, next) => {
           ...rObj,
           id: r._id.toHexString(),
           title: r.title,
-          labName: r.lab_name,
-          doctorName: r.doctor_name,
+          labName: r.lab_name || '',
+          doctorName: r.doctor_name || '',
           date: r.report_date,
           file_name: r.file_name,
           file_type: r.file_type,
@@ -128,8 +126,8 @@ exports.getReportById = async (req, res, next) => {
     res.json({
       id: report._id.toHexString(),
       title: report.title,
-      labName: report.lab_name,
-      doctorName: report.doctor_name,
+      labName: report.lab_name || '',
+      doctorName: report.doctor_name || '',
       date: report.report_date,
       file_name: report.file_name,
       file_type: report.file_type,
@@ -224,8 +222,8 @@ exports.uploadReport = async (req, res, next) => {
       const populatedExisting = {
         id: existingReport._id.toHexString(),
         title: existingReport.title,
-        labName: existingReport.lab_name,
-        doctorName: existingReport.doctor_name,
+        labName: existingReport.lab_name || '',
+        doctorName: existingReport.doctor_name || '',
         date: existingReport.report_date,
         file_name: existingReport.file_name,
         file_type: existingReport.file_type,
@@ -261,8 +259,8 @@ exports.uploadReport = async (req, res, next) => {
     const newReport = await Report.create({
       user_id: user._id,
       title: cleanTitle || "Uploaded Lab Report",
-      lab_name: ocrResult.labName || "Diagnostic Pathology Center",
-      doctor_name: ocrResult.doctorName || "Consulting Physician",
+      lab_name: ocrResult.labName || "",
+      doctor_name: ocrResult.doctorName || "",
       report_date: ocrResult.date || new Date().toISOString().split('T')[0],
       file_name: file.originalname,
       file_type: file.mimetype,

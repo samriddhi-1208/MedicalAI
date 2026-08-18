@@ -99,7 +99,7 @@ export const HealthDataProvider = ({ children }) => {
               weight: rawUser.weight || '',
               weightUnit: rawUser.weight_unit || 'kg',
               bloodGroup: rawUser.blood_group || 'Not Known',
-              primaryPhysician: rawUser.primary_physician || 'Dr. Aris Thorne',
+              primaryPhysician: rawUser.primary_physician || '',
               city: rawUser.city || '',
               state: rawUser.state || '',
               country: rawUser.country || 'India',
@@ -239,7 +239,7 @@ export const HealthDataProvider = ({ children }) => {
           height: userObj.height || '',
           weight: userObj.weight || '',
           bloodGroup: userObj.blood_group || 'Not Known',
-          primaryPhysician: userObj.primary_physician || 'Dr. Aris Thorne',
+          primaryPhysician: userObj.primary_physician || '',
           country: userObj.country || 'India'
         };
 
@@ -288,7 +288,7 @@ export const HealthDataProvider = ({ children }) => {
           email: data.user?.email || email,
           gender: 'Not Specified',
           bloodGroup: 'Not Known',
-          primaryPhysician: 'Dr. Aris Thorne',
+          primaryPhysician: '',
           country: 'India'
         };
 

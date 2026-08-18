@@ -160,7 +160,7 @@ export const DashboardPage = () => {
 
           <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
             <span className="text-slate-500 font-medium block">{t('primaryPhysician')}</span>
-            <span className="font-bold text-[#0F172A] truncate block">{userProfile?.primaryPhysician || 'Dr. Aris Thorne'}</span>
+            <span className="font-bold text-[#0F172A] truncate block">{userProfile?.primaryPhysician || latestReport?.doctorName || latestReport?.doctor_name || '--'}</span>
           </div>
 
           <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">

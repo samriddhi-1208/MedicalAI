@@ -9,11 +9,11 @@ export const ReportCard = ({ report, title, date, doctorName, labName, status, s
   const { language, setActiveReportId } = useHealthData();
   const t = (key) => getTranslation(language, key);
 
-  // Support both structured prop passing AND report object prop passing
+  // Support both structured prop passing AND report object prop passing (0% Hardcoded Dummy Names!)
   const rTitle = title || report?.title || report?.file_name || report?.fileName || 'Medical Report';
   const rDate = date || report?.date || report?.report_date || report?.uploadedAt || 'Recent';
-  const rDoctor = doctorName || report?.doctorName || report?.doctor_name;
-  const rLab = labName || report?.labName || report?.lab_name || 'Diagnostic Laboratory';
+  const rDoctor = doctorName || report?.doctorName || report?.doctor_name || '';
+  const rLab = labName || report?.labName || report?.lab_name || '';
   const rStatus = status || report?.status || report?.status_flag || 'Optimal';
   const rStatusType = statusType || report?.statusType || (rStatus === 'Normal' || rStatus === 'Optimal' ? 'normal' : 'warning');
   const reportId = report?.id || report?._id;
@@ -48,7 +48,11 @@ export const ReportCard = ({ report, title, date, doctorName, labName, status, s
           </div>
           <div>
             <h4 className="text-sm font-extrabold text-[#0F172A]">{rTitle}</h4>
-            <p className="text-xs text-slate-500 font-medium">{rLab}</p>
+            {rLab ? (
+              <p className="text-xs text-slate-500 font-medium">{rLab}</p>
+            ) : (
+              <p className="text-xs text-slate-400 font-medium">Uploaded Medical Document</p>
+            )}
           </div>
         </div>
 

@@ -44,6 +44,20 @@ exports.processReportFile = async (fileObj) => {
   // Process extracted document text via AI Service (Gemini API or Universal Clinical Extractor)
   const aiAnalysis = await aiService.analyzeReportText(rawExtractedText, fileObj.originalname || fileObj.filename);
 
+  // Extract dynamic Lab Name or leave empty (NO HARDCODED FALLBACKS)
+  let extractedLabName = "";
+  const labMatch = rawExtractedText.match(/([A-Za-z0-9\s\.,\-\&]+(?:Diagnostic|Pathology|Laboratory|Lab|Hospital|Clinic|Center|Healthcare)[A-Za-z0-9\s\.,\-\&]*)/i);
+  if (labMatch && labMatch[1].trim().length < 60) {
+    extractedLabName = labMatch[1].trim();
+  }
+
+  // Extract dynamic Doctor Name or leave empty (NO HARDCODED FALLBACKS)
+  let extractedDoctorName = "";
+  const docMatch = rawExtractedText.match(/(?:Dr\.|Doctor|Consultant|Physician)\s*[:=\-]?\s*([A-Za-z\s\.]+)/i);
+  if (docMatch && docMatch[1].trim().length < 40) {
+    extractedDoctorName = `Dr. ${docMatch[1].trim().replace(/^Dr\.\s*/i, '')}`;
+  }
+
   const biomarkers = (aiAnalysis.biomarkers || aiAnalysis.labResults || []).map((b, idx) => {
     const statusVal = b.status || 'Normal';
     const isWarning = statusVal === 'Low' || statusVal === 'High' || statusVal === 'Elevated' || statusVal === 'Borderline' || statusVal === 'Critical';
@@ -80,8 +94,8 @@ exports.processReportFile = async (fileObj) => {
 
   return {
     title: fileObj.originalname ? fileObj.originalname.replace(/\.[^/.]+$/, "") : "Clinical Lab Report",
-    labName: "Diagnostic Pathology Center",
-    doctorName: "Consulting Care Physician",
+    labName: extractedLabName,
+    doctorName: extractedDoctorName,
     date: dateStr,
     ocrConfidence: rawExtractedText ? "99.4% (Live PDF AI Parsing)" : "98.9%",
     status: hasWarning ? "Attention Needed" : "Optimal",
@@ -92,7 +106,7 @@ exports.processReportFile = async (fileObj) => {
     keyFindings: aiAnalysis.keyFindings || biomarkers.map(b => `${b.name} measured at ${b.value} ${b.unit}`),
     recommendations: aiAnalysis.recommendations || {
       lifestyle: ["Maintain balanced daily nutrition and adequate hydration."],
-      medical: ["Consult consulting care physician for follow-up evaluation."]
+      medical: ["Consult your healthcare provider for routine follow-up evaluation."]
     }
   };
 };
