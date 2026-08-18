@@ -99,13 +99,17 @@ export async function extractTextFromImage(file) {
   }
 }
 
-function generateRichClinicalSummary(fileName, biomarkers, vitals, medications) {
+function generateRichClinicalSummary(fileName, rawBiomarkers, rawVitals, rawMedications) {
+  const biomarkers = Array.isArray(rawBiomarkers) ? rawBiomarkers : [];
+  const vitals = Array.isArray(rawVitals) ? rawVitals : [];
+  const medications = Array.isArray(rawMedications) ? rawMedications : [];
+
   const docTitle = fileName || 'Uploaded Medical Document';
   const bCount = biomarkers.length;
   const vCount = vitals.length;
   const mCount = medications.length;
 
-  const warnings = biomarkers.filter(b => b.status === 'High' || b.status === 'Low' || b.status === 'Critical' || b.status === 'Attention Needed');
+  const warnings = biomarkers.filter(b => b && (b.status === 'High' || b.status === 'Low' || b.status === 'Critical' || b.status === 'Attention Needed'));
   const normalCount = bCount - warnings.length;
 
   let overviewText = `Analysis of "${docTitle}": Clinical document successfully parsed and processed.`;
@@ -353,7 +357,7 @@ export function universalClinicalExtractor(textStr, fileName) {
 
   // 5. GENERATE DYNAMIC CLINICAL SUMMARY & KEY OBSERVATIONS
   const clinicalSummary = generateRichClinicalSummary(fileName, labResults, vitals, medications);
-  const abnormalCount = labResults.filter(b => b.status !== 'Normal').length;
+  const abnormalCount = labResults.filter(b => b && b.status !== 'Normal').length;
 
   return {
     patient: { name: "Samriddhi", age: "N/A", gender: "N/A" },

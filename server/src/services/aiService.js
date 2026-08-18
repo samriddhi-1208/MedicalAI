@@ -79,9 +79,9 @@ ${cleanedText.slice(0, 5000)}
         const cleanedJson = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
         const parsed = JSON.parse(cleanedJson);
         if (parsed) {
-          const labResults = parsed.labResults || parsed.biomarkers || [];
-          const vitals = parsed.vitals || [];
-          const medications = parsed.medications || [];
+          const labResults = Array.isArray(parsed.labResults) ? parsed.labResults : (Array.isArray(parsed.biomarkers) ? parsed.biomarkers : []);
+          const vitals = Array.isArray(parsed.vitals) ? parsed.vitals : [];
+          const medications = Array.isArray(parsed.medications) ? parsed.medications : [];
 
           // Map to standard biomarkers format
           const mappedBiomarkers = labResults.map(b => ({
@@ -102,8 +102,8 @@ ${cleanedText.slice(0, 5000)}
             labResults,
             biomarkers: mappedBiomarkers,
             medications,
-            diagnoses: parsed.diagnoses || [],
-            recommendations: parsed.recommendations || []
+            diagnoses: Array.isArray(parsed.diagnoses) ? parsed.diagnoses : [],
+            recommendations: Array.isArray(parsed.recommendations) ? parsed.recommendations : []
           };
         }
       }
@@ -116,17 +116,21 @@ ${cleanedText.slice(0, 5000)}
   return universalClinicalExtractor(cleanedText, fileName);
 };
 
-function generateRichClinicalSummary(fileName, biomarkers, vitals, medications, customSummary) {
+function generateRichClinicalSummary(fileName, rawBiomarkers, rawVitals, rawMedications, customSummary) {
+  const biomarkers = Array.isArray(rawBiomarkers) ? rawBiomarkers : [];
+  const vitals = Array.isArray(rawVitals) ? rawVitals : [];
+  const medications = Array.isArray(rawMedications) ? rawMedications : [];
+
   const docTitle = fileName || 'Uploaded Medical Document';
   const bCount = biomarkers.length;
   const vCount = vitals.length;
   const mCount = medications.length;
 
-  const warnings = biomarkers.filter(b => b.status === 'High' || b.status === 'Low' || b.status === 'Critical' || b.status === 'Attention Needed');
+  const warnings = biomarkers.filter(b => b && (b.status === 'High' || b.status === 'Low' || b.status === 'Critical' || b.status === 'Attention Needed'));
   const normalCount = bCount - warnings.length;
 
   let overviewText = `Analysis of "${docTitle}": Clinical document successfully parsed and processed.`;
-  if (customSummary && customSummary.length > 30) {
+  if (customSummary && typeof customSummary === 'string' && customSummary.length > 30) {
     overviewText += ` ${customSummary}`;
   }
 
@@ -275,7 +279,6 @@ function universalClinicalExtractor(textStr, fileName) {
       const pUnit = genericLineMatch[3] || '';
       const pRef = genericLineMatch[4] || 'Standard';
 
-      // Ignore common header lines
       if (!/^(page|date|patient|doctor|sample|lab|result|parameter|test|range|units|sn)/i.test(pName) && !seenLabNames.has(pName)) {
         seenLabNames.add(pName);
         labResults.push({
