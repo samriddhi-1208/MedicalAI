@@ -42,6 +42,7 @@ export const HealthDataProvider = ({ children }) => {
   const [reports, setReports] = useState([]);
   const [medicines, setMedicines] = useState([]);
   const [emergencyContacts, setEmergencyContacts] = useState([]);
+  const [notifications, setNotifications] = useState([]);
   const [language, setLanguage] = useState(() => localStorage.getItem('medguardian_lang') || 'EN');
   const [activeReportId, setActiveReportId] = useState(null);
   const [loadingData, setLoadingData] = useState(false);
@@ -189,6 +190,7 @@ export const HealthDataProvider = ({ children }) => {
       setReports([]);
       setMedicines([]);
       setEmergencyContacts([]);
+      setNotifications([]);
       setLoadingData(false);
     }
   }, [token]);
@@ -303,6 +305,7 @@ export const HealthDataProvider = ({ children }) => {
     setReports([]);
     setMedicines([]);
     setEmergencyContacts([]);
+    setNotifications([]);
     localStorage.removeItem('medguardian_jwt_token');
     localStorage.removeItem('medguardian_user_profile');
     toast.success("Logged out successfully.");
@@ -370,11 +373,10 @@ export const HealthDataProvider = ({ children }) => {
   };
 
   const addMedicine = async (medObj) => {
-    // In-memory optimistic deduplication before POST
     const k = `${(medObj.name || '').toLowerCase().trim()}|${(medObj.dose || medObj.dosage || '1 tablet').toLowerCase().trim()}|${(medObj.frequency || 'Once daily').toLowerCase().trim()}|${(medObj.scheduled_time || medObj.time || '08:00 AM').toLowerCase().trim()}`;
 
     const existing = medicines.find(m => {
-      const exK = `${(m.name || '').toLowerCase().trim()}|${(m.dose || m.dosage || '1 tablet').toLowerCase().trim()}|${(m.frequency || 'Once daily').toLowerCase().trim()}|${(m.scheduledTime || m.time || '08:00 AM').toLowerCase().trim()}`;
+      const exK = `${(m.name || '').toLowerCase().trim()}|${(m.dose || m.dosage || '1 tablet').toLowerCase().trim()}|${(m.frequency || m.frequency || 'Once daily').toLowerCase().trim()}|${(m.scheduledTime || m.time || '08:00 AM').toLowerCase().trim()}`;
       return exK === k;
     });
 
@@ -533,6 +535,10 @@ export const HealthDataProvider = ({ children }) => {
     }
   };
 
+  const markNotificationsRead = () => {
+    setNotifications(prev => (Array.isArray(prev) ? prev : []).map(n => ({ ...n, unread: false })));
+  };
+
   const activeReport = reports.find(r => r.id === activeReportId || r._id === activeReportId) || (reports.length > 0 ? reports[0] : null);
 
   const value = {
@@ -545,6 +551,8 @@ export const HealthDataProvider = ({ children }) => {
     setActiveReportId,
     medicines,
     emergencyContacts,
+    notifications,
+    markNotificationsRead,
     language,
     setLanguage,
     loadingData,

@@ -8,7 +8,8 @@ export const NotificationDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  const unreadCount = notifications.filter(n => n.unread).length;
+  const safeNotifications = Array.isArray(notifications) ? notifications : [];
+  const unreadCount = safeNotifications.filter(n => n?.unread).length;
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -59,7 +60,7 @@ export const NotificationDropdown = () => {
                 </span>
               )}
             </div>
-            {unreadCount > 0 && (
+            {unreadCount > 0 && typeof markNotificationsRead === 'function' && (
               <button
                 onClick={markNotificationsRead}
                 className="text-xs text-slate-400 hover:text-cyan-400 flex items-center gap-1 transition-colors"
@@ -70,15 +71,15 @@ export const NotificationDropdown = () => {
           </div>
 
           <div className="max-h-80 overflow-y-auto divide-y divide-slate-800/60">
-            {notifications.length === 0 ? (
+            {safeNotifications.length === 0 ? (
               <div className="p-6 text-center text-slate-400 text-sm">
                 No notifications right now.
               </div>
             ) : (
-              notifications.map((item) => (
+              safeNotifications.map((item) => (
                 <Link
                   key={item.id}
-                  to={item.link}
+                  to={item.link || '#'}
                   onClick={() => setIsOpen(false)}
                   className={`flex items-start gap-3 p-3.5 hover:bg-slate-800/50 transition-colors ${
                     item.unread ? 'bg-cyan-500/5' : ''
