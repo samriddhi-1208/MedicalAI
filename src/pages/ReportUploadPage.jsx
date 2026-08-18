@@ -3,27 +3,27 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Upload, 
   FileText, 
+  Sparkles, 
+  CheckCircle2, 
   File, 
   Info,
   AlertTriangle,
   Pill,
   Edit2,
   Trash2,
-  Check,
-  ShieldAlert,
-  Eye,
-  X
+  Check
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
 import { getTranslation } from '../utils/translations';
-import { formatReportTitle } from '../utils/formatters';
 import { analyzeUploadedDocument } from '../utils/reportParser';
+import { Card } from '../components/ui/Card';
+import { Button } from '../components/ui/Button';
 import { Modal } from '../components/ui/Modal';
 
 export const ReportUploadPage = () => {
   const navigate = useNavigate();
-  const { addReport, addMedicine, setActiveReportId, language } = useHealthData();
+  const { addReport, addMedicine, language } = useHealthData();
   const t = (key) => getTranslation(language, key);
 
   const [selectedFile, setSelectedFile] = useState(null);
@@ -32,10 +32,6 @@ export const ReportUploadPage = () => {
   const [activeStep, setActiveStep] = useState(1);
   const [processingStatus, setProcessingStatus] = useState('');
   const [extractionError, setExtractionError] = useState(null);
-
-  // Duplicate Warning Modal State
-  const [isDuplicateModalOpen, setIsDuplicateModalOpen] = useState(false);
-  const [duplicateReportData, setDuplicateReportData] = useState(null);
 
   // Verification Modal State for Extracted Medications
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
@@ -84,29 +80,25 @@ export const ReportUploadPage = () => {
       return;
     }
     if (file.size > 15 * 1024 * 1024) {
-      toast.error("File size exceeds 15 MB limit.");
+      toast.error("File size exceeds 15MB limit.");
       return;
     }
     setSelectedFile(file);
+    setActiveStep(1);
     setExtractionError(null);
-    toast.success(`Selected file: ${file.name}`);
   };
 
   const handleUploadAndAnalyze = async () => {
-    if (!selectedFile) {
-      toast.error("Please select a medical report document file first.");
-      return;
-    }
+    if (!selectedFile) return;
 
     setUploading(true);
     setExtractionError(null);
-    setActiveStep(1);
-    setProcessingStatus("Step 1/5: Checking report content hash...");
+    setActiveStep(2);
+    setProcessingStatus("Step 2/5: Reading document stream & OCR text...");
 
     try {
-      setTimeout(() => { setActiveStep(2); setProcessingStatus("Step 2/5: Reading document text stream..."); }, 300);
-      setTimeout(() => { setActiveStep(3); setProcessingStatus("Step 3/5: Extracting laboratory test results & vitals..."); }, 600);
-      setTimeout(() => { setActiveStep(4); setProcessingStatus("Step 4/5: Running clinical summary analysis..."); }, 1000);
+      setTimeout(() => { setActiveStep(3); setProcessingStatus("Step 3/5: Extracting lab test results & vitals..."); }, 500);
+      setTimeout(() => { setActiveStep(4); setProcessingStatus("Step 4/5: Running AI diagnostic summary analysis..."); }, 1000);
 
       let parsedData = {};
       try {
@@ -124,25 +116,25 @@ export const ReportUploadPage = () => {
         };
       }
 
-      const savedReport = await addReport(parsedData, selectedFile);
-
-      // DUPLICATE CHECK: STOP PROCESSING IF BACKEND SHA-256 MATCH DETECTED
-      if (savedReport && (savedReport.isDuplicate || savedReport.duplicate)) {
-        setUploading(false);
-        setDuplicateReportData(savedReport);
-        setIsDuplicateModalOpen(true);
-        toast.error("⚠️ Report Already Uploaded. Viewing duplicate warning.");
-        return;
-      }
-
       setActiveStep(5);
       setProcessingStatus("Step 5/5: Document parsed successfully!");
 
+      const savedReport = await addReport(parsedData, selectedFile);
+
+      if (savedReport && savedReport.isDuplicate) {
+        toast.info("This report has already been uploaded. Viewing existing stored record.");
+        setUploading(false);
+        navigate('/app/analysis');
+        return;
+      }
+
+      // Merge extracted medications from client parsing AND server parsing
       const extractedMeds = [
         ...(Array.isArray(savedReport?.extractedMedications) ? savedReport.extractedMedications : []),
         ...(Array.isArray(parsedData?.extractedMedications) ? parsedData.extractedMedications : [])
       ];
 
+      // Deduplicate extracted medications by name
       const uniqueMeds = [];
       const seenMedNames = new Set();
       extractedMeds.forEach(m => {
@@ -158,7 +150,7 @@ export const ReportUploadPage = () => {
         setIsVerificationModalOpen(true);
         setUploading(false);
       } else {
-        toast.success("✓ Report analyzed successfully.");
+        toast.success("✓ Report analyzed successfully. View diagnostic findings.");
         navigate('/app/analysis');
       }
     } catch (err) {
@@ -167,14 +159,6 @@ export const ReportUploadPage = () => {
       setExtractionError(err.message || "Failed to extract data from document. Please ensure file is a clear lab report.");
       toast.error("Document parsing failed.");
     }
-  };
-
-  const handleViewExistingReport = () => {
-    if (duplicateReportData) {
-      setActiveReportId(duplicateReportData.id || duplicateReportData.existingReportId);
-    }
-    setIsDuplicateModalOpen(false);
-    navigate('/app/analysis');
   };
 
   const handleRemovePendingMed = (index) => {
@@ -194,6 +178,33 @@ export const ReportUploadPage = () => {
       delayMinutes: String(med.delayMinutes || 30),
       duration: med.duration || '5 days'
     });
+  };
+
+  const handleSaveMedEdit = (e) => {
+    e.preventDefault();
+    if (editingMedIndex === null) return;
+
+    setPendingMedications(prev => prev.map((m, idx) => {
+      if (idx === editingMedIndex) {
+        return {
+          ...m,
+          medicineName: editFormData.medicineName,
+          dose: editFormData.dose,
+          frequency: editFormData.frequency,
+          timing: editFormData.timing,
+          scheduled_time: editFormData.timing,
+          mealRelation: editFormData.mealRelation,
+          mealType: editFormData.mealType,
+          delayMinutes: Number(editFormData.delayMinutes),
+          duration: editFormData.duration,
+          hasExactTime: true
+        };
+      }
+      return m;
+    }));
+
+    setEditingMedIndex(null);
+    toast.success("Medication details updated.");
   };
 
   const handleConfirmAllReminders = async () => {
@@ -231,274 +242,300 @@ export const ReportUploadPage = () => {
     }
 
     setIsVerificationModalOpen(false);
-    toast.success(`✓ Created ${pendingMedications.length} medication reminder(s)!`);
+    toast.success(`✓ Created ${pendingMedications.length} medicine reminder(s)!`);
     navigate('/app/dashboard');
   };
 
   const steps = [
-    { num: 1, label: "Hash Check" },
+    { num: 1, label: "Upload File" },
     { num: 2, label: "Read Text" },
     { num: 3, label: "Extract Data" },
-    { num: 4, label: "Clinical Analysis" },
+    { num: 4, label: "AI Analysis" },
     { num: 5, label: "Complete" }
   ];
 
   return (
-    <div className="space-y-5 pb-12 font-sans max-w-4xl mx-auto w-full min-w-0">
+    <div className="space-y-5 pb-12 font-sans antialiased max-w-4xl mx-auto w-full min-w-0">
       
       {/* Upload Header */}
-      <div className="border-b border-slate-200 pb-3">
-        <h1 className="text-xl font-bold text-[#0F172A]">
-          Upload Medical Report
+      <div className="border-b border-slate-200/90 pb-3.5">
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-[#0D9488] animate-pulse" />
+          <span className="text-xs text-[#0D9488] font-extrabold uppercase tracking-wider">{t('dynamicDocAnalyzer')}</span>
+        </div>
+        <h1 className="text-xl sm:text-2.5xl font-black text-[#0F172A] tracking-tight mt-0.5">
+          {t('uploadMedicalReport')}
         </h1>
         <p className="text-xs text-slate-500 font-normal mt-0.5">
-          Select or drag a PDF or image medical report to parse laboratory values and prescription instructions.
+          {t('uploadSubtitle')}
         </p>
       </div>
 
-      {/* Stepper */}
-      <div className="p-3.5 rounded-lg bg-white border border-slate-200 space-y-2">
-        <div className="flex items-center justify-between text-xs font-semibold text-[#0F172A]">
-          <span>Step {activeStep} of 5</span>
-          <span className="text-[#0D9488] font-semibold">{steps[activeStep - 1]?.label}</span>
+      {/* REQUIREMENT 5: DESKTOP VS MOBILE STEPPER */}
+      {/* Desktop Stepper */}
+      <div className="hidden md:block p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs">
+        <div className="flex items-center justify-between">
+          {steps.map((s) => {
+            const isCompleted = activeStep > s.num;
+            const isCurrent = activeStep === s.num;
+
+            return (
+              <div key={s.num} className="flex-1 flex flex-col items-center relative text-center">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs transition-all ${
+                  isCompleted 
+                    ? 'bg-emerald-600 text-white' 
+                    : isCurrent 
+                    ? 'bg-[#0F172A] text-white ring-4 ring-slate-200' 
+                    : 'bg-slate-100 text-slate-400'
+                }`}>
+                  {isCompleted ? <Check className="w-4 h-4" /> : s.num}
+                </div>
+                <span className={`text-[11px] font-bold mt-1.5 ${
+                  isCurrent ? 'text-[#0F172A]' : isCompleted ? 'text-emerald-700' : 'text-slate-400'
+                }`}>
+                  {s.label}
+                </span>
+              </div>
+            );
+          })}
         </div>
-        <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+      </div>
+
+      {/* Mobile Compact Progress Stepper */}
+      <div className="md:hidden p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-2">
+        <div className="flex items-center justify-between text-xs font-black text-[#0F172A]">
+          <span>Step {activeStep} of 5</span>
+          <span className="text-[#0D9488] font-bold">{steps[activeStep - 1]?.label}</span>
+        </div>
+        <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200/60">
           <div 
-            className="bg-[#0F172A] h-1.5 rounded-full transition-all duration-300"
+            className="bg-[#0D9488] h-2 rounded-full transition-all duration-300"
             style={{ width: `${activeStep * 20}%` }}
           />
         </div>
       </div>
 
-      {/* Upload Card */}
-      <div className="p-6 bg-white border border-slate-200 rounded-lg space-y-5 text-center w-full min-w-0">
+      {/* REQUIREMENT 6: MOBILE COMPACT UPLOAD CARD */}
+      <Card className="p-5 sm:p-8 bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-5 text-center w-full min-w-0">
         
         <div
           onDragEnter={handleDrag}
           onDragOver={handleDrag}
           onDragLeave={handleDrag}
           onDrop={handleDrop}
-          className={`p-8 rounded-lg border-2 border-dashed transition-colors ${
+          className={`p-6 sm:p-10 rounded-2xl border-2 border-dashed transition-all ${
             dragActive
-              ? 'border-[#0D9488] bg-slate-50'
-              : 'border-slate-300 bg-slate-50/50 hover:bg-slate-50'
+              ? 'border-[#0D9488] bg-slate-50 scale-[1.01]'
+              : 'border-slate-300 bg-slate-50/60 hover:bg-slate-50'
           }`}
         >
-          <div className="w-12 h-12 rounded-lg bg-[#0F172A] text-white flex items-center justify-center mx-auto mb-3">
-            <Upload className="w-6 h-6 text-[#0D9488]" />
+          <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-[#0F172A] text-white flex items-center justify-center mx-auto shadow-md mb-3 sm:mb-4">
+            <Upload className="w-6 h-6 sm:w-8 sm:h-8 text-[#0D9488]" />
           </div>
 
-          <p className="text-xs sm:text-sm font-semibold text-[#0F172A]">
-            <span>Drag & drop your medical report here or browse files below</span>
+          <p className="text-xs sm:text-sm font-extrabold text-[#0F172A]">
+            <span className="hidden sm:inline">{t('dragDropText')}</span>
+            <span className="sm:hidden">Tap below to select a medical report</span>
           </p>
 
-          <p className="text-xs text-slate-500 font-normal mt-1">
-            Supported formats: PDF, JPG, JPEG, PNG • Maximum size: 15 MB
+          <p className="text-[11px] sm:text-xs text-slate-500 font-medium mt-1">
+            PDF, JPG, JPEG or PNG • Max 15 MB
           </p>
 
-          <div className="mt-4">
-            <label className="px-4 py-2 rounded-md bg-[#0F172A] hover:bg-[#1E293B] text-white text-xs font-semibold cursor-pointer inline-flex items-center gap-2 transition-colors">
+          <div className="mt-4 sm:mt-6">
+            <label className="w-full sm:w-auto min-h-[48px] px-6 py-3 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white text-xs sm:text-sm font-bold cursor-pointer inline-flex items-center justify-center gap-2 transition-colors shadow-2xs">
               <File className="w-4 h-4 text-[#0D9488]" />
               <span>Browse Files</span>
               <input
                 type="file"
+                accept=".pdf,.jpg,.jpeg,.png"
                 onChange={handleFileChange}
-                accept=".pdf,.png,.jpg,.jpeg"
                 className="hidden"
               />
             </label>
           </div>
         </div>
 
-        {/* Selected File Card */}
+        {/* REQUIREMENT 7: SELECTED FILE CARD WITH FILENAME WRAP FIX */}
         {selectedFile && (
-          <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between gap-3 text-xs text-left">
-            <div className="flex items-center gap-3 min-w-0">
-              <FileText className="w-5 h-5 text-[#0D9488] shrink-0" />
-              <div className="min-w-0">
-                <p className="font-semibold text-[#0F172A] truncate">{selectedFile.name}</p>
-                <p className="text-slate-500">{((selectedFile.size) / (1024 * 1024)).toFixed(2)} MB • {selectedFile.type || 'Document'}</p>
+          <div className="p-3.5 sm:p-4 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-left w-full min-w-0">
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <FileText className="w-6 h-6 text-[#0D9488] shrink-0" />
+              <div className="min-w-0 flex-1">
+                <p className="font-black text-xs sm:text-sm text-[#0F172A] break-all line-clamp-2">
+                  {selectedFile.name}
+                </p>
+                <p className="text-slate-500 font-medium text-[11px]">
+                  {(selectedFile.size / 1024).toFixed(1)} KB • {selectedFile.type.includes('pdf') ? 'PDF' : 'IMAGE'}
+                </p>
               </div>
             </div>
-            <button
-              onClick={() => setSelectedFile(null)}
-              className="text-slate-400 hover:text-red-600 font-semibold cursor-pointer text-xs shrink-0"
+
+            <Button
+              variant="primary"
+              size="md"
+              icon={Sparkles}
+              loading={uploading}
+              onClick={handleUploadAndAnalyze}
+              className="bg-[#0F172A] hover:bg-[#1E293B] py-3 px-6 text-xs font-bold rounded-xl cursor-pointer w-full sm:w-auto min-h-[48px] shrink-0"
             >
-              Remove
-            </button>
+              {uploading ? 'Processing Document...' : 'Upload & Analyze'}
+            </Button>
           </div>
         )}
 
-        {/* Upload Action Button */}
-        <div className="pt-2">
-          <button
-            disabled={!selectedFile || uploading}
-            onClick={handleUploadAndAnalyze}
-            className="w-full sm:w-auto px-6 py-2.5 rounded-md bg-[#0F172A] hover:bg-[#1E293B] text-white text-xs font-semibold cursor-pointer disabled:opacity-50 transition-colors inline-flex items-center justify-center gap-2"
-          >
-            {uploading ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                <span>Checking Report Content...</span>
-              </>
-            ) : (
-              <>
-                <Upload className="w-4 h-4 text-[#0D9488]" />
-                <span>Analyze Medical Report</span>
-              </>
-            )}
-          </button>
-        </div>
-
-        {/* Status Indicator */}
+        {/* Upload & Extraction Progress Stepper Status */}
         {uploading && (
-          <div className="p-3 rounded-md bg-slate-50 border border-slate-200 text-xs text-slate-700 font-medium space-y-1 text-left">
-            <p className="font-semibold text-[#0F172A]">{processingStatus}</p>
-            <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
-              <div 
-                className="bg-[#0D9488] h-1.5 rounded-full transition-all duration-300"
+          <div className="space-y-2 text-xs text-left p-4 rounded-xl bg-slate-50 border border-slate-200">
+            <div className="flex justify-between font-bold text-[#0F172A]">
+              <span>{processingStatus}</span>
+              <span>{activeStep * 20}%</span>
+            </div>
+            <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+              <div
+                className="bg-[#0D9488] h-2 rounded-full transition-all duration-300"
                 style={{ width: `${activeStep * 20}%` }}
               />
             </div>
           </div>
         )}
 
-        {/* Extraction Error State */}
+        {/* Extraction Error */}
         {extractionError && (
-          <div className="p-4 rounded-md bg-red-50 border border-red-200 text-xs text-red-900 font-normal flex items-center gap-3 text-left">
-            <AlertTriangle className="w-5 h-5 text-red-600 shrink-0" />
-            <div className="space-y-1">
-              <p className="font-semibold">Document parsing failed</p>
-              <p>{extractionError}</p>
-            </div>
+          <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-900 font-medium flex items-center gap-3 text-left">
+            <AlertTriangle className="w-5 h-5 text-[#DC2626] shrink-0" />
+            <span>{extractionError}</span>
           </div>
         )}
 
-      </div>
+      </Card>
 
-      {/* Medical Disclaimer Banner */}
-      <div className="p-4 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-1">
-        <div className="flex items-center gap-1.5 font-semibold text-amber-950">
+      {/* Mandatory Medical Disclaimer Banner */}
+      <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200 text-xs text-amber-900 space-y-1">
+        <div className="flex items-center gap-2 font-bold">
           <Info className="w-4 h-4 text-amber-700 shrink-0" />
           <span>Notice</span>
         </div>
-        <p className="font-normal text-amber-900 leading-relaxed">
+        <p className="font-normal text-amber-800 leading-relaxed">
           {t('mandatoryDisclaimer')}
         </p>
       </div>
 
-      {/* 4. DUPLICATE REPORT WARNING MODAL */}
-      <Modal
-        isOpen={isDuplicateModalOpen}
-        onClose={() => setIsDuplicateModalOpen(false)}
-        title="⚠️ Report Already Uploaded"
-      >
-        <div className="space-y-4 text-xs font-sans">
-          <div className="p-4 rounded-lg bg-amber-50 border border-amber-200 text-amber-950 space-y-2">
-            <div className="flex items-center gap-2 font-bold text-amber-900">
-              <AlertTriangle className="w-4 h-4 text-amber-700 shrink-0" />
-              <span>Duplicate Document Detected</span>
-            </div>
-            <p className="text-amber-900 font-normal leading-relaxed">
-              This medical report content has already been uploaded to your account.
-            </p>
-          </div>
-
-          {duplicateReportData && (
-            <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-1 text-slate-700">
-              <p><span className="font-semibold text-slate-500">Report Title:</span> <strong className="text-[#0F172A]">{formatReportTitle(duplicateReportData)}</strong></p>
-              <p><span className="font-semibold text-slate-500">Original File:</span> <strong className="text-slate-800">{duplicateReportData.file_name || duplicateReportData.fileName || 'Report.pdf'}</strong></p>
-              <p><span className="font-semibold text-slate-500">Uploaded Date:</span> <strong className="text-slate-800">{duplicateReportData.date || duplicateReportData.report_date || '17 Aug 2026'}</strong></p>
-            </div>
-          )}
-
-          <p className="text-slate-500 font-normal text-[11px]">
-            No duplicate laboratory measurements or medication reminders were created. You can view the existing report analysis directly.
-          </p>
-
-          <div className="flex justify-end gap-2 pt-2 border-t border-slate-200">
-            <button
-              onClick={() => {
-                setIsDuplicateModalOpen(false);
-                setSelectedFile(null);
-              }}
-              className="px-4 py-2 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs cursor-pointer"
-            >
-              Cancel
-            </button>
-
-            <button
-              onClick={handleViewExistingReport}
-              className="px-4 py-2 rounded-md bg-[#0F172A] hover:bg-[#1E293B] text-white font-semibold text-xs flex items-center gap-1.5 cursor-pointer"
-            >
-              <Eye className="w-3.5 h-3.5 text-[#0D9488]" /> View Existing Report
-            </button>
-          </div>
-        </div>
-      </Modal>
-
-      {/* Medication Verification Modal */}
+      {/* REQUIREMENTS 9, 10, 11: MEDICATION VERIFICATION RESPONSIVE MODAL */}
       <Modal
         isOpen={isVerificationModalOpen}
-        onClose={() => {
-          setIsVerificationModalOpen(false);
-          navigate('/app/analysis');
-        }}
-        title="Detected Prescription Medications"
+        onClose={() => setIsVerificationModalOpen(false)}
+        title="Medication Instructions Found in Report"
       >
-        <div className="space-y-4 text-xs">
-          <p className="text-slate-600 font-normal">
-            The parser identified {pendingMedications.length} medication instruction(s) in this document. Verify details before creating daily reminders:
-          </p>
+        <div className="space-y-4 text-xs font-sans">
+          <div className="p-3.5 rounded-xl bg-slate-100 border border-slate-200 text-[#0F172A] flex items-center gap-3">
+            <Pill className="w-6 h-6 text-[#0D9488] shrink-0" />
+            <div>
+              <p className="font-black text-sm">Verify Extracted Medications</p>
+              <p className="text-[11px] text-slate-600 font-normal">
+                Review dosages and reminder times before saving to your schedule.
+              </p>
+            </div>
+          </div>
 
-          <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
+          {/* Medication Cards List - Stacked 1 Column on Mobile */}
+          <div className="space-y-3 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
             {pendingMedications.map((med, idx) => (
-              <div key={idx} className="p-3 rounded-lg bg-slate-50 border border-slate-200 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-[#0F172A] text-sm">💊 {med.medicineName || med.name}</span>
-                  <div className="flex items-center gap-1">
+              <Card key={med.id || idx} className="p-4 border border-slate-200 bg-white space-y-2.5 rounded-xl shadow-2xs">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h4 className="font-black text-sm text-[#0F172A] flex items-center gap-1.5">
+                      💊 {med.medicineName}
+                    </h4>
+                    <p className="text-xs text-slate-500 font-bold">{med.dose} • {med.quantity}</p>
+                  </div>
+
+                  <div className="flex gap-1 shrink-0">
                     <button
                       onClick={() => handleOpenEditMed(med, idx)}
-                      className="px-2 py-1 rounded bg-slate-200 text-slate-700 font-semibold text-[11px] hover:bg-slate-300"
+                      className="px-2.5 py-1.5 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 text-[11px] font-bold cursor-pointer inline-flex items-center gap-1 min-h-[36px]"
                     >
-                      Edit
+                      <Edit2 className="w-3.5 h-3.5 text-[#0D9488]" /> Edit
                     </button>
                     <button
                       onClick={() => handleRemovePendingMed(idx)}
-                      className="px-2 py-1 rounded bg-red-100 text-red-700 font-semibold text-[11px] hover:bg-red-200"
+                      className="px-2.5 py-1.5 rounded-lg bg-rose-50 text-rose-700 hover:bg-rose-100 text-[11px] font-bold cursor-pointer inline-flex items-center gap-1 min-h-[36px]"
                     >
-                      Remove
+                      <Trash2 className="w-3.5 h-3.5 text-[#DC2626]" /> Remove
                     </button>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 text-slate-600 text-[11px]">
-                  <p>Dose: <strong className="text-slate-800">{med.dose}</strong></p>
-                  <p>Frequency: <strong className="text-slate-800">{med.frequency}</strong></p>
-                  <p>Meal: <strong className="text-slate-800">{med.mealRelation}</strong></p>
-                  <p>Duration: <strong className="text-slate-800">{med.duration}</strong></p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-2.5 rounded-lg bg-slate-50 border border-slate-200/80 text-[11px]">
+                  <p><span className="text-slate-500">Frequency:</span> <strong className="text-[#0F172A] font-bold">{med.frequency}</strong></p>
+                  <p><span className="text-slate-500">Meal Relation:</span> <strong className="text-slate-800 font-semibold">{med.mealRelation} ({med.mealType})</strong></p>
+                  <p><span className="text-slate-500">Duration:</span> <strong className="text-slate-800 font-semibold">{med.duration}</strong></p>
+                  <p><span className="text-slate-500">Scheduled Time:</span> <strong className="text-[#0D9488] font-bold">{med.timing || med.scheduled_time || '08:00 AM'}</strong></p>
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
 
-          <div className="flex justify-between items-center pt-2 border-t border-slate-200">
-            <button
-              onClick={() => {
-                setIsVerificationModalOpen(false);
-                navigate('/app/analysis');
-              }}
-              className="px-4 py-2 rounded-md bg-slate-100 text-slate-700 font-semibold text-xs hover:bg-slate-200"
-            >
-              Skip Reminders
-            </button>
+          {/* Edit Individual Medication Form */}
+          {editingMedIndex !== null && (
+            <form onSubmit={handleSaveMedEdit} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+              <h5 className="font-extrabold text-xs text-[#0F172A]">Edit {editFormData.medicineName} Details</h5>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <input
+                  type="text"
+                  value={editFormData.medicineName}
+                  onChange={(e) => setEditFormData({ ...editFormData, medicineName: e.target.value })}
+                  placeholder="Medicine Name"
+                  className="med-input text-xs"
+                />
+                <input
+                  type="text"
+                  value={editFormData.dose}
+                  onChange={(e) => setEditFormData({ ...editFormData, dose: e.target.value })}
+                  placeholder="Dose (e.g. 500 mg)"
+                  className="med-input text-xs"
+                />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <input
+                  type="text"
+                  value={editFormData.timing}
+                  onChange={(e) => setEditFormData({ ...editFormData, timing: e.target.value })}
+                  placeholder="Reminder Time (e.g. 08:00 AM)"
+                  className="med-input text-xs"
+                />
+                <select
+                  value={editFormData.mealRelation}
+                  onChange={(e) => setEditFormData({ ...editFormData, mealRelation: e.target.value })}
+                  className="med-input text-xs"
+                >
+                  <option value="After meal">After meal</option>
+                  <option value="Before meal">Before meal</option>
+                  <option value="With meal">With meal</option>
+                  <option value="No meal relation">No meal relation</option>
+                </select>
+              </div>
+              <div className="flex justify-end gap-2 pt-1">
+                <Button size="sm" variant="secondary" type="button" onClick={() => setEditingMedIndex(null)}>Cancel</Button>
+                <Button size="sm" variant="primary" type="submit" className="bg-[#0F172A]">Save Edit</Button>
+              </div>
+            </form>
+          )}
 
-            <button
+          {/* Touch Friendly Action Buttons */}
+          <div className="flex flex-col sm:flex-row justify-end gap-2 pt-3 border-t border-slate-200">
+            <Button variant="secondary" size="sm" onClick={() => navigate('/app/analysis')} className="w-full sm:w-auto min-h-[44px]">
+              Skip & View Analysis
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              icon={CheckCircle2}
               onClick={handleConfirmAllReminders}
-              className="px-5 py-2 rounded-md bg-[#0F172A] hover:bg-[#1E293B] text-white font-semibold text-xs flex items-center gap-1.5"
+              className="bg-[#0F172A] hover:bg-[#1E293B] py-3 px-6 font-extrabold text-xs cursor-pointer shadow-2xs w-full sm:w-auto min-h-[48px]"
             >
-              <Check className="w-4 h-4 text-[#0D9488]" /> Create {pendingMedications.length} Reminders
-            </button>
+              Confirm & Set Reminders
+            </Button>
           </div>
         </div>
       </Modal>
