@@ -85,14 +85,14 @@ exports.login = async (req, res, next) => {
     console.log(`[AUTH DIAGNOSTIC] Login attempt for email: "${cleanEmail}" | User found in DB: ${Boolean(user)}`);
 
     if (!user) {
-      return res.status(401).json({ error: "Invalid email or password." });
+      return res.status(401).json({ error: "No account found with this email. Please click 'Create Account' below to sign up." });
     }
 
     const isMatch = await bcrypt.compare(password, user.password_hash);
     console.log(`[AUTH DIAGNOSTIC] Password verification match for user ID ${user.id}: ${isMatch}`);
 
     if (!isMatch) {
-      return res.status(401).json({ error: "Invalid email or password." });
+      return res.status(401).json({ error: "Incorrect password. Please check your credentials and try again." });
     }
 
     const token = jwt.sign(
