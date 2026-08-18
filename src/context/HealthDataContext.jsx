@@ -162,11 +162,17 @@ export const HealthDataProvider = ({ children }) => {
             }
           }
 
-          // Parse Emergency Contacts
+          // Parse Emergency Contacts (with fallback to /sos/contacts if 404)
+          let cData = [];
           if (contactsRes && contactsRes.ok) {
-            const cData = await safeParseJson(contactsRes);
-            setEmergencyContacts(Array.isArray(cData) ? cData : []);
+            cData = await safeParseJson(contactsRes);
+          } else {
+            const sosRes = await fetch(`${API_BASE}/sos/contacts`, { headers: getAuthHeaders() }).catch(() => null);
+            if (sosRes && sosRes.ok) {
+              cData = await safeParseJson(sosRes);
+            }
           }
+          setEmergencyContacts(Array.isArray(cData) ? cData : []);
         }
       } catch (err) {
         console.warn("[AUTH] Sync note:", err.message);
