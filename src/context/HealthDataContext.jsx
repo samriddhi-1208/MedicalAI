@@ -87,11 +87,11 @@ export const HealthDataProvider = ({ children }) => {
           const rawUser = meData?.user || meData;
 
           if (rawUser) {
-            const userEmail = rawUser.email || '';
+            const userEmail = typeof rawUser.email === 'string' ? rawUser.email : '';
             const emailPrefix = userEmail.split('@')[0] || '';
             const fallbackName = emailPrefix ? emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1) : 'User';
 
-            const rawName = rawUser.name || rawUser.full_name || rawUser.fullName;
+            const rawName = typeof rawUser.name === 'string' ? rawUser.name : (typeof rawUser.full_name === 'string' ? rawUser.full_name : '');
             const finalName = (rawName && rawName.toLowerCase() !== 'patient') ? rawName : fallbackName;
 
             const updatedProfile = {
@@ -130,7 +130,7 @@ export const HealthDataProvider = ({ children }) => {
             }
           }
 
-          // Parse Medicines (With Strict Name Deduplication & Daily Reset)
+          // Parse Medicines
           if (medsRes && medsRes.ok) {
             const mData = await safeParseJson(medsRes);
             const safeMeds = (Array.isArray(mData) ? mData : []).map(m => ({
@@ -154,7 +154,6 @@ export const HealthDataProvider = ({ children }) => {
               taken: m.is_taken && isTakenToday(m.last_taken_at || m.lastTakenAt)
             }));
 
-            // Deduplicate strictly by clean medicine name
             const deduplicated = [];
             const seenNames = new Set();
             
@@ -211,22 +210,34 @@ export const HealthDataProvider = ({ children }) => {
     }
   }, [token]);
 
-  const login = async (email, password) => {
+  // Support both login("email", "pass") and login({ email, password })
+  const login = async (arg1, arg2) => {
     setLoadingData(true);
+    let emailStr = '';
+    let passStr = '';
+
+    if (typeof arg1 === 'object' && arg1 !== null) {
+      emailStr = (arg1.email || '').trim();
+      passStr = (arg1.password || '').trim();
+    } else {
+      emailStr = (arg1 || '').trim();
+      passStr = (arg2 || '').trim();
+    }
+
     let userObj = null;
 
     try {
       let res = await fetch(`${API_BASE}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim(), password })
+        body: JSON.stringify({ email: emailStr, password: passStr })
       });
 
       if (!res.ok) {
         res = await fetch(`${API_BASE}/auth/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: email.trim(), password })
+          body: JSON.stringify({ email: emailStr, password: passStr })
         });
       }
 
@@ -235,12 +246,12 @@ export const HealthDataProvider = ({ children }) => {
         setToken(data.token);
         localStorage.setItem('medguardian_jwt_token', data.token);
 
-        userObj = data.user || { email };
-        const userEmail = userObj.email || email;
+        userObj = data.user || { email: emailStr };
+        const userEmail = userObj.email || emailStr;
         const emailPrefix = userEmail.split('@')[0] || '';
         const fallbackName = emailPrefix ? emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1) : 'User';
 
-        const rawName = userObj.name || userObj.full_name || userObj.fullName;
+        const rawName = typeof userObj.name === 'string' ? userObj.name : (typeof userObj.full_name === 'string' ? userObj.full_name : '');
         const finalName = (rawName && rawName.toLowerCase() !== 'patient') ? rawName : fallbackName;
 
         const newProf = {
@@ -273,20 +284,35 @@ export const HealthDataProvider = ({ children }) => {
     }
   };
 
-  const signup = async (name, email, password) => {
+  // Support both signup("Name", "email", "pass") and signup({ name, email, password })
+  const signup = async (arg1, arg2, arg3) => {
     setLoadingData(true);
+    let nameStr = '';
+    let emailStr = '';
+    let passStr = '';
+
+    if (typeof arg1 === 'object' && arg1 !== null) {
+      nameStr = (arg1.name || arg1.fullName || arg1.full_name || '').trim();
+      emailStr = (arg1.email || '').trim();
+      passStr = (arg1.password || '').trim();
+    } else {
+      nameStr = (arg1 || '').trim();
+      emailStr = (arg2 || '').trim();
+      passStr = (arg3 || '').trim();
+    }
+
     try {
       let res = await fetch(`${API_BASE}/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim(), email: email.trim(), password })
+        body: JSON.stringify({ name: nameStr, email: emailStr, password: passStr })
       });
 
       if (!res.ok) {
         res = await fetch(`${API_BASE}/auth/register`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: name.trim(), email: email.trim(), password })
+          body: JSON.stringify({ name: nameStr, email: emailStr, password: passStr })
         });
       }
 
@@ -295,11 +321,11 @@ export const HealthDataProvider = ({ children }) => {
         setToken(data.token);
         localStorage.setItem('medguardian_jwt_token', data.token);
 
-        const userEmail = email.trim();
+        const userEmail = emailStr;
         const emailPrefix = userEmail.split('@')[0] || '';
         const fallbackName = emailPrefix ? emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1) : 'User';
 
-        const rawName = data.user?.name || data.user?.full_name || name;
+        const rawName = data.user?.name || data.user?.full_name || nameStr;
         const finalName = (rawName && rawName.toLowerCase() !== 'patient') ? rawName : fallbackName;
 
         const newProf = {
@@ -593,6 +619,7 @@ export const HealthDataProvider = ({ children }) => {
     loadingData,
     loadingAuth,
     apiError,
+    API_BASE,
     login,
     signup,
     logout,
