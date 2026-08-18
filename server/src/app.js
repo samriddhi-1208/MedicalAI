@@ -31,6 +31,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/reports', reportsRoutes);
 app.use('/api/medicines', medicinesRoutes);
 app.use('/api/sos', sosRoutes);
+app.use('/api/emergency', sosRoutes);
 app.use('/api/hospitals', hospitalsRoutes);
 app.use('/api/vitals', vitalsRoutes);
 
@@ -39,6 +40,7 @@ app.use('/auth', authRoutes);
 app.use('/reports', reportsRoutes);
 app.use('/medicines', medicinesRoutes);
 app.use('/sos', sosRoutes);
+app.use('/emergency', sosRoutes);
 app.use('/hospitals', hospitalsRoutes);
 app.use('/vitals', vitalsRoutes);
 
