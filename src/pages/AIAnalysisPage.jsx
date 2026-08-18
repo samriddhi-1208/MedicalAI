@@ -92,9 +92,12 @@ export const AIAnalysisPage = () => {
   let rawVitals = Array.isArray(selectedReport.vitals) ? selectedReport.vitals : [];
   let rawMedications = Array.isArray(selectedReport.extractedMedications) ? selectedReport.extractedMedications : (Array.isArray(selectedReport.medications) ? selectedReport.medications : []);
 
-  // Run dynamic extractor fallback if findings are empty (e.g. older uploaded records)
+  // Run dynamic extractor fallback if findings are empty (e.g. older uploaded records or PDF without OCR stream)
   if (rawBiomarkers.length === 0 && rawMedications.length === 0) {
-    const extracted = universalClinicalExtractor(selectedReport.rawText || '', selectedReport.title || selectedReport.file_name || '');
+    const extracted = universalClinicalExtractor(
+      selectedReport.rawText || '', 
+      selectedReport.title || selectedReport.file_name || selectedReport.fileName || 'Medical_Report'
+    );
     if (extracted.medications.length > 0) rawMedications = extracted.medications;
     if (extracted.labResults.length > 0) rawBiomarkers = extracted.labResults;
     if (extracted.vitals.length > 0) rawVitals = extracted.vitals;
