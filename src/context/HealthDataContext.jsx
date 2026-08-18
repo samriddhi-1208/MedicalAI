@@ -87,10 +87,17 @@ export const HealthDataProvider = ({ children }) => {
           const rawUser = meData?.user || meData;
 
           if (rawUser) {
+            const userEmail = rawUser.email || '';
+            const emailPrefix = userEmail.split('@')[0] || '';
+            const fallbackName = emailPrefix ? emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1) : 'User';
+
+            const rawName = rawUser.name || rawUser.full_name || rawUser.fullName;
+            const finalName = (rawName && rawName.toLowerCase() !== 'patient') ? rawName : fallbackName;
+
             const updatedProfile = {
               id: rawUser.id || rawUser._id,
-              name: rawUser.name || 'Patient',
-              email: rawUser.email || '',
+              name: finalName,
+              email: userEmail,
               phone: rawUser.phone || '',
               dob: rawUser.dob || '',
               gender: rawUser.gender || 'Not Specified',
@@ -151,7 +158,6 @@ export const HealthDataProvider = ({ children }) => {
             const deduplicated = [];
             const seenNames = new Set();
             
-            // Sort so records with specific mg/strength are prioritized
             safeMeds.sort((a, b) => {
               const aHasMg = /\d+\s*(mg|g|mcg|ml)/i.test(a.dose);
               const bHasMg = /\d+\s*(mg|g|mcg|ml)/i.test(b.dose);
@@ -229,11 +235,18 @@ export const HealthDataProvider = ({ children }) => {
         setToken(data.token);
         localStorage.setItem('medguardian_jwt_token', data.token);
 
-        userObj = data.user || { name: email.split('@')[0], email };
+        userObj = data.user || { email };
+        const userEmail = userObj.email || email;
+        const emailPrefix = userEmail.split('@')[0] || '';
+        const fallbackName = emailPrefix ? emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1) : 'User';
+
+        const rawName = userObj.name || userObj.full_name || userObj.fullName;
+        const finalName = (rawName && rawName.toLowerCase() !== 'patient') ? rawName : fallbackName;
+
         const newProf = {
           id: userObj.id || userObj._id,
-          name: userObj.name || email.split('@')[0],
-          email: userObj.email || email,
+          name: finalName,
+          email: userEmail,
           phone: userObj.phone || '',
           gender: userObj.gender || 'Not Specified',
           height: userObj.height || '',
@@ -282,10 +295,17 @@ export const HealthDataProvider = ({ children }) => {
         setToken(data.token);
         localStorage.setItem('medguardian_jwt_token', data.token);
 
+        const userEmail = email.trim();
+        const emailPrefix = userEmail.split('@')[0] || '';
+        const fallbackName = emailPrefix ? emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1) : 'User';
+
+        const rawName = data.user?.name || data.user?.full_name || name;
+        const finalName = (rawName && rawName.toLowerCase() !== 'patient') ? rawName : fallbackName;
+
         const newProf = {
           id: data.user?.id || data.user?._id,
-          name: data.user?.name || name,
-          email: data.user?.email || email,
+          name: finalName,
+          email: userEmail,
           gender: 'Not Specified',
           bloodGroup: 'Not Known',
           primaryPhysician: '',
@@ -322,6 +342,11 @@ export const HealthDataProvider = ({ children }) => {
   };
 
   const updateUserProfile = async (updatedFields) => {
+    const payload = { ...updatedFields };
+    if (updatedFields.name) {
+      payload.full_name = updatedFields.name;
+    }
+
     setUserProfile(prev => {
       const merged = { ...prev, ...updatedFields };
       localStorage.setItem('medguardian_user_profile', JSON.stringify(merged));
@@ -333,7 +358,7 @@ export const HealthDataProvider = ({ children }) => {
         await fetch(`${API_BASE}/auth/profile`, {
           method: 'PUT',
           headers: getAuthHeaders(),
-          body: JSON.stringify(updatedFields)
+          body: JSON.stringify(payload)
         });
       } catch (e) {
         console.warn("[API] Profile update sync note:", e);

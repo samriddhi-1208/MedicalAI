@@ -2,12 +2,13 @@
  * Utility functions for clean user display formatting
  */
 
-export function formatDisplayName(name) {
-  if (!name) return 'Patient';
+export function formatDisplayName(name, email) {
+  let source = (name && name.trim().toLowerCase() !== 'patient') ? name : email;
+  if (!source) return 'User';
 
-  const trimmed = name.trim();
+  const trimmed = source.trim();
 
-  // If user entered a multi-word full name (e.g. "Sakshi Bhatt"), preserve full name!
+  // If user entered a multi-word full name (e.g. "Samriddhi Tiwari"), preserve full name!
   if (trimmed.includes(' ') && !trimmed.includes('@')) {
     return trimmed
       .split(/\s+/)
@@ -15,9 +16,11 @@ export function formatDisplayName(name) {
       .join(' ');
   }
 
-  // If name is an email prefix or string with numbers (e.g. "sakshi27" or "sakshi27@gmail.com")
+  // If name is an email prefix or string with numbers (e.g. "samriddhi@gmail.com")
   let clean = trimmed.split('@')[0].replace(/\d+/g, '').replace(/[._-]/g, ' ').trim();
   if (!clean) clean = trimmed.split('@')[0];
+
+  if (!clean || clean.toLowerCase() === 'patient') return 'User';
 
   return clean
     .split(/\s+/)

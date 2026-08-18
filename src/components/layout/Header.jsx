@@ -20,7 +20,7 @@ export const Header = ({ collapsed }) => {
   const navigate = useNavigate();
   const { userProfile, logout, language, setAppLanguage } = useHealthData();
   
-  const displayName = formatDisplayName(userProfile?.name);
+  const displayName = formatDisplayName(userProfile?.name, userProfile?.email);
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef(null);
 

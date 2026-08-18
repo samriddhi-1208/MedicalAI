@@ -27,6 +27,7 @@ import {
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
 import { getTranslation } from '../utils/translations';
+import { formatDisplayName } from '../utils/formatters';
 import { 
   generateRichClinicalSummary, 
   getEasyMedicineExplanation, 
@@ -203,7 +204,7 @@ export const AIAnalysisPage = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
           <div>
             <span className="text-slate-500 block">Patient Name</span>
-            <strong className="text-[#0F172A] font-black text-sm">{userProfile?.name || 'Patient'}</strong>
+            <strong className="text-[#0F172A] font-black text-sm">{formatDisplayName(userProfile?.name, userProfile?.email)}</strong>
           </div>
           <div className="min-w-0">
             <span className="text-slate-500 block">Report File</span>

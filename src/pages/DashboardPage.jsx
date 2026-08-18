@@ -18,6 +18,7 @@ import {
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
 import { getTranslation } from '../utils/translations';
+import { formatDisplayName } from '../utils/formatters';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { HealthMetricCard } from '../components/ui/HealthMetricCard';
@@ -34,6 +35,8 @@ export const DashboardPage = () => {
     toggleMedicineTaken,
     language 
   } = useHealthData();
+
+  const userDisplayName = formatDisplayName(userProfile?.name, userProfile?.email);
 
   const t = (key) => getTranslation(language, key);
 
@@ -102,7 +105,7 @@ export const DashboardPage = () => {
             ) : (
               <div className="flex items-center gap-2">
                 <h1 className="text-2xl sm:text-3xl font-black text-[#0F172A] tracking-tight">
-                  {getGreeting()}, <span className="text-[#0D9488]">{userProfile?.name || 'Patient'}</span>
+                  {getGreeting()}, <span className="text-[#0D9488]">{userDisplayName}</span>
                 </h1>
                 <button
                   onClick={() => {
