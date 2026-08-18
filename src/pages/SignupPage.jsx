@@ -44,17 +44,21 @@ export const SignupPage = () => {
 
     setLoading(true);
     try {
-      await signup({
+      const res = await signup({
         name: fullName,
         email,
         password,
         confirmPassword
       });
 
-      // Redirect new user to mandatory Health Profile Setup page
-      navigate('/complete-profile');
+      if (res && res.success) {
+        navigate('/complete-profile');
+      } else {
+        setLoading(false);
+      }
     } catch (err) {
       toast.error(err.message || "Failed to create account. Please try again.");
+      setLoading(false);
     } finally {
       setLoading(false);
     }

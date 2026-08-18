@@ -25,7 +25,7 @@ import { NotFoundPage } from './pages/NotFoundPage';
 // Protected Route Guard for Authenticated Users
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useHealthData();
-  const hasToken = Boolean(localStorage.getItem('medguardian_token'));
+  const hasToken = Boolean(localStorage.getItem('medguardian_jwt_token') || localStorage.getItem('medguardian_token'));
 
   if (!isAuthenticated && !hasToken) {
     return <Navigate to="/login" replace />;
@@ -37,7 +37,7 @@ const ProtectedRoute = ({ children }) => {
 // Route Guard for Onboarding (/complete-profile)
 const OnboardingRoute = ({ children }) => {
   const { isAuthenticated, userProfile } = useHealthData();
-  const hasToken = Boolean(localStorage.getItem('medguardian_token'));
+  const hasToken = Boolean(localStorage.getItem('medguardian_jwt_token') || localStorage.getItem('medguardian_token'));
 
   if (!isAuthenticated && !hasToken) {
     return <Navigate to="/login" replace />;
