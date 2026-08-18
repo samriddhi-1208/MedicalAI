@@ -57,6 +57,9 @@ export const HealthDataProvider = ({ children }) => {
   const [loadingData, setLoadingData] = useState(false);
   const [apiError, setApiError] = useState(null);
 
+  const isAuthenticated = Boolean(token || localStorage.getItem('medguardian_token'));
+  const loadingAuth = loadingData;
+
   const getAuthHeaders = () => ({
     'Authorization': token ? `Bearer ${token}` : ''
   });
@@ -546,6 +549,8 @@ export const HealthDataProvider = ({ children }) => {
     <HealthDataContext.Provider
       value={{
         token,
+        isAuthenticated,
+        loadingAuth,
         userProfile,
         reports,
         medicines,

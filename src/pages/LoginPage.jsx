@@ -6,12 +6,19 @@ import { useHealthData } from '../context/HealthDataContext';
 
 export const LoginPage = () => {
   const navigate = useNavigate();
-  const { login, API_BASE } = useHealthData();
+  const { login, API_BASE, isAuthenticated } = useHealthData();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // Automatically redirect logged-in users directly to dashboard
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/app/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   useEffect(() => {
     // Proactive background warmup ping to wake up Render free tier container immediately on page land
@@ -36,8 +43,8 @@ export const LoginPage = () => {
     setLoading(true);
     try {
       await login(email, password);
-      // Instant sub-second navigation to Patient Dashboard
-      navigate('/app/dashboard');
+      // Instant navigation to Patient Dashboard
+      navigate('/app/dashboard', { replace: true });
     } catch (err) {
       toast.error(err.message || "Invalid email or password.");
     } finally {
