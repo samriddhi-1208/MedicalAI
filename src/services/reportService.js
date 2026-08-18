@@ -11,8 +11,8 @@ export const reportService = {
    * Scopes report retrieval strictly to the authenticated user ID
    */
   getUserReports: (userId, userReportsList = []) => {
-    if (!Array.isArray(userReportsList)) return [];
-    return userReportsList.filter(r => !r.userId || r.userId === userId);
+    const safeList = Array.isArray(userReportsList) ? userReportsList : [];
+    return safeList.filter(r => r && (!r.userId || r.userId === userId));
   },
 
   /**
