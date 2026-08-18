@@ -3,9 +3,13 @@ import { FileText, ArrowRight, Calendar, User } from 'lucide-react';
 import { useHealthData } from '../../context/HealthDataContext';
 import { getTranslation } from '../../utils/translations';
 
-export const ReportCard = ({ title, date, doctorName, labName, status, statusType, onViewDetails }) => {
+import { formatReportTitle } from '../../utils/formatters';
+
+export const ReportCard = ({ title, report, date, doctorName, labName, status, statusType, onViewDetails }) => {
   const { language } = useHealthData();
   const t = (key) => getTranslation(language, key);
+
+  const cleanTitle = formatReportTitle(report || { title });
 
   const getTranslatedStatus = () => {
     if (!status) return t('normal');
@@ -18,15 +22,15 @@ export const ReportCard = ({ title, date, doctorName, labName, status, statusTyp
   };
 
   return (
-    <div className="med-card card-hover-lift space-y-3">
+    <div className="bg-white border border-slate-200/90 rounded-xl p-4 space-y-3 shadow-2xs">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-[#EBF6F8] text-[#2D90A6] flex items-center justify-center font-bold shrink-0 border border-[#2D90A6]/30">
-            <FileText className="w-5 h-5 text-[#2D90A6]" />
+          <div className="w-8 h-8 rounded-lg bg-slate-100 text-[#0F172A] flex items-center justify-center font-semibold shrink-0 border border-slate-200">
+            <FileText className="w-4 h-4 text-[#0D9488]" />
           </div>
           <div>
-            <h4 className="text-sm sm:text-base font-extrabold text-[#1A4B84]">{title}</h4>
-            <p className="text-xs text-slate-500 font-medium">{labName || 'Diagnostic Laboratory'}</p>
+            <h4 className="text-sm font-bold text-[#0F172A]">{cleanTitle}</h4>
+            <p className="text-xs text-slate-500 font-normal">{labName || 'Diagnostic Pathology Center'}</p>
           </div>
         </div>
 
