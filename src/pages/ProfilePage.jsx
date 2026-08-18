@@ -13,7 +13,8 @@ import {
   Calendar,
   Phone,
   Building2,
-  AlertTriangle
+  AlertTriangle,
+  Sparkles
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
@@ -51,7 +52,7 @@ export const ProfilePage = () => {
     primaryPhysician: userProfile?.primaryPhysician || '',
     city: userProfile?.city || '',
     state: userProfile?.state || '',
-    country: userProfile?.country || '',
+    country: userProfile?.country || 'India',
     allergies: userProfile?.allergies || '',
     existingConditions: userProfile?.existingConditions || '',
     currentMedications: userProfile?.currentMedications || '',
@@ -106,7 +107,7 @@ export const ProfilePage = () => {
     }
 
     setLocLoading(true);
-    toast.loading("Detecting current location...", { id: 'loc-toast' });
+    toast.loading("Detecting current GPS location...", { id: 'loc-toast' });
 
     navigator.geolocation.getCurrentPosition(
       async (position) => {
@@ -119,12 +120,12 @@ export const ProfilePage = () => {
           const revRes = await fetch(revUrl);
           const revData = await revRes.json();
           if (revData?.address) {
-            const city = revData.address.city || revData.address.town || revData.address.village || 'Local Area';
+            const city = revData.address.city || revData.address.town || revData.address.village || revData.address.suburb || 'Local Area';
             const state = revData.address.state || revData.address.region || '';
-            const country = revData.address.country || '';
+            const country = revData.address.country || 'India';
 
             setFormData(prev => ({ ...prev, city, state, country }));
-            toast.success(`Location locked: ${city}, ${country}`);
+            toast.success(`Location locked: ${city}, ${state || country}`);
           }
         } catch {
           toast.success("GPS Coordinates detected.");
@@ -152,20 +153,20 @@ export const ProfilePage = () => {
   const age = calculateAge(formData.dob);
 
   return (
-    <div className="space-y-6 pb-12 font-sans antialiased max-w-4xl mx-auto">
+    <div className="space-y-6 pb-20 font-sans antialiased max-w-4xl mx-auto">
       
       {/* Profile Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-full bg-[#1A4B84] text-white font-extrabold text-2xl flex items-center justify-center border-2 border-[#2D90A6] shadow-md shrink-0">
+          <div className="w-16 h-16 rounded-2xl bg-[#0F172A] text-white font-black text-2xl flex items-center justify-center border-2 border-[#0D9488] shadow-md shrink-0">
             {formData.name ? formData.name.charAt(0).toUpperCase() : 'P'}
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#2D90A6] animate-pulse" />
-              <span className="text-xs text-[#2D90A6] font-bold uppercase tracking-wider">Patient Identity Baseline</span>
+              <span className="w-2 h-2 rounded-full bg-[#0D9488] animate-pulse" />
+              <span className="text-xs text-[#0D9488] font-bold uppercase tracking-wider">Patient Identity Baseline</span>
             </div>
-            <h1 className="text-2.5xl font-extrabold text-[#1A4B84] tracking-tight">
+            <h1 className="text-2.5xl font-extrabold text-[#0F172A] tracking-tight">
               {t('personalHealthProfile')}
             </h1>
             <p className="text-xs text-slate-500 font-normal mt-0.5">
@@ -174,9 +175,18 @@ export const ProfilePage = () => {
           </div>
         </div>
 
-        <span className="px-3 py-1.5 rounded-full bg-[#EBF6F8] text-[#2D90A6] text-xs font-bold border border-[#2D90A6]/30 shrink-0 flex items-center gap-1.5">
-          <ShieldCheck className="w-4 h-4 text-[#2D90A6]" /> {t('authenticatedSession')}
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="px-3 py-1.5 rounded-full bg-teal-50 text-[#0D9488] text-xs font-bold border border-teal-200 shrink-0 flex items-center gap-1.5">
+            <ShieldCheck className="w-4 h-4 text-[#0D9488]" /> {t('authenticatedSession')}
+          </span>
+          <button
+            onClick={handleSaveProfile}
+            className="px-4 py-2 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white font-extrabold text-xs flex items-center gap-1.5 shadow-md cursor-pointer transition-all shrink-0"
+          >
+            <Save className="w-3.5 h-3.5 text-[#0D9488]" />
+            <span>{t('save')}</span>
+          </button>
+        </div>
       </div>
 
       <form onSubmit={handleSaveProfile} className="space-y-6">
@@ -184,27 +194,27 @@ export const ProfilePage = () => {
         {/* 1. Personal Information */}
         <Card className="p-6 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-4">
           <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-            <User className="w-5 h-5 text-[#2D90A6]" />
-            <h3 className="text-base font-extrabold text-[#1A4B84]">{t('personalInformation')}</h3>
+            <User className="w-5 h-5 text-[#0D9488]" />
+            <h3 className="text-base font-extrabold text-[#0F172A]">{t('personalInformation')}</h3>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
             
             <div className="med-form-group">
-              <label htmlFor="name">{t('fullName')}</label>
+              <label htmlFor="name" className="block text-xs font-bold text-[#0F172A] mb-1.5">{t('fullName')}</label>
               <input
                 id="name"
                 type="text"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                placeholder="e.g. Sakshi Bhatt"
+                placeholder="e.g. Samriddhi Tiwari"
                 className="med-input text-xs"
               />
             </div>
 
             <div className="med-form-group">
-              <label htmlFor="phone">{t('phoneNumber')}</label>
+              <label htmlFor="phone" className="block text-xs font-bold text-[#0F172A] mb-1.5">{t('phoneNumber')}</label>
               <input
                 id="phone"
                 type="tel"
@@ -217,7 +227,7 @@ export const ProfilePage = () => {
             </div>
 
             <div className="med-form-group">
-              <label htmlFor="dob">{t('dateOfBirth')}</label>
+              <label htmlFor="dob" className="block text-xs font-bold text-[#0F172A] mb-1.5">{t('dateOfBirth')}</label>
               <input
                 id="dob"
                 type="date"
@@ -230,14 +240,14 @@ export const ProfilePage = () => {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="med-form-group">
-                <label>{t('age')}</label>
+                <label className="block text-xs font-bold text-[#0F172A] mb-1.5">{t('age')}</label>
                 <div className={`med-input bg-slate-50 font-bold text-xs flex items-center ${age ? 'text-slate-800' : 'text-slate-400 font-normal'}`}>
                   {age ? `${age} ${language === 'HI' ? 'वर्ष' : language === 'GU' ? 'વર્ષ' : 'years old'}` : '--'}
                 </div>
               </div>
 
               <div className="med-form-group">
-                <label htmlFor="gender">{t('gender')}</label>
+                <label htmlFor="gender" className="block text-xs font-bold text-[#0F172A] mb-1.5">{t('gender')}</label>
                 <select
                   id="gender"
                   name="gender"
@@ -256,18 +266,19 @@ export const ProfilePage = () => {
           </div>
         </Card>
 
-        {/* 2. Physical & Health Information */}
+        {/* 2. Physical & Health Information (WITH STRICT UNIT-INPUT-GROUP FIX) */}
         <Card className="p-6 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-4">
           <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-            <Heart className="w-5 h-5 text-[#2D90A6]" />
-            <h3 className="text-base font-extrabold text-[#1A4B84]">{t('physicalHealthBaseline')}</h3>
+            <Heart className="w-5 h-5 text-[#0D9488]" />
+            <h3 className="text-base font-extrabold text-[#0F172A]">{t('physicalHealthBaseline')}</h3>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
             
+            {/* Height Field */}
             <div className="med-form-group">
-              <label htmlFor="height">{t('height')}</label>
-              <div className="flex items-center gap-2">
+              <label htmlFor="height" className="block text-xs font-bold text-[#0F172A] mb-1.5">{t('height')}</label>
+              <div className="unit-input-group">
                 <input
                   id="height"
                   type="number"
@@ -276,13 +287,11 @@ export const ProfilePage = () => {
                   value={formData.height}
                   onChange={handleChange}
                   placeholder={formData.heightUnit === 'ft' ? "e.g. 5.9" : "e.g. 165"}
-                  className="med-input text-xs flex-1 min-w-0"
                 />
                 <select
                   name="heightUnit"
                   value={formData.heightUnit}
                   onChange={handleChange}
-                  className="med-input med-input-unit text-xs font-bold bg-slate-50"
                 >
                   <option value="cm">cm</option>
                   <option value="ft">ft</option>
@@ -290,9 +299,10 @@ export const ProfilePage = () => {
               </div>
             </div>
 
+            {/* Weight Field */}
             <div className="med-form-group">
-              <label htmlFor="weight">{t('weight')}</label>
-              <div className="flex items-center gap-2">
+              <label htmlFor="weight" className="block text-xs font-bold text-[#0F172A] mb-1.5">{t('weight')}</label>
+              <div className="unit-input-group">
                 <input
                   id="weight"
                   type="number"
@@ -301,13 +311,11 @@ export const ProfilePage = () => {
                   value={formData.weight}
                   onChange={handleChange}
                   placeholder={formData.weightUnit === 'lbs' ? "e.g. 130" : "e.g. 58"}
-                  className="med-input text-xs flex-1 min-w-0"
                 />
                 <select
                   name="weightUnit"
                   value={formData.weightUnit}
                   onChange={handleChange}
-                  className="med-input med-input-unit text-xs font-bold bg-slate-50"
                 >
                   <option value="kg">kg</option>
                   <option value="lbs">lbs</option>
@@ -315,8 +323,9 @@ export const ProfilePage = () => {
               </div>
             </div>
 
+            {/* Blood Group Field */}
             <div className="med-form-group">
-              <label htmlFor="bloodGroup">{t('bloodGroup')}</label>
+              <label htmlFor="bloodGroup" className="block text-xs font-bold text-[#0F172A] mb-1.5">{t('bloodGroup')}</label>
               <select
                 id="bloodGroup"
                 name="bloodGroup"
@@ -333,11 +342,13 @@ export const ProfilePage = () => {
                 <option value="B-">B negative (B-)</option>
                 <option value="AB+">AB positive (AB+)</option>
                 <option value="AB-">AB negative (AB-)</option>
+                <option value="Not Known">Not Known</option>
               </select>
             </div>
 
+            {/* Primary Physician Field */}
             <div className="med-form-group">
-              <label htmlFor="primaryPhysician">{t('primaryPhysician')}</label>
+              <label htmlFor="primaryPhysician" className="block text-xs font-bold text-[#0F172A] mb-1.5">{t('primaryPhysician')}</label>
               <input
                 id="primaryPhysician"
                 type="text"
@@ -352,27 +363,27 @@ export const ProfilePage = () => {
           </div>
         </Card>
 
-        {/* 3. Location & Emergency Hospital */}
+        {/* 3. Location & Geographic Metadata */}
         <Card className="p-6 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2">
-              <MapPin className="w-5 h-5 text-[#2D90A6]" />
-              <h3 className="text-base font-extrabold text-[#1A4B84]">{t('location')}</h3>
+              <MapPin className="w-5 h-5 text-[#0D9488]" />
+              <h3 className="text-base font-extrabold text-[#0F172A]">{t('location')}</h3>
             </div>
             <button
               type="button"
               onClick={handleUseCurrentLocation}
               disabled={locLoading}
-              className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs self-start sm:self-auto"
+              className="px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs self-start sm:self-auto transition-colors"
             >
-              <Compass className={`w-3.5 h-3.5 text-[#2D90A6] ${locLoading ? 'animate-spin' : ''}`} />
+              <Compass className={`w-3.5 h-3.5 text-[#0D9488] ${locLoading ? 'animate-spin' : ''}`} />
               <span>{locLoading ? t('locating') : t('useCurrentLocation')}</span>
             </button>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
             <div className="med-form-group">
-              <label htmlFor="city">{t('city')}</label>
+              <label htmlFor="city" className="block text-xs font-bold text-[#0F172A] mb-1.5">{t('city')}</label>
               <input
                 id="city"
                 type="text"
@@ -385,7 +396,7 @@ export const ProfilePage = () => {
             </div>
 
             <div className="med-form-group">
-              <label htmlFor="state">{t('state')}</label>
+              <label htmlFor="state" className="block text-xs font-bold text-[#0F172A] mb-1.5">{t('state')}</label>
               <input
                 id="state"
                 type="text"
@@ -398,7 +409,7 @@ export const ProfilePage = () => {
             </div>
 
             <div className="med-form-group">
-              <label htmlFor="country">{t('country')}</label>
+              <label htmlFor="country" className="block text-xs font-bold text-[#0F172A] mb-1.5">{t('country')}</label>
               <input
                 id="country"
                 type="text"
@@ -412,16 +423,16 @@ export const ProfilePage = () => {
           </div>
         </Card>
 
-        {/* 4. Medical Notes & Emergency Information */}
+        {/* 4. Emergency Medical Notes & Allergies */}
         <Card className="p-6 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-4">
           <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-            <Siren className="w-5 h-5 text-[#DC2626]" />
-            <h3 className="text-base font-extrabold text-[#1A4B84]">{t('emergencyMedicalNotes')}</h3>
+            <Siren className="w-5 h-5 text-rose-600" />
+            <h3 className="text-base font-extrabold text-[#0F172A]">{t('emergencyMedicalNotes')}</h3>
           </div>
 
           <div className="space-y-4 text-xs">
             <div className="med-form-group">
-              <label htmlFor="allergies">{t('knownAllergies')}</label>
+              <label htmlFor="allergies" className="block text-xs font-bold text-[#0F172A] mb-1.5">{t('knownAllergies')}</label>
               <textarea
                 id="allergies"
                 name="allergies"
@@ -434,7 +445,7 @@ export const ProfilePage = () => {
             </div>
 
             <div className="med-form-group">
-              <label htmlFor="existingConditions">{t('existingConditions')}</label>
+              <label htmlFor="existingConditions" className="block text-xs font-bold text-[#0F172A] mb-1.5">{t('existingConditions')}</label>
               <textarea
                 id="existingConditions"
                 name="existingConditions"
@@ -447,7 +458,7 @@ export const ProfilePage = () => {
             </div>
 
             <div className="med-form-group">
-              <label htmlFor="emergencyNotes">{t('emergencyNotes')}</label>
+              <label htmlFor="emergencyNotes" className="block text-xs font-bold text-[#0F172A] mb-1.5">{t('emergencyNotes')}</label>
               <textarea
                 id="emergencyNotes"
                 name="emergencyNotes"
@@ -465,9 +476,9 @@ export const ProfilePage = () => {
         <div className="flex items-center justify-end gap-3 pt-2">
           <button
             type="submit"
-            className="px-6 py-3 rounded-xl bg-[#1A4B84] hover:bg-[#123661] text-white font-extrabold text-sm flex items-center gap-2 shadow-md cursor-pointer transition-all"
+            className="px-6 py-3 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white font-extrabold text-sm flex items-center gap-2 shadow-md cursor-pointer transition-all"
           >
-            <Save className="w-4 h-4 text-[#2D90A6]" />
+            <Save className="w-4 h-4 text-[#0D9488]" />
             <span>{t('saveProfileDetails')}</span>
           </button>
         </div>
