@@ -231,8 +231,8 @@ export const ProfilePage = () => {
             <div className="grid grid-cols-2 gap-3">
               <div className="med-form-group">
                 <label>{t('age')}</label>
-                <div className="med-input bg-slate-50 text-slate-700 font-bold text-xs flex items-center">
-                  {age ? `${age} ${language === 'HI' ? 'वर्ष' : language === 'GU' ? 'વર્ષ' : 'years old'}` : 'Enter DOB'}
+                <div className={`med-input bg-slate-50 font-bold text-xs flex items-center ${age ? 'text-slate-800' : 'text-slate-400 font-normal'}`}>
+                  {age ? `${age} ${language === 'HI' ? 'वर्ष' : language === 'GU' ? 'વર્ષ' : 'years old'}` : '--'}
                 </div>
               </div>
 
@@ -263,11 +263,11 @@ export const ProfilePage = () => {
             <h3 className="text-base font-extrabold text-[#1A4B84]">{t('physicalHealthBaseline')}</h3>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 text-xs">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
             
             <div className="med-form-group">
               <label htmlFor="height">{t('height')}</label>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-2">
                 <input
                   id="height"
                   type="number"
@@ -282,7 +282,7 @@ export const ProfilePage = () => {
                   name="heightUnit"
                   value={formData.heightUnit}
                   onChange={handleChange}
-                  className="med-input text-xs w-20 shrink-0 font-bold bg-slate-50"
+                  className="med-input med-input-unit text-xs font-bold bg-slate-50"
                 >
                   <option value="cm">cm</option>
                   <option value="ft">ft</option>
@@ -292,7 +292,7 @@ export const ProfilePage = () => {
 
             <div className="med-form-group">
               <label htmlFor="weight">{t('weight')}</label>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-2">
                 <input
                   id="weight"
                   type="number"
@@ -307,7 +307,7 @@ export const ProfilePage = () => {
                   name="weightUnit"
                   value={formData.weightUnit}
                   onChange={handleChange}
-                  className="med-input text-xs w-20 shrink-0 font-bold bg-slate-50"
+                  className="med-input med-input-unit text-xs font-bold bg-slate-50"
                 >
                   <option value="kg">kg</option>
                   <option value="lbs">lbs</option>
@@ -352,43 +352,40 @@ export const ProfilePage = () => {
           </div>
         </Card>
 
-        {/* 3. Location Information */}
+        {/* 3. Location & Emergency Hospital */}
         <Card className="p-6 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2">
               <MapPin className="w-5 h-5 text-[#2D90A6]" />
-              <h3 className="text-base font-extrabold text-[#1A4B84]">Location</h3>
+              <h3 className="text-base font-extrabold text-[#1A4B84]">{t('location')}</h3>
             </div>
-
-            <Button
-              variant="outline"
-              size="sm"
+            <button
               type="button"
-              icon={Compass}
-              loading={locLoading}
               onClick={handleUseCurrentLocation}
-              className="rounded-xl text-xs font-semibold border-slate-200 text-slate-700 cursor-pointer"
+              disabled={locLoading}
+              className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs self-start sm:self-auto"
             >
-              {t('useCurrentLocation')}
-            </Button>
+              <Compass className={`w-3.5 h-3.5 text-[#2D90A6] ${locLoading ? 'animate-spin' : ''}`} />
+              <span>{locLoading ? t('locating') : t('useCurrentLocation')}</span>
+            </button>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
             <div className="med-form-group">
-              <label htmlFor="city">City</label>
+              <label htmlFor="city">{t('city')}</label>
               <input
                 id="city"
                 type="text"
                 name="city"
                 value={formData.city}
                 onChange={handleChange}
-                placeholder="e.g. Vadodara / Ahmedabad"
+                placeholder="e.g. Vadodara"
                 className="med-input text-xs"
               />
             </div>
 
             <div className="med-form-group">
-              <label htmlFor="state">State / Region</label>
+              <label htmlFor="state">{t('state')}</label>
               <input
                 id="state"
                 type="text"
@@ -401,7 +398,7 @@ export const ProfilePage = () => {
             </div>
 
             <div className="med-form-group">
-              <label htmlFor="country">Country</label>
+              <label htmlFor="country">{t('country')}</label>
               <input
                 id="country"
                 type="text"
@@ -415,66 +412,64 @@ export const ProfilePage = () => {
           </div>
         </Card>
 
-        {/* 4. Medical Background */}
+        {/* 4. Medical Notes & Emergency Information */}
         <Card className="p-6 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-4">
           <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-            <Info className="w-5 h-5 text-[#2D90A6]" />
-            <h3 className="text-base font-extrabold text-[#1A4B84]">{t('medicalBackground')}</h3>
+            <Siren className="w-5 h-5 text-[#DC2626]" />
+            <h3 className="text-base font-extrabold text-[#1A4B84]">{t('emergencyMedicalNotes')}</h3>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+          <div className="space-y-4 text-xs">
             <div className="med-form-group">
               <label htmlFor="allergies">{t('knownAllergies')}</label>
-              <input
+              <textarea
                 id="allergies"
-                type="text"
                 name="allergies"
                 value={formData.allergies}
                 onChange={handleChange}
-                placeholder="e.g. Penicillin, Peanuts, Sulfa"
+                rows={2}
+                placeholder="e.g. Penicillin, Sulfa drugs, Peanuts"
                 className="med-input text-xs"
               />
             </div>
 
             <div className="med-form-group">
               <label htmlFor="existingConditions">{t('existingConditions')}</label>
-              <input
+              <textarea
                 id="existingConditions"
-                type="text"
                 name="existingConditions"
                 value={formData.existingConditions}
                 onChange={handleChange}
-                placeholder="e.g. Mild Asthma, High Blood Pressure"
+                rows={2}
+                placeholder="e.g. Type 2 Diabetes, Hypertension, Asthma"
                 className="med-input text-xs"
               />
             </div>
 
-            <div className="sm:col-span-2 med-form-group">
-              <label htmlFor="currentMedications">{t('currentMedications')}</label>
-              <input
-                id="currentMedications"
-                type="text"
-                name="currentMedications"
-                value={formData.currentMedications}
+            <div className="med-form-group">
+              <label htmlFor="emergencyNotes">{t('emergencyNotes')}</label>
+              <textarea
+                id="emergencyNotes"
+                name="emergencyNotes"
+                value={formData.emergencyNotes}
                 onChange={handleChange}
-                placeholder="e.g. Lisinopril 10mg, Metformin 500mg"
+                rows={2}
+                placeholder="e.g. Blood type O+, carries EpiPen in handbag, pacemakers fitted."
                 className="med-input text-xs"
               />
             </div>
           </div>
         </Card>
 
-        {/* Profile Action Buttons */}
+        {/* Action Button Footer */}
         <div className="flex items-center justify-end gap-3 pt-2">
-          <Button
-            variant="primary"
-            size="md"
+          <button
             type="submit"
-            icon={Save}
-            className="bg-[#1A4B84] hover:bg-[#143A66] py-3.5 px-8 text-xs font-bold rounded-xl cursor-pointer"
+            className="px-6 py-3 rounded-xl bg-[#1A4B84] hover:bg-[#123661] text-white font-extrabold text-sm flex items-center gap-2 shadow-md cursor-pointer transition-all"
           >
-            {t('save')}
-          </Button>
+            <Save className="w-4 h-4 text-[#2D90A6]" />
+            <span>{t('saveProfileDetails')}</span>
+          </button>
         </div>
 
       </form>
