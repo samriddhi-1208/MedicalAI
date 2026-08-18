@@ -16,7 +16,8 @@ import {
   Info,
   History,
   ShieldCheck,
-  CheckSquare
+  CheckSquare,
+  FileText
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
