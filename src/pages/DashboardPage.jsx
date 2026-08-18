@@ -72,8 +72,14 @@ export const DashboardPage = () => {
   const getCleanSummary = () => {
     if (!latestReport) return t('noUploadedReports');
     const rawSum = latestReport.aiSummary || latestReport.clinicalSummary || latestReport.summary || '';
-    if (!rawSum || rawSum.includes('Extracted 0 vitals, 0 lab test parameters')) {
-      const docTitle = latestReport.title || latestReport.file_name || 'Medical Report';
+    if (!rawSum || rawSum.includes('Extracted 0 vitals, 0 lab test parameters') || rawSum.startsWith('Analysis of')) {
+      const docTitle = latestReport.title || latestReport.file_name || t('medicalReports');
+      if (language === 'HI') {
+        return `"${docTitle}" का विश्लेषण: क्लिनिकल दस्तावेज़ का सफलतापूर्वक विश्लेषण किया गया। वर्तमान उपचार अनुसूची में ${userMedicines.length} निर्धारित दवाओं की पहचान की गई। सलाह के अनुसार खुराक का समय पालन करें। नियमित मूल्यांकन के लिए चिकित्सक से परामर्श लें।`;
+      }
+      if (language === 'GU') {
+        return `"${docTitle}" નું વિશ્લેષણ: ક્લિનિકલ દસ્તાવેજનું સફળતાપૂર્વક પૃથ્થકરણ કરવામાં આવ્યું. વર્તમાન સારવાર શેડ્યૂલમાં ${userMedicines.length} નિર્ધારિત દવાઓની ઓળખ કરવામાં આવી. આપેલ સમય મુજબ ડોઝ ચાલુ રાખો. નિયમિત મૂલ્યાંકન માટે ડૉક્ટરની સલાહ લો.`;
+      }
       return `Analysis of "${docTitle}": Clinical document processed successfully. Identified ${userMedicines.length} prescribed medication instruction(s) in current treatment schedule. Continue following dosage timing as prescribed. Maintain adequate daily hydration and consult your physician for routine evaluations.`;
     }
     return rawSum;
@@ -163,7 +169,11 @@ export const DashboardPage = () => {
 
           <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
             <span className="text-slate-500 font-medium block">{t('primaryPhysician')}</span>
-            <span className="font-bold text-[#0F172A] truncate block">{userProfile?.primaryPhysician || latestReport?.doctorName || latestReport?.doctor_name || '--'}</span>
+            <span className="font-bold text-[#0F172A] truncate block">
+              {userProfile?.primaryPhysician && userProfile.primaryPhysician !== 'Consulting Care Physician' 
+                ? userProfile.primaryPhysician 
+                : (latestReport?.doctorName || latestReport?.doctor_name || '--')}
+            </span>
           </div>
 
           <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
@@ -178,9 +188,9 @@ export const DashboardPage = () => {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-base font-extrabold text-[#0F172A] tracking-tight">Health Metrics</h2>
+              <h2 className="text-base font-extrabold text-[#0F172A] tracking-tight">{t('healthMetrics')}</h2>
               <p className="text-xs text-slate-500 font-medium mt-0.5">
-                Based on your most recent uploaded report ({latestReport?.title || latestReport?.fileName || 'Medical Report'} — <span className="font-bold text-slate-800">{latestReport?.date || latestReport?.report_date || 'Recent'}</span>)
+                {t('basedOnRecentReport')} ({latestReport?.title || latestReport?.fileName || t('medicalReports')} — <span className="font-bold text-slate-800">{latestReport?.date || latestReport?.report_date || 'Recent'}</span>)
               </p>
             </div>
 
@@ -215,12 +225,12 @@ export const DashboardPage = () => {
             ) : (
               <div className="col-span-4 p-4 rounded-xl bg-teal-50/80 border border-teal-200 text-xs text-teal-900 font-medium text-center space-y-1">
                 <p className="font-extrabold text-[#0F172A]">
-                  💊 Prescription Medical Document Parsed
+                  💊 {t('prescriptionParsed')}
                 </p>
                 <p className="text-slate-600">
                   {userMedicines.length > 0 
-                    ? `Identified ${userMedicines.length} active prescribed medication(s): ${userMedicines.map(m => `${m.name} (${m.dose || m.dosage || '1 tablet'})`).join(', ')}.`
-                    : "No blood test parameters in this document. Click 'View Analysis' to see full details."}
+                    ? `${t('identifiedPrescribedMeds')}: ${userMedicines.map(m => `${m.name} (${m.dose || m.dosage || '1 tablet'})`).join(', ')}.`
+                    : `${t('noMedicalDataAvailable')}`}
                 </p>
               </div>
             )}
