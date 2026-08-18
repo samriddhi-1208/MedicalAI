@@ -185,18 +185,64 @@ export async function extractTextFromImage(file) {
   }
 }
 
-export function generateRichClinicalSummary(fileName, rawBiomarkers, rawVitals, rawMedications) {
+export function generateRichClinicalSummary(fileName, rawBiomarkers, rawVitals, rawMedications, lang = 'EN') {
   const biomarkers = Array.isArray(rawBiomarkers) ? rawBiomarkers : [];
   const vitals = Array.isArray(rawVitals) ? rawVitals : [];
   const medications = Array.isArray(rawMedications) ? rawMedications : [];
 
-  const docTitle = fileName || 'Uploaded Medical Document';
+  const docTitle = fileName || (lang === 'HI' ? 'अपलोड किया गया मेडिकल दस्तावेज़' : lang === 'GU' ? 'અપલોડ કરેલ મેડિકલ દસ્તાવેજ' : 'Uploaded Medical Document');
   const bCount = biomarkers.length;
   const vCount = vitals.length;
   const mCount = medications.length;
 
   const warnings = biomarkers.filter(b => b && (b.status === 'High' || b.status === 'Low' || b.status === 'Critical' || b.status === 'Attention Needed'));
   const normalCount = bCount - warnings.length;
+
+  if (lang === 'HI') {
+    const paragraph1 = `📋 नैदानिक अवलोकन: चिकित्सा दस्तावेज़ "${docTitle}" का मेडगार्डियन एआई द्वारा सफलता से विश्लेषण और संरचनाकरण किया गया है। नैदानिक ट्रैकिंग के लिए सभी प्रयोगशाला परीक्षण रीडिंग, महत्वपूर्ण संकेत और नुस्खे के निर्देशों को निकाला गया है।`;
+    let paragraph2 = "";
+    if (bCount > 0) {
+      paragraph2 = `🔬 प्रयोगशाला एवं बायोमार्कर विश्लेषण: कुल ${bCount} प्रयोगशाला मापदंड निकाले गए (${normalCount} मानक संदर्भ सीमा के भीतर${warnings.length > 0 ? `, ${warnings.length} सामान्य सीमा से बाहर` : ''})।`;
+      if (warnings.length > 0) {
+        const warningNames = warnings.map(w => `${w.name || w.testName || 'बायोमार्कर'} (${w.value} ${w.unit || ''} - ${w.status})`).join(', ');
+        paragraph2 += ` चिकित्सक समीक्षा की आवश्यकता वाले सीमा से बाहर के पैरामीटर: ${warningNames}।`;
+      }
+    } else {
+      paragraph2 = `🔬 प्रयोगशाला एवं बायोमार्कर विश्लेषण: सामान्य नैदानिक दस्तावेज़ मूल्यांकन पूरा हुआ। पार्सिंग के दौरान कोई सीमा से बाहर चेतावनी नहीं मिली।`;
+    }
+    let paragraph3 = "";
+    if (mCount > 0) {
+      const medNames = medications.map(m => `${m.medicineName || m.name || 'दवा'} (${m.dose || m.strength || '1 गोली'})`).join(', ');
+      paragraph3 = `💊 निर्धारित उपचार योजना: ${mCount} सक्रिय दवा निर्देशों की पहचान की गई: ${medNames}। कृपया अपनी दैनिक दवा अनुसूची में समय और खुराक की पुष्टि करें।`;
+    } else {
+      paragraph3 = `💊 निर्धारित उपचार योजना: अपने उपस्थित चिकित्सक द्वारा निर्धारित सभी दवा खुराक और आहार संबंधी दिशानिर्देशों का पालन करें।`;
+    }
+    const paragraph4 = `💡 मरीज मार्गदर्शन: पर्याप्त दैनिक जलयोजन (2.5 - 3.0 लीटर पानी) बनाए रखें, दैनिक लक्षणों पर नज़र रखें और अपने अगले नियमित मूल्यांकन के दौरान चिकित्सक से परामर्श लें।`;
+    return `${paragraph1}\n\n${paragraph2}\n\n${paragraph3}\n\n${paragraph4}`;
+  }
+
+  if (lang === 'GU') {
+    const paragraph1 = `📋 ક્લિનિકલ વિહંગાવલોકન: મેડિકલ દસ્તાવેજ "${docTitle}" નું મેડગાર્ડિયન AI દ્વારા સફળતાપૂર્વક પૃથ્થકરણ કરવામાં આવ્યું છે. તમામ લેબોરેટરી ટેસ્ટ રીડિંગ્સ અને પ્રિસ્ક્રિપ્શન સૂચનાઓ કાઢવામાં આવી છે.`;
+    let paragraph2 = "";
+    if (bCount > 0) {
+      paragraph2 = `🔬 લેબોરેટરી અને બાયોમાર્કર વિશ્લેષણ: કુલ ${bCount} લેબોરેટરી પેરામીટર્સ કાઢવામાં આવ્યા (${normalCount} પ્રમાણભૂત સંદર્ભ રેન્જમાં${warnings.length > 0 ? `, ${warnings.length} બહાર ફ્લેગ કરેલ` : ''}).`;
+      if (warnings.length > 0) {
+        const warningNames = warnings.map(w => `${w.name || w.testName || 'બાયોમાર્કર'} (${w.value} ${w.unit || ''} - ${w.status})`).join(', ');
+        paragraph2 += ` તબીબી સમીક્ષાની જરૂર હોય તેવા પેરામીટર્સ: ${warningNames}.`;
+      }
+    } else {
+      paragraph2 = `🔬 લેબોરેટરી અને બાયોમાર્કર વિશ્લેષણ: સામાન્ય ક્લિનિકલ મૂલ્યાંકન પૂર્ણ થયું. પૃથ્થકરણ દરમિયાન કોઈ ચેતવણી મળેલ નથી.`;
+    }
+    let paragraph3 = "";
+    if (mCount > 0) {
+      const medNames = medications.map(m => `${m.medicineName || m.name || 'દવા'} (${m.dose || m.strength || '1 ગોળી'})`).join(', ');
+      paragraph3 = `💊 નિર્ધારિત સારવાર યોજના: ${mCount} સક્રિય દવાની સૂચનાઓ ઓળખવામાં આવી: ${medNames}. કૃપા કરીને સમય અને ડોઝની ચકાસણી કરો.`;
+    } else {
+      paragraph3 = `💊 નિર્ધારિત સારવાર યોજના: તમારા ડૉક્ટર દ્વારા સૂચવ્યા મુજબ તમામ દવાની માત્રા અને આહાર માર્ગદર્શિકાઓનું પાલન કરો.`;
+    }
+    const paragraph4 = `💡 દર્દી માર્ગદર્શન: પર્યાપ્ત દૈનિક હાઇડ્રેશન (2.5 - 3.0 લિટર પાણી) જાળવો અને તમારા ડૉક્ટરની સલાહ લો.`;
+    return `${paragraph1}\n\n${paragraph2}\n\n${paragraph3}\n\n${paragraph4}`;
+  }
 
   const paragraph1 = `📋 Clinical Overview: The medical document "${docTitle}" has been parsed and structured via MedGuardian AI. All laboratory test readings, vital signs, and prescription instructions have been extracted for clinical tracking.`;
 

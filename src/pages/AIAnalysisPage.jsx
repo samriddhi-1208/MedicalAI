@@ -105,16 +105,13 @@ export const AIAnalysisPage = () => {
   const medications = rawMedications;
 
   const getFormattedSummary = () => {
-    const raw = selectedReport?.aiSummary || selectedReport?.summary || '';
-    if (!raw || raw.includes('Extracted 0 vitals') || raw.length < 50) {
-      return generateRichClinicalSummary(
-        selectedReport?.title || selectedReport?.file_name || 'Medical Document',
-        biomarkers,
-        vitals,
-        medications
-      );
-    }
-    return raw;
+    return generateRichClinicalSummary(
+      selectedReport?.title || selectedReport?.file_name || (language === 'HI' ? 'मेडिकल दस्तावेज़' : language === 'GU' ? 'મેડિકલ દસ્તાવેજ' : 'Medical Document'),
+      biomarkers,
+      vitals,
+      medications,
+      language
+    );
   };
 
   const handleAddMedToSchedule = (med) => {
@@ -176,7 +173,7 @@ export const AIAnalysisPage = () => {
           <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-teal-50/80 border border-teal-200 text-xs">
             <div className="flex items-center gap-2">
               <FileText className="w-4 h-4 text-[#0D9488] shrink-0" />
-              <span className="font-extrabold text-[#0F172A]">Viewing Report ({userReports.length} total saved):</span>
+              <span className="font-extrabold text-[#0F172A]">{t('viewingReport')} ({userReports.length} {t('totalReportsSaved')}):</span>
             </div>
             <select
               value={selectedReport.id}
@@ -198,26 +195,26 @@ export const AIAnalysisPage = () => {
 
       {/* Patient Information Banner */}
       <Card className="p-5 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-3">
-        <h3 className="text-xs font-bold text-[#2D90A6] uppercase tracking-wider flex items-center gap-2">
-          <User className="w-4 h-4 text-[#2D90A6]" /> Patient Identification & Metadata
+        <h3 className="text-xs font-bold text-[#0D9488] uppercase tracking-wider flex items-center gap-2">
+          <User className="w-4 h-4 text-[#0D9488]" /> {t('patientIdentification')}
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
           <div>
-            <span className="text-slate-500 block">Patient Name</span>
+            <span className="text-slate-500 block">{t('patientName')}</span>
             <strong className="text-[#0F172A] font-black text-sm">{formatDisplayName(userProfile?.name, userProfile?.email)}</strong>
           </div>
           <div className="min-w-0">
-            <span className="text-slate-500 block">Report File</span>
+            <span className="text-slate-500 block">{t('reportFile')}</span>
             <strong className="text-slate-800 font-bold block truncate max-w-full" title={selectedReport.file_name || selectedReport.fileName}>
               {selectedReport.file_name || selectedReport.fileName || 'Report.pdf'}
             </strong>
           </div>
           <div>
-            <span className="text-slate-500 block">Report Date</span>
+            <span className="text-slate-500 block">{t('reportDate')}</span>
             <strong className="text-slate-800 font-bold">{selectedReport.date || selectedReport.report_date || 'Recent'}</strong>
           </div>
           <div>
-            <span className="text-slate-500 block">Extraction Confidence</span>
+            <span className="text-slate-500 block">{t('extractionConfidence')}</span>
             <strong className="text-emerald-700 font-bold">{selectedReport.ocrConfidence || '99.4%'}</strong>
           </div>
         </div>
@@ -248,8 +245,8 @@ export const AIAnalysisPage = () => {
               <Pill className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-xs text-teal-800 font-bold block">Prescribed Medications</span>
-              <strong className="text-lg font-black text-[#0F172A]">{medications.length} Doses Identified</strong>
+              <span className="text-xs text-teal-800 font-bold block">{t('prescribedMedications')}</span>
+              <strong className="text-lg font-black text-[#0F172A]">{medications.length} {t('dosesIdentified')}</strong>
             </div>
           </div>
         </div>
@@ -260,8 +257,8 @@ export const AIAnalysisPage = () => {
               <Activity className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-xs text-sky-800 font-bold block">Lab Biomarkers</span>
-              <strong className="text-lg font-black text-[#0F172A]">{biomarkers.length} Parameters Parsed</strong>
+              <span className="text-xs text-sky-800 font-bold block">{t('labBiomarkers')}</span>
+              <strong className="text-lg font-black text-[#0F172A]">{biomarkers.length} {t('parametersParsed')}</strong>
             </div>
           </div>
         </div>
@@ -272,8 +269,8 @@ export const AIAnalysisPage = () => {
               <HeartPulse className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-xs text-indigo-800 font-bold block">Vital Signs</span>
-              <strong className="text-lg font-black text-[#0F172A]">{vitals.length} Vitals Recorded</strong>
+              <span className="text-xs text-indigo-800 font-bold block">{t('vitalSigns')}</span>
+              <strong className="text-lg font-black text-[#0F172A]">{vitals.length} {t('vitalsRecorded')}</strong>
             </div>
           </div>
         </div>

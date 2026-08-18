@@ -238,13 +238,13 @@ export const HealthTimelinePage = () => {
         <div>
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-[#0D9488] animate-pulse" />
-            <span className="text-xs text-[#0D9488] font-extrabold uppercase tracking-wider">Longitudinal Analytics</span>
+            <span className="text-xs text-[#0D9488] font-extrabold uppercase tracking-wider">{t('longitudinalAnalytics')}</span>
           </div>
           <h1 className="text-2.5xl font-black text-[#0F172A] tracking-tight mt-0.5">
             {t('healthTrends')}
           </h1>
           <p className="text-xs font-normal text-slate-500">
-            Track biomarker progressions extracted from your uploaded medical reports over time
+            {t('trackBiomarkerProgressions')}
           </p>
         </div>
 
@@ -256,7 +256,7 @@ export const HealthTimelinePage = () => {
             onClick={() => navigate('/app/upload')}
             className="bg-[#0F172A] hover:bg-[#1E293B] text-xs font-bold rounded-xl cursor-pointer shadow-2xs self-start sm:self-auto"
           >
-            Upload Another Report
+            {t('uploadAnotherReport')}
           </Button>
         )}
       </div>
