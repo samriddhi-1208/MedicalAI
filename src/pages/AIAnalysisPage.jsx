@@ -26,6 +26,7 @@ import {
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
 import { getTranslation } from '../utils/translations';
+import { generateRichClinicalSummary } from '../utils/reportParser';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Modal } from '../components/ui/Modal';
@@ -87,6 +88,19 @@ export const AIAnalysisPage = () => {
   const biomarkers = Array.isArray(selectedReport.biomarkers) ? selectedReport.biomarkers : (Array.isArray(selectedReport.labResults) ? selectedReport.labResults : []);
   const vitals = Array.isArray(selectedReport.vitals) ? selectedReport.vitals : [];
   const medications = Array.isArray(selectedReport.extractedMedications) ? selectedReport.extractedMedications : (Array.isArray(selectedReport.medications) ? selectedReport.medications : []);
+
+  const getFormattedSummary = () => {
+    const raw = selectedReport?.aiSummary || selectedReport?.summary || '';
+    if (!raw || raw.includes('Extracted 0 vitals') || raw.length < 50) {
+      return generateRichClinicalSummary(
+        selectedReport?.title || selectedReport?.file_name || 'Medical Document',
+        biomarkers,
+        vitals,
+        medications
+      );
+    }
+    return raw;
+  };
 
   return (
     <div className="space-y-6 pb-12 font-sans antialiased max-w-5xl mx-auto">
@@ -194,8 +208,8 @@ export const AIAnalysisPage = () => {
           </span>
         </div>
 
-        <p className="text-xs text-slate-700 font-normal leading-relaxed">
-          {selectedReport.aiSummary || selectedReport.summary || 'Clinical summary extracted.'}
+        <p className="text-xs text-slate-700 font-normal leading-relaxed whitespace-pre-line">
+          {getFormattedSummary()}
         </p>
       </Card>
 

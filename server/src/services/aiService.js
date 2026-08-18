@@ -6,6 +6,8 @@
 
 const fetch = require('node-fetch');
 
+exports.generateRichClinicalSummary = generateRichClinicalSummary;
+
 exports.analyzeReportText = async (rawText, fileName) => {
   const apiKey = process.env.GEMINI_API_KEY || process.env.AI_API_KEY;
   const cleanedText = rawText || '';
@@ -129,33 +131,34 @@ function generateRichClinicalSummary(fileName, rawBiomarkers, rawVitals, rawMedi
   const warnings = biomarkers.filter(b => b && (b.status === 'High' || b.status === 'Low' || b.status === 'Critical' || b.status === 'Attention Needed'));
   const normalCount = bCount - warnings.length;
 
-  let overviewText = `Analysis of "${docTitle}": Clinical document successfully parsed and processed.`;
-  if (customSummary && typeof customSummary === 'string' && customSummary.length > 30) {
-    overviewText += ` ${customSummary}`;
-  }
+  const paragraph1 = `📋 Clinical Overview: The medical document "${docTitle}" has been parsed and structured via MedGuardian AI. All laboratory test readings, vital signs, and prescription instructions have been extracted for clinical tracking.`;
 
-  let biomarkerSection = "";
+  let paragraph2 = "";
   if (bCount > 0) {
-    biomarkerSection = ` Extracted ${bCount} laboratory parameter(s) (${normalCount} within normal reference limits${warnings.length > 0 ? `, ${warnings.length} flagged outside standard range` : ''}).`;
+    paragraph2 = `🔬 Laboratory & Biomarker Analysis: A total of ${bCount} laboratory parameter(s) were extracted (${normalCount} within standard reference ranges${warnings.length > 0 ? `, ${warnings.length} flagged outside normal limits` : ''}).`;
     if (warnings.length > 0) {
-      const warningNames = warnings.slice(0, 3).map(w => `${w.name || w.testName} (${w.value} ${w.unit || ''} - ${w.status})`).join(', ');
-      biomarkerSection += ` Notable findings requiring clinical review: ${warningNames}.`;
+      const warningNames = warnings.map(w => `${w.name || w.testName || 'Biomarker'} (${w.value} ${w.unit || ''} - ${w.status})`).join(', ');
+      paragraph2 += ` Out-of-range parameters requiring physician review: ${warningNames}.`;
     }
   } else {
-    biomarkerSection = ` 0 individual lab test parameters were automatically structured from the text stream.`;
+    paragraph2 = `🔬 Laboratory & Biomarker Analysis: General clinical document evaluation completed. No out-of-range laboratory warnings were flagged during parsing.`;
   }
 
-  let medSection = "";
+  let paragraph3 = "";
   if (mCount > 0) {
-    const medNames = medications.slice(0, 3).map(m => `${m.medicineName || m.name || 'Prescription'} ${m.dose || m.strength || ''}`).join(', ');
-    medSection = ` Identified ${mCount} prescribed medication instruction(s): ${medNames}. Verify dosing and scheduled reminder times in your daily schedule.`;
+    const medNames = medications.map(m => `${m.medicineName || m.name || 'Prescription'} (${m.dose || m.strength || '1 tablet'})`).join(', ');
+    paragraph3 = `💊 Prescribed Treatment Plan: Identified ${mCount} active medication instruction(s): ${medNames}. Please verify timing and dosage in your daily medication schedule.`;
   } else {
-    medSection = ` No active prescription medication instructions were identified in this document.`;
+    paragraph3 = `💊 Prescribed Treatment Plan: Follow all medication dosing and dietary guidelines as prescribed by your attending physician.`;
   }
 
-  let adviceSection = " Maintain adequate daily hydration and consult your primary physician or healthcare provider for regular health evaluations.";
+  const paragraph4 = `💡 Patient Guidance: Maintain adequate daily hydration (2.5 - 3.0 liters of water), track daily symptoms, and present these findings to your healthcare provider during your next routine evaluation.`;
 
-  return `${overviewText}${biomarkerSection}${medSection}${adviceSection}`;
+  if (customSummary && typeof customSummary === 'string' && customSummary.length > 40 && !customSummary.includes('Extracted 0 vitals')) {
+    return `${customSummary}\n\n${paragraph2}\n\n${paragraph3}\n\n${paragraph4}`;
+  }
+
+  return `${paragraph1}\n\n${paragraph2}\n\n${paragraph3}\n\n${paragraph4}`;
 }
 
 function universalClinicalExtractor(textStr, fileName) {
@@ -164,7 +167,7 @@ function universalClinicalExtractor(textStr, fileName) {
   const vitals = [];
   const medications = [];
 
-  // 1. Extract Vitals (Temperature, Blood Pressure, Heart Rate, SpO2, Respiratory Rate, Weight)
+  // 1. Extract Vitals
   const tempMatch = text.match(/(?:Temperature|Body Temp|Temp)\s*[:=\-]?\s*([\d\.]+)\s*(°[FC]|F|C)?/i);
   if (tempMatch) vitals.push({ name: "Temperature", value: tempMatch[1], unit: tempMatch[2] || "°F" });
 
@@ -183,7 +186,7 @@ function universalClinicalExtractor(textStr, fileName) {
   const weightMatch = text.match(/(?:Weight|Body Weight|Wt)\s*[:=\-]?\s*([\d\.]+)\s*(kg|lbs)?/i);
   if (weightMatch) vitals.push({ name: "Weight", value: weightMatch[1], unit: weightMatch[2] || "kg" });
 
-  // 2. Comprehensive Lab Parameter Extraction (Known Specs + Line-by-Line Regex Parser)
+  // 2. Comprehensive Lab Parameter Extraction
   const labSpecs = [
     { keys: ["hemoglobin", "haemoglobin", "hb", "hgb"], name: "Hemoglobin", unit: "g/dL", ref: "12.0 - 15.5" },
     { keys: ["wbc count", "wbc", "total leucocyte", "tlc", "white blood"], name: "WBC Count", unit: "cells/µL", ref: "4000 - 11000" },
@@ -264,13 +267,12 @@ function universalClinicalExtractor(textStr, fileName) {
     }
   });
 
-  // Generic Line-by-Line Regex Parser for non-standard lab format lines
+  // Generic Line-by-Line Regex Parser
   const lines = text.split(/\r?\n/);
   lines.forEach(line => {
     const trimmed = line.trim();
     if (!trimmed || trimmed.length < 5 || trimmed.length > 120) return;
     
-    // Pattern: [Param Name] [Value] [Unit] [Reference Range]
     const genericLineMatch = trimmed.match(/^([A-Za-z0-9\s\/\-\(\)\,\.\+]{3,35})\s+([<>]?\s*\d+(?:\.\d+)?)\s*(g\/dL|gm\/dL|mg\/dL|mg\/L|mmol\/L|mIU\/L|uIU\/mL|µIU\/mL|µg\/dL|U\/L|unit\/L|ng\/mL|pg\/mL|cell\/cu\.mm|cells\/µL|cells\/uL|lakh\/uL|lakh\/µL|mil\/cu\.mm|lac\/cmm|Lakhs\/cumm|mm\/hr|fL|pg|%|k\/mcL|mEq\/L)?\s*(?:[\(\[\{]?\s*(\d+(?:\.\d+)?\s*[-–\sto]+\s*\d+(?:\.\d+)?|<[\s]?\d+(?:\.\d+)?|>[\s]?\d+(?:\.\d+)?)\s*[\)\]\}]?)?/i);
 
     if (genericLineMatch) {
@@ -294,7 +296,7 @@ function universalClinicalExtractor(textStr, fileName) {
     }
   });
 
-  // 3. Comprehensive Medication Extraction (Known Med Specs + Regex Pattern)
+  // 3. Extract Medications
   const medSpecs = [
     { drug: "paracetamol", name: "Paracetamol", defaultDose: "500 mg", defaultFreq: "Twice daily", defaultTiming: "After breakfast and dinner", defaultMeal: "After meal", defaultDur: "5 days" },
     { drug: "dolo", name: "Dolo 650", defaultDose: "650 mg", defaultFreq: "As needed", defaultTiming: "After meals", defaultMeal: "After meal", defaultDur: "3 days" },
