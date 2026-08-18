@@ -9,17 +9,21 @@ import {
   Pill,
   Edit2,
   Trash2,
-  Check
+  Check,
+  ShieldAlert,
+  Eye,
+  X
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
 import { getTranslation } from '../utils/translations';
+import { formatReportTitle } from '../utils/formatters';
 import { analyzeUploadedDocument } from '../utils/reportParser';
 import { Modal } from '../components/ui/Modal';
 
 export const ReportUploadPage = () => {
   const navigate = useNavigate();
-  const { addReport, addMedicine, language } = useHealthData();
+  const { addReport, addMedicine, setActiveReportId, language } = useHealthData();
   const t = (key) => getTranslation(language, key);
 
   const [selectedFile, setSelectedFile] = useState(null);
@@ -28,6 +32,10 @@ export const ReportUploadPage = () => {
   const [activeStep, setActiveStep] = useState(1);
   const [processingStatus, setProcessingStatus] = useState('');
   const [extractionError, setExtractionError] = useState(null);
+
+  // Duplicate Warning Modal State
+  const [isDuplicateModalOpen, setIsDuplicateModalOpen] = useState(false);
+  const [duplicateReportData, setDuplicateReportData] = useState(null);
 
   // Verification Modal State for Extracted Medications
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
@@ -93,7 +101,7 @@ export const ReportUploadPage = () => {
     setUploading(true);
     setExtractionError(null);
     setActiveStep(1);
-    setProcessingStatus("Step 1/5: Uploading document stream...");
+    setProcessingStatus("Step 1/5: Checking report content hash...");
 
     try {
       setTimeout(() => { setActiveStep(2); setProcessingStatus("Step 2/5: Reading document text stream..."); }, 300);
@@ -116,17 +124,19 @@ export const ReportUploadPage = () => {
         };
       }
 
-      setActiveStep(5);
-      setProcessingStatus("Step 5/5: Document parsed successfully!");
-
       const savedReport = await addReport(parsedData, selectedFile);
 
-      if (savedReport && savedReport.isDuplicate) {
-        toast.info("This report has already been uploaded. Viewing existing stored record.");
+      // DUPLICATE CHECK: STOP PROCESSING IF BACKEND SHA-256 MATCH DETECTED
+      if (savedReport && (savedReport.isDuplicate || savedReport.duplicate)) {
         setUploading(false);
-        navigate('/app/analysis');
+        setDuplicateReportData(savedReport);
+        setIsDuplicateModalOpen(true);
+        toast.error("⚠️ Report Already Uploaded. Viewing duplicate warning.");
         return;
       }
+
+      setActiveStep(5);
+      setProcessingStatus("Step 5/5: Document parsed successfully!");
 
       const extractedMeds = [
         ...(Array.isArray(savedReport?.extractedMedications) ? savedReport.extractedMedications : []),
@@ -159,6 +169,14 @@ export const ReportUploadPage = () => {
     }
   };
 
+  const handleViewExistingReport = () => {
+    if (duplicateReportData) {
+      setActiveReportId(duplicateReportData.id || duplicateReportData.existingReportId);
+    }
+    setIsDuplicateModalOpen(false);
+    navigate('/app/analysis');
+  };
+
   const handleRemovePendingMed = (index) => {
     setPendingMedications(prev => prev.filter((_, idx) => idx !== index));
     toast.success("Medication removed from verification list.");
@@ -176,33 +194,6 @@ export const ReportUploadPage = () => {
       delayMinutes: String(med.delayMinutes || 30),
       duration: med.duration || '5 days'
     });
-  };
-
-  const handleSaveMedEdit = (e) => {
-    e.preventDefault();
-    if (editingMedIndex === null) return;
-
-    setPendingMedications(prev => prev.map((m, idx) => {
-      if (idx === editingMedIndex) {
-        return {
-          ...m,
-          medicineName: editFormData.medicineName,
-          dose: editFormData.dose,
-          frequency: editFormData.frequency,
-          timing: editFormData.timing,
-          scheduled_time: editFormData.timing,
-          mealRelation: editFormData.mealRelation,
-          mealType: editFormData.mealType,
-          delayMinutes: Number(editFormData.delayMinutes),
-          duration: editFormData.duration,
-          hasExactTime: true
-        };
-      }
-      return m;
-    }));
-
-    setEditingMedIndex(null);
-    toast.success("Medication details updated.");
   };
 
   const handleConfirmAllReminders = async () => {
@@ -245,7 +236,7 @@ export const ReportUploadPage = () => {
   };
 
   const steps = [
-    { num: 1, label: "Upload File" },
+    { num: 1, label: "Hash Check" },
     { num: 2, label: "Read Text" },
     { num: 3, label: "Extract Data" },
     { num: 4, label: "Clinical Analysis" },
@@ -348,7 +339,7 @@ export const ReportUploadPage = () => {
             {uploading ? (
               <>
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                <span>Processing Document...</span>
+                <span>Checking Report Content...</span>
               </>
             ) : (
               <>
@@ -395,6 +386,56 @@ export const ReportUploadPage = () => {
           {t('mandatoryDisclaimer')}
         </p>
       </div>
+
+      {/* 4. DUPLICATE REPORT WARNING MODAL */}
+      <Modal
+        isOpen={isDuplicateModalOpen}
+        onClose={() => setIsDuplicateModalOpen(false)}
+        title="⚠️ Report Already Uploaded"
+      >
+        <div className="space-y-4 text-xs font-sans">
+          <div className="p-4 rounded-lg bg-amber-50 border border-amber-200 text-amber-950 space-y-2">
+            <div className="flex items-center gap-2 font-bold text-amber-900">
+              <AlertTriangle className="w-4 h-4 text-amber-700 shrink-0" />
+              <span>Duplicate Document Detected</span>
+            </div>
+            <p className="text-amber-900 font-normal leading-relaxed">
+              This medical report content has already been uploaded to your account.
+            </p>
+          </div>
+
+          {duplicateReportData && (
+            <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-1 text-slate-700">
+              <p><span className="font-semibold text-slate-500">Report Title:</span> <strong className="text-[#0F172A]">{formatReportTitle(duplicateReportData)}</strong></p>
+              <p><span className="font-semibold text-slate-500">Original File:</span> <strong className="text-slate-800">{duplicateReportData.file_name || duplicateReportData.fileName || 'Report.pdf'}</strong></p>
+              <p><span className="font-semibold text-slate-500">Uploaded Date:</span> <strong className="text-slate-800">{duplicateReportData.date || duplicateReportData.report_date || '17 Aug 2026'}</strong></p>
+            </div>
+          )}
+
+          <p className="text-slate-500 font-normal text-[11px]">
+            No duplicate laboratory measurements or medication reminders were created. You can view the existing report analysis directly.
+          </p>
+
+          <div className="flex justify-end gap-2 pt-2 border-t border-slate-200">
+            <button
+              onClick={() => {
+                setIsDuplicateModalOpen(false);
+                setSelectedFile(null);
+              }}
+              className="px-4 py-2 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs cursor-pointer"
+            >
+              Cancel
+            </button>
+
+            <button
+              onClick={handleViewExistingReport}
+              className="px-4 py-2 rounded-md bg-[#0F172A] hover:bg-[#1E293B] text-white font-semibold text-xs flex items-center gap-1.5 cursor-pointer"
+            >
+              <Eye className="w-3.5 h-3.5 text-[#0D9488]" /> View Existing Report
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       {/* Medication Verification Modal */}
       <Modal
