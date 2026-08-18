@@ -64,16 +64,20 @@ export const Header = ({ collapsed }) => {
         collapsed ? 'md:left-20' : 'md:left-64'
       } left-0`}
     >
-      {/* Left Title & Patient Context */}
+      {/* Left Title & Workspace Info */}
       <div className="flex items-center gap-2 min-w-0 flex-1">
         <div className="min-w-0">
-          <h1 className="text-sm sm:text-base font-bold text-[#0F172A] leading-tight truncate">
+          <h1 className="text-xs sm:text-base font-extrabold text-[#0F172A] leading-tight truncate tracking-tight">
             {getPageTitle(location.pathname)}
           </h1>
-          <p className="text-xs text-slate-500 hidden md:block truncate">
-            Patient: <span className="font-semibold text-slate-800">{displayName}</span>
+          <p className="text-[11px] font-medium text-slate-500 hidden md:block truncate mt-0.5">
+            {t('patient')}: <span className="font-bold text-[#1E293B]">{displayName}</span> • {t('clinicalWorkspace')}
           </p>
         </div>
+
+        <span className="hidden xl:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-[#0D9488] text-xs font-bold border border-slate-200/80">
+          <ShieldCheck className="w-3.5 h-3.5 text-[#0D9488]" /> {t('authenticatedSession')}
+        </span>
       </div>
 
       {/* Right Action Controls */}

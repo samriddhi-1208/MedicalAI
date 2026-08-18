@@ -4,21 +4,29 @@ import {
   Upload, 
   Building2, 
   Pill, 
+  ShieldCheck, 
   TrendingUp, 
   Edit2, 
   Plus, 
+  CheckCircle2, 
   Clock, 
   AlertTriangle,
-  Siren,
-  ArrowRight,
+  PauseCircle,
   Activity,
-  Check
+  Siren,
+  Sparkles,
+  ArrowRight,
+  HeartPulse
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
 import { getTranslation } from '../utils/translations';
 import { Card } from '../components/ui/Card';
+import { Button } from '../components/ui/Button';
+import { HealthMetricCard } from '../components/ui/HealthMetricCard';
+import { AIInsightCard } from '../components/ui/AIInsightCard';
+import { ReportCard } from '../components/ui/ReportCard';
 
 export const DashboardPage = () => {
   const navigate = useNavigate();
@@ -39,18 +47,21 @@ export const DashboardPage = () => {
   const [isEditingName, setIsEditingName] = useState(false);
   const [tempName, setTempName] = useState(displayName);
 
+  // User-specific reports array (0% Fake/Fallback Data!)
   const userReports = Array.isArray(reports) ? reports : [];
   const hasReports = userReports.length > 0;
   const latestReport = hasReports ? userReports[0] : null;
   const extractedBiomarkers = Array.isArray(latestReport?.biomarkers) ? latestReport.biomarkers : (Array.isArray(latestReport?.labResults) ? latestReport.labResults : []);
 
+  // User-specific medicines array (0% Fake/Fallback Data!)
   const userMedicines = Array.isArray(medicines) ? medicines : [];
 
+  // Time of day greeting
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 17) return 'Good afternoon';
-    return 'Good evening';
+    if (hour < 12) return t('goodMorning');
+    if (hour < 17) return t('goodAfternoon');
+    return t('goodEvening');
   };
 
   const saveName = () => {
@@ -61,304 +72,346 @@ export const DashboardPage = () => {
     setIsEditingName(false);
   };
 
-  // Helper to extract metric value by name or fallback
-  const findMetricValue = (keys, fallbackUnit = '') => {
-    if (!extractedBiomarkers.length) return null;
-    const match = extractedBiomarkers.find(b => {
-      const n = String(b.name || b.biomarker_name || b.testName || '').toLowerCase();
-      return keys.some(k => n.includes(k));
-    });
-    if (match) {
-      return `${match.value} ${match.unit || fallbackUnit}`;
-    }
-    return null;
-  };
-
-  const bpVal = findMetricValue(['bp', 'blood pressure'], 'mmHg') || (hasReports ? '118/78 mmHg' : null);
-  const hrVal = findMetricValue(['pulse', 'heart rate'], 'bpm') || (hasReports ? '72 bpm' : null);
-  const glucoseVal = findMetricValue(['glucose', 'sugar'], 'mg/dL') || (hasReports ? '95 mg/dL' : null);
-  const spo2Val = findMetricValue(['spo2', 'oxygen'], '%') || (hasReports ? '98%' : null);
-
   return (
-    <div className="space-y-6 pb-12 font-sans text-[#0F172A] max-w-7xl mx-auto">
+    <div className="space-y-6 pb-12 font-sans antialiased max-w-7xl mx-auto">
       
-      {/* Clean Dashboard Header */}
-      <div className="bg-white border border-slate-200 rounded-lg p-5 space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
-          <div className="space-y-0.5">
-            <h1 className="text-xl font-bold text-[#0F172A]">Dashboard</h1>
-            
+      {/* Patient Greeting & Header Bar */}
+      <Card className="p-6 bg-white border border-slate-200/90 shadow-2xs rounded-2xl space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1">
             {isEditingName ? (
-              <div className="flex items-center gap-2 pt-1">
+              <div className="flex items-center gap-3 my-1">
                 <input
                   type="text"
                   value={tempName}
                   onChange={(e) => setTempName(e.target.value)}
-                  className="px-2.5 py-1 text-xs border border-slate-300 rounded-md focus:outline-none focus:border-[#0D9488]"
+                  className="med-input text-base font-bold max-w-md"
                   autoFocus
                 />
                 <button
                   onClick={saveName}
-                  className="px-2.5 py-1 rounded-md bg-[#0F172A] text-white text-xs font-semibold"
+                  className="px-3.5 py-2 rounded-xl bg-[#0F172A] text-white text-xs font-bold hover:bg-[#1E293B] cursor-pointer"
                 >
-                  Save
+                  {t('save')}
                 </button>
                 <button
                   onClick={() => setIsEditingName(false)}
-                  className="px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 text-xs font-semibold"
+                  className="px-3.5 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200 cursor-pointer"
                 >
-                  Cancel
+                  {t('cancel')}
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-2">
-                <p className="text-sm font-semibold text-slate-800">
-                  {getGreeting()}, {displayName}.
-                </p>
+              <div className="flex items-center gap-3 flex-wrap">
+                <h1 className="text-2xl sm:text-2.5xl font-black text-[#0F172A] tracking-tight leading-snug">
+                  {getGreeting()}, {displayName}
+                </h1>
                 <button
-                  onClick={() => { setTempName(displayName); setIsEditingName(true); }}
-                  className="text-[11px] text-slate-500 hover:text-[#0D9488] font-medium flex items-center gap-1 cursor-pointer"
-                  title="Edit Name"
+                  onClick={() => {
+                    setTempName(displayName);
+                    setIsEditingName(true);
+                  }}
+                  className="px-2.5 py-1 rounded-lg bg-slate-50 text-slate-600 hover:bg-slate-100 text-[11px] font-bold transition-colors inline-flex items-center gap-1.5 border border-slate-200 cursor-pointer"
+                  title="Edit Patient Name"
                 >
-                  <Edit2 className="w-3 h-3" /> Edit
+                  <Edit2 className="w-3 h-3 text-[#0D9488]" /> {t('editName')}
                 </button>
               </div>
             )}
-            <p className="text-xs text-slate-500 font-normal">
-              Here's an overview of your recent health information.
+            <p className="text-xs font-medium text-slate-500">
+              Here's your health overview for today.
             </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0D9488] bg-slate-100 px-3.5 py-1.5 rounded-full border border-slate-200">
+              <ShieldCheck className="w-4 h-4 text-[#0D9488]" /> {t('medguardianActive')}
+            </span>
           </div>
         </div>
 
-        {/* Action Buttons Bar */}
-        <div className="flex flex-wrap items-center gap-2 pt-1">
+        {/* QUICK ACTIONS BAR */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2">
+          
           <button
             onClick={() => navigate('/app/upload')}
-            className="px-3.5 py-2 rounded-md bg-[#0F172A] hover:bg-[#1E293B] text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-2xs"
+            className="p-3 rounded-xl bg-slate-50 hover:bg-slate-100/90 border border-slate-200/90 text-left space-y-1 cursor-pointer transition-all hover:scale-[1.01] min-h-[60px] w-full min-w-0"
           >
-            <Upload className="w-3.5 h-3.5 text-[#0D9488]" /> Upload Report
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#0F172A] text-white flex items-center justify-center shrink-0">
+                <Upload className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#0D9488]" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <span className="block text-[11px] sm:text-xs font-extrabold text-[#0F172A] truncate">{t('uploadReportTitle')}</span>
+                <span className="block text-[10px] font-medium text-slate-500 truncate">{t('analyzeReportSub')}</span>
+              </div>
+            </div>
           </button>
 
           <button
             onClick={() => navigate('/app/hospitals')}
-            className="px-3.5 py-2 rounded-md bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-2xs"
+            className="p-3 rounded-xl bg-slate-50 hover:bg-slate-100/90 border border-slate-200/90 text-left space-y-1 cursor-pointer transition-all hover:scale-[1.01] min-h-[60px] w-full min-w-0"
           >
-            <Building2 className="w-3.5 h-3.5 text-[#0D9488]" /> Find Hospital
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#0F172A] text-white flex items-center justify-center shrink-0">
+                <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#0D9488]" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <span className="block text-[11px] sm:text-xs font-extrabold text-[#0F172A] truncate">{t('findHospitalTitle')}</span>
+                <span className="block text-[10px] font-medium text-slate-500 truncate">{t('nearbyCareSub')}</span>
+              </div>
+            </div>
           </button>
 
           <button
             onClick={() => navigate('/app/medicines')}
-            className="px-3.5 py-2 rounded-md bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-2xs"
+            className="p-3 rounded-xl bg-slate-50 hover:bg-slate-100/90 border border-slate-200/90 text-left space-y-1 cursor-pointer transition-all hover:scale-[1.01] min-h-[60px] w-full min-w-0"
           >
-            <Pill className="w-3.5 h-3.5 text-[#0D9488]" /> Medicines
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#0F172A] text-white flex items-center justify-center shrink-0">
+                <Pill className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#0D9488]" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <span className="block text-[11px] sm:text-xs font-extrabold text-[#0F172A] truncate">{t('medicinesTitle')}</span>
+                <span className="block text-[10px] font-medium text-slate-500 truncate">{t('todaysScheduleSub')}</span>
+              </div>
+            </div>
           </button>
 
           <button
             onClick={() => navigate('/app/sos')}
-            className="px-3.5 py-2 rounded-md bg-red-600 hover:bg-red-700 text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-2xs ml-auto"
+            className="p-3 rounded-xl bg-rose-50/80 hover:bg-rose-100/80 border border-rose-200/90 text-left space-y-1 cursor-pointer transition-all hover:scale-[1.01] min-h-[60px] w-full min-w-0"
           >
-            <Siren className="w-3.5 h-3.5" /> Emergency SOS
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#DC2626] text-white flex items-center justify-center shrink-0">
+                <Siren className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <span className="block text-[11px] sm:text-xs font-extrabold text-rose-900 truncate">{t('emergencySOSTitle')}</span>
+                <span className="block text-[10px] font-medium text-rose-700 truncate">{t('urgentAssistSub')}</span>
+              </div>
+            </div>
           </button>
+
         </div>
-      </div>
+      </Card>
 
       {/* Loading State */}
       {loadingData && (
-        <div className="p-6 text-center bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-600 space-y-2">
-          <div className="w-6 h-6 border-2 border-[#0F172A] border-t-transparent rounded-full animate-spin mx-auto" />
-          <p>Loading health information...</p>
+        <Card className="p-8 text-center bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-3">
+          <div className="w-8 h-8 border-4 border-[#0F172A] border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-xs font-bold text-[#0F172A]">{t('loadingMedicalData')}</p>
+        </Card>
+      )}
+
+      {/* API Error State */}
+      {apiError && !loadingData && (
+        <Card className="p-6 bg-rose-50 border border-rose-200 rounded-2xl text-center space-y-2 text-rose-900 text-xs">
+          <AlertTriangle className="w-6 h-6 text-[#DC2626] mx-auto" />
+          <p className="font-bold">{t('unableToLoadMedicalData')}</p>
+        </Card>
+      )}
+
+      {/* 8. EMPTY DASHBOARD STATE FOR NEW USER (0 REPORTS) */}
+      {!hasReports && !loadingData && (
+        <Card className="p-8 sm:p-10 text-center bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-4 max-w-2xl mx-auto my-4">
+          <div className="w-14 h-14 rounded-2xl bg-slate-100 text-[#0D9488] flex items-center justify-center mx-auto border border-slate-200">
+            <FileText className="w-7 h-7 text-[#0D9488]" />
+          </div>
+          
+          <div className="space-y-1.5 max-w-lg mx-auto">
+            <h2 className="text-xl font-extrabold text-[#0F172A] tracking-tight">
+              {t('yourDashboardReady')}
+            </h2>
+            <p className="text-xs text-slate-500 font-normal leading-relaxed">
+              {t('uploadFirstReportSub')}
+            </p>
+          </div>
+
+          <div className="pt-2">
+            <Button
+              variant="primary"
+              size="md"
+              icon={Upload}
+              onClick={() => navigate('/app/upload')}
+              className="bg-[#0F172A] hover:bg-[#1E293B] py-3 px-8 text-xs font-bold rounded-xl cursor-pointer shadow-2xs"
+            >
+              {t('uploadMedicalReport')}
+            </Button>
+          </div>
+        </Card>
+      )}
+
+      {/* 7. HEALTH METRICS SECTION (EXTRACTED PARAMETERS SHOWN FOR RETURNING USERS) */}
+      {hasReports && !loadingData && (
+        <div className="space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <h2 className="text-base font-extrabold text-[#0F172A] tracking-tight">Health Metrics</h2>
+              <p className="text-xs text-slate-500 font-medium mt-0.5">
+                Based on your most recent uploaded report ({latestReport?.title || latestReport?.fileName || 'Medical Report'} — <span className="font-bold text-slate-800">{latestReport?.date || latestReport?.report_date || 'Recent'}</span>)
+              </p>
+            </div>
+
+            <button 
+              onClick={() => navigate('/app/analysis')}
+              className="text-xs font-bold text-[#0D9488] hover:underline flex items-center gap-1 cursor-pointer shrink-0"
+            >
+              <span>{t('viewAllTrends')}</span> <TrendingUp className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {extractedBiomarkers.length > 0 ? (
+              extractedBiomarkers.map((bm, index) => {
+                const statusVal = bm.status || bm.status_flag || 'Normal';
+                const isWarning = String(statusVal).toLowerCase().includes('high') || String(statusVal).toLowerCase().includes('low') || String(statusVal).toLowerCase().includes('warning') || String(statusVal).toLowerCase().includes('borderline');
+                
+                return (
+                  <HealthMetricCard 
+                    key={bm.id || index}
+                    name={bm.name || bm.testName || bm.biomarker_name}
+                    value={bm.value}
+                    unit={bm.unit}
+                    status={statusVal}
+                    statusType={isWarning ? 'warning' : 'normal'}
+                    statusSymbol={String(statusVal).toLowerCase().includes('high') ? '▲' : String(statusVal).toLowerCase().includes('low') ? '▼' : '✓'}
+                    refRange={bm.refRange || bm.referenceRange || bm.reference_range || 'Standard'}
+                    trend="stable"
+                  />
+                );
+              })
+            ) : (
+              <div className="col-span-4 p-4 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-500 font-medium text-center">
+                Report parsed successfully. View full diagnostic analysis.
+              </div>
+            )}
+          </div>
         </div>
       )}
 
-      {/* Health Metrics Section */}
-      <div className="space-y-3">
-        <div>
-          <h2 className="text-sm font-bold text-[#0F172A]">Health Metrics</h2>
-          <p className="text-xs text-slate-500 font-normal">
-            {hasReports 
-              ? `Source: Extracted from ${latestReport?.title || latestReport?.file_name || 'latest medical report'} (${latestReport?.date || latestReport?.report_date || 'Recent'})`
-              : 'No medical report data uploaded yet.'}
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-1">
-            <span className="text-xs font-medium text-slate-500 block">Blood Pressure</span>
-            <span className="text-base font-bold text-[#0F172A] block">
-              {bpVal || <span className="text-xs text-slate-400 font-normal">No recent value available</span>}
-            </span>
-          </div>
-
-          <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-1">
-            <span className="text-xs font-medium text-slate-500 block">Heart Rate</span>
-            <span className="text-base font-bold text-[#0F172A] block">
-              {hrVal || <span className="text-xs text-slate-400 font-normal">No recent value available</span>}
-            </span>
-          </div>
-
-          <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-1">
-            <span className="text-xs font-medium text-slate-500 block">Blood Glucose</span>
-            <span className="text-base font-bold text-[#0F172A] block">
-              {glucoseVal || <span className="text-xs text-slate-400 font-normal">No recent value available</span>}
-            </span>
-          </div>
-
-          <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-1">
-            <span className="text-xs font-medium text-slate-500 block">SpO2</span>
-            <span className="text-base font-bold text-[#0F172A] block">
-              {spo2Val || <span className="text-xs text-slate-400 font-normal">No recent value available</span>}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Grid: Report Summary Panel + Today's Medicines Table */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+      {/* Main Grid: AI Insights + Today's Medicines Widget + Recent Reports */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
-        {/* Left Column (7 cols): Latest Report Analysis & Today's Medicines */}
-        <div className="lg:col-span-7 space-y-5">
+        {/* Left 7 columns: AI Insights & Today's Medicines */}
+        <div className="lg:col-span-7 space-y-6">
           
-          {/* Latest Report Analysis Panel */}
-          {hasReports && (
-            <div className="bg-white border border-slate-200 rounded-lg p-5 space-y-3">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                <h3 className="text-sm font-bold text-[#0F172A]">Latest Report Analysis</h3>
-                <span className="text-xs text-slate-500 font-medium">
-                  {latestReport?.date || latestReport?.report_date || 'Recent'}
-                </span>
-              </div>
+          {/* AI Insights Card */}
+          {hasReports ? (
+            <AIInsightCard 
+              title={t('aiInsights')}
+              summary={latestReport?.aiSummary || latestReport?.clinicalSummary || t('noUploadedReports')}
+              severity={extractedBiomarkers.some(b => String(b.status).toLowerCase().includes('high') || String(b.status).toLowerCase().includes('low')) ? "warning" : "normal"}
+              onViewDetails={() => navigate('/app/analysis')}
+            />
+          ) : null}
 
-              <p className="text-xs text-slate-700 font-normal leading-relaxed">
-                {latestReport?.aiSummary || "Your uploaded medical report was analyzed successfully."}
-              </p>
-
-              <div className="p-3 bg-slate-50 border border-slate-200 rounded-md text-xs space-y-1 font-medium text-slate-700">
-                <p>• {extractedBiomarkers.length > 0 ? `${extractedBiomarkers.length} lab values detected` : 'Lab values processed'}</p>
-                <p>• {userMedicines.length > 0 ? `${userMedicines.length} medications detected` : 'Prescription instructions parsed'}</p>
-                <p>• {extractedBiomarkers.some(b => String(b.status).toLowerCase().includes('high') || String(b.status).toLowerCase().includes('low')) ? 'Out-of-range parameters identified for review' : 'No critical abnormalities detected'}</p>
-              </div>
-
-              <div className="pt-1">
-                <button
-                  onClick={() => navigate('/app/analysis')}
-                  className="px-3.5 py-1.5 rounded-md bg-[#0F172A] hover:bg-[#1E293B] text-white text-xs font-semibold cursor-pointer inline-flex items-center gap-1.5"
-                >
-                  View Full Analysis <ArrowRight className="w-3.5 h-3.5 text-[#0D9488]" />
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Today's Medicines Table */}
-          <div className="bg-white border border-slate-200 rounded-lg p-5 space-y-3">
+          {/* TODAY'S MEDICINES DASHBOARD WIDGET */}
+          <Card className="p-5 space-y-4 bg-white border border-slate-200/90 rounded-2xl shadow-2xs">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-[#0F172A]">Today's Medicines</h3>
+              <h3 className="text-base font-extrabold text-[#0F172A] flex items-center gap-2">
+                <Pill className="w-4.5 h-4.5 text-[#0D9488]" />
+                {t('todaysMedicines')}
+              </h3>
+
               <button
                 onClick={() => navigate('/app/medicines')}
-                className="text-xs font-semibold text-[#0D9488] hover:underline cursor-pointer"
+                className="text-xs font-bold text-[#0D9488] hover:underline flex items-center gap-1 cursor-pointer"
               >
-                + Add Medicine
+                <Plus className="w-3.5 h-3.5" /> {t('addMedicine')}
               </button>
             </div>
 
             {userMedicines.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs border-collapse">
-                  <thead>
-                    <tr className="border-b border-slate-200 text-slate-500 font-semibold bg-slate-50">
-                      <th className="py-2 px-3">Medicine</th>
-                      <th className="py-2 px-3">Dosage</th>
-                      <th className="py-2 px-3">Time</th>
-                      <th className="py-2 px-3">Status</th>
-                      <th className="py-2 px-3 text-right">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 font-normal text-slate-800">
-                    {userMedicines.map((m) => (
-                      <tr key={m.id} className="hover:bg-slate-50/80">
-                        <td className="py-2.5 px-3 font-semibold text-[#0F172A]">{m.name}</td>
-                        <td className="py-2.5 px-3 text-slate-600">{m.dose || m.dosage || '1 tablet'}</td>
-                        <td className="py-2.5 px-3 text-slate-600">{m.scheduledTime || m.time || '08:00 AM'}</td>
-                        <td className="py-2.5 px-3">
-                          <span className={`px-2 py-0.5 rounded text-[11px] font-semibold ${
-                            m.taken ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-700 border border-slate-200'
-                          }`}>
-                            {m.taken ? 'Taken' : m.isPaused ? 'Paused' : 'Scheduled'}
-                          </span>
-                        </td>
-                        <td className="py-2.5 px-3 text-right">
-                          <button
-                            onClick={() => toggleMedicineTaken(m.id)}
-                            className={`px-2.5 py-1 rounded text-[11px] font-semibold cursor-pointer ${
-                              m.taken ? 'bg-slate-100 text-slate-600' : 'bg-[#0F172A] text-white hover:bg-[#1E293B]'
-                            }`}
-                          >
-                            {m.taken ? 'Logged' : 'Mark as Taken'}
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <div className="p-5 text-center bg-slate-50 border border-slate-200 rounded-md text-xs text-slate-500 space-y-2">
-                <p>No medication reminders added yet.</p>
-                <button
-                  onClick={() => navigate('/app/medicines')}
-                  className="px-3 py-1.5 rounded-md bg-white border border-slate-300 text-slate-800 font-semibold cursor-pointer"
-                >
-                  Add Medicine Reminder
-                </button>
-              </div>
-            )}
-          </div>
-
-        </div>
-
-        {/* Right Column (5 cols): Recent Medical Reports List */}
-        <div className="lg:col-span-5 space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-[#0F172A]">Recent Medical Reports</h3>
-            <button
-              onClick={() => navigate('/app/upload')}
-              className="text-xs font-semibold text-[#0D9488] hover:underline cursor-pointer"
-            >
-              + Upload Report
-            </button>
-          </div>
-
-          <div className="bg-white border border-slate-200 rounded-lg overflow-hidden">
-            {hasReports ? (
-              <div className="divide-y divide-slate-100 text-xs">
-                {userReports.map((r) => (
-                  <div key={r.id} className="p-3.5 hover:bg-slate-50 flex items-center justify-between gap-3">
-                    <div className="min-w-0 space-y-0.5">
-                      <p className="font-bold text-[#0F172A] truncate">{r.title || r.file_name || 'Lab Report'}</p>
-                      <p className="text-[11px] text-slate-500 truncate">
-                        {r.labName || r.lab_name || 'Diagnostic Center'} • {r.date || r.report_date || 'Recent'}
-                      </p>
+              <div className="space-y-3">
+                {userMedicines.map((med) => (
+                  <div key={med.id} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-3 text-xs">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-[#0F172A] font-bold shrink-0">
+                        <Clock className="w-4 h-4 text-[#0D9488]" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-extrabold text-[#0F172A] text-sm">{med.name}</h4>
+                          <span className="text-[11px] text-slate-500 font-medium">({med.dose || med.dosage})</span>
+                        </div>
+                        <p className="text-[11px] text-slate-500 font-medium">
+                          🕒 {med.scheduledTime || med.time} • {med.mealRelation} ({med.mealType})
+                        </p>
+                      </div>
                     </div>
 
-                    <button
-                      onClick={() => navigate('/app/analysis')}
-                      className="px-2.5 py-1 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-[11px] shrink-0 cursor-pointer"
-                    >
-                      View
-                    </button>
+                    <div className="flex items-center gap-2">
+                      {med.isPaused ? (
+                        <span className="px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 text-[11px] font-bold border border-amber-200 inline-flex items-center gap-1">
+                          <PauseCircle className="w-3 h-3 text-amber-600" /> Paused
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => toggleMedicineTaken(med.id)}
+                          className={`px-3.5 py-1.5 rounded-xl font-bold text-[11px] transition-all cursor-pointer ${
+                            med.taken 
+                              ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' 
+                              : 'bg-[#0F172A] text-white hover:bg-[#1E293B]'
+                          }`}
+                        >
+                          {med.taken ? t('logged') : t('markAsTaken')}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="p-6 text-center text-xs text-slate-500 space-y-2">
-                <p>No medical reports uploaded yet.</p>
-                <button
-                  onClick={() => navigate('/app/upload')}
-                  className="px-3 py-1.5 rounded-md bg-[#0F172A] text-white font-semibold cursor-pointer"
+              <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200/80 text-center space-y-3">
+                <Pill className="w-8 h-8 text-slate-400 mx-auto" />
+                <p className="text-xs text-slate-600 font-medium">{t('noMedicineRemindersYet')}</p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  icon={Plus}
+                  onClick={() => navigate('/app/medicines')}
+                  className="rounded-xl border-slate-200 text-xs font-semibold cursor-pointer"
                 >
-                  Upload First Report
-                </button>
+                  {t('addMedicine')}
+                </Button>
               </div>
+            )}
+          </Card>
+
+        </div>
+
+        {/* Right 5 columns: Recent Medical Reports */}
+        <div className="lg:col-span-5 space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-base font-extrabold text-[#0F172A]">{t('recentMedicalReports')}</h3>
+            <button 
+              onClick={() => navigate('/app/upload')}
+              className="text-xs font-bold text-[#0D9488] hover:underline flex items-center gap-1 cursor-pointer"
+            >
+              <span>{t('uploadNew')}</span> <Upload className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            {hasReports ? (
+              userReports.map((report) => (
+                <ReportCard key={report.id} report={report} />
+              ))
+            ) : (
+              <Card className="p-6 text-center bg-slate-50 border border-slate-200/80 rounded-2xl text-slate-500 text-xs space-y-3">
+                <FileText className="w-8 h-8 text-slate-400 mx-auto" />
+                <p className="font-normal text-slate-600">{t('noUploadedReports')}</p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  icon={Upload}
+                  onClick={() => navigate('/app/upload')}
+                  className="rounded-xl border-slate-200 text-xs font-semibold cursor-pointer"
+                >
+                  {t('uploadReport')}
+                </Button>
+              </Card>
             )}
           </div>
         </div>

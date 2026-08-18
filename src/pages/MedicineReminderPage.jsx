@@ -313,94 +313,114 @@ export const MedicineReminderPage = () => {
                   med.taken ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-[#0F172A]'
                 }`} />
 
-                <div className={`p-4 space-y-3 bg-white border rounded-lg transition-all w-full min-w-0 ${
-                  med.isPaused ? 'border-amber-300 bg-amber-50/10' : 'border-slate-200'
+                <Card className={`p-4 sm:p-5 space-y-3 bg-white border rounded-2xl shadow-2xs transition-all w-full min-w-0 ${
+                  med.isPaused ? 'border-amber-200 opacity-80 bg-amber-50/20' : 'border-slate-200/90'
                 }`}>
                   
-                  {/* Top Row: Time, Name, Dose, Actions */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+                  {/* Top Row: Time, Name, Dose, Source Tag, Edit/Delete Actions */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-slate-100 pb-3">
                     <div className="flex items-center gap-2.5 flex-wrap">
-                      <span className="px-2.5 py-1 rounded-md bg-slate-100 font-semibold text-xs text-[#0F172A] border border-slate-200 flex items-center gap-1.5 shrink-0">
+                      <span className="px-2.5 py-1 rounded-xl bg-slate-100 font-black text-[11px] sm:text-xs text-[#0F172A] border border-slate-200/80 flex items-center gap-1.5 shrink-0">
                         <Clock className="w-3.5 h-3.5 text-[#0D9488]" />
                         {med.scheduledTime || med.time || '08:00 AM'}
                       </span>
 
                       <div className="flex items-center gap-2 flex-wrap min-w-0">
-                        <h3 className="text-sm font-bold text-[#0F172A] truncate">💊 {med.name}</h3>
-                        <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-xs font-medium border border-slate-200 shrink-0">
+                        <h3 className="text-sm sm:text-base font-black text-[#0F172A] truncate">💊 {med.name}</h3>
+                        <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[11px] font-bold border border-slate-200 shrink-0">
                           {med.dose || med.dosage || '1 tablet'}
                         </span>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-1 shrink-0">
+                    <div className="flex items-center gap-1 shrink-0 self-end sm:self-auto">
                       <button
                         onClick={() => handleOpenEdit(med)}
-                        className="p-1.5 text-slate-500 hover:text-[#0F172A] rounded-md hover:bg-slate-100 transition-colors cursor-pointer"
-                        title="Edit medication"
+                        className="p-1.5 text-slate-400 hover:text-[#0F172A] rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+                        title="Edit medication schedule"
                       >
-                        <Edit2 className="w-3.5 h-3.5" />
+                        <Edit2 className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => deleteMedicine(med.id)}
-                        className="p-1.5 text-slate-400 hover:text-red-600 rounded-md hover:bg-red-50 transition-colors cursor-pointer"
+                        className="p-1.5 text-slate-400 hover:text-[#DC2626] rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
                         title="Delete medication"
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
 
-                  {/* Attribute Grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-xs p-2.5 rounded-md bg-slate-50 border border-slate-200">
+                  {/* Schedule Attribute Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-xs p-3 rounded-xl bg-slate-50 border border-slate-200/80">
                     <div>
                       <span className="text-slate-500 block">Frequency</span>
-                      <strong className="text-[#0F172A] font-medium">{med.frequency || 'Once daily'}</strong>
+                      <strong className="text-[#0F172A] font-bold">{med.frequency || 'Once daily'}</strong>
                     </div>
                     <div>
                       <span className="text-slate-500 block">Meal Relation</span>
-                      <strong className="text-slate-800 font-medium">{med.mealRelation || 'After meal'} ({med.mealType || 'Lunch'})</strong>
+                      <strong className="text-slate-800 font-bold">{med.mealRelation || 'After meal'} ({med.mealType || 'Lunch'})</strong>
                     </div>
                     <div>
-                      <span className="text-slate-500 block">Remaining Doses</span>
-                      <strong className="text-slate-800 font-medium">{med.pillsRemaining ?? med.pills_remaining ?? 30} doses</strong>
+                      <span className="text-slate-500 block">Duration / Supply</span>
+                      <strong className="text-slate-800 font-bold">{med.pillsRemaining ?? med.pills_remaining ?? 30} doses left</strong>
                     </div>
                     <div>
-                      <span className="text-slate-500 block">Indication</span>
-                      <strong className="text-[#0D9488] font-medium">{med.purpose || 'Prescription'}</strong>
+                      <span className="text-slate-500 block">Indication / Purpose</span>
+                      <strong className="text-[#0D9488] font-bold">{med.purpose || 'Prescription'}</strong>
                     </div>
                   </div>
 
-                  {/* Actions Row */}
-                  <div className="flex items-center justify-between pt-1 text-xs">
-                    <span className={`px-2 py-0.5 rounded text-xs font-semibold ${
-                      med.taken ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200'
+                  {/* REQUIREMENT 17: MEDICATION SOURCE DISCLOSURE */}
+                  <div className="flex items-center justify-between text-[11px] text-slate-500 font-medium">
+                    <span className="inline-flex items-center gap-1 text-slate-600">
+                      <FileText className="w-3.5 h-3.5 text-[#0D9488]" /> Source: <strong className="text-slate-800 font-bold">{med.sourceTitle || 'Prescription Schedule'}</strong>
+                    </span>
+
+                    {med.instructions && (
+                      <span className="text-slate-500 truncate max-w-xs">
+                        Instructions: {med.instructions}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Actions Row: Status Badge, Pause/Resume, Mark as Taken */}
+                  <div className="flex items-center justify-between pt-1">
+                    <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
+                      med.taken ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'
                     }`}>
-                      Status: {med.taken ? 'Logged' : med.isPaused ? 'Paused' : 'Scheduled'}
+                      Status: {med.taken ? 'Logged' : med.isPaused ? 'Paused' : 'Upcoming'}
                     </span>
 
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => toggleMedicinePause(med.id)}
-                        className="px-2.5 py-1 rounded-md text-xs font-semibold border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 cursor-pointer flex items-center gap-1"
+                        className={`px-3 py-1.5 rounded-xl font-bold text-xs border transition-colors cursor-pointer flex items-center gap-1 ${
+                          med.isPaused 
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100' 
+                            : 'bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100'
+                        }`}
                       >
-                        {med.isPaused ? <PlayCircle className="w-3.5 h-3.5 text-emerald-600" /> : <PauseCircle className="w-3.5 h-3.5 text-slate-500" />}
+                        {med.isPaused ? <PlayCircle className="w-3.5 h-3.5" /> : <PauseCircle className="w-3.5 h-3.5" />}
                         {med.isPaused ? 'Resume' : 'Pause'}
                       </button>
 
-                      <button
+                      <Button
+                        variant={med.taken ? 'emerald' : 'primary'}
+                        size="sm"
+                        icon={med.taken ? Check : Pill}
                         disabled={med.isPaused}
-                        onClick={() => toggleMedicineTaken(med.id)}
-                        className={`px-3 py-1 rounded-md text-xs font-semibold cursor-pointer ${
-                          med.taken ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-[#0F172A] hover:bg-[#1E293B] text-white'
+                        className={`text-xs font-bold rounded-xl cursor-pointer ${
+                          med.taken ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-[#0F172A] hover:bg-[#1E293B] text-white'
                         }`}
+                        onClick={() => toggleMedicineTaken(med.id)}
                       >
-                        {med.taken ? 'Logged' : t('markAsTaken')}
-                      </button>
+                        {med.taken ? t('logged') : t('markAsTaken')}
+                      </Button>
                     </div>
                   </div>
 
-                </div>
+                </Card>
               </div>
             ))}
           </div>
