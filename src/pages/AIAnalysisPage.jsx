@@ -21,7 +21,8 @@ import {
   ChevronUp,
   Activity,
   Pill,
-  HeartPulse
+  HeartPulse,
+  Plus
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
@@ -33,11 +34,10 @@ import { Modal } from '../components/ui/Modal';
 
 export const AIAnalysisPage = () => {
   const navigate = useNavigate();
-  const { reports, activeReportId, setActiveReportId, userProfile, language } = useHealthData();
+  const { reports, activeReportId, setActiveReportId, userProfile, language, addMedicine } = useHealthData();
   const t = (key) => getTranslation(language, key);
 
   const [viewOriginalModal, setViewOriginalModal] = useState(false);
-  const [expandedSources, setExpandedSources] = useState({});
 
   const userReports = Array.isArray(reports) ? reports : [];
   const [selectedReportId, setSelectedReportId] = useState(() => activeReportId || userReports[0]?.id);
@@ -50,10 +50,6 @@ export const AIAnalysisPage = () => {
     }
   }, [activeReportId, reports?.length]);
 
-  const toggleSource = (idx) => {
-    setExpandedSources(prev => ({ ...prev, [idx]: !prev[idx] }));
-  };
-
   const selectedReport = userReports.find(r => String(r.id) === String(selectedReportId)) || userReports[0] || null;
 
   if (!selectedReport) {
@@ -64,7 +60,7 @@ export const AIAnalysisPage = () => {
             <FileText className="w-8 h-8 text-slate-400" />
           </div>
           <div className="space-y-1.5 max-w-md mx-auto">
-            <h2 className="text-xl font-extrabold text-[#1A4B84]">{t('noUploadedReports')}</h2>
+            <h2 className="text-xl font-extrabold text-[#0F172A]">{t('noUploadedReports')}</h2>
             <p className="text-xs text-slate-500 font-normal">
               {t('uploadSubtitle')}
             </p>
@@ -75,7 +71,7 @@ export const AIAnalysisPage = () => {
               size="md"
               icon={Upload}
               onClick={() => navigate('/app/upload')}
-              className="bg-[#1A4B84] hover:bg-[#143A66] py-3 px-8 text-xs font-bold rounded-xl cursor-pointer"
+              className="bg-[#0F172A] hover:bg-[#1E293B] py-3 px-8 text-xs font-bold rounded-xl cursor-pointer"
             >
               {t('uploadMedicalReport')}
             </Button>
@@ -100,6 +96,18 @@ export const AIAnalysisPage = () => {
       );
     }
     return raw;
+  };
+
+  const handleAddMedToSchedule = (med) => {
+    addMedicine({
+      name: med.medicineName || med.name,
+      dose: med.dose || med.strength || '1 tablet',
+      frequency: med.frequency || 'Once daily',
+      scheduled_time: med.timing || '08:00 AM',
+      meal_relation: med.mealRelation || 'After meal',
+      source_title: selectedReport.title || 'Extracted Prescription'
+    });
+    toast.success(`${med.medicineName || med.name} added to your daily schedule!`);
   };
 
   return (
@@ -213,15 +221,123 @@ export const AIAnalysisPage = () => {
         </p>
       </Card>
 
-      {/* Vital Signs Grid (If extracted) */}
+      {/* EXTRACTED CLINICAL ENTITIES SUMMARY BADGE STRIP */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="p-4 rounded-2xl bg-teal-50 border border-teal-200/90 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-teal-600 text-white flex items-center justify-center font-black">
+              <Pill className="w-5 h-5" />
+            </div>
+            <div>
+              <span className="text-xs text-teal-800 font-bold block">Prescribed Medications</span>
+              <strong className="text-lg font-black text-[#0F172A]">{medications.length} Doses Identified</strong>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-sky-50 border border-sky-200/90 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-sky-600 text-white flex items-center justify-center font-black">
+              <Activity className="w-5 h-5" />
+            </div>
+            <div>
+              <span className="text-xs text-sky-800 font-bold block">Lab Biomarkers</span>
+              <strong className="text-lg font-black text-[#0F172A]">{biomarkers.length} Parameters Parsed</strong>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-indigo-50 border border-indigo-200/90 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-black">
+              <HeartPulse className="w-5 h-5" />
+            </div>
+            <div>
+              <span className="text-xs text-indigo-800 font-bold block">Vital Signs</span>
+              <strong className="text-lg font-black text-[#0F172A]">{vitals.length} Vitals Recorded</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 1. EXTRACTED MEDICATIONS & PRESCRIPTION INSTRUCTIONS (PRIORITY DISPLAY) */}
+      {medications.length > 0 && (
+        <Card className="p-5 sm:p-6 bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-4">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <h3 className="text-base font-black text-[#0F172A] flex items-center gap-2">
+              <Pill className="w-5 h-5 text-[#0D9488]" />
+              Extracted Prescription & Medication Findings ({medications.length})
+            </h3>
+            <button
+              onClick={() => navigate('/app/medicines')}
+              className="text-xs font-bold text-[#0D9488] hover:underline flex items-center gap-1 cursor-pointer"
+            >
+              View Medicine Schedule <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {medications.map((m, idx) => (
+              <div key={idx} className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3 text-xs">
+                <div className="flex justify-between items-start gap-2">
+                  <div>
+                    <h4 className="font-black text-sm text-[#0F172A] flex items-center gap-1.5">
+                      <span>💊</span> {m.medicineName || m.name}
+                    </h4>
+                    {m.genericName && (
+                      <p className="text-[11px] text-slate-500 font-medium mt-0.5">Generic: {m.genericName}</p>
+                    )}
+                  </div>
+                  <span className="px-3 py-1 rounded-full bg-teal-100 text-teal-800 font-black text-xs shrink-0">
+                    {m.dose || m.strength || '1 tablet'}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-xs p-3 rounded-xl bg-white border border-slate-200">
+                  <div>
+                    <span className="text-slate-500 block text-[11px]">Frequency</span>
+                    <strong className="text-slate-800 font-bold">{m.frequency || 'Once daily'}</strong>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 block text-[11px]">Timing & Meal</span>
+                    <strong className="text-[#0D9488] font-bold">{m.mealRelation || 'After meal'} ({m.timing || '08:00 AM'})</strong>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 block text-[11px]">Duration</span>
+                    <strong className="text-slate-800 font-bold">{m.duration || '5 days'}</strong>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 block text-[11px]">Source</span>
+                    <strong className="text-slate-700 font-bold truncate block">{selectedReport.title || 'Prescription'}</strong>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-[11px] text-slate-500 font-medium">
+                    {m.specialInstructions || 'Extracted directly from document text'}
+                  </span>
+                  <button
+                    onClick={() => handleAddMedToSchedule(m)}
+                    className="px-3 py-1 rounded-lg bg-[#0F172A] text-white hover:bg-[#1E293B] font-bold text-[11px] flex items-center gap-1 cursor-pointer"
+                  >
+                    <Plus className="w-3 h-3" /> Add Schedule
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+
+      {/* 2. Vital Signs Grid (If extracted) */}
       {vitals.length > 0 && (
         <Card className="p-5 bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-3">
           <h3 className="text-sm font-black text-[#0F172A] flex items-center gap-2">
-            <HeartPulse className="w-4.5 h-4.5 text-[#0D9488]" /> Vital Signs
+            <HeartPulse className="w-4.5 h-4.5 text-[#0D9488]" /> Extracted Vital Signs ({vitals.length})
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
             {vitals.map((v, i) => (
-              <div key={i} className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-center space-y-1">
+              <div key={i} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-center space-y-1">
                 <span className="text-slate-500 font-medium block truncate">{v.name}</span>
                 <span className="text-base sm:text-lg font-black text-[#0F172A]">
                   {v.value} <span className="text-xs font-bold text-slate-600">{v.unit}</span>
@@ -232,7 +348,7 @@ export const AIAnalysisPage = () => {
         </Card>
       )}
 
-      {/* Extracted Lab Results Table */}
+      {/* 3. Extracted Lab Results Table */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-base font-black text-[#0F172A]">{t('individualBiomarkerFindings')}</h3>
@@ -241,71 +357,56 @@ export const AIAnalysisPage = () => {
           </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-          {biomarkers.map((bm, idx) => {
-            const isNormal = String(bm.status || bm.statusType).toLowerCase() === 'normal';
+        {biomarkers.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+            {biomarkers.map((bm, idx) => {
+              const isNormal = String(bm.status || bm.statusType).toLowerCase() === 'normal';
 
-            return (
-              <Card key={idx} className="p-4 bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h4 className="font-black text-sm text-[#0F172A]">{bm.name || bm.biomarker_name}</h4>
-                    <p className="text-slate-500 font-medium mt-0.5">Category: {bm.category || 'Clinical Diagnostic'}</p>
-                  </div>
+              return (
+                <Card key={idx} className="p-4 bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <h4 className="font-black text-sm text-[#0F172A]">{bm.name || bm.biomarker_name}</h4>
+                      <p className="text-slate-500 font-medium mt-0.5">Category: {bm.category || 'Clinical Diagnostic'}</p>
+                    </div>
 
-                  <span className={`px-2.5 py-1 rounded-full font-extrabold text-xs shrink-0 flex items-center gap-1 ${
-                    isNormal ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
-                  }`}>
-                    <span>{bm.statusSymbol || (isNormal ? '✓' : '▲')}</span>
-                    <span>{bm.status || 'Normal'}</span>
-                  </span>
-                </div>
-
-                <div className="flex items-baseline justify-between p-3 rounded-xl bg-slate-50 border border-slate-200">
-                  <div>
-                    <span className="text-xs font-bold text-slate-500 block">Measured Value</span>
-                    <span className="text-base sm:text-lg font-black text-[#0F172A]">
-                      {bm.value} <span className="text-xs font-bold text-slate-600">{bm.unit}</span>
+                    <span className={`px-2.5 py-1 rounded-full font-extrabold text-xs shrink-0 flex items-center gap-1 ${
+                      isNormal ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                    }`}>
+                      <span>{bm.statusSymbol || (isNormal ? '✓' : '▲')}</span>
+                      <span>{bm.status || 'Normal'}</span>
                     </span>
                   </div>
 
-                  <div className="text-right">
-                    <span className="text-xs font-bold text-slate-500 block">Reference Range</span>
-                    <span className="text-xs font-bold text-slate-700">{bm.refRange || bm.referenceRange || bm.reference_range || 'N/A'}</span>
-                  </div>
-                </div>
-              </Card>
-            );
-          })}
-        </div>
-      </div>
+                  <div className="flex items-baseline justify-between p-3 rounded-xl bg-slate-50 border border-slate-200">
+                    <div>
+                      <span className="text-xs font-bold text-slate-500 block">Measured Value</span>
+                      <span className="text-base sm:text-lg font-black text-[#0F172A]">
+                        {bm.value} <span className="text-xs font-bold text-slate-600">{bm.unit}</span>
+                      </span>
+                    </div>
 
-      {/* Extracted Medications Section */}
-      {medications.length > 0 && (
-        <Card className="p-5 bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-4">
-          <h3 className="text-base font-black text-[#0F172A] flex items-center gap-2">
-            <Pill className="w-4.5 h-4.5 text-[#0D9488]" /> Extracted Medication Instructions ({medications.length})
-          </h3>
-          <div className="space-y-3">
-            {medications.map((m, idx) => (
-              <div key={idx} className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2 text-xs">
-                <div className="flex justify-between items-center flex-wrap gap-1">
-                  <h4 className="font-black text-sm text-[#0F172A]">💊 {m.medicineName || m.name}</h4>
-                  <span className="px-2.5 py-0.5 rounded-full bg-[#F0FDF4] text-[#0D9488] font-bold">
-                    {m.dose || m.strength || '1 tablet'}
-                  </span>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-[11px] text-slate-600">
-                  <p><span className="text-slate-500">Frequency:</span> <strong className="text-slate-800">{m.frequency}</strong></p>
-                  <p><span className="text-slate-500">Meal Relation:</span> <strong className="text-slate-800">{m.mealRelation}</strong></p>
-                  <p><span className="text-slate-500">Timing:</span> <strong className="text-[#0D9488]">{m.timing || 'As prescribed'}</strong></p>
-                  <p><span className="text-slate-500">Duration:</span> <strong className="text-slate-800">{m.duration || '5 days'}</strong></p>
-                </div>
-              </div>
-            ))}
+                    <div className="text-right">
+                      <span className="text-xs font-bold text-slate-500 block">Reference Range</span>
+                      <span className="text-xs font-bold text-slate-700">{bm.refRange || bm.referenceRange || bm.reference_range || 'N/A'}</span>
+                    </div>
+                  </div>
+                </Card>
+              );
+            })}
           </div>
-        </Card>
-      )}
+        ) : (
+          <Card className="p-6 bg-slate-50 border border-slate-200 rounded-2xl text-center space-y-2 text-xs">
+            <Activity className="w-6 h-6 text-slate-400 mx-auto" />
+            <p className="font-semibold text-slate-700">No laboratory test parameters in this document.</p>
+            <p className="text-slate-500">
+              {medications.length > 0 
+                ? `This document is a Prescription Report with ${medications.length} medication instruction(s) extracted above.`
+                : "Click 'View Original Report Text' above to view raw document contents."}
+            </p>
+          </Card>
+        )}
+      </div>
 
       {/* View Original Report Text Modal */}
       <Modal

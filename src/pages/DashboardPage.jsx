@@ -210,8 +210,15 @@ export const DashboardPage = () => {
                 );
               })
             ) : (
-              <div className="col-span-4 p-4 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-500 font-medium text-center">
-                Report parsed successfully. View full diagnostic analysis.
+              <div className="col-span-4 p-4 rounded-xl bg-teal-50/80 border border-teal-200 text-xs text-teal-900 font-medium text-center space-y-1">
+                <p className="font-extrabold text-[#0F172A]">
+                  💊 Prescription Medical Document Parsed
+                </p>
+                <p className="text-slate-600">
+                  {userMedicines.length > 0 
+                    ? `Identified ${userMedicines.length} active prescribed medication(s): ${userMedicines.map(m => `${m.name} (${m.dose || m.dosage || '1 tablet'})`).join(', ')}.`
+                    : "No blood test parameters in this document. Click 'View Analysis' to see full details."}
+                </p>
               </div>
             )}
           </div>
