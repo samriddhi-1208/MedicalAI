@@ -38,24 +38,28 @@ async function cleanupUserDuplicates(userId) {
     const groups = {};
     allMeds.forEach(m => {
       const cleanName = (m.name || '').toLowerCase().trim();
-      const cleanDose = (m.dose || m.dosage || '1 tablet').toLowerCase().trim();
-      const cleanFreq = (m.frequency || 'Once daily').toLowerCase().trim();
-      const cleanTime = (m.scheduled_time || '08:00 AM').toLowerCase().trim();
-      
-      const key = `${cleanName}|${cleanDose}|${cleanFreq}|${cleanTime}`;
+      if (!cleanName) return;
 
-      if (!groups[key]) {
-        groups[key] = [];
+      if (!groups[cleanName]) {
+        groups[cleanName] = [];
       }
-      groups[key].push(m);
+      groups[cleanName].push(m);
     });
 
     const idsToDelete = [];
 
-    for (const key in groups) {
-      const list = groups[key];
+    for (const nameKey in groups) {
+      const list = groups[nameKey];
       if (list.length > 1) {
-        // Primary record is the earliest created
+        // Choose primary: prefer record with specific mg/strength over generic '1 tablet'
+        list.sort((a, b) => {
+          const aHasMg = /\d+\s*(mg|g|mcg|ml)/i.test(a.dose || a.dosage || '');
+          const bHasMg = /\d+\s*(mg|g|mcg|ml)/i.test(b.dose || b.dosage || '');
+          if (aHasMg && !bHasMg) return -1;
+          if (!aHasMg && bHasMg) return 1;
+          return 0;
+        });
+
         const primary = list[0];
         let hasTaken = primary.is_taken;
         let lastTakenAt = primary.last_taken_at;
@@ -71,8 +75,8 @@ async function cleanupUserDuplicates(userId) {
           idsToDelete.push(dup._id);
         }
 
-        // Preserve taken status on primary if any duplicate was taken today
-        if (hasTaken !== primary.is_taken || lastTakenAt !== primary.last_taken_at) {
+        // Preserve taken status on primary if any duplicate was taken
+        if (hasTaken !== primary.is_taken || (lastTakenAt && lastTakenAt !== primary.last_taken_at)) {
           primary.is_taken = hasTaken;
           primary.last_taken_at = lastTakenAt || new Date();
           await primary.save();
@@ -160,13 +164,10 @@ exports.addMedicine = async (req, res, next) => {
     const cleanFreq = (frequency || 'Once daily').trim();
     const cleanTime = (scheduled_time || time || '08:00 AM').trim();
 
-    // Idempotent Check: Check if equivalent medicine already exists for this user
+    // Idempotent Check: Check if medicine with same clean name already exists for this user
     const existingMed = await Medicine.findOne({
       user_id: user._id,
-      name: { $regex: new RegExp(`^${cleanName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') },
-      dose: cleanDose,
-      frequency: cleanFreq,
-      scheduled_time: cleanTime
+      name: { $regex: new RegExp(`^${cleanName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') }
     });
 
     if (existingMed) {

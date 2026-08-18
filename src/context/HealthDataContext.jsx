@@ -123,7 +123,7 @@ export const HealthDataProvider = ({ children }) => {
             }
           }
 
-          // Parse Medicines (With Strict In-Memory Deduplication & Daily Reset)
+          // Parse Medicines (With Strict Name Deduplication & Daily Reset)
           if (medsRes && medsRes.ok) {
             const mData = await safeParseJson(medsRes);
             const safeMeds = (Array.isArray(mData) ? mData : []).map(m => ({
@@ -147,13 +147,23 @@ export const HealthDataProvider = ({ children }) => {
               taken: m.is_taken && isTakenToday(m.last_taken_at || m.lastTakenAt)
             }));
 
-            // Deduplicate safely by identity key
+            // Deduplicate strictly by clean medicine name
             const deduplicated = [];
-            const seenKeys = new Set();
+            const seenNames = new Set();
+            
+            // Sort so records with specific mg/strength are prioritized
+            safeMeds.sort((a, b) => {
+              const aHasMg = /\d+\s*(mg|g|mcg|ml)/i.test(a.dose);
+              const bHasMg = /\d+\s*(mg|g|mcg|ml)/i.test(b.dose);
+              if (aHasMg && !bHasMg) return -1;
+              if (!aHasMg && bHasMg) return 1;
+              return 0;
+            });
+
             safeMeds.forEach(m => {
-              const k = `${(m.name || '').toLowerCase().trim()}|${(m.dose || '').toLowerCase().trim()}|${(m.frequency || '').toLowerCase().trim()}|${(m.scheduledTime || '').toLowerCase().trim()}`;
-              if (!seenKeys.has(k)) {
-                seenKeys.add(k);
+              const k = (m.name || '').toLowerCase().trim();
+              if (k && !seenNames.has(k)) {
+                seenNames.add(k);
                 deduplicated.push(m);
               }
             });
@@ -373,10 +383,10 @@ export const HealthDataProvider = ({ children }) => {
   };
 
   const addMedicine = async (medObj) => {
-    const k = `${(medObj.name || '').toLowerCase().trim()}|${(medObj.dose || medObj.dosage || '1 tablet').toLowerCase().trim()}|${(medObj.frequency || 'Once daily').toLowerCase().trim()}|${(medObj.scheduled_time || medObj.time || '08:00 AM').toLowerCase().trim()}`;
+    const k = (medObj.name || '').toLowerCase().trim();
 
     const existing = medicines.find(m => {
-      const exK = `${(m.name || '').toLowerCase().trim()}|${(m.dose || m.dosage || '1 tablet').toLowerCase().trim()}|${(m.frequency || m.frequency || 'Once daily').toLowerCase().trim()}|${(m.scheduledTime || m.time || '08:00 AM').toLowerCase().trim()}`;
+      const exK = (m.name || '').toLowerCase().trim();
       return exK === k;
     });
 
