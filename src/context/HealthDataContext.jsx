@@ -86,9 +86,13 @@ export const HealthDataProvider = ({ children }) => {
       const headers = { 'Authorization': `Bearer ${storedToken}` };
 
       try {
-        // Execute ALL backend fetches concurrently in PARALLEL (1 Single Roundtrip)
-        const [profileRes, rRes, mRes, cRes] = await Promise.all([
-          fetch(`${API_BASE}/auth/me`, { headers }).catch(() => null),
+        // Execute backend fetches concurrently in PARALLEL
+        let profileRes = await fetch(`${API_BASE}/auth/me`, { headers }).catch(() => null);
+        if (!profileRes || !profileRes.ok) {
+          profileRes = await fetch(`${API_BASE}/auth/profile`, { headers }).catch(() => null);
+        }
+
+        const [rRes, mRes, cRes] = await Promise.all([
           fetch(`${API_BASE}/reports`, { headers }).catch(() => null),
           fetch(`${API_BASE}/medicines`, { headers }).catch(() => null),
           fetch(`${API_BASE}/sos/contacts`, { headers }).catch(() => null)

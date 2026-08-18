@@ -32,7 +32,7 @@ import { Modal } from '../components/ui/Modal';
 
 export const AIAnalysisPage = () => {
   const navigate = useNavigate();
-  const { reports, activeReportId, setActiveReportId, language } = useHealthData();
+  const { reports, activeReportId, setActiveReportId, userProfile, language } = useHealthData();
   const t = (key) => getTranslation(language, key);
 
   const [viewOriginalModal, setViewOriginalModal] = useState(false);
