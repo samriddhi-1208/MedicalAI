@@ -3,7 +3,19 @@ import toast from 'react-hot-toast';
 
 const HealthDataContext = createContext();
 
-const API_BASE = import.meta.env.VITE_API_URL || 'https://medicalai-backend-5ycw.onrender.com/api';
+function getNormalizedApiUrl() {
+  const envUrl = import.meta.env.VITE_API_URL || '';
+  if (envUrl && envUrl.trim()) {
+    let clean = envUrl.trim().replace(/\/+$/, '');
+    if (!clean.endsWith('/api')) {
+      clean = `${clean}/api`;
+    }
+    return clean;
+  }
+  return 'https://medicalai-backend-5ycw.onrender.com/api';
+}
+
+const API_BASE = getNormalizedApiUrl();
 
 async function safeParseJson(res) {
   try {
