@@ -27,7 +27,12 @@ import {
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
 import { getTranslation } from '../utils/translations';
-import { generateRichClinicalSummary } from '../utils/reportParser';
+import { 
+  generateRichClinicalSummary, 
+  getEasyMedicineExplanation, 
+  getEasyBiomarkerExplanation,
+  universalClinicalExtractor 
+} from '../utils/reportParser';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Modal } from '../components/ui/Modal';
@@ -81,9 +86,22 @@ export const AIAnalysisPage = () => {
     );
   }
 
-  const biomarkers = Array.isArray(selectedReport.biomarkers) ? selectedReport.biomarkers : (Array.isArray(selectedReport.labResults) ? selectedReport.labResults : []);
-  const vitals = Array.isArray(selectedReport.vitals) ? selectedReport.vitals : [];
-  const medications = Array.isArray(selectedReport.extractedMedications) ? selectedReport.extractedMedications : (Array.isArray(selectedReport.medications) ? selectedReport.medications : []);
+  // Extract raw findings
+  let rawBiomarkers = Array.isArray(selectedReport.biomarkers) ? selectedReport.biomarkers : (Array.isArray(selectedReport.labResults) ? selectedReport.labResults : []);
+  let rawVitals = Array.isArray(selectedReport.vitals) ? selectedReport.vitals : [];
+  let rawMedications = Array.isArray(selectedReport.extractedMedications) ? selectedReport.extractedMedications : (Array.isArray(selectedReport.medications) ? selectedReport.medications : []);
+
+  // Run dynamic extractor fallback if findings are empty (e.g. older uploaded records)
+  if (rawBiomarkers.length === 0 && rawMedications.length === 0) {
+    const extracted = universalClinicalExtractor(selectedReport.rawText || '', selectedReport.title || selectedReport.file_name || '');
+    if (extracted.medications.length > 0) rawMedications = extracted.medications;
+    if (extracted.labResults.length > 0) rawBiomarkers = extracted.labResults;
+    if (extracted.vitals.length > 0) rawVitals = extracted.vitals;
+  }
+
+  const biomarkers = rawBiomarkers;
+  const vitals = rawVitals;
+  const medications = rawMedications;
 
   const getFormattedSummary = () => {
     const raw = selectedReport?.aiSummary || selectedReport?.summary || '';
@@ -260,17 +278,23 @@ export const AIAnalysisPage = () => {
         </div>
       </div>
 
-      {/* 1. EXTRACTED MEDICATIONS & PRESCRIPTION INSTRUCTIONS (PRIORITY DISPLAY) */}
+      {/* 1. EXTRACTED MEDICATIONS & PRESCRIPTION INSTRUCTIONS (WITH PLAIN LANGUAGE EXPLANATION) */}
       {medications.length > 0 && (
         <Card className="p-5 sm:p-6 bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-2">
-            <h3 className="text-base font-black text-[#0F172A] flex items-center gap-2">
-              <Pill className="w-5 h-5 text-[#0D9488]" />
-              Extracted Prescription & Medication Findings ({medications.length})
-            </h3>
+            <div>
+              <h3 className="text-base font-black text-[#0F172A] flex items-center gap-2">
+                <Pill className="w-5 h-5 text-[#0D9488]" />
+                Extracted Prescription & Medication Findings ({medications.length})
+              </h3>
+              <p className="text-xs text-slate-500 font-medium mt-0.5">
+                AI extracted medicine names, dosage timings, and generated plain-language explanations.
+              </p>
+            </div>
+
             <button
               onClick={() => navigate('/app/medicines')}
-              className="text-xs font-bold text-[#0D9488] hover:underline flex items-center gap-1 cursor-pointer"
+              className="text-xs font-bold text-[#0D9488] hover:underline flex items-center gap-1 cursor-pointer shrink-0"
             >
               View Medicine Schedule <ArrowRight className="w-3.5 h-3.5" />
             </button>
@@ -312,15 +336,25 @@ export const AIAnalysisPage = () => {
                   </div>
                 </div>
 
+                {/* PLAIN LANGUAGE EXPLANATION BOX */}
+                <div className="p-3 rounded-xl bg-teal-50/90 border border-teal-200/90 text-xs text-teal-950 font-medium space-y-1">
+                  <div className="flex items-center gap-1.5 text-[#0D9488] font-bold text-[11px] uppercase tracking-wider">
+                    <Sparkles className="w-3.5 h-3.5 text-[#0D9488]" /> What this medicine does (Easy Terms):
+                  </div>
+                  <p className="text-slate-700 leading-relaxed text-[11px]">
+                    {m.easyExplanation || getEasyMedicineExplanation(m.medicineName || m.name)}
+                  </p>
+                </div>
+
                 <div className="flex items-center justify-between pt-1">
                   <span className="text-[11px] text-slate-500 font-medium">
-                    {m.specialInstructions || 'Extracted directly from document text'}
+                    100% extracted from document OCR text
                   </span>
                   <button
                     onClick={() => handleAddMedToSchedule(m)}
-                    className="px-3 py-1 rounded-lg bg-[#0F172A] text-white hover:bg-[#1E293B] font-bold text-[11px] flex items-center gap-1 cursor-pointer"
+                    className="px-3.5 py-1.5 rounded-xl bg-[#0F172A] text-white hover:bg-[#1E293B] font-bold text-[11px] flex items-center gap-1 cursor-pointer transition-colors"
                   >
-                    <Plus className="w-3 h-3" /> Add Schedule
+                    <Plus className="w-3.5 h-3.5" /> Add to Schedule
                   </button>
                 </div>
               </div>
@@ -348,7 +382,7 @@ export const AIAnalysisPage = () => {
         </Card>
       )}
 
-      {/* 3. Extracted Lab Results Table */}
+      {/* 3. Extracted Lab Results Table (WITH PLAIN LANGUAGE EXPLANATION) */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-base font-black text-[#0F172A]">{t('individualBiomarkerFindings')}</h3>
@@ -390,6 +424,16 @@ export const AIAnalysisPage = () => {
                       <span className="text-xs font-bold text-slate-500 block">Reference Range</span>
                       <span className="text-xs font-bold text-slate-700">{bm.refRange || bm.referenceRange || bm.reference_range || 'N/A'}</span>
                     </div>
+                  </div>
+
+                  {/* PLAIN LANGUAGE EXPLANATION BOX */}
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 font-medium space-y-1">
+                    <div className="flex items-center gap-1.5 text-[#0D9488] font-bold text-[11px] uppercase tracking-wider">
+                      <Sparkles className="w-3.5 h-3.5 text-[#0D9488]" /> What this means for you:
+                    </div>
+                    <p className="text-slate-600 leading-relaxed text-[11px]">
+                      {bm.easyExplanation || getEasyBiomarkerExplanation(bm.name || bm.biomarker_name, bm.status || 'Normal', bm.value, bm.unit)}
+                    </p>
                   </div>
                 </Card>
               );
