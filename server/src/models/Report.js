@@ -28,6 +28,6 @@ reportSchema.virtual('id').get(function () {
   return this._id.toHexString();
 });
 
-reportSchema.index({ user_id: 1, file_hash: 1 });
+reportSchema.index({ user_id: 1, file_hash: 1 }, { unique: true, sparse: true });
 
 module.exports = mongoose.model('Report', reportSchema);

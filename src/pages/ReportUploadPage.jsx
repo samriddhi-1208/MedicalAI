@@ -33,6 +33,10 @@ export const ReportUploadPage = () => {
   const [processingStatus, setProcessingStatus] = useState('');
   const [extractionError, setExtractionError] = useState(null);
 
+  // Duplicate Warning Modal State
+  const [duplicateReport, setDuplicateReport] = useState(null);
+  const [isDuplicateModalOpen, setIsDuplicateModalOpen] = useState(false);
+
   // Verification Modal State for Extracted Medications
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
   const [pendingMedications, setPendingMedications] = useState([]);
@@ -94,7 +98,7 @@ export const ReportUploadPage = () => {
     setUploading(true);
     setExtractionError(null);
     setActiveStep(2);
-    setProcessingStatus("Step 2/5: Reading document stream & OCR text...");
+    setProcessingStatus("Step 2/5: Checking SHA-256 duplicate status & reading file stream...");
 
     try {
       setTimeout(() => { setActiveStep(3); setProcessingStatus("Step 3/5: Extracting lab test results & vitals..."); }, 500);
@@ -121,10 +125,10 @@ export const ReportUploadPage = () => {
 
       const savedReport = await addReport(parsedData, selectedFile);
 
-      if (savedReport && savedReport.isDuplicate) {
-        toast.info("This report has already been uploaded. Viewing existing stored record.");
+      if (savedReport && (savedReport.isDuplicate || savedReport.duplicate)) {
+        setDuplicateReport(savedReport);
+        setIsDuplicateModalOpen(true);
         setUploading(false);
-        navigate('/app/analysis');
         return;
       }
 
@@ -208,197 +212,144 @@ export const ReportUploadPage = () => {
   };
 
   const handleConfirmAllReminders = async () => {
-    if (pendingMedications.length === 0) {
+    try {
+      for (const med of pendingMedications) {
+        await addMedicine({
+          name: med.medicineName || med.name,
+          dose: med.dose || '1 tablet',
+          dosage: med.dose || '1 tablet',
+          frequency: med.frequency || 'Once daily',
+          scheduled_time: med.timing || med.scheduled_time || '08:00 AM',
+          time: med.timing || med.scheduled_time || '08:00 AM',
+          timeSlot: 'Morning',
+          meal_relation: med.mealRelation || 'After meal',
+          meal_type: med.mealType || 'Lunch',
+          delay_minutes: Number(med.delayMinutes || 30),
+          duration_days: parseInt(med.duration || 5),
+          source_title: selectedFile?.name ? `Report: ${selectedFile.name}` : 'Uploaded Lab Report',
+          purpose: 'Prescribed Medication'
+        });
+      }
+
       setIsVerificationModalOpen(false);
+      toast.success("✓ All verified medication reminders saved!");
       navigate('/app/analysis');
-      return;
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to save medication reminders.");
     }
-
-    for (const med of pendingMedications) {
-      const scheduledTime = med.timing || med.scheduled_time || (med.mealRelation === 'After meal' ? '01:30 PM' : '08:00 AM');
-      const durDays = parseInt(med.duration || med.durationDays || 5) || 5;
-
-      const startDate = new Date();
-      const endDate = new Date();
-      endDate.setDate(startDate.getDate() + durDays);
-
-      await addMedicine({
-        name: med.medicineName,
-        dose: med.dose,
-        dosage: med.dose,
-        frequency: med.frequency,
-        scheduled_time: scheduledTime,
-        time: scheduledTime,
-        mealRelation: med.mealRelation,
-        mealType: med.mealType,
-        delayMinutes: med.delayMinutes || 30,
-        duration_days: durDays,
-        start_date: startDate.toISOString().split('T')[0],
-        end_date: endDate.toISOString().split('T')[0],
-        purpose: "Prescribed Medication",
-        source_title: selectedFile ? selectedFile.name : 'Uploaded Report',
-        instructions: med.specialInstructions || `Extracted from uploaded report`
-      });
-    }
-
-    setIsVerificationModalOpen(false);
-    toast.success(`✓ Created ${pendingMedications.length} medicine reminder(s)!`);
-    navigate('/app/dashboard');
   };
 
-  const steps = [
-    { num: 1, label: "Upload File" },
-    { num: 2, label: "Read Text" },
-    { num: 3, label: "Extract Data" },
-    { num: 4, label: "AI Analysis" },
-    { num: 5, label: "Complete" }
-  ];
-
   return (
-    <div className="space-y-5 pb-12 font-sans antialiased max-w-4xl mx-auto w-full min-w-0">
+    <div className="space-y-6 pb-12 font-sans text-[#0F172A] max-w-4xl mx-auto">
       
-      {/* Upload Header */}
-      <div className="border-b border-slate-200/90 pb-3.5">
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-[#0D9488] animate-pulse" />
-          <span className="text-xs text-[#0D9488] font-extrabold uppercase tracking-wider">{t('dynamicDocAnalyzer')}</span>
-        </div>
-        <h1 className="text-xl sm:text-2.5xl font-black text-[#0F172A] tracking-tight mt-0.5">
-          {t('uploadMedicalReport')}
-        </h1>
-        <p className="text-xs text-slate-500 font-normal mt-0.5">
-          {t('uploadSubtitle')}
-        </p>
-      </div>
-
-      {/* REQUIREMENT 5: DESKTOP VS MOBILE STEPPER */}
-      {/* Desktop Stepper */}
-      <div className="hidden md:block p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs">
-        <div className="flex items-center justify-between">
-          {steps.map((s) => {
-            const isCompleted = activeStep > s.num;
-            const isCurrent = activeStep === s.num;
-
-            return (
-              <div key={s.num} className="flex-1 flex flex-col items-center relative text-center">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs transition-all ${
-                  isCompleted 
-                    ? 'bg-emerald-600 text-white' 
-                    : isCurrent 
-                    ? 'bg-[#0F172A] text-white ring-4 ring-slate-200' 
-                    : 'bg-slate-100 text-slate-400'
-                }`}>
-                  {isCompleted ? <Check className="w-4 h-4" /> : s.num}
-                </div>
-                <span className={`text-[11px] font-bold mt-1.5 ${
-                  isCurrent ? 'text-[#0F172A]' : isCompleted ? 'text-emerald-700' : 'text-slate-400'
-                }`}>
-                  {s.label}
-                </span>
-              </div>
-            );
-          })}
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#0D9488] animate-pulse" />
+            <span className="text-xs text-[#0D9488] font-bold uppercase tracking-wider">AI Medical Intelligence</span>
+          </div>
+          <h1 className="text-2.5xl font-extrabold text-[#0F172A] tracking-tight">
+            {t('uploadMedicalReport')}
+          </h1>
+          <p className="text-xs text-slate-500 font-normal mt-0.5">
+            {t('uploadSubtitle')}
+          </p>
         </div>
       </div>
 
-      {/* Mobile Compact Progress Stepper */}
-      <div className="md:hidden p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-2">
-        <div className="flex items-center justify-between text-xs font-black text-[#0F172A]">
-          <span>Step {activeStep} of 5</span>
-          <span className="text-[#0D9488] font-bold">{steps[activeStep - 1]?.label}</span>
-        </div>
-        <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200/60">
-          <div 
-            className="bg-[#0D9488] h-2 rounded-full transition-all duration-300"
-            style={{ width: `${activeStep * 20}%` }}
-          />
-        </div>
-      </div>
-
-      {/* REQUIREMENT 6: MOBILE COMPACT UPLOAD CARD */}
-      <Card className="p-5 sm:p-8 bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-5 text-center w-full min-w-0">
+      <Card className="p-6 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-6">
         
+        {/* Dropzone Container */}
         <div
           onDragEnter={handleDrag}
           onDragOver={handleDrag}
           onDragLeave={handleDrag}
           onDrop={handleDrop}
-          className={`p-6 sm:p-10 rounded-2xl border-2 border-dashed transition-all ${
-            dragActive
-              ? 'border-[#0D9488] bg-slate-50 scale-[1.01]'
-              : 'border-slate-300 bg-slate-50/60 hover:bg-slate-50'
+          className={`relative border-2 border-dashed rounded-2xl p-8 text-center transition-all cursor-pointer ${
+            dragActive 
+              ? 'border-[#0D9488] bg-[#F0FDF4]' 
+              : selectedFile 
+              ? 'border-emerald-300 bg-emerald-50/50' 
+              : 'border-slate-300 hover:border-slate-400 bg-slate-50/50'
           }`}
         >
-          <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-[#0F172A] text-white flex items-center justify-center mx-auto shadow-md mb-3 sm:mb-4">
-            <Upload className="w-6 h-6 sm:w-8 sm:h-8 text-[#0D9488]" />
-          </div>
+          <input
+            type="file"
+            accept=".pdf,.jpg,.jpeg,.png"
+            onChange={handleFileChange}
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+          />
 
-          <p className="text-xs sm:text-sm font-extrabold text-[#0F172A]">
-            <span className="hidden sm:inline">{t('dragDropText')}</span>
-            <span className="sm:hidden">Tap below to select a medical report</span>
-          </p>
+          <div className="flex flex-col items-center gap-3">
+            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-transform ${
+              selectedFile ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'
+            }`}>
+              {selectedFile ? (
+                <FileText className="w-7 h-7 text-emerald-700" />
+              ) : (
+                <Upload className="w-7 h-7 text-[#0D9488]" />
+              )}
+            </div>
 
-          <p className="text-[11px] sm:text-xs text-slate-500 font-medium mt-1">
-            PDF, JPG, JPEG or PNG • Max 15 MB
-          </p>
-
-          <div className="mt-4 sm:mt-6">
-            <label className="w-full sm:w-auto min-h-[48px] px-6 py-3 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white text-xs sm:text-sm font-bold cursor-pointer inline-flex items-center justify-center gap-2 transition-colors shadow-2xs">
-              <File className="w-4 h-4 text-[#0D9488]" />
-              <span>Browse Files</span>
-              <input
-                type="file"
-                accept=".pdf,.jpg,.jpeg,.png"
-                onChange={handleFileChange}
-                className="hidden"
-              />
-            </label>
+            {selectedFile ? (
+              <div className="space-y-1">
+                <p className="text-sm font-extrabold text-[#0F172A]">{selectedFile.name}</p>
+                <p className="text-xs text-slate-500 font-medium">
+                  {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB • Ready for cryptographic hash check & AI parsing
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-1">
+                <p className="text-sm font-bold text-[#0F172A]">
+                  Drag and drop your medical report here, or <span className="text-[#0D9488] underline">browse files</span>
+                </p>
+                <p className="text-xs text-slate-500 font-normal">
+                  Supports PDF, PNG, JPG (Max 15MB). Instant SHA-256 duplicate detection.
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* REQUIREMENT 7: SELECTED FILE CARD WITH FILENAME WRAP FIX */}
-        {selectedFile && (
-          <div className="p-3.5 sm:p-4 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-left w-full min-w-0">
-            <div className="flex items-center gap-3 min-w-0 flex-1">
-              <FileText className="w-6 h-6 text-[#0D9488] shrink-0" />
-              <div className="min-w-0 flex-1">
-                <p className="font-black text-xs sm:text-sm text-[#0F172A] break-all line-clamp-2">
-                  {selectedFile.name}
-                </p>
-                <p className="text-slate-500 font-medium text-[11px]">
-                  {(selectedFile.size / 1024).toFixed(1)} KB • {selectedFile.type.includes('pdf') ? 'PDF' : 'IMAGE'}
-                </p>
+        {/* Action Button & Stepper Progress */}
+        <div className="space-y-4">
+          <Button
+            onClick={handleUploadAndAnalyze}
+            disabled={!selectedFile || uploading}
+            className="w-full py-3.5 bg-[#0F172A] hover:bg-[#1E293B] text-white font-extrabold text-sm rounded-xl shadow-md cursor-pointer flex items-center justify-center gap-2"
+          >
+            {uploading ? (
+              <>
+                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <span>{processingStatus}</span>
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-4 h-4 text-[#0D9488]" />
+                <span>Upload & Run AI Diagnostic Analysis</span>
+              </>
+            )}
+          </Button>
+
+          {/* Stepper Progress Bar */}
+          {uploading && (
+            <div className="space-y-2 p-4 rounded-xl bg-slate-50 border border-slate-200">
+              <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+                <span>Parsing Progress</span>
+                <span className="text-[#0D9488]">{activeStep * 20}%</span>
               </div>
+              <div className="w-full h-2 rounded-full bg-slate-200 overflow-hidden">
+                <div 
+                  className="h-full bg-[#0D9488] transition-all duration-300 rounded-full"
+                  style={{ width: `${activeStep * 20}%` }}
+                />
+              </div>
+              <p className="text-xs text-slate-500 font-normal text-center pt-1">{processingStatus}</p>
             </div>
-
-            <Button
-              variant="primary"
-              size="md"
-              icon={Sparkles}
-              loading={uploading}
-              onClick={handleUploadAndAnalyze}
-              className="bg-[#0F172A] hover:bg-[#1E293B] py-3 px-6 text-xs font-bold rounded-xl cursor-pointer w-full sm:w-auto min-h-[48px] shrink-0"
-            >
-              {uploading ? 'Processing Document...' : 'Upload & Analyze'}
-            </Button>
-          </div>
-        )}
-
-        {/* Upload & Extraction Progress Stepper Status */}
-        {uploading && (
-          <div className="space-y-2 text-xs text-left p-4 rounded-xl bg-slate-50 border border-slate-200">
-            <div className="flex justify-between font-bold text-[#0F172A]">
-              <span>{processingStatus}</span>
-              <span>{activeStep * 20}%</span>
-            </div>
-            <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
-              <div
-                className="bg-[#0D9488] h-2 rounded-full transition-all duration-300"
-                style={{ width: `${activeStep * 20}%` }}
-              />
-            </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Extraction Error */}
         {extractionError && (
@@ -421,7 +372,61 @@ export const ReportUploadPage = () => {
         </p>
       </div>
 
-      {/* REQUIREMENTS 9, 10, 11: MEDICATION VERIFICATION RESPONSIVE MODAL */}
+      {/* DUPLICATE REPORT WARNING MODAL */}
+      <Modal
+        isOpen={isDuplicateModalOpen}
+        onClose={() => setIsDuplicateModalOpen(false)}
+        title="⚠ Report Already Uploaded"
+      >
+        <div className="space-y-4 text-xs font-sans">
+          <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <h4 className="font-bold text-sm text-[#0F172A]">This medical report already exists</h4>
+              <p className="text-slate-600">
+                This medical report has already been uploaded and processed for your account.
+              </p>
+              {duplicateReport && (
+                <div className="pt-2 text-[11px] text-slate-500 font-medium space-y-0.5">
+                  <div>Document Title: <strong className="text-slate-800">{duplicateReport.title || selectedFile?.name}</strong></div>
+                  {duplicateReport.date && <div>Uploaded Date: <strong className="text-slate-800">{duplicateReport.date}</strong></div>}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <p className="text-slate-600 font-normal">
+            You can view the existing diagnostic analysis directly without processing the document again.
+          </p>
+
+          <div className="flex flex-col sm:flex-row justify-end gap-2 pt-3 border-t border-slate-200">
+            <button
+              type="button"
+              onClick={() => {
+                setIsDuplicateModalOpen(false);
+                setSelectedFile(null);
+                setActiveStep(1);
+              }}
+              className="px-4 py-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setIsDuplicateModalOpen(false);
+                navigate('/app/analysis');
+              }}
+              className="px-5 py-2.5 rounded-lg bg-[#0F172A] hover:bg-[#1E293B] text-white font-extrabold text-xs cursor-pointer shadow-sm flex items-center justify-center gap-1.5"
+            >
+              <FileText className="w-4 h-4 text-[#0D9488]" />
+              <span>View Existing Report</span>
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* MEDICATION VERIFICATION RESPONSIVE MODAL */}
       <Modal
         isOpen={isVerificationModalOpen}
         onClose={() => setIsVerificationModalOpen(false)}
@@ -438,7 +443,7 @@ export const ReportUploadPage = () => {
             </div>
           </div>
 
-          {/* Medication Cards List - Stacked 1 Column on Mobile */}
+          {/* Medication Cards List */}
           <div className="space-y-3 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
             {pendingMedications.map((med, idx) => (
               <Card key={med.id || idx} className="p-4 border border-slate-200 bg-white space-y-2.5 rounded-xl shadow-2xs">

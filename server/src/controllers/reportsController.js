@@ -155,8 +155,11 @@ exports.getReportById = async (req, res, next) => {
 };
 
 exports.uploadReport = async (req, res, next) => {
+  let fileHash = null;
+  let user = null;
+
   try {
-    const user = await getUserFromReq(req);
+    user = await getUserFromReq(req);
     if (!user) {
       return res.status(401).json({ error: "Authentication required." });
     }
@@ -174,7 +177,7 @@ exports.uploadReport = async (req, res, next) => {
       } catch (e) {}
     }
 
-    const fileHash = fileBuffer ? crypto.createHash('sha256').update(fileBuffer).digest('hex') : null;
+    fileHash = fileBuffer ? crypto.createHash('sha256').update(fileBuffer).digest('hex') : null;
 
     let existingReport = null;
     if (fileHash) {
@@ -229,7 +232,9 @@ exports.uploadReport = async (req, res, next) => {
       return res.status(200).json({ 
         report: populatedExisting, 
         isDuplicate: true, 
-        message: "This report file has already been uploaded. Viewing existing stored record." 
+        duplicate: true,
+        existingReportId: existingReport._id.toHexString(),
+        message: "This medical report has already been uploaded." 
       });
     }
 
@@ -314,8 +319,20 @@ exports.uploadReport = async (req, res, next) => {
       recommendations: ocrResult.recommendations || { lifestyle: [], medical: [] }
     };
 
-    res.status(201).json({ report: populatedReport, isDuplicate: false });
+    res.status(201).json({ report: populatedReport, isDuplicate: false, duplicate: false });
   } catch (error) {
+    if (error.code === 11000 && fileHash && user) {
+      const existing = await Report.findOne({ user_id: user._id, file_hash: fileHash });
+      if (existing) {
+        return res.status(200).json({
+          report: existing,
+          isDuplicate: true,
+          duplicate: true,
+          existingReportId: existing._id.toHexString(),
+          message: "This medical report has already been uploaded."
+        });
+      }
+    }
     next(error);
   }
 };
