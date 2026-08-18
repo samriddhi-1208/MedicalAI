@@ -22,22 +22,12 @@ import { ProfilePage } from './pages/ProfilePage';
 import { SettingsPage } from './pages/SettingsPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 
-// Protected Route Guard for Authenticated & Profile-Completed Users
+// Protected Route Guard for Authenticated Users
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, loadingAuth, userProfile } = useHealthData();
+  const { isAuthenticated } = useHealthData();
+  const hasToken = Boolean(localStorage.getItem('medguardian_token'));
 
-  if (loadingAuth) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center font-sans">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-[#1A4B84] border-t-transparent rounded-full animate-spin" />
-          <p className="text-xs font-bold text-slate-600">Verifying session...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
+  if (!isAuthenticated && !hasToken) {
     return <Navigate to="/login" replace />;
   }
 
@@ -46,20 +36,10 @@ const ProtectedRoute = ({ children }) => {
 
 // Route Guard for Onboarding (/complete-profile)
 const OnboardingRoute = ({ children }) => {
-  const { isAuthenticated, loadingAuth, userProfile } = useHealthData();
+  const { isAuthenticated, userProfile } = useHealthData();
+  const hasToken = Boolean(localStorage.getItem('medguardian_token'));
 
-  if (loadingAuth) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center font-sans">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-[#1A4B84] border-t-transparent rounded-full animate-spin" />
-          <p className="text-xs font-bold text-slate-600">Verifying session...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
+  if (!isAuthenticated && !hasToken) {
     return <Navigate to="/login" replace />;
   }
 
@@ -71,7 +51,6 @@ const OnboardingRoute = ({ children }) => {
   return children;
 };
 
-// MedGuardian AI - Version 2.4.0 Production Build
 export default function App() {
   return (
     <ThemeProvider>
@@ -81,13 +60,13 @@ export default function App() {
           toastOptions={{
             duration: 3500,
             style: {
-              background: '#1A4B84',
+              background: '#0F172A',
               color: '#F8FAFC',
               border: '1px solid #1E293B',
-              borderRadius: '16px',
+              borderRadius: '8px',
               fontSize: '13px',
               padding: '12px 16px',
-              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3)'
+              boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
             }
           }}
         />

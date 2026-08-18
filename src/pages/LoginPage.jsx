@@ -15,10 +15,11 @@ export const LoginPage = () => {
 
   // Automatically redirect logged-in users directly to dashboard
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/app/dashboard', { replace: true });
+    const token = localStorage.getItem('medguardian_token');
+    if (isAuthenticated || token) {
+      window.location.href = '/app/dashboard';
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     // Proactive background warmup ping to wake up Render free tier container immediately on page land
@@ -43,11 +44,10 @@ export const LoginPage = () => {
     setLoading(true);
     try {
       await login(email, password);
-      // Instant navigation to Patient Dashboard
-      navigate('/app/dashboard', { replace: true });
+      // Hard navigation to guarantee clean session mount in dashboard
+      window.location.href = '/app/dashboard';
     } catch (err) {
       toast.error(err.message || "Invalid email or password.");
-    } finally {
       setLoading(false);
     }
   };
