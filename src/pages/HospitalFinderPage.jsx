@@ -177,7 +177,7 @@ export const HospitalFinderPage = () => {
 
       for (const r of radiiToTry) {
         if (r < radius) continue; // Don't try smaller radius than requested
-        const backendUrl = `${apiBaseUrl}/hospitals/nearby?lat=${lat}&lng=${lng}&category=${encodeURIComponent(targetCategory)}&radiusKm=${r}`;
+        const backendUrl = `${apiBaseUrl}/hospitals/nearby?lat=${lat}&lng=${lng}&category=${encodeURIComponent(targetCategory)}&radiusKm=${r}&keyword=${encodeURIComponent(keyword || '')}`;
         
         const res = await fetch(backendUrl).catch(() => null);
         if (res && res.ok) {

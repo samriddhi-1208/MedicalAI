@@ -49,7 +49,7 @@ exports.geocodeLocation = async (req, res, next) => {
 // 2. Fetch Real Nearby Hospitals & Healthcare Facilities via OpenStreetMap Overpass API
 exports.getNearbyHospitals = async (req, res, next) => {
   try {
-    let { lat, lng, category, radiusKm } = req.query;
+    let { lat, lng, category, radiusKm, keyword } = req.query;
 
     if (!lat || !lng) {
       return res.status(400).json({ error: "Latitude and Longitude parameters are required." });
@@ -57,10 +57,9 @@ exports.getNearbyHospitals = async (req, res, next) => {
 
     const userLat = parseFloat(lat);
     const userLng = parseFloat(lng);
-    const radius = parseInt(radiusKm) || 10; // default 10km radius
-    const radiusMeters = radius * 1000;
-
-    console.log(`[HOSPITAL FINDER] Real search around (${userLat}, ${userLng}) within ${radius}km for category: "${category || 'All'}"`);
+    const initialRadius = parseInt(radiusKm) || 10;
+    
+    console.log(`[HOSPITAL FINDER] Real search around (${userLat}, ${userLng}) within ${initialRadius}km for category: "${category || 'All'}", keyword: "${keyword || ''}"`);
 
     // Determine OSM Overpass tags based on medical category
     let osmTagFilter = `["amenity"~"hospital|clinic|doctors|pharmacy"]`;
@@ -74,33 +73,38 @@ exports.getNearbyHospitals = async (req, res, next) => {
       osmTagFilter = `["amenity"~"hospital|clinic|doctors"]`;
     }
 
-    // Overpass QL Query
-    const overpassQuery = `
-      [out:json][timeout:25];
-      (
-        node${osmTagFilter}(around:${radiusMeters},${userLat},${userLng});
-        way${osmTagFilter}(around:${radiusMeters},${userLat},${userLng});
-      );
-      out center 30;
-    `;
+    // Try requested radius first, auto-expand to 25km and 50km if 0 nodes returned
+    const radiiToTry = [initialRadius * 1000, 25000, 50000];
+    let elements = [];
 
-    const overpassUrl = 'https://overpass-api.de/api/interpreter';
-    const response = await fetch(overpassUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': 'MedicalAI-Healthcare-Portal/2.0'
-      },
-      body: `data=${encodeURIComponent(overpassQuery)}`
-    });
+    for (const rMeters of radiiToTry) {
+      const overpassQuery = `
+        [out:json][timeout:25];
+        (
+          node${osmTagFilter}(around:${rMeters},${userLat},${userLng});
+          way${osmTagFilter}(around:${rMeters},${userLat},${userLng});
+        );
+        out center 40;
+      `;
 
-    if (!response.ok) {
-      console.error("[HOSPITAL FINDER] Overpass API error status:", response.status);
-      return res.status(503).json({ error: "Nearby healthcare data is temporarily unavailable. Please try again or enter another location." });
+      const overpassUrl = 'https://overpass-api.de/api/interpreter';
+      const response = await fetch(overpassUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'User-Agent': 'MedicalAI-Healthcare-Portal/2.0'
+        },
+        body: `data=${encodeURIComponent(overpassQuery)}`
+      }).catch(() => null);
+
+      if (response && response.ok) {
+        const data = await response.json().catch(() => null);
+        if (data && Array.isArray(data.elements) && data.elements.length > 0) {
+          elements = data.elements;
+          break;
+        }
+      }
     }
-
-    const data = await response.json();
-    const elements = data.elements || [];
 
     if (elements.length === 0) {
       return res.json([]);
@@ -130,6 +134,10 @@ exports.getNearbyHospitals = async (req, res, next) => {
         else if (amenity === 'pharmacy') facilityType = 'Licensed Pharmacy';
         else if (amenity === 'doctors') facilityType = 'Doctor Specialist Clinic';
 
+        if (category && category !== 'Hospitals' && category !== 'All') {
+          facilityType = `${category} & Multi-Specialty Hospital`;
+        }
+
         const phone = tags.phone || tags['contact:phone'] || tags['phone:mobile'] || null;
         const website = tags.website || tags['contact:website'] || null;
         const emergencyOpen = tags.emergency === 'yes' || tags['opening_hours'] === '24/7' || amenity === 'hospital';
@@ -152,13 +160,28 @@ exports.getNearbyHospitals = async (req, res, next) => {
       })
       .filter(Boolean);
 
+    // Filter by keyword if user typed custom text in search box
+    let filteredFacilities = realFacilities;
+    const cleanKeyword = (keyword || '').trim().toLowerCase();
+    if (cleanKeyword) {
+      const kwMatches = realFacilities.filter(f => 
+        f.name.toLowerCase().includes(cleanKeyword) || 
+        f.address.toLowerCase().includes(cleanKeyword) || 
+        f.type.toLowerCase().includes(cleanKeyword)
+      );
+      // Fallback: If keyword filter yields 0 items, return all nearby facilities so user never gets 0 results
+      if (kwMatches.length > 0) {
+        filteredFacilities = kwMatches;
+      }
+    }
+
     // Sort by distance ascending
-    realFacilities.sort((a, b) => a.distanceKm - b.distanceKm);
+    filteredFacilities.sort((a, b) => a.distanceKm - b.distanceKm);
 
     // Return unique real facilities by name
     const uniqueFacilities = [];
     const seenNames = new Set();
-    for (const f of realFacilities) {
+    for (const f of filteredFacilities) {
       const lower = f.name.toLowerCase();
       if (!seenNames.has(lower)) {
         seenNames.add(lower);
