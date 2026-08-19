@@ -426,10 +426,12 @@ export const HealthDataProvider = ({ children }) => {
         setActiveReportId(data.report.id || data.report._id);
         return data.report;
       }
-      return null;
+
+      const errMsg = data?.message || data?.error || "Medical report could not be processed. The report was not saved.";
+      return { error: true, message: errMsg };
     } catch (err) {
       console.error("[API] Upload report error:", err);
-      return null;
+      return { error: true, message: err.message || "Medical report upload failed." };
     }
   };
 

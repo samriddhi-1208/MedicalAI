@@ -104,6 +104,14 @@ export const ReportUploadPage = () => {
       // Step 1: Upload file to backend FIRST to run authoritative duplicate check BEFORE heavy client OCR
       const savedReport = await addReport(null, selectedFile);
 
+      if (!savedReport || savedReport.error) {
+        setUploading(false);
+        const errMsg = savedReport?.message || "Medical report could not be processed. We couldn't extract reliable medical information from this document. The report was not saved. Please upload a clearer medical report.";
+        setExtractionError(errMsg);
+        toast.error(errMsg);
+        return;
+      }
+
       if (savedReport && (savedReport.isDuplicate || savedReport.duplicate)) {
         setDuplicateReport(savedReport);
         setIsDuplicateModalOpen(true);

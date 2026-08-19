@@ -251,6 +251,24 @@ exports.uploadReport = async (req, res, next) => {
 
     const ocrResult = await ocrService.processReportFile(file);
 
+    // CRITICAL VALIDATION: Verify meaningful medical data extracted before saving to MongoDB
+    const bCount = (Array.isArray(ocrResult.biomarkers) ? ocrResult.biomarkers.length : 0) +
+                   (Array.isArray(ocrResult.labResults) ? ocrResult.labResults.length : 0);
+    const vCount = Array.isArray(ocrResult.vitals) ? ocrResult.vitals.length : 0;
+    const mCount = Array.isArray(ocrResult.extractedMedications) ? ocrResult.extractedMedications.length : 0;
+    const totalExtracted = bCount + vCount + mCount;
+    const hasValidSummary = Boolean(ocrResult.aiSummary && ocrResult.aiSummary.trim().length > 15 && !ocrResult.aiSummary.includes("Unable to extract"));
+
+    if (totalExtracted === 0 && !hasValidSummary) {
+      console.log(`[REPORT ENGINE REJECTION] Medical extraction failed for "${file.originalname}". 0 parameters extracted. Report NOT saved to MongoDB.`);
+      return res.status(422).json({
+        error: "Medical report could not be processed.",
+        message: "We couldn't extract reliable medical information from this document. The report was not saved. Please upload a clearer medical report.",
+        saved: false,
+        success: false
+      });
+    }
+
     const newReport = await Report.create({
       user_id: user._id,
       title: cleanTitle || "Uploaded Lab Report",
@@ -262,7 +280,7 @@ exports.uploadReport = async (req, res, next) => {
       file_type: file.mimetype,
       file_size: file.size || (fileBuffer ? fileBuffer.length : 0),
       file_hash: fileHash || '',
-      ocr_confidence: ocrResult.ocrConfidence || "Extraction Unsuccessful",
+      ocr_confidence: ocrResult.ocrConfidence || "Optimal",
       status_flag: ocrResult.status || "Optimal",
       vitals: Array.isArray(ocrResult.vitals) ? ocrResult.vitals : [],
       extracted_medications: Array.isArray(ocrResult.extractedMedications) ? ocrResult.extractedMedications : [],
