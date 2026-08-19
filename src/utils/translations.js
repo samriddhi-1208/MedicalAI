@@ -82,6 +82,7 @@ export const translations = {
     parametersParsed: "Parameters Parsed",
     vitalSigns: "Vital Signs",
     vitalsRecorded: "Vitals Recorded",
+    individualBiomarkerFindings: "Biomarker Findings",
     statusReportParsed: "Medical Report Parsed Successfully",
     reportId: "Report ID",
 
