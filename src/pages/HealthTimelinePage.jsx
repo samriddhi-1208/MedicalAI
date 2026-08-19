@@ -409,26 +409,35 @@ export const HealthTimelinePage = () => {
               
               {/* Chart Area (8 columns) */}
               <Card className="lg:col-span-8 p-6 bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
-                  <div>
-                    <h3 className="text-base font-black text-[#0F172A] flex items-center gap-2">
-                      <TrendingUp className="w-4.5 h-4.5 text-[#0D9488]" />
-                      {activeMetricName} Progression
-                    </h3>
-                    <p className="text-xs text-slate-500 font-medium">
-                      {activeChartData.length} data point(s) recorded across uploaded reports
-                    </p>
+                {/* Header Title & Dynamic Biomarker Selection Pill Strip */}
+                <div className="space-y-3 border-b border-slate-100 pb-3">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <div>
+                      <h3 className="text-base sm:text-lg font-black text-[#0F172A] flex items-center gap-2">
+                        <TrendingUp className="w-5 h-5 text-[#0D9488]" />
+                        {activeMetricName} Progression
+                      </h3>
+                      <p className="text-xs text-slate-500 font-medium mt-0.5">
+                        {activeChartData.length} data point(s) recorded across uploaded reports
+                      </p>
+                    </div>
+
+                    <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold border border-slate-200">
+                      {activeChartData.length > 1 ? 'Longitudinal Trend Active' : 'Baseline Record'}
+                    </span>
                   </div>
 
-                  {/* Dynamic Biomarker Selector Buttons */}
+                  {/* Dynamic Biomarker Selector Pill Strip */}
                   {discoveredBiomarkerNames.length > 0 && (
-                    <div className="flex items-center gap-1 flex-wrap">
+                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-1 scrollbar-thin">
                       {discoveredBiomarkerNames.map((m) => (
                         <button
                           key={m}
                           onClick={() => setSelectedMetric(m)}
-                          className={`px-3 py-1 rounded-lg text-xs font-bold cursor-pointer transition-all ${
-                            activeMetricName === m ? 'bg-[#0F172A] text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer ${
+                            activeMetricName === m 
+                              ? 'bg-[#0F172A] text-white shadow-xs' 
+                              : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200/60'
                           }`}
                         >
                           {m}
@@ -438,10 +447,10 @@ export const HealthTimelinePage = () => {
                   )}
                 </div>
 
-                {/* Longitudinal Chart */}
-                <div className="h-72 w-full pt-2">
+                {/* Longitudinal Chart Area */}
+                <div className="min-h-[280px] w-full pt-2">
                   {activeChartData.length > 1 ? (
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ResponsiveContainer width="100%" height={280}>
                       <AreaChart data={activeChartData} margin={{ top: 20, right: 20, left: -10, bottom: 0 }}>
                         <defs>
                           <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
@@ -460,10 +469,46 @@ export const HealthTimelinePage = () => {
                       </AreaChart>
                     </ResponsiveContainer>
                   ) : (
-                    <div className="h-full flex flex-col items-center justify-center text-xs text-slate-500 font-medium space-y-2 p-6 bg-slate-50 rounded-xl">
-                      <Info className="w-6 h-6 text-[#0D9488]" />
-                      <p>Only 1 data point recorded for {activeMetricName} ({latestDataPoint?.value} {latestDataPoint?.unit}).</p>
-                      <p className="text-[11px] text-slate-400">Upload another report containing {activeMetricName} to compare changes over time.</p>
+                    <div className="p-6 rounded-2xl bg-teal-50/50 border border-teal-200/80 space-y-4 text-xs">
+                      <div className="flex items-center justify-between flex-wrap gap-2">
+                        <div className="flex items-center gap-2 text-teal-900 font-bold">
+                          <Info className="w-5 h-5 text-[#0D9488]" />
+                          <span>Baseline Measurement Recorded for {activeMetricName}</span>
+                        </div>
+                        <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-extrabold">
+                          {latestDataPoint?.status || 'Normal'}
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-xl bg-white border border-teal-200/60 shadow-2xs">
+                        <div>
+                          <span className="text-slate-500 block text-[11px]">Measured Value</span>
+                          <strong className="text-xl font-black text-[#0F172A]">
+                            {latestDataPoint ? latestDataPoint.value : 'N/A'} <span className="text-xs font-bold text-slate-600">{latestDataPoint?.unit}</span>
+                          </strong>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 block text-[11px]">Reference Range</span>
+                          <strong className="text-slate-700 font-bold text-xs">{latestDataPoint?.refRange || 'Standard'}</strong>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 block text-[11px]">Report Date</span>
+                          <strong className="text-[#0D9488] font-bold text-xs">{latestDataPoint?.date}</strong>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between text-[11px] text-slate-600 pt-1">
+                        <span>💡 Upload a second report containing <strong>{activeMetricName}</strong> to display longitudinal progress charts over time.</span>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          icon={Upload}
+                          onClick={() => navigate('/app/upload')}
+                          className="bg-white hover:bg-slate-50 text-xs font-bold rounded-xl border-slate-300 cursor-pointer shrink-0"
+                        >
+                          Upload Report
+                        </Button>
+                      </div>
                     </div>
                   )}
                 </div>
