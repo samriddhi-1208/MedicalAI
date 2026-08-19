@@ -46,17 +46,17 @@ export const AIAnalysisPage = () => {
   const [viewOriginalModal, setViewOriginalModal] = useState(false);
 
   const userReports = Array.isArray(reports) ? reports : [];
-  const [selectedReportId, setSelectedReportId] = useState(() => activeReportId || userReports[0]?.id);
+  const [selectedReportId, setSelectedReportId] = useState(() => activeReportId || userReports[0]?.id || userReports[0]?._id);
 
   React.useEffect(() => {
     if (activeReportId) {
       setSelectedReportId(activeReportId);
     } else if (userReports.length > 0 && !selectedReportId) {
-      setSelectedReportId(userReports[0].id);
+      setSelectedReportId(userReports[0].id || userReports[0]._id);
     }
   }, [activeReportId, reports?.length]);
 
-  const selectedReport = userReports.find(r => String(r.id) === String(selectedReportId)) || userReports[0] || null;
+  const selectedReport = userReports.find(r => String(r.id || r._id) === String(selectedReportId)) || userReports[0] || null;
 
   if (!selectedReport) {
     return (

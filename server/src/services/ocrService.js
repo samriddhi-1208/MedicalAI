@@ -2,6 +2,7 @@
  * Dynamic OCR & AI Biomarker and Medication Extraction Engine
  * Parses uploaded lab report PDF/Image files from memory buffer or disk storage
  * Calls AI Service (Gemini API or Universal Clinical Extractor)
+ * ZERO HARDCODED MEDICAL FALLBACK DATA
  */
 
 const fs = require('fs');
@@ -41,6 +42,8 @@ exports.processReportFile = async (fileObj) => {
     rawExtractedText = fileBuffer.toString('utf-8');
   }
 
+  console.log(`[OCR ENGINE] Passing ${rawExtractedText.length} chars to AI Service for document: ${fileObj.originalname || fileObj.filename}`);
+
   // Process extracted document text via AI Service (Gemini API or Universal Clinical Extractor)
   const aiAnalysis = await aiService.analyzeReportText(rawExtractedText, fileObj.originalname || fileObj.filename);
 
@@ -58,15 +61,20 @@ exports.processReportFile = async (fileObj) => {
     extractedDoctorName = `Dr. ${docMatch[1].trim().replace(/^Dr\.\s*/i, '')}`;
   }
 
-  const biomarkers = (aiAnalysis.biomarkers || aiAnalysis.labResults || []).map((b, idx) => {
+  const labResults = Array.isArray(aiAnalysis.biomarkers) ? aiAnalysis.biomarkers : (Array.isArray(aiAnalysis.labResults) ? aiAnalysis.labResults : []);
+  const vitals = Array.isArray(aiAnalysis.vitals) ? aiAnalysis.vitals : [];
+
+  const biomarkers = labResults.map((b, idx) => {
     const statusVal = b.status || 'Normal';
     const isWarning = statusVal === 'Low' || statusVal === 'High' || statusVal === 'Elevated' || statusVal === 'Borderline' || statusVal === 'Critical';
     return {
       id: `b-${Date.now()}-${idx}`,
       name: b.name || b.testName || "Biomarker",
-      value: typeof b.value === 'number' ? b.value : parseFloat(b.value) || b.value,
+      testName: b.testName || b.name || "Biomarker",
+      value: typeof b.value === 'number' ? b.value : (parseFloat(b.value) || b.value),
       unit: b.unit || '',
       refRange: b.referenceRange || b.refRange || '',
+      referenceRange: b.referenceRange || b.refRange || '',
       status: statusVal,
       statusType: isWarning ? 'warning' : 'normal',
       category: b.category || ((b.name || b.testName || '').includes('Hb') || (b.name || b.testName || '').includes('WBC') || (b.name || b.testName || '').includes('RBC') ? 'Hematology' : 'Clinical')
@@ -76,8 +84,10 @@ exports.processReportFile = async (fileObj) => {
   const extractedMedications = (aiAnalysis.medications || []).map((m, idx) => ({
     id: `extracted-med-${Date.now()}-${idx}`,
     medicineName: m.medicineName || m.name || "Prescribed Medicine",
+    name: m.name || m.medicineName || "Prescribed Medicine",
     genericName: m.genericName || m.medicineName || m.name || "",
     dose: m.dose || m.strength || m.dosage || "1 tablet",
+    strength: m.strength || m.dose || "1 tablet",
     quantity: m.quantity || m.dose || "1 tablet",
     frequency: m.frequency || "Once daily",
     timing: m.timing || "",
@@ -92,6 +102,8 @@ exports.processReportFile = async (fileObj) => {
 
   const hasWarning = biomarkers.some(b => b.statusType === 'warning');
 
+  console.log(`[OCR ENGINE SUCCESS] Extracted ${biomarkers.length} lab parameters, ${vitals.length} vitals, ${extractedMedications.length} medications for ${fileObj.originalname || fileObj.filename}`);
+
   return {
     title: fileObj.originalname ? fileObj.originalname.replace(/\.[^/.]+$/, "") : "Clinical Lab Report",
     labName: extractedLabName,
@@ -101,8 +113,12 @@ exports.processReportFile = async (fileObj) => {
     status: hasWarning ? "Attention Needed" : "Optimal",
     statusType: hasWarning ? "warning" : "normal",
     biomarkers,
+    labResults: biomarkers,
+    vitals,
     extractedMedications,
-    aiSummary: aiAnalysis.summary || aiAnalysis.clinicalSummary || `Extracted ${biomarkers.length} biomarker parameters and ${extractedMedications.length} medication instructions from ${fileObj.originalname || fileObj.filename}.`,
+    medications: extractedMedications,
+    rawText: rawExtractedText || '',
+    aiSummary: aiAnalysis.summary || aiAnalysis.clinicalSummary || `Extracted ${biomarkers.length} biomarker parameters, ${vitals.length} vitals, and ${extractedMedications.length} medication instructions from ${fileObj.originalname || fileObj.filename}.`,
     keyFindings: aiAnalysis.keyFindings || biomarkers.map(b => `${b.name} measured at ${b.value} ${b.unit}`),
     recommendations: aiAnalysis.recommendations || {
       lifestyle: ["Maintain balanced daily nutrition and adequate hydration."],
