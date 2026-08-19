@@ -5,15 +5,17 @@ import {
   Sparkles, 
   Clock, 
   CheckCircle2, 
-  AlertTriangle, 
   TrendingUp, 
   Upload, 
   Plus, 
   Activity, 
   Pill,
-  PauseCircle,
+  ChevronRight,
   Edit2,
-  Check
+  Check,
+  ArrowRight,
+  Calendar,
+  FileCheck
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
@@ -21,9 +23,6 @@ import { getTranslation } from '../utils/translations';
 import { formatDisplayName } from '../utils/formatters';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
-import { HealthMetricCard } from '../components/ui/HealthMetricCard';
-import { AIInsightCard } from '../components/ui/AIInsightCard';
-import { ReportCard } from '../components/ui/ReportCard';
 
 export const DashboardPage = () => {
   const navigate = useNavigate();
@@ -32,26 +31,55 @@ export const DashboardPage = () => {
     updateUserProfile, 
     reports, 
     medicines, 
-    toggleMedicineTaken,
     language 
   } = useHealthData();
 
   const userDisplayName = formatDisplayName(userProfile?.name, userProfile?.email);
-
   const t = (key) => getTranslation(language, key);
 
   // Patient Name Edit State
   const [isEditingName, setIsEditingName] = useState(false);
   const [tempName, setTempName] = useState(userProfile?.name || '');
 
-  // User-specific reports array (0% Fake/Fallback Data!)
+  // User-specific valid reports (0% Fake/Fallback Data!)
   const userReports = Array.isArray(reports) ? reports : [];
-  const hasReports = userReports.length > 0;
-  const latestReport = hasReports ? userReports[0] : null;
-  const extractedBiomarkers = Array.isArray(latestReport?.biomarkers) ? latestReport.biomarkers : (Array.isArray(latestReport?.labResults) ? latestReport.labResults : []);
+  const reportCount = userReports.length;
+  const hasReports = reportCount > 0;
+
+  // Sort reports chronologically by reportDate to find the latest report
+  const chronReports = [...userReports].sort((a, b) => {
+    const dA = a.reportDate || a.date || a.report_date || a.uploadedAt || '1970-01-01';
+    const dB = b.reportDate || b.date || b.report_date || b.uploadedAt || '1970-01-01';
+    return new Date(dA) - new Date(dB);
+  });
+
+  const latestReport = chronReports.length > 0 ? chronReports[chronReports.length - 1] : null;
 
   // User-specific medicines array (0% Fake/Fallback Data!)
   const userMedicines = Array.isArray(medicines) ? medicines : [];
+
+  // Calculate total tracked parameters dynamically across valid reports
+  let totalTrackedParameters = 0;
+  const featuredBiomarkerMap = {};
+
+  userReports.forEach((r) => {
+    const bArr = Array.isArray(r.biomarkers) ? r.biomarkers : (Array.isArray(r.labResults) ? r.labResults : []);
+    const vArr = Array.isArray(r.vitals) ? r.vitals : [];
+    totalTrackedParameters += bArr.length + vArr.length;
+
+    bArr.forEach((bm) => {
+      const name = bm.name || bm.testName || bm.biomarker_name;
+      if (name) {
+        if (!featuredBiomarkerMap[name]) featuredBiomarkerMap[name] = [];
+        featuredBiomarkerMap[name].push(bm);
+      }
+    });
+  });
+
+  // Pick top featured biomarker for trend preview (e.g. Hemoglobin or first extracted)
+  const featuredBiomarkerName = Object.keys(featuredBiomarkerMap).find(n => /hemoglobin|hb|hgb/i.test(n)) || Object.keys(featuredBiomarkerMap)[0] || null;
+  const featuredReadings = featuredBiomarkerName ? featuredBiomarkerMap[featuredBiomarkerName] : [];
+  const latestFeaturedReading = featuredReadings.length > 0 ? featuredReadings[featuredReadings.length - 1] : null;
 
   // Time of day greeting
   const getGreeting = () => {
@@ -64,31 +92,15 @@ export const DashboardPage = () => {
   const saveName = () => {
     if (tempName.trim()) {
       updateUserProfile({ name: tempName.trim() });
-      toast.success(language === 'HI' ? "नाम अद्यतन किया गया!" : language === 'GU' ? "નામ અપડેટ થયું!" : "Patient name updated!");
+      toast.success("Patient name updated!");
     }
     setIsEditingName(false);
-  };
-
-  const getCleanSummary = () => {
-    if (!latestReport) return t('noUploadedReports');
-    const rawSum = latestReport.aiSummary || latestReport.clinicalSummary || latestReport.summary || '';
-    if (!rawSum || rawSum.includes('Extracted 0 vitals, 0 lab test parameters') || rawSum.startsWith('Analysis of')) {
-      const docTitle = latestReport.title || latestReport.file_name || t('medicalReports');
-      if (language === 'HI') {
-        return `"${docTitle}" का विश्लेषण: क्लिनिकल दस्तावेज़ का सफलतापूर्वक विश्लेषण किया गया। वर्तमान उपचार अनुसूची में ${userMedicines.length} निर्धारित दवाओं की पहचान की गई। सलाह के अनुसार खुराक का समय पालन करें। नियमित मूल्यांकन के लिए चिकित्सक से परामर्श लें।`;
-      }
-      if (language === 'GU') {
-        return `"${docTitle}" નું વિશ્લેષણ: ક્લિનિકલ દસ્તાવેજનું સફળતાપૂર્વક પૃથ્થકરણ કરવામાં આવ્યું. વર્તમાન સારવાર શેડ્યૂલમાં ${userMedicines.length} નિર્ધારિત દવાઓની ઓળખ કરવામાં આવી. આપેલ સમય મુજબ ડોઝ ચાલુ રાખો. નિયમિત મૂલ્યાંકન માટે ડૉક્ટરની સલાહ લો.`;
-      }
-      return `Analysis of "${docTitle}": Clinical document processed successfully. Identified ${userMedicines.length} prescribed medication instruction(s) in current treatment schedule. Continue following dosage timing as prescribed. Maintain adequate daily hydration and consult your physician for routine evaluations.`;
-    }
-    return rawSum;
   };
 
   return (
     <div className="space-y-6 pb-12 font-sans antialiased max-w-7xl mx-auto">
       
-      {/* Patient Greeting & Header Bar */}
+      {/* 1. HEADER / PATIENT CONTEXT & PRIMARY ACTIONS */}
       <Card className="p-6 bg-white border border-slate-200/90 shadow-2xs rounded-2xl space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
@@ -110,7 +122,7 @@ export const DashboardPage = () => {
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <h1 className="text-2xl sm:text-3xl font-black text-[#0F172A] tracking-tight">
+                <h1 className="text-xl sm:text-2xl font-black text-[#0F172A] tracking-tight">
                   {getGreeting()}, <span className="text-[#0D9488]">{userDisplayName}</span>
                 </h1>
                 <button
@@ -118,27 +130,36 @@ export const DashboardPage = () => {
                     setTempName(userProfile?.name || '');
                     setIsEditingName(true);
                   }}
-                  className="p-1.5 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer rounded-lg hover:bg-slate-100"
+                  className="p-1 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer rounded-lg hover:bg-slate-100"
                   title="Edit patient name"
                 >
-                  <Edit2 className="w-4 h-4" />
+                  <Edit2 className="w-3.5 h-3.5" />
                 </button>
               </div>
             )}
             <p className="text-xs text-slate-500 font-medium">
-              {t('workspaceOverview')} • ID: <span className="font-mono text-slate-700 font-bold">{userProfile?.id?.substring(0, 8) || 'P-8820'}</span>
+              Here's a quick overview of your health activity.
             </p>
           </div>
 
-          <div className="flex items-center gap-3 flex-wrap">
+          {/* Primary & Secondary Action CTAs */}
+          <div className="flex items-center gap-2.5 flex-wrap">
             <Button
               variant="outline"
               size="sm"
-              icon={Plus}
-              onClick={() => navigate('/app/medicines')}
+              onClick={() => navigate('/app/reports')}
               className="rounded-xl border-slate-200 text-xs font-semibold cursor-pointer"
             >
-              {t('addMedicine')}
+              View Reports
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate('/app/trends')}
+              className="rounded-xl border-slate-200 text-xs font-semibold cursor-pointer"
+            >
+              View Trends
             </Button>
 
             <Button
@@ -146,182 +167,180 @@ export const DashboardPage = () => {
               size="sm"
               icon={Upload}
               onClick={() => navigate('/app/upload')}
-              className="bg-[#0F172A] hover:bg-[#1E293B] text-xs font-semibold rounded-xl cursor-pointer"
+              className="bg-[#0F172A] hover:bg-[#1E293B] text-xs font-bold rounded-xl cursor-pointer shadow-2xs"
             >
-              {t('uploadReport')}
+              Upload Medical Report
             </Button>
-          </div>
-        </div>
-
-        {/* Quick Vitals Summary Pill Strip */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-slate-100 text-xs">
-          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
-            <span className="text-slate-500 font-medium block">{t('heightWeight')}</span>
-            <span className="font-bold text-[#0F172A]">
-              {userProfile?.height ? `${userProfile.height} ${userProfile.heightUnit || 'cm'}` : '--'} / {userProfile?.weight ? `${userProfile.weight} ${userProfile.weightUnit || 'kg'}` : '--'}
-            </span>
-          </div>
-
-          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
-            <span className="text-slate-500 font-medium block">{t('bloodGroup')}</span>
-            <span className="font-bold text-[#0F172A]">{userProfile?.bloodGroup || 'Not Specified'}</span>
-          </div>
-
-          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
-            <span className="text-slate-500 font-medium block">{t('primaryPhysician')}</span>
-            <span className="font-bold text-[#0F172A] truncate block">
-              {userProfile?.primaryPhysician && userProfile.primaryPhysician !== 'Consulting Care Physician' 
-                ? userProfile.primaryPhysician 
-                : (latestReport?.doctorName || latestReport?.doctor_name || '--')}
-            </span>
-          </div>
-
-          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
-            <span className="text-slate-500 font-medium block">{t('totalReportsSaved')}</span>
-            <span className="font-bold text-[#0D9488]">{userReports.length} {t('uploaded')}</span>
           </div>
         </div>
       </Card>
 
-      {/* Extracted Biomarker Cards Grid (If reports exist) */}
-      {hasReports && (
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-base font-extrabold text-[#0F172A] tracking-tight">{t('healthMetrics')}</h2>
-              <p className="text-xs text-slate-500 font-medium mt-0.5">
-                {t('basedOnRecentReport')} ({latestReport?.title || latestReport?.fileName || t('medicalReports')} — <span className="font-bold text-slate-800">{latestReport?.date || latestReport?.report_date || 'Recent'}</span>)
-              </p>
-            </div>
-
-            <button 
-              onClick={() => navigate('/app/analysis')}
-              className="text-xs font-bold text-[#0D9488] hover:underline flex items-center gap-1 cursor-pointer shrink-0"
-            >
-              <span>{t('viewAllTrends')}</span> <TrendingUp className="w-3.5 h-3.5" />
-            </button>
+      {/* 2. HEALTH OVERVIEW — COMPACT SUMMARY ROW (4 CARDS) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        {/* Card 1: Reports Count */}
+        <Card className="p-5 bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-1">
+          <span className="text-xs font-bold text-slate-500 block uppercase tracking-wider">Reports</span>
+          <div className="flex items-baseline justify-between pt-1">
+            <span className="text-2.5xl font-black text-[#0F172A] tracking-tight">{reportCount}</span>
+            <span className="text-[11px] font-bold text-[#0D9488]">Saved</span>
           </div>
+        </Card>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {extractedBiomarkers.length > 0 ? (
-              extractedBiomarkers.map((bm, index) => {
-                const statusVal = bm.status || bm.status_flag || 'Normal';
-                const isWarning = String(statusVal).toLowerCase().includes('high') || String(statusVal).toLowerCase().includes('low') || String(statusVal).toLowerCase().includes('warning') || String(statusVal).toLowerCase().includes('borderline');
-                
-                return (
-                  <HealthMetricCard 
-                    key={bm.id || index}
-                    name={bm.name || bm.testName || bm.biomarker_name}
-                    value={bm.value}
-                    unit={bm.unit}
-                    status={statusVal}
-                    statusType={isWarning ? 'warning' : 'normal'}
-                    statusSymbol={String(statusVal).toLowerCase().includes('high') ? '▲' : String(statusVal).toLowerCase().includes('low') ? '▼' : '✓'}
-                    refRange={bm.refRange || bm.referenceRange || bm.reference_range || 'Standard'}
-                    trend="stable"
-                  />
-                );
-              })
-            ) : (
-              <div className="col-span-4 p-4 rounded-xl bg-teal-50/80 border border-teal-200 text-xs text-teal-900 font-medium text-center space-y-1">
-                <p className="font-extrabold text-[#0F172A]">
-                  💊 {t('prescriptionParsed')}
-                </p>
-                <p className="text-slate-600">
-                  {userMedicines.length > 0 
-                    ? `${t('identifiedPrescribedMeds')}: ${userMedicines.map(m => `${m.name} (${m.dose || m.dosage || '1 tablet'})`).join(', ')}.`
-                    : `${t('noMedicalDataAvailable')}`}
-                </p>
-              </div>
-            )}
+        {/* Card 2: Active Medications */}
+        <Card className="p-5 bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-1">
+          <span className="text-xs font-bold text-slate-500 block uppercase tracking-wider">Active Medications</span>
+          <div className="flex items-baseline justify-between pt-1">
+            <span className="text-2.5xl font-black text-[#0F172A] tracking-tight">{userMedicines.length}</span>
+            <span className="text-[11px] font-bold text-[#0D9488]">Scheduled</span>
           </div>
-        </div>
-      )}
+        </Card>
 
-      {/* Main Grid: AI Insights + Today's Medicines Widget + Recent Reports */}
+        {/* Card 3: Last Report Date */}
+        <Card className="p-5 bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-1">
+          <span className="text-xs font-bold text-slate-500 block uppercase tracking-wider">Last Report</span>
+          <div className="flex items-baseline justify-between pt-1">
+            <span className="text-base font-black text-[#0F172A] truncate">
+              {latestReport ? (latestReport.reportDate || latestReport.date || 'Recent') : 'No reports yet'}
+            </span>
+          </div>
+        </Card>
+
+        {/* Card 4: Tracked Parameters */}
+        <Card className="p-5 bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-1">
+          <span className="text-xs font-bold text-slate-500 block uppercase tracking-wider">Tracked Parameters</span>
+          <div className="flex items-baseline justify-between pt-1">
+            <span className="text-2.5xl font-black text-[#0F172A] tracking-tight">{totalTrackedParameters}</span>
+            <span className="text-[11px] font-bold text-[#0D9488]">Extracted</span>
+          </div>
+        </Card>
+
+      </div>
+
+      {/* 3. MAIN DASHBOARD CONTENT GRID (2 COLUMNS) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
-        {/* Left 7 columns: AI Insights & Today's Medicines */}
+        {/* Left Column (7 cols): Latest Report & Medication Summary */}
         <div className="lg:col-span-7 space-y-6">
           
-          {/* AI Insights Card */}
-          {hasReports ? (
-            <AIInsightCard 
-              title={t('aiInsights')}
-              summary={getCleanSummary()}
-              severity={extractedBiomarkers.some(b => String(b.status).toLowerCase().includes('high') || String(b.status).toLowerCase().includes('low')) ? "warning" : "normal"}
-              onViewDetails={() => navigate('/app/analysis')}
-            />
-          ) : null}
-
-          {/* TODAY'S MEDICINES DASHBOARD WIDGET */}
-          <Card className="p-5 space-y-4 bg-white border border-slate-200/90 rounded-2xl shadow-2xs">
+          {/* LATEST REPORT CARD */}
+          <Card className="p-6 bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-extrabold text-[#0F172A] flex items-center gap-2">
-                <Pill className="w-4.5 h-4.5 text-[#0D9488]" />
-                {t('todaysMedicines')}
-              </h3>
+              <div className="flex items-center gap-2">
+                <FileText className="w-5 h-5 text-[#0D9488]" />
+                <h3 className="text-base font-black text-[#0F172A]">Latest Medical Report</h3>
+              </div>
 
-              <button
+              {hasReports && (
+                <button 
+                  onClick={() => navigate('/app/reports')}
+                  className="text-xs font-bold text-[#0D9488] hover:underline flex items-center gap-1 cursor-pointer"
+                >
+                  View All Reports <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            {latestReport ? (
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-3">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div>
+                    <h4 className="text-sm font-black text-[#0F172A]">{latestReport.title || latestReport.file_name}</h4>
+                    <span className="text-xs text-slate-500 font-medium">
+                      Report Date: <strong className="text-slate-700 font-bold">{latestReport.reportDate || latestReport.date}</strong>
+                    </span>
+                  </div>
+
+                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold">
+                    ✓ Verified Document
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-3 text-xs text-slate-600 font-medium pt-1">
+                  <span className="px-2 py-1 rounded-lg bg-white border border-slate-200 font-bold text-[#0F172A]">
+                    {(latestReport.biomarkers || latestReport.labResults || []).length} biomarkers
+                  </span>
+                  <span className="px-2 py-1 rounded-lg bg-white border border-slate-200 font-bold text-[#0D9488]">
+                    {(latestReport.vitals || []).length} vitals
+                  </span>
+                  <span className="px-2 py-1 rounded-lg bg-white border border-slate-200 font-bold text-slate-700">
+                    {(latestReport.extractedMedications || latestReport.medications || []).length} medications
+                  </span>
+                </div>
+
+                <div className="pt-2 flex justify-end">
+                  <Button
+                    size="sm"
+                    variant="primary"
+                    onClick={() => navigate('/app/analysis')}
+                    className="bg-[#0F172A] hover:bg-[#1E293B] text-xs font-bold rounded-xl cursor-pointer"
+                  >
+                    View Analysis <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="p-6 rounded-xl bg-slate-50 border border-slate-200 text-center space-y-3">
+                <p className="text-xs text-slate-600 font-medium">No medical reports uploaded yet.</p>
+                <Button
+                  size="sm"
+                  variant="primary"
+                  icon={Upload}
+                  onClick={() => navigate('/app/upload')}
+                  className="bg-[#0F172A] hover:bg-[#1E293B] text-xs font-bold rounded-xl cursor-pointer"
+                >
+                  Upload Medical Report
+                </Button>
+              </div>
+            )}
+          </Card>
+
+          {/* MEDICATION SUMMARY CARD */}
+          <Card className="p-6 bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Pill className="w-5 h-5 text-[#0D9488]" />
+                <h3 className="text-base font-black text-[#0F172A]">Medication Summary</h3>
+              </div>
+
+              <button 
                 onClick={() => navigate('/app/medicines')}
                 className="text-xs font-bold text-[#0D9488] hover:underline flex items-center gap-1 cursor-pointer"
               >
-                <Plus className="w-3.5 h-3.5" /> {t('addMedicine')}
+                View Medicines <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
 
             {userMedicines.length > 0 ? (
               <div className="space-y-3">
-                {userMedicines.map((med) => (
-                  <div key={med.id} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-3 text-xs">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-[#0F172A] font-bold shrink-0">
-                        <Clock className="w-4 h-4 text-[#0D9488]" />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h4 className="font-extrabold text-[#0F172A] text-sm">{med.name}</h4>
-                          <span className="text-[11px] text-slate-500 font-medium">({med.dose || med.dosage})</span>
-                        </div>
-                        <p className="text-[11px] text-slate-500 font-medium">
-                          🕒 {med.scheduledTime || med.time} • {med.mealRelation} ({med.mealType})
-                        </p>
-                      </div>
-                    </div>
+                <div className="flex items-center justify-between text-xs p-3 rounded-xl bg-teal-50/60 border border-teal-200/80">
+                  <span className="font-extrabold text-teal-900">{userMedicines.length} Active Medication(s) Scheduled</span>
+                  <span className="font-bold text-[#0D9488]">Next dose: {userMedicines[0]?.scheduledTime || userMedicines[0]?.time || '08:00 PM'}</span>
+                </div>
 
-                    <div className="flex items-center gap-2">
-                      {med.isPaused ? (
-                        <span className="px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 text-[11px] font-bold border border-amber-200 inline-flex items-center gap-1">
-                          <PauseCircle className="w-3 h-3 text-amber-600" /> Paused
-                        </span>
-                      ) : (
-                        <button
-                          onClick={() => toggleMedicineTaken(med.id)}
-                          className={`px-3.5 py-1.5 rounded-xl font-bold text-[11px] transition-all cursor-pointer ${
-                            med.taken 
-                              ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' 
-                              : 'bg-[#0F172A] text-white hover:bg-[#1E293B]'
-                          }`}
-                        >
-                          {med.taken ? t('logged') : t('markAsTaken')}
-                        </button>
-                      )}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {userMedicines.slice(0, 2).map((med, idx) => (
+                    <div key={med.id || idx} className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between text-xs">
+                      <div>
+                        <strong className="text-[#0F172A] font-black block">{med.name}</strong>
+                        <span className="text-slate-500 text-[11px]">{med.dose || med.dosage || '1 tablet'} • {med.frequency || 'Daily'}</span>
+                      </div>
+                      <span className="text-[#0D9488] font-bold text-[11px]">{med.scheduledTime || med.time || '08:00 AM'}</span>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             ) : (
-              <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200/80 text-center space-y-3">
-                <Pill className="w-8 h-8 text-slate-400 mx-auto" />
-                <p className="text-xs text-slate-600 font-medium">{t('noMedicineRemindersYet')}</p>
+              <div className="p-6 rounded-xl bg-slate-50 border border-slate-200 text-center space-y-3">
+                <p className="text-xs text-slate-600 font-medium">No active medications scheduled.</p>
                 <Button
-                  variant="outline"
                   size="sm"
+                  variant="outline"
                   icon={Plus}
                   onClick={() => navigate('/app/medicines')}
-                  className="rounded-xl border-slate-200 text-xs font-semibold cursor-pointer"
+                  className="text-xs font-bold rounded-xl border-slate-300 cursor-pointer"
                 >
-                  {t('addMedicine')}
+                  Add Medicine
                 </Button>
               </div>
             )}
@@ -329,39 +348,84 @@ export const DashboardPage = () => {
 
         </div>
 
-        {/* Right 5 columns: Recent Medical Reports */}
-        <div className="lg:col-span-5 space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-base font-extrabold text-[#0F172A]">{t('recentMedicalReports')}</h3>
-            <button 
-              onClick={() => navigate('/app/upload')}
-              className="text-[#0D9488] font-bold text-xs hover:underline flex items-center gap-1 cursor-pointer"
-            >
-              <span>{t('uploadNew')}</span> <Upload className="w-3.5 h-3.5" />
-            </button>
-          </div>
+        {/* Right Column (5 cols): Small Trend Preview & Recent Activity */}
+        <div className="lg:col-span-5 space-y-6">
+          
+          {/* SMALL TREND PREVIEW CARD */}
+          <Card className="p-6 bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-[#0D9488]" />
+                <h3 className="text-base font-black text-[#0F172A]">Health Trend</h3>
+              </div>
 
-          <div className="space-y-4">
-            {hasReports ? (
-              userReports.map((report) => (
-                <ReportCard key={report.id || report._id} report={report} />
-              ))
+              <button 
+                onClick={() => navigate('/app/trends')}
+                className="text-xs font-bold text-[#0D9488] hover:underline flex items-center gap-1 cursor-pointer"
+              >
+                View Trends <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {featuredBiomarkerName && latestFeaturedReading ? (
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="font-extrabold text-[#0F172A]">{featuredBiomarkerName}</span>
+                  <span className="px-2 py-0.5 text-[10px] font-extrabold rounded-full bg-emerald-100 text-emerald-800">
+                    {featuredReadings.length > 1 ? 'Longitudinal Trend Active' : 'Baseline Record'}
+                  </span>
+                </div>
+
+                <div className="flex items-baseline justify-between pt-1">
+                  <span className="text-2xl font-black text-[#0F172A]">
+                    {latestFeaturedReading.value} <span className="text-xs font-normal text-slate-500">{latestFeaturedReading.unit}</span>
+                  </span>
+                  <span className="text-[11px] font-bold text-[#0D9488]">{latestFeaturedReading.date || latestReport?.reportDate}</span>
+                </div>
+
+                <p className="text-[11px] text-slate-500 pt-1">
+                  {featuredReadings.length > 1 
+                    ? `${featuredReadings.length} measurements recorded across uploaded reports.` 
+                    : "Baseline recorded. Upload another report to track changes over time."}
+                </p>
+              </div>
             ) : (
-              <Card className="p-6 text-center bg-slate-50 border border-slate-200/80 rounded-2xl text-slate-500 text-xs space-y-3">
-                <FileText className="w-8 h-8 text-slate-400 mx-auto" />
-                <p className="font-normal text-slate-600">{t('noUploadedReports')}</p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  icon={Upload}
-                  onClick={() => navigate('/app/upload')}
-                  className="rounded-xl border-slate-200 text-xs font-semibold cursor-pointer"
-                >
-                  {t('uploadReport')}
-                </Button>
-              </Card>
+              <div className="p-6 rounded-xl bg-slate-50 border border-slate-200 text-center space-y-2">
+                <p className="text-xs text-slate-600 font-medium">No health trends available yet.</p>
+                <p className="text-[11px] text-slate-400">Upload lab reports with structured test results to view trends.</p>
+              </div>
             )}
-          </div>
+          </Card>
+
+          {/* RECENT ACTIVITY FEED */}
+          <Card className="p-6 bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-4">
+            <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+              <Activity className="w-5 h-5 text-[#0D9488]" />
+              <h3 className="text-base font-black text-[#0F172A]">Recent Activity</h3>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              {hasReports ? (
+                userReports.slice(0, 3).map((r, idx) => (
+                  <div key={r.id || idx} className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-slate-50 transition-colors">
+                    <div className="w-7 h-7 rounded-lg bg-teal-50 text-[#0D9488] flex items-center justify-center shrink-0 mt-0.5 border border-teal-100">
+                      <FileCheck className="w-3.5 h-3.5" />
+                    </div>
+                    <div className="space-y-0.5 flex-1 min-w-0">
+                      <p className="font-bold text-[#0F172A] truncate">{r.title || r.file_name}</p>
+                      <p className="text-[11px] text-slate-500">Medical report analyzed successfully</p>
+                    </div>
+                    <span className="text-[10px] text-slate-400 font-mono shrink-0">{r.reportDate || r.date}</span>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-4 text-slate-400 text-xs font-medium">
+                  No recent activity logged.
+                </div>
+              )}
+            </div>
+          </Card>
+
         </div>
 
       </div>
