@@ -168,21 +168,25 @@ exports.getNearbyHospitals = async (req, res, next) => {
       osmTagFilter = `["amenity"~"hospital|clinic|doctors"]`;
     }
 
-    // Function to run Overpass QL Query
+    // Function to run Overpass QL Query with strict 3.5s timeout signal to prevent 502 Bad Gateway
     const runOverpassQuery = async (searchMeters) => {
       const overpassQuery = `
-        [out:json][timeout:15];
+        [out:json][timeout:5];
         (
           node${osmTagFilter}(around:${searchMeters},${userLat},${userLng});
           way${osmTagFilter}(around:${searchMeters},${userLat},${userLng});
         );
-        out center 30;
+        out center 25;
       `;
 
       const overpassUrl = 'https://overpass-api.de/api/interpreter';
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3500);
+
       try {
         const response = await fetch(overpassUrl, {
           method: 'POST',
+          signal: controller.signal,
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
             'User-Agent': 'MedicalAI-Healthcare-Portal/2.0'
@@ -190,10 +194,12 @@ exports.getNearbyHospitals = async (req, res, next) => {
           body: `data=${encodeURIComponent(overpassQuery)}`
         });
 
+        clearTimeout(timeoutId);
         if (!response.ok) return [];
         const data = await response.json();
         return data.elements || [];
       } catch (e) {
+        clearTimeout(timeoutId);
         return [];
       }
     };
