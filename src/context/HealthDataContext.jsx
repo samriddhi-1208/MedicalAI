@@ -638,22 +638,40 @@ export const HealthDataProvider = ({ children }) => {
       throw new Error("Live location is required to send an SOS.");
     }
 
-    const res = await fetch(`${API_BASE}/emergency/sos`, {
-      method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify({
-        latitude: Number(latitude),
-        longitude: Number(longitude),
-        triggerType: "Manual SOS Button"
-      })
-    });
+    const payload = {
+      latitude: Number(latitude),
+      longitude: Number(longitude),
+      triggerType: "Manual SOS Button"
+    };
 
-    const data = await safeParseJson(res);
-    if (res.ok && data && data.success) {
-      return data;
-    } else {
-      throw new Error(data?.error || "SOS dispatch request failed.");
+    const endpointList = [
+      `${API_BASE}/sos/trigger`,
+      `${API_BASE}/emergency/trigger`,
+      `${API_BASE}/emergency/sos`,
+      `${API_BASE}/sos`
+    ];
+
+    let lastError = null;
+    for (const url of endpointList) {
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          const data = await safeParseJson(res);
+          if (data && (data.success || data.sos)) {
+            return data;
+          }
+        }
+      } catch (err) {
+        lastError = err;
+      }
     }
+
+    throw new Error("SOS dispatch request failed. Please check network connectivity or call 108 directly.");
   };
 
   const markNotificationsRead = () => {
