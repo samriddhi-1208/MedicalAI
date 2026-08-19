@@ -549,10 +549,10 @@ export const HospitalFinderPage = () => {
               </div>
               <div>
                 <h2 className="text-base font-black text-[#0F172A] tracking-tight">
-                  24/7 Hospital & Healthcare Finder
+                  {t('hospitalFinder247')}
                 </h2>
                 <p className="text-xs text-slate-500 font-medium mt-0.5">
-                  Showing facilities near <strong className="text-[#0F172A] font-extrabold">{userCoords?.name?.split(',')[0] || 'Waghodia'}</strong>
+                  {t('facilitiesNear')} <strong className="text-[#0F172A] font-extrabold">{userCoords?.name?.split(',')[0] || 'Waghodia'}</strong>
                 </p>
               </div>
             </div>
@@ -564,7 +564,7 @@ export const HospitalFinderPage = () => {
                 className="px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200"
               >
                 <Compass className={`w-4 h-4 ${locationState === 'loading' ? 'animate-spin text-[#0D9488]' : 'text-[#0D9488]'}`} />
-                <span>{locationState === 'loading' ? 'Locating...' : 'Use My Location'}</span>
+                <span>{locationState === 'loading' ? t('locating') : t('useCurrentLocation')}</span>
               </button>
 
               <Button 
@@ -577,18 +577,32 @@ export const HospitalFinderPage = () => {
                   window.open("tel:108");
                 }}
               >
-                108 Hotline
+                {t('ambulanceHotline')}
               </Button>
             </div>
           </div>
 
           {/* Category Specialty Filter Pills */}
           <div className="space-y-2">
-            <label className="block text-xs font-bold text-[#0F172A]">Facility Category</label>
+            <label className="block text-xs font-bold text-[#0F172A]">{t('category') || "Facility Category"}</label>
             <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
               {categories.map((cat) => {
                 const isSelected = category === cat;
                 const isEmergency = cat === 'Emergency Hospital';
+                
+                let catLabel = cat;
+                if (cat === 'Hospitals') catLabel = t('hospitals');
+                else if (cat === 'Clinics') catLabel = t('clinics');
+                else if (cat === 'General Physician') catLabel = language === 'HI' ? 'सामान्य चिकित्सक' : (language === 'GU' ? 'સામાન્ય તબીબ' : 'General Physician');
+                else if (cat === 'Cardiologist') catLabel = language === 'HI' ? 'हृदय रोग विशेषज्ञ' : (language === 'GU' ? 'હૃદય રોગ નિષ્ણાત' : 'Cardiologist');
+                else if (cat === 'Dermatologist') catLabel = language === 'HI' ? 'त्वचा रोग विशेषज्ञ' : (language === 'GU' ? 'ત્વચા રોગ નિષ્ણાત' : 'Dermatologist');
+                else if (cat === 'Orthopedic') catLabel = language === 'HI' ? 'अस्थि रोग विशेषज्ञ' : (language === 'GU' ? 'ઓર્થોપેડિક' : 'Orthopedic');
+                else if (cat === 'Gynecologist') catLabel = language === 'HI' ? 'स्त्री रोग विशेषज्ञ' : (language === 'GU' ? 'સ્ત્રીરોગ નિષ્ણાત' : 'Gynecologist');
+                else if (cat === 'Pediatrician') catLabel = language === 'HI' ? 'बाल रोग विशेषज्ञ' : (language === 'GU' ? 'બાળરોગ નિષ્ણાત' : 'Pediatrician');
+                else if (cat === 'Diagnostic Lab') catLabel = language === 'HI' ? 'निदान प्रयोगशाला' : (language === 'GU' ? 'ડાયગ્નોસ્ટિક લેબ' : 'Diagnostic Lab');
+                else if (cat === 'Pharmacy') catLabel = t('pharmacies');
+                else if (cat === 'Emergency Hospital') catLabel = t('emergency');
+
                 return (
                   <button
                     key={cat}
@@ -603,8 +617,7 @@ export const HospitalFinderPage = () => {
                         : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
                     }`}
                   >
-                    {isEmergency && <Siren className="w-3.5 h-3.5 inline mr-1 text-rose-400" />}
-                    {cat}
+                    {catLabel}
                   </button>
                 );
               })}
