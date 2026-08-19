@@ -108,6 +108,9 @@ export const HealthTimelinePage = () => {
     return 0;
   });
 
+  // Count reports that actually contain extracted medical parameters
+  let reportsWithMeasurableDataCount = 0;
+
   chronReports.forEach((r, reportIdx) => {
     const reportDate = r.reportDate || r.date || r.report_date || r.uploadedAt || `Report #${reportIdx + 1}`;
     const reportTitle = r.title || r.file_name || r.fileName || `Lab Report #${reportIdx + 1}`;
@@ -151,6 +154,10 @@ export const HealthTimelinePage = () => {
       const extracted = universalClinicalExtractor(textToExtract, reportTitle);
       if (Array.isArray(extracted.labResults)) rawItems.push(...extracted.labResults);
       if (Array.isArray(extracted.vitals)) rawItems.push(...extracted.vitals);
+    }
+
+    if (rawItems.length > 0) {
+      reportsWithMeasurableDataCount++;
     }
 
     const seenInReport = new Set();
@@ -218,8 +225,28 @@ export const HealthTimelinePage = () => {
     });
   });
 
+  // SEPARATE BIOMARKERS FROM VITAL SIGNS ACCORDING TO EXTRACTION SCHEMA
+  const labBiomarkersMap = {};
+  const vitalsMap = {};
+
+  Object.entries(biomarkerMap).forEach(([name, data]) => {
+    if (['Blood Pressure', 'Heart Rate', 'SpO2', 'Temperature', 'BP'].includes(name)) {
+      vitalsMap[name] = data;
+    } else {
+      labBiomarkersMap[name] = data;
+    }
+  });
+
   const discoveredBiomarkerNames = Object.keys(biomarkerMap);
-  const totalBiomarkersCount = discoveredBiomarkerNames.length;
+  const labNames = Object.keys(labBiomarkersMap);
+  const vitalNames = Object.keys(vitalsMap);
+
+  const totalLabBiomarkers = labNames.length;
+  const totalVitalSigns = vitalNames.length;
+  const totalParametersCount = totalLabBiomarkers + totalVitalSigns;
+
+  const maxDataPointsAcrossAllMetrics = Math.max(0, ...Object.values(biomarkerMap).map(arr => arr.length));
+  const isLongitudinalActive = maxDataPointsAcrossAllMetrics >= 2;
 
   const activeMetricName = selectedMetric && discoveredBiomarkerNames.includes(selectedMetric)
     ? selectedMetric
@@ -230,7 +257,7 @@ export const HealthTimelinePage = () => {
   const previousDataPoint = activeChartData.length > 1 ? activeChartData[activeChartData.length - 2] : null;
 
   // Calculate change between latest and previous numeric values (ONLY if 2+ data points exist)
-  let changeText = 'Stable';
+  let changeText = 'Baseline';
   let isPositiveChange = true;
   if (activeChartData.length >= 2 && latestDataPoint && previousDataPoint && latestDataPoint.numValue !== null && previousDataPoint.numValue !== null) {
     const diff = latestDataPoint.numValue - previousDataPoint.numValue;
@@ -240,6 +267,8 @@ export const HealthTimelinePage = () => {
     } else if (diff < 0) {
       changeText = `${diff.toFixed(1)} ${latestDataPoint.unit}`;
       isPositiveChange = false;
+    } else {
+      changeText = 'Stable';
     }
   }
 
@@ -280,7 +309,7 @@ export const HealthTimelinePage = () => {
       </div>
 
       {/* EMPTY STATE (0 REPORTS OR 0 EXTRACTED PARAMETERS) */}
-      {(!hasReports || totalBiomarkersCount === 0) && (
+      {(!hasReports || totalParametersCount === 0) && (
         <Card className="p-8 sm:p-12 text-center bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-5 max-w-2xl mx-auto my-6">
           <div className="w-16 h-16 rounded-2xl bg-slate-100 text-[#0D9488] flex items-center justify-center mx-auto border border-slate-200">
             <TrendingUp className="w-8 h-8 text-[#0D9488]" />
@@ -312,7 +341,7 @@ export const HealthTimelinePage = () => {
       )}
 
       {/* VALID BIOMARKERS POPULATED SECTION */}
-      {hasReports && totalBiomarkersCount > 0 && (
+      {hasReports && totalParametersCount > 0 && (
         <div className="space-y-6">
           
           {/* Top Health Trend Summary */}
@@ -322,14 +351,18 @@ export const HealthTimelinePage = () => {
                 <Sparkles className="w-4 h-4 text-[#0D9488]" /> Health Trend Summary
               </div>
               <span className="px-3 py-1 rounded-full bg-white/10 text-white text-xs font-bold border border-white/10">
-                {reportCount} Uploaded Reports
+                {reportCount} Uploaded ({reportsWithMeasurableDataCount} with Data)
               </span>
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 pt-1">
               <div>
-                <span className="text-[11px] font-bold text-slate-400 uppercase block">Biomarkers Tracked</span>
-                <span className="text-2xl font-black text-white">{totalBiomarkersCount} Parameters</span>
+                <span className="text-[11px] font-bold text-slate-400 uppercase block">Lab Biomarkers</span>
+                <span className="text-2xl font-black text-white">{totalLabBiomarkers} Tracked</span>
+              </div>
+              <div>
+                <span className="text-[11px] font-bold text-slate-400 uppercase block">Vital Signs</span>
+                <span className="text-2xl font-black text-white">{totalVitalSigns} Tracked</span>
               </div>
               <div>
                 <span className="text-[11px] font-bold text-slate-400 uppercase block">Latest Medical Report</span>
@@ -338,9 +371,10 @@ export const HealthTimelinePage = () => {
                 </span>
               </div>
               <div>
-                <span className="text-[11px] font-bold text-slate-400 uppercase block">Longitudinal Monitoring</span>
-                <span className="text-2xl font-black text-emerald-400 flex items-center gap-1">
-                  Active <Activity className="w-5 h-5 text-emerald-400" />
+                <span className="text-[11px] font-bold text-slate-400 uppercase block">Longitudinal Status</span>
+                <span className={`text-xl font-black flex items-center gap-1 ${isLongitudinalActive ? 'text-emerald-400' : 'text-amber-400'}`}>
+                  {isLongitudinalActive ? 'Active Monitoring' : 'Baseline Established'} 
+                  <Activity className="w-5 h-5" />
                 </span>
               </div>
             </div>
@@ -440,7 +474,7 @@ export const HealthTimelinePage = () => {
                     </div>
 
                     <div className="flex items-center justify-between text-[11px] text-slate-600 pt-1">
-                      <span>💡 Only 1 measurement available. Upload another report containing <strong>{activeMetricName}</strong> to display longitudinal progress charts over time.</span>
+                      <span>💡 Baseline recorded — upload another report containing <strong>{activeMetricName}</strong> to establish a longitudinal trend.</span>
                       <Button
                         size="sm"
                         variant="outline"
@@ -526,7 +560,7 @@ export const HealthTimelinePage = () => {
         </div>
       )}
 
-      {/* REPORT HISTORY FEED */}
+      {/* REPORT HISTORY FEED WITH DISTINCT EXTRACTION STATUS */}
       {hasReports && (
         <Card className="p-6 sm:p-7 space-y-5 bg-white border border-slate-200/90 rounded-2xl shadow-2xs">
           <div className="flex items-center justify-between">
@@ -539,7 +573,10 @@ export const HealthTimelinePage = () => {
           <div className="space-y-3">
             {chronReports.map((r) => {
               const bCount = (r.biomarkers || r.labResults || []).length;
+              const vCount = (r.vitals || []).length;
               const mCount = (r.extractedMedications || r.medications || []).length;
+              const totalExtracted = bCount + vCount + mCount;
+              const isExtractionSuccess = totalExtracted > 0;
 
               return (
                 <div key={r.id || r._id} className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
@@ -549,10 +586,21 @@ export const HealthTimelinePage = () => {
                         {r.file_type || 'PDF'}
                       </span>
                       <span className="text-slate-500 font-mono text-[11px]">{r.reportDate || r.date || r.report_date}</span>
+                      <span className={`px-2 py-0.5 rounded-full font-extrabold text-[10px] ${
+                        isExtractionSuccess ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                      }`}>
+                        {isExtractionSuccess ? 'Medical Extraction Completed ✓' : 'Uploaded • Medical Extraction Unsuccessful'}
+                      </span>
                     </div>
                     <h4 className="text-sm font-black text-[#0F172A]">{r.title || r.file_name}</h4>
                     <p className="text-xs text-slate-600 font-medium">
-                      <strong className="text-[#0F172A] font-extrabold">{bCount} biomarkers</strong> extracted • <strong className="text-[#0D9488] font-extrabold">{mCount} medications</strong> detected • Processed successfully
+                      {isExtractionSuccess ? (
+                        <>
+                          <strong className="text-[#0F172A] font-extrabold">{bCount} biomarkers</strong> • <strong className="text-[#0F172A] font-extrabold">{vCount} vitals</strong> • <strong className="text-[#0D9488] font-extrabold">{mCount} medications</strong> extracted
+                        </>
+                      ) : (
+                        "0 biomarkers extracted • Document stored in history"
+                      )}
                     </p>
                   </div>
 

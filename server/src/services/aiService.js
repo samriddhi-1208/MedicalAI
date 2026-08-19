@@ -237,7 +237,9 @@ function universalClinicalExtractor(textStr, fileName) {
         if (valMatch) {
           const rawVal = valMatch[1].replace(/,/g, '').trim();
           let unit = spec.unit;
-          const uMatch = snippet.match(/(g\/dL|gm\/dL|mg\/dL|mg\/L|mmol\/L|mEq\/L|mIU\/L|uIU\/mL|µIU\/mL|µg\/dL|U\/L|unit\/L|ng\/mL|pg\/mL|\/µL|\/uL|cells\/µL|cells\/uL|lakh\/uL|lakh\/µL|million\/µL|million\/uL|mil\/cu\.mm|lac\/cmm|Lakhs\/cumm|mm\/hr|fL|pg|%|k\/mcL)/i);
+          const valPos = snippet.indexOf(rawVal);
+          const afterVal = valPos !== -1 ? snippet.substring(valPos + rawVal.length, valPos + rawVal.length + 30) : snippet;
+          const uMatch = afterVal.match(/(g\/dL|gm\/dL|mg\/dL|mg\/L|mmol\/L|mEq\/L|mIU\/L|uIU\/mL|µIU\/mL|µg\/dL|U\/L|IU\/L|unit\/L|ng\/mL|pg\/mL|\/µL|\/uL|cells\/µL|cells\/uL|lakh\/uL|lakh\/µL|million\/µL|million\/uL|mil\/cu\.mm|lac\/cmm|Lakhs\/cumm|mm\/hr|fL|pg|%|k\/mcL)/i);
           if (uMatch) unit = uMatch[0];
 
           let ref = spec.ref;
