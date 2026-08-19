@@ -27,7 +27,7 @@ import { Button } from '../components/ui/Button';
 import { Modal } from '../components/ui/Modal';
 
 export const EmergencySOSPage = () => {
-  const { userProfile, updateUserProfile, language } = useHealthData();
+  const { userProfile, emergencyContacts, addEmergencyContact, deleteEmergencyContact, triggerSOS, language } = useHealthData();
   const t = (key) => getTranslation(language, key);
   
   // Real-Time GPS Location State
@@ -47,8 +47,8 @@ export const EmergencySOSPage = () => {
     contactsAlerted: false
   });
 
-  // Dynamic Trusted Contacts State (Stored in user profile / localStorage)
-  const trustedContacts = Array.isArray(userProfile?.emergencyContacts) ? userProfile.emergencyContacts : [
+  // Dynamic Trusted Contacts State (Stored in MongoDB via API)
+  const trustedContacts = Array.isArray(emergencyContacts) && emergencyContacts.length > 0 ? emergencyContacts : [
     { id: 'c-default-108', name: 'National Ambulance Service (108)', relation: 'Govt Emergency Helpline', phone: '108', isPrimary: true }
   ];
 
@@ -85,7 +85,7 @@ export const EmergencySOSPage = () => {
       },
       (err) => {
         setLoadingLocation(false);
-        setLocationError("Location access denied. Enable GPS permission to find real nearby hospitals.");
+        setLocationError("Location access denied. Enable GPS permission to trigger an Emergency SOS.");
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
@@ -103,67 +103,63 @@ export const EmergencySOSPage = () => {
     }
   };
 
-  const initiateSOS = () => {
+  const initiateSOS = async () => {
     if (sosStep === 'active') {
       toast.success("Emergency SOS is already active.");
       return;
     }
 
-    setSosStep('dispatching');
-    toast.loading("Activating Emergency Dispatch...", { id: 'sos-toast' });
+    if (!userCoords || userCoords.lat === undefined || userCoords.lng === undefined) {
+      toast.error("Live location is required to send an SOS. Please enable GPS permission in your browser.");
+      return;
+    }
 
-    setTimeout(() => {
-      setSosStatusChecklist({
-        locationAcquired: !!userCoords,
-        hospitalsFound: nearbyHospitals.length > 0,
-        contactsAlerted: true
-      });
-      setSosStep('active');
-      toast.dismiss('sos-toast');
-      toast.success("🚨 EMERGENCY SOS ACTIVATED! Location shared with 108 Emergency Services.", { duration: 6000 });
-    }, 1500);
+    setSosStep('dispatching');
+    const toastId = toast.loading("Connecting to Emergency SOS Server...", { id: 'sos-toast' });
+
+    try {
+      const res = await triggerSOS(userCoords.lat, userCoords.lng);
+      toast.dismiss(toastId);
+      if (res && res.success) {
+        setSosStatusChecklist({
+          locationAcquired: true,
+          hospitalsFound: nearbyHospitals.length > 0,
+          contactsAlerted: (res.contactsNotified || 0) > 0
+        });
+        setSosStep('active');
+        toast.success(`🚨 EMERGENCY SOS ACTIVATED! Real location (${userCoords.lat.toFixed(4)}, ${userCoords.lng.toFixed(4)}) dispatched via backend.`, { duration: 6000 });
+      } else {
+        setSosStep('idle');
+        toast.error("SOS dispatch failed on server.");
+      }
+    } catch (err) {
+      toast.dismiss(toastId);
+      setSosStep('idle');
+      toast.error(err.message || "Failed to trigger SOS.");
+    }
   };
 
-  const handleSaveContact = () => {
+  const handleSaveContact = async () => {
     if (!contactName.trim() || !contactPhone.trim()) {
       toast.error("Please enter contact name and phone number.");
       return;
     }
 
-    const updatedContacts = [...trustedContacts];
-    if (editingContact) {
-      const idx = updatedContacts.findIndex(c => c.id === editingContact.id);
-      if (idx !== -1) {
-        updatedContacts[idx] = { ...updatedContacts[idx], name: contactName, relation: contactRelation, phone: contactPhone };
-      }
-    } else {
-      updatedContacts.push({
-        id: `c-contact-${Date.now()}`,
-        name: contactName,
-        relation: contactRelation || 'Family Contact',
-        phone: contactPhone,
-        isPrimary: false
-      });
-    }
-
-    if (typeof updateUserProfile === 'function') {
-      updateUserProfile({ emergencyContacts: updatedContacts });
-    }
+    await addEmergencyContact({
+      name: contactName.trim(),
+      relation: contactRelation.trim() || 'Family Contact',
+      phone: contactPhone.trim()
+    });
 
     setShowContactModal(false);
     setEditingContact(null);
     setContactName('');
     setContactRelation('');
     setContactPhone('');
-    toast.success("Trusted emergency contact saved");
   };
 
-  const handleDeleteContact = (id) => {
-    const updatedContacts = trustedContacts.filter(c => c.id !== id);
-    if (typeof updateUserProfile === 'function') {
-      updateUserProfile({ emergencyContacts: updatedContacts });
-    }
-    toast.success("Contact removed");
+  const handleDeleteContact = async (id) => {
+    await deleteEmergencyContact(id);
   };
 
   return (

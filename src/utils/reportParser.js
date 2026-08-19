@@ -1,6 +1,7 @@
 /**
  * MedGuardian AI — 100% Dynamic Medical Report & Prescription Extraction Engine
  * Pipeline: PDF/Image Text Stream -> Clinical Entity Recognition -> Lab Results, Vitals, Medications & Easy Plain Language Explanations
+ * ZERO HARDCODED MEDICAL FALLBACK DATA — Medical data originates ONLY from actual report text.
  */
 
 import * as pdfjsLib from 'pdfjs-dist';
@@ -195,6 +196,14 @@ export function generateRichClinicalSummary(fileName, rawBiomarkers, rawVitals, 
   const vCount = vitals.length;
   const mCount = medications.length;
 
+  if (bCount === 0 && vCount === 0 && mCount === 0) {
+    return lang === 'HI'
+      ? "इस रिपोर्ट से चिकित्सा जानकारी निकालने में असमर्थ। कृपया अधिक स्पष्ट मेडिकल रिपोर्ट अपलोड करें।"
+      : lang === 'GU'
+      ? "આ રિપોર્ટમાંથી મેડિકલ માહિતી કાઢવામાં અસમર્થ. કૃપા કરીને વધુ સ્પષ્ટ મેડિકલ રિપોર્ટ અપલોડ કરો."
+      : "Unable to extract medical information from this report. Please upload a clearer medical report.";
+  }
+
   const warnings = biomarkers.filter(b => b && (b.status === 'High' || b.status === 'Low' || b.status === 'Critical' || b.status === 'Attention Needed'));
   const normalCount = bCount - warnings.length;
 
@@ -279,7 +288,6 @@ export function universalClinicalExtractor(textStr, fileName) {
   const recommendations = [];
 
   const lowerText = text.toLowerCase();
-  const lowerFileName = (fileName || '').toLowerCase();
 
   // 1. EXTRACT VITAL SIGNS
   const tempMatch = text.match(/(?:Temperature|Body Temp|Temp)\s*[:=\-]?\s*([\d\.]+)\s*(°[FC]|F|C)?/i);
@@ -433,7 +441,7 @@ export function universalClinicalExtractor(textStr, fileName) {
 
   medSpecs.forEach(spec => {
     const pos = lowerText.indexOf(spec.drug);
-    if (pos !== -1 || lowerFileName.includes(spec.drug) || lowerFileName.includes('medication') || lowerFileName.includes('fictional') || lowerFileName.includes('samriddhi')) {
+    if (pos !== -1) {
       const snippet = text.substring(Math.max(0, pos), pos + 150);
       
       const doseMatch = snippet.match(/(\d+(?:\.\d+)?\s*(?:mg|g|ml|mcg|unit|units))/i);
@@ -476,112 +484,9 @@ export function universalClinicalExtractor(textStr, fileName) {
     }
   });
 
-  // Robust Smart Fallback for any uploaded medical document if 0 findings were extracted from raw text
-  if (medications.length === 0 && labResults.length === 0) {
-    if (lowerFileName.includes('blood') || lowerFileName.includes('cbc') || lowerFileName.includes('baseline') || lowerFileName.includes('report') || lowerFileName.includes('lab') || lowerFileName.includes('medical')) {
-      labResults.push(
-        {
-          id: `extracted-bm-${Date.now()}-0`,
-          testName: "Hemoglobin",
-          name: "Hemoglobin",
-          value: "13.8",
-          unit: "g/dL",
-          referenceRange: "12.0 - 15.5",
-          refRange: "12.0 - 15.5",
-          status: "Normal",
-          statusType: "normal",
-          statusSymbol: "✓",
-          easyExplanation: getEasyBiomarkerExplanation("Hemoglobin", "Normal", "13.8", "g/dL")
-        },
-        {
-          id: `extracted-bm-${Date.now()}-1`,
-          testName: "WBC Count",
-          name: "WBC Count",
-          value: "7200",
-          unit: "cells/µL",
-          referenceRange: "4000 - 11000",
-          refRange: "4000 - 11000",
-          status: "Normal",
-          statusType: "normal",
-          statusSymbol: "✓",
-          easyExplanation: getEasyBiomarkerExplanation("WBC Count", "Normal", "7200", "cells/µL")
-        },
-        {
-          id: `extracted-bm-${Date.now()}-2`,
-          testName: "Platelets",
-          name: "Platelets",
-          value: "2.45",
-          unit: "lakh/µL",
-          referenceRange: "1.50 - 4.50",
-          refRange: "1.50 - 4.50",
-          status: "Normal",
-          statusType: "normal",
-          statusSymbol: "✓",
-          easyExplanation: getEasyBiomarkerExplanation("Platelets", "Normal", "2.45", "lakh/µL")
-        },
-        {
-          id: `extracted-bm-${Date.now()}-3`,
-          testName: "Fasting Glucose",
-          name: "Fasting Glucose",
-          value: "92",
-          unit: "mg/dL",
-          referenceRange: "70 - 99",
-          refRange: "70 - 99",
-          status: "Normal",
-          statusType: "normal",
-          statusSymbol: "✓",
-          easyExplanation: getEasyBiomarkerExplanation("Fasting Glucose", "Normal", "92", "mg/dL")
-        }
-      );
-
-      vitals.push(
-        { name: "Blood Pressure", value: "120/80", unit: "mmHg", status: "Normal" },
-        { name: "Heart Rate", value: "72", unit: "bpm", status: "Normal" }
-      );
-    } else {
-      medications.push(
-        {
-          id: `extracted-med-${Date.now()}-0`,
-          name: "Pantoprazole",
-          medicineName: "Pantoprazole",
-          strength: "40 mg",
-          dose: "1 tablet",
-          quantity: "1 tablet",
-          frequency: "Once daily",
-          timing: "08:00 AM",
-          mealRelation: "Before meal",
-          duration: "7 days",
-          easyExplanation: getEasyMedicineExplanation("Pantoprazole")
-        },
-        {
-          id: `extracted-med-${Date.now()}-1`,
-          name: "Cetirizine",
-          medicineName: "Cetirizine",
-          strength: "10 mg",
-          dose: "1 tablet",
-          quantity: "1 tablet",
-          frequency: "Once daily",
-          timing: "01:30 PM",
-          mealRelation: "After meal",
-          duration: "5 days",
-          easyExplanation: getEasyMedicineExplanation("Cetirizine")
-        },
-        {
-          id: `extracted-med-${Date.now()}-2`,
-          name: "Paracetamol",
-          medicineName: "Paracetamol",
-          strength: "500 mg",
-          dose: "1 tablet",
-          quantity: "1 tablet",
-          frequency: "Twice daily",
-          timing: "08:00 AM",
-          mealRelation: "After meal",
-          duration: "5 days",
-          easyExplanation: getEasyMedicineExplanation("Paracetamol")
-        }
-      );
-    }
-  }
+  // ZERO HARDCODED FALLBACK MEDICAL DATA
+  // If no medical entities are found in the text, return empty arrays and honest failure summary
+  const hasExtractedData = labResults.length > 0 || vitals.length > 0 || medications.length > 0;
 
   // 4. EXTRACT DOCTOR & RECOMMENDATIONS
   const docMatch = text.match(/(?:Dr\.|Doctor|Consultant)\s*[:=\-]?\s*([A-Za-z\s\.]+)/i);
@@ -590,12 +495,13 @@ export function universalClinicalExtractor(textStr, fileName) {
   const recMatch = text.match(/(?:Recommendation|Advice|Plan|Follow[- ]up)\s*[:=\-]?\s*(.+)/i);
   if (recMatch) {
     recommendations.push(recMatch[1].trim());
-  } else {
-    recommendations.push("Maintain balanced hydration and schedule regular health follow-up.");
   }
 
   // 5. GENERATE DYNAMIC CLINICAL SUMMARY
-  const clinicalSummary = generateRichClinicalSummary(fileName, labResults, vitals, medications);
+  const clinicalSummary = hasExtractedData
+    ? generateRichClinicalSummary(fileName, labResults, vitals, medications)
+    : "Unable to extract medical information from this report. Please upload a clearer medical report.";
+
   const abnormalCount = labResults.filter(b => b && b.status !== 'Normal').length;
 
   return {
@@ -610,7 +516,8 @@ export function universalClinicalExtractor(textStr, fileName) {
     doctorName,
     diagnoses: [],
     recommendations,
-    abnormalCount
+    abnormalCount,
+    extractionFailed: !hasExtractedData
   };
 }
 

@@ -434,165 +434,223 @@ export const HealthDataProvider = ({ children }) => {
   };
 
   const addMedicine = async (medObj) => {
+    if (!token) {
+      toast.error("Please login to manage medications.");
+      return null;
+    }
+
     const k = (medObj.name || '').toLowerCase().trim();
-
-    const existing = medicines.find(m => {
-      const exK = (m.name || '').toLowerCase().trim();
-      return exK === k;
-    });
-
+    const existing = medicines.find(m => (m.name || '').toLowerCase().trim() === k);
     if (existing) {
       return existing;
     }
 
-    const tempId = `med-${Date.now()}`;
-    const newMed = {
-      id: tempId,
-      name: medObj.name,
-      dose: medObj.dose || medObj.dosage || '1 tablet',
-      dosage: medObj.dosage || medObj.dose || '1 tablet',
-      frequency: medObj.frequency || 'Once daily',
-      scheduledTime: medObj.scheduled_time || medObj.time || '08:00 AM',
-      time: medObj.scheduled_time || medObj.time || '08:00 AM',
-      timeSlot: medObj.timeSlot || 'Morning',
-      mealRelation: medObj.meal_relation || medObj.mealRelation || 'After meal',
-      mealType: medObj.meal_type || medObj.mealType || 'Lunch',
-      delayMinutes: medObj.delay_minutes || medObj.delayMinutes || 30,
-      durationDays: medObj.duration_days || medObj.durationDays || 5,
-      sourceTitle: medObj.source_title || 'Prescription Schedule',
-      purpose: medObj.purpose || 'Prescribed Medication',
-      totalPills: medObj.total_pills || medObj.totalPills || 30,
-      pillsRemaining: medObj.pills_remaining || medObj.totalPills || 30,
-      isPaused: false,
-      taken: false
-    };
-
-    setMedicines(prev => [newMed, ...prev]);
-
-    if (token) {
-      try {
-        const res = await fetch(`${API_BASE}/medicines`, {
-          method: 'POST',
-          headers: getAuthHeaders(),
-          body: JSON.stringify(medObj)
-        });
-        const data = await safeParseJson(res);
-        if (res.ok && data) {
-          setMedicines(prev => prev.map(m => m.id === tempId ? { ...m, id: data._id || data.id } : m));
-        }
-      } catch (e) {
-        console.warn("[API] Add medicine note:", e);
+    try {
+      const res = await fetch(`${API_BASE}/medicines`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(medObj)
+      });
+      const data = await safeParseJson(res);
+      if (res.ok && data) {
+        const confirmedMed = {
+          id: data._id || data.id,
+          name: data.name,
+          dose: data.dose || data.dosage || '1 tablet',
+          dosage: data.dosage || data.dose || '1 tablet',
+          frequency: data.frequency || 'Once daily',
+          scheduledTime: data.scheduled_time || data.time || '08:00 AM',
+          time: data.scheduled_time || data.time || '08:00 AM',
+          timeSlot: data.time_slot || 'Morning',
+          mealRelation: data.meal_relation || data.mealRelation || 'After meal',
+          mealType: data.meal_type || data.mealType || 'Lunch',
+          delayMinutes: data.delay_minutes || data.delayMinutes || 30,
+          durationDays: data.duration_days || data.durationDays || 5,
+          sourceTitle: data.source_title || 'Prescription Schedule',
+          purpose: data.purpose || 'Prescribed Medication',
+          totalPills: data.total_pills || data.totalPills || 30,
+          pillsRemaining: data.pills_remaining || data.pillsRemaining || 30,
+          isPaused: data.is_paused || false,
+          taken: data.is_taken || false
+        };
+        setMedicines(prev => [confirmedMed, ...prev]);
+        toast.success(`${confirmedMed.name} added to schedule.`);
+        return confirmedMed;
+      } else {
+        const err = data?.error || "Failed to add medication.";
+        toast.error(err);
+        return null;
       }
+    } catch (e) {
+      console.error("[API] Add medicine error:", e);
+      toast.error("Failed to connect to backend server.");
+      return null;
     }
-
-    return newMed;
   };
 
   const updateMedicine = async (medId, updatedFields) => {
-    setMedicines(prev => prev.map(m => m.id === medId ? { ...m, ...updatedFields } : m));
-
-    if (token) {
-      try {
-        await fetch(`${API_BASE}/medicines/${medId}`, {
-          method: 'PUT',
-          headers: getAuthHeaders(),
-          body: JSON.stringify(updatedFields)
-        });
-      } catch (e) {
-        console.warn("[API] Update medicine note:", e);
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_BASE}/medicines/${medId}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(updatedFields)
+      });
+      const data = await safeParseJson(res);
+      if (res.ok && data) {
+        setMedicines(prev => prev.map(m => m.id === medId ? { ...m, ...updatedFields } : m));
+        toast.success("Medication updated successfully.");
+      } else {
+        toast.error(data?.error || "Failed to update medication.");
       }
+    } catch (e) {
+      console.error("[API] Update medicine error:", e);
+      toast.error("Network error while updating medication.");
     }
   };
 
   const deleteMedicine = async (medId) => {
-    setMedicines(prev => prev.filter(m => m.id !== medId));
-
-    if (token) {
-      try {
-        await fetch(`${API_BASE}/medicines/${medId}`, {
-          method: 'DELETE',
-          headers: getAuthHeaders()
-        });
-      } catch (e) {
-        console.warn("[API] Delete medicine note:", e);
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_BASE}/medicines/${medId}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      });
+      if (res.ok) {
+        setMedicines(prev => prev.filter(m => m.id !== medId));
+        toast.success("Medication deleted.");
+      } else {
+        const data = await safeParseJson(res);
+        toast.error(data?.error || "Failed to delete medication.");
       }
+    } catch (e) {
+      console.error("[API] Delete medicine error:", e);
+      toast.error("Network error while deleting medication.");
     }
   };
 
   const toggleMedicinePause = async (medId) => {
-    setMedicines(prev => prev.map(m => m.id === medId ? { ...m, isPaused: !m.isPaused } : m));
-
-    if (token) {
-      try {
-        await fetch(`${API_BASE}/medicines/${medId}/toggle-pause`, {
-          method: 'PATCH',
-          headers: getAuthHeaders()
-        });
-      } catch (e) {
-        console.warn("[API] Toggle pause note:", e);
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_BASE}/medicines/${medId}/toggle-pause`, {
+        method: 'PATCH',
+        headers: getAuthHeaders()
+      });
+      const data = await safeParseJson(res);
+      if (res.ok && data) {
+        setMedicines(prev => prev.map(m => m.id === medId ? { ...m, isPaused: data.is_paused } : m));
+      } else {
+        toast.error("Failed to toggle medication status.");
       }
+    } catch (e) {
+      console.error("[API] Toggle pause error:", e);
+      toast.error("Network error.");
     }
   };
 
   const toggleMedicineTaken = async (medId) => {
-    setMedicines(prev => prev.map(m => {
-      if (m.id === medId) {
-        const nextTaken = !m.taken;
-        return {
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_BASE}/medicines/${medId}/taken`, {
+        method: 'PATCH',
+        headers: getAuthHeaders()
+      });
+      const data = await safeParseJson(res);
+      if (res.ok && data) {
+        setMedicines(prev => prev.map(m => m.id === medId ? {
           ...m,
-          taken: nextTaken,
-          pillsRemaining: nextTaken ? Math.max(0, m.pillsRemaining - 1) : m.pillsRemaining
-        };
+          taken: data.is_taken,
+          pillsRemaining: data.pills_remaining
+        } : m));
+        toast.success(data.is_taken ? "Medication logged as taken." : "Medication status updated.");
+      } else {
+        toast.error("Failed to log medication.");
       }
-      return m;
-    }));
-
-    if (token) {
-      try {
-        await fetch(`${API_BASE}/medicines/${medId}/taken`, {
-          method: 'PATCH',
-          headers: getAuthHeaders()
-        });
-      } catch (e) {
-        console.warn("[API] Toggle taken note:", e);
-      }
+    } catch (e) {
+      console.error("[API] Toggle taken error:", e);
+      toast.error("Network error.");
     }
   };
 
   const addEmergencyContact = async (contactObj) => {
-    const tempId = `c-${Date.now()}`;
-    const newC = { ...contactObj, id: tempId };
-    setEmergencyContacts(prev => [...prev, newC]);
-
-    if (token) {
-      try {
-        const res = await fetch(`${API_BASE}/emergency/contacts`, {
-          method: 'POST',
-          headers: getAuthHeaders(),
-          body: JSON.stringify(contactObj)
-        });
-        const data = await safeParseJson(res);
-        if (res.ok && data) {
-          setEmergencyContacts(prev => prev.map(c => c.id === tempId ? { ...c, id: data._id || data.id } : c));
-        }
-      } catch (e) {
-        console.warn("[API] Add contact note:", e);
+    if (!token) {
+      toast.error("Please login to save emergency contacts.");
+      return null;
+    }
+    try {
+      const res = await fetch(`${API_BASE}/emergency/contacts`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(contactObj)
+      });
+      const data = await safeParseJson(res);
+      if (res.ok && data) {
+        const confirmedContact = {
+          id: data._id || data.id,
+          name: data.name,
+          relation: data.relation,
+          phone: data.phone,
+          email: data.email,
+          isPrimary: Boolean(data.is_primary)
+        };
+        setEmergencyContacts(prev => [...prev, confirmedContact]);
+        toast.success("Emergency contact saved.");
+        return confirmedContact;
+      } else {
+        toast.error(data?.error || "Failed to save contact.");
+        return null;
       }
+    } catch (e) {
+      console.error("[API] Add contact error:", e);
+      toast.error("Network error saving contact.");
+      return null;
     }
   };
 
   const deleteEmergencyContact = async (contactId) => {
-    setEmergencyContacts(prev => prev.filter(c => c.id !== contactId));
-
-    if (token) {
-      try {
-        await fetch(`${API_BASE}/emergency/contacts/${contactId}`, {
-          method: 'DELETE',
-          headers: getAuthHeaders()
-        });
-      } catch (e) {
-        console.warn("[API] Delete contact note:", e);
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_BASE}/emergency/contacts/${contactId}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      });
+      if (res.ok) {
+        setEmergencyContacts(prev => prev.filter(c => c.id !== contactId));
+        toast.success("Contact deleted.");
+      } else {
+        const data = await safeParseJson(res);
+        toast.error(data?.error || "Failed to delete contact.");
       }
+    } catch (e) {
+      console.error("[API] Delete contact error:", e);
+      toast.error("Network error deleting contact.");
+    }
+  };
+
+  const triggerSOS = async (latitude, longitude) => {
+    if (!token) {
+      throw new Error("Authentication required to send an SOS.");
+    }
+
+    if (latitude === undefined || latitude === null || longitude === undefined || longitude === null) {
+      throw new Error("Live location is required to send an SOS.");
+    }
+
+    const res = await fetch(`${API_BASE}/emergency/sos`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({
+        latitude: Number(latitude),
+        longitude: Number(longitude),
+        triggerType: "Manual SOS Button"
+      })
+    });
+
+    const data = await safeParseJson(res);
+    if (res.ok && data && data.success) {
+      return data;
+    } else {
+      throw new Error(data?.error || "SOS dispatch request failed.");
     }
   };
 
@@ -637,6 +695,7 @@ export const HealthDataProvider = ({ children }) => {
     toggleMedicineTaken,
     addEmergencyContact,
     deleteEmergencyContact,
+    triggerSOS,
     isAuthenticated: Boolean(token)
   };
 

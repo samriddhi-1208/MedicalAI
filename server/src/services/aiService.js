@@ -2,6 +2,7 @@
  * AI Service for Medical Report Analysis & Dynamic Medication/Lab/Vitals Extraction
  * Supports Google Gemini API (GEMINI_API_KEY / AI_API_KEY) with structured JSON output.
  * Falls back to Universal Dynamic Clinical Text Extractor when API key is not configured or offline.
+ * ZERO HARDCODED MEDICAL FALLBACK DATA — Medical data originates ONLY from actual report text.
  */
 
 const fetch = require('node-fetch');
@@ -60,8 +61,8 @@ exports.analyzeReportText = async (rawText, fileName) => {
 }
 
 Rules:
-- Extract ALL lab parameters, vitals, and medication instructions present in the text.
-- Do NOT invent or hallucinate missing data. Return empty array [] if a section is absent in text.
+- Extract ONLY lab parameters, vitals, and medication instructions actually present in the text.
+- Do NOT invent, seed, or hallucinate missing data. Return empty array [] if a section is absent in text.
 
 Document Text:
 ${cleanedText.slice(0, 5000)}
@@ -127,6 +128,10 @@ function generateRichClinicalSummary(fileName, rawBiomarkers, rawVitals, rawMedi
   const bCount = biomarkers.length;
   const vCount = vitals.length;
   const mCount = medications.length;
+
+  if (bCount === 0 && vCount === 0 && mCount === 0) {
+    return "Unable to extract medical information from this report. Please upload a clearer medical report.";
+  }
 
   const warnings = biomarkers.filter(b => b && (b.status === 'High' || b.status === 'Low' || b.status === 'Critical' || b.status === 'Attention Needed'));
   const normalCount = bCount - warnings.length;
@@ -356,7 +361,11 @@ function universalClinicalExtractor(textStr, fileName) {
     }
   });
 
-  const clinicalSummary = generateRichClinicalSummary(fileName, labResults, vitals, medications, null);
+  const hasData = labResults.length > 0 || vitals.length > 0 || medications.length > 0;
+
+  const clinicalSummary = hasData
+    ? generateRichClinicalSummary(fileName, labResults, vitals, medications, null)
+    : "Unable to extract medical information from this report. Please upload a clearer medical report.";
 
   return {
     patient: { name: "Patient", age: "N/A", gender: "N/A" },
@@ -367,9 +376,9 @@ function universalClinicalExtractor(textStr, fileName) {
     biomarkers: labResults,
     medications,
     diagnoses: [],
-    recommendations: [
+    recommendations: hasData ? [
       "Maintain adequate daily hydration (2.5 - 3.0 liters of water).",
       "Follow prescribed medication schedules as recommended by your physician."
-    ]
+    ] : []
   };
 }
