@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { useHealthData } from '../context/HealthDataContext';
 import { getTranslation } from '../utils/translations';
+import { universalClinicalExtractor } from '../utils/reportParser';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
@@ -134,6 +135,14 @@ export const HealthTimelinePage = () => {
         });
       }
     });
+
+    // Fallback: If report biomarkers array is empty but rawText exists, extract biomarkers on the fly
+    if (rawItems.length === 0 && (r.rawText || r.raw_text)) {
+      const textToExtract = r.rawText || r.raw_text;
+      const extracted = universalClinicalExtractor(textToExtract, reportTitle);
+      if (Array.isArray(extracted.labResults)) rawItems.push(...extracted.labResults);
+      if (Array.isArray(extracted.vitals)) rawItems.push(...extracted.vitals);
+    }
 
     const seenInReport = new Set();
 
