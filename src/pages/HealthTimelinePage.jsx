@@ -384,7 +384,7 @@ export const HealthTimelinePage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
             {/* Chart Area (8 columns) */}
-            <Card className="lg:col-span-8 p-6 bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-4">
+            <Card className="lg:col-span-8 p-6 bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-4 lg:sticky lg:top-20 lg:self-start">
               {/* Header Title & Dynamic Biomarker Selection Pill Strip */}
               <div className="space-y-3 border-b border-slate-100 pb-3">
                 <div className="flex items-center justify-between flex-wrap gap-2">
@@ -512,48 +512,53 @@ export const HealthTimelinePage = () => {
 
             {/* TREND CARDS GRID (4 columns) */}
             <div className="lg:col-span-4 space-y-3">
-              <h4 className="text-xs font-black text-slate-500 uppercase tracking-wider">Biomarker Highlights</h4>
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-black text-slate-500 uppercase tracking-wider">Biomarker Highlights ({discoveredBiomarkerNames.length})</h4>
+                <span className="text-[10px] text-slate-400 font-semibold">Scroll for more</span>
+              </div>
               
-              {discoveredBiomarkerNames.map((mName) => {
-                const data = biomarkerMap[mName] || [];
-                const latest = data[data.length - 1];
-                const prev = data.length > 1 ? data[data.length - 2] : null;
+              <div className="space-y-3 max-h-[580px] overflow-y-auto pr-1 scrollbar-thin">
+                {discoveredBiomarkerNames.map((mName) => {
+                  const data = biomarkerMap[mName] || [];
+                  const latest = data[data.length - 1];
+                  const prev = data.length > 1 ? data[data.length - 2] : null;
 
-                let cardDiff = 'Baseline';
-                if (data.length >= 2 && latest && prev && latest.numValue !== null && prev.numValue !== null) {
-                  const d = latest.numValue - prev.numValue;
-                  if (d > 0) cardDiff = `↑ +${d.toFixed(1)}`;
-                  else if (d < 0) cardDiff = `↓ ${d.toFixed(1)}`;
-                  else cardDiff = 'Stable';
-                }
+                  let cardDiff = 'Baseline';
+                  if (data.length >= 2 && latest && prev && latest.numValue !== null && prev.numValue !== null) {
+                    const d = latest.numValue - prev.numValue;
+                    if (d > 0) cardDiff = `↑ +${d.toFixed(1)}`;
+                    else if (d < 0) cardDiff = `↓ ${d.toFixed(1)}`;
+                    else cardDiff = 'Stable';
+                  }
 
-                return (
-                  <Card 
-                    key={mName} 
-                    onClick={() => {
-                      setSelectedMetric(mName);
-                      setDetailModalMetric(mName);
-                    }}
-                    className={`p-4 bg-white border rounded-2xl shadow-2xs space-y-2 cursor-pointer transition-all hover:border-[#0D9488] ${
-                      activeMetricName === mName ? 'border-[#0D9488] bg-slate-50/50' : 'border-slate-200/90'
-                    }`}
-                  >
-                    <div className="flex justify-between items-center text-xs font-bold text-[#0F172A]">
-                      <span className="truncate max-w-[150px]">{mName}</span>
-                      <span className="px-2 py-0.5 text-[10px] font-extrabold rounded-full bg-slate-100 text-slate-700 border border-slate-200">
-                        {cardDiff}
-                      </span>
-                    </div>
+                  return (
+                    <Card 
+                      key={mName} 
+                      onClick={() => {
+                        setSelectedMetric(mName);
+                        setDetailModalMetric(mName);
+                      }}
+                      className={`p-4 bg-white border rounded-2xl shadow-2xs space-y-2 cursor-pointer transition-all hover:border-[#0D9488] ${
+                        activeMetricName === mName ? 'border-[#0D9488] bg-slate-50/50' : 'border-slate-200/90'
+                      }`}
+                    >
+                      <div className="flex justify-between items-center text-xs font-bold text-[#0F172A]">
+                        <span className="truncate max-w-[150px]">{mName}</span>
+                        <span className="px-2 py-0.5 text-[10px] font-extrabold rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                          {cardDiff}
+                        </span>
+                      </div>
 
-                    <div className="flex items-baseline justify-between pt-1">
-                      <span className="text-2xl font-black text-[#0F172A] tracking-tight">
-                        {latest ? latest.value : 'N/A'} <span className="text-xs font-normal text-slate-500">{latest?.unit}</span>
-                      </span>
-                      <span className="text-[11px] font-semibold text-slate-500">{latest?.date}</span>
-                    </div>
-                  </Card>
-                );
-              })}
+                      <div className="flex items-baseline justify-between pt-1">
+                        <span className="text-2xl font-black text-[#0F172A] tracking-tight">
+                          {latest ? latest.value : 'N/A'} <span className="text-xs font-normal text-slate-500">{latest?.unit}</span>
+                        </span>
+                        <span className="text-[11px] font-semibold text-slate-500">{latest?.date}</span>
+                      </div>
+                    </Card>
+                  );
+                })}
+              </div>
             </div>
 
           </div>
