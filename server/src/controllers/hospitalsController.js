@@ -49,7 +49,7 @@ exports.geocodeLocation = async (req, res, next) => {
 // 2. Fetch Real Nearby Hospitals & Healthcare Facilities via OpenStreetMap Overpass API
 exports.getNearbyHospitals = async (req, res, next) => {
   try {
-    let { lat, lng, category, radiusKm, keyword } = req.query;
+    let { lat, lng, category, radiusKm } = req.query;
 
     if (!lat || !lng) {
       return res.status(400).json({ error: "Latitude and Longitude parameters are required." });
@@ -57,9 +57,10 @@ exports.getNearbyHospitals = async (req, res, next) => {
 
     const userLat = parseFloat(lat);
     const userLng = parseFloat(lng);
-    const initialRadius = parseInt(radiusKm) || 10;
-    
-    console.log(`[HOSPITAL FINDER] Real search around (${userLat}, ${userLng}) within ${initialRadius}km for category: "${category || 'All'}", keyword: "${keyword || ''}"`);
+    const radius = parseInt(radiusKm) || 25; // default 25km radius to ensure immediate nearby hospital results
+    let radiusMeters = radius * 1000;
+
+    console.log(`[HOSPITAL FINDER] Real search around (${userLat}, ${userLng}) within ${radius}km for category: "${category || 'All'}"`);
 
     // Determine OSM Overpass tags based on medical category
     let osmTagFilter = `["amenity"~"hospital|clinic|doctors|pharmacy"]`;
@@ -73,16 +74,13 @@ exports.getNearbyHospitals = async (req, res, next) => {
       osmTagFilter = `["amenity"~"hospital|clinic|doctors"]`;
     }
 
-    // Try requested radius first, auto-expand to 25km and 50km if 0 nodes returned
-    const radiiToTry = [initialRadius * 1000, 25000, 50000];
-    let elements = [];
-
-    for (const rMeters of radiiToTry) {
+    // Function to run Overpass QL Query
+    const runOverpassQuery = async (searchMeters) => {
       const overpassQuery = `
         [out:json][timeout:25];
         (
-          node${osmTagFilter}(around:${rMeters},${userLat},${userLng});
-          way${osmTagFilter}(around:${rMeters},${userLat},${userLng});
+          node${osmTagFilter}(around:${searchMeters},${userLat},${userLng});
+          way${osmTagFilter}(around:${searchMeters},${userLat},${userLng});
         );
         out center 40;
       `;
@@ -95,15 +93,17 @@ exports.getNearbyHospitals = async (req, res, next) => {
           'User-Agent': 'MedicalAI-Healthcare-Portal/2.0'
         },
         body: `data=${encodeURIComponent(overpassQuery)}`
-      }).catch(() => null);
+      });
 
-      if (response && response.ok) {
-        const data = await response.json().catch(() => null);
-        if (data && Array.isArray(data.elements) && data.elements.length > 0) {
-          elements = data.elements;
-          break;
-        }
-      }
+      if (!response.ok) return [];
+      const data = await response.json();
+      return data.elements || [];
+    };
+
+    let elements = await runOverpassQuery(radiusMeters);
+    if (elements.length === 0 && radiusMeters < 25000) {
+      // Auto-expand to 25km if strict small radius returns 0 items
+      elements = await runOverpassQuery(25000);
     }
 
     if (elements.length === 0) {
@@ -134,10 +134,6 @@ exports.getNearbyHospitals = async (req, res, next) => {
         else if (amenity === 'pharmacy') facilityType = 'Licensed Pharmacy';
         else if (amenity === 'doctors') facilityType = 'Doctor Specialist Clinic';
 
-        if (category && category !== 'Hospitals' && category !== 'All') {
-          facilityType = `${category} & Multi-Specialty Hospital`;
-        }
-
         const phone = tags.phone || tags['contact:phone'] || tags['phone:mobile'] || null;
         const website = tags.website || tags['contact:website'] || null;
         const emergencyOpen = tags.emergency === 'yes' || tags['opening_hours'] === '24/7' || amenity === 'hospital';
@@ -160,28 +156,13 @@ exports.getNearbyHospitals = async (req, res, next) => {
       })
       .filter(Boolean);
 
-    // Filter by keyword if user typed custom text in search box
-    let filteredFacilities = realFacilities;
-    const cleanKeyword = (keyword || '').trim().toLowerCase();
-    if (cleanKeyword) {
-      const kwMatches = realFacilities.filter(f => 
-        f.name.toLowerCase().includes(cleanKeyword) || 
-        f.address.toLowerCase().includes(cleanKeyword) || 
-        f.type.toLowerCase().includes(cleanKeyword)
-      );
-      // Fallback: If keyword filter yields 0 items, return all nearby facilities so user never gets 0 results
-      if (kwMatches.length > 0) {
-        filteredFacilities = kwMatches;
-      }
-    }
-
     // Sort by distance ascending
-    filteredFacilities.sort((a, b) => a.distanceKm - b.distanceKm);
+    realFacilities.sort((a, b) => a.distanceKm - b.distanceKm);
 
     // Return unique real facilities by name
     const uniqueFacilities = [];
     const seenNames = new Set();
-    for (const f of filteredFacilities) {
+    for (const f of realFacilities) {
       const lower = f.name.toLowerCase();
       if (!seenNames.has(lower)) {
         seenNames.add(lower);

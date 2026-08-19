@@ -95,7 +95,7 @@ export const HospitalFinderPage = () => {
   // Search & Filter State
   const [searchKeyword, setSearchKeyword] = useState('');
   const [category, setCategory] = useState('Hospitals');
-  const [radiusKm, setRadiusKm] = useState(5); // 5 | 10 | 25
+  const [radiusKm, setRadiusKm] = useState(25); // Default 25km to show nearby hospitals immediately
   const [sortBy, setSortBy] = useState('distance'); // 'distance' | 'relevance' | 'rating'
   
   // Real API Results State (ZERO Hardcoded / Demo Data)
@@ -177,7 +177,7 @@ export const HospitalFinderPage = () => {
 
       for (const r of radiiToTry) {
         if (r < radius) continue; // Don't try smaller radius than requested
-        const backendUrl = `${apiBaseUrl}/hospitals/nearby?lat=${lat}&lng=${lng}&category=${encodeURIComponent(targetCategory)}&radiusKm=${r}&keyword=${encodeURIComponent(keyword || '')}`;
+        const backendUrl = `${apiBaseUrl}/hospitals/nearby?lat=${lat}&lng=${lng}&category=${encodeURIComponent(targetCategory)}&radiusKm=${r}`;
         
         const res = await fetch(backendUrl).catch(() => null);
         if (res && res.ok) {
@@ -604,9 +604,10 @@ export const HospitalFinderPage = () => {
                   onChange={(e) => handleRadiusChange(Number(e.target.value))}
                   className="med-input text-xs w-full"
                 >
-                  <option value={5}>Radius: 5 km</option>
+                  <option value={25}>Radius: 25 km (Default)</option>
                   <option value={10}>Radius: 10 km</option>
-                  <option value={25}>Radius: 25 km</option>
+                  <option value={5}>Radius: 5 km</option>
+                  <option value={50}>Radius: 50 km</option>
                 </select>
               </div>
 
