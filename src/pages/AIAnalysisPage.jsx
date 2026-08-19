@@ -247,27 +247,78 @@ export const AIAnalysisPage = () => {
       </Card>
 
       {/* AI Clinical Summary Banner */}
-      <Card className="p-5 sm:p-6 bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-3">
-        <div className="flex items-center justify-between flex-wrap gap-2">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-[#0D9488]" />
-            <h2 className="text-base font-black text-[#0F172A]">{t('aiClinicalSummary')}</h2>
+      <Card className="p-6 bg-white border border-slate-200/90 rounded-2xl shadow-sm space-y-4">
+        <div className="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-slate-100">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-teal-50 border border-teal-200/80 flex items-center justify-center">
+              <Sparkles className="w-4.5 h-4.5 text-[#0D9488]" />
+            </div>
+            <div>
+              <h2 className="text-base font-black text-[#0F172A]">{t('aiClinicalSummary')}</h2>
+              <p className="text-[11px] text-slate-500 font-medium">Real-time clinical insights structured from extracted report data</p>
+            </div>
           </div>
-          <span className="px-3 py-1 rounded-full bg-[#F0FDF4] text-[#0D9488] font-bold text-xs border border-[#0D9488]/30">
+          <span className="px-3 py-1 rounded-full bg-[#F0FDF4] text-[#0D9488] font-bold text-xs border border-[#0D9488]/30 flex items-center gap-1.5 shadow-2xs">
+            <span className="w-2 h-2 rounded-full bg-[#0D9488] animate-pulse"></span>
             {t('extractedFromDoc')}
           </span>
         </div>
 
-        <p className="text-xs text-slate-700 font-normal leading-relaxed whitespace-pre-line">
-          {getFormattedSummary()}
-        </p>
+        {/* Structured Clinical Insight Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+          {getFormattedSummary().split(/\n\n+/).map((para, idx) => {
+            const trimmed = para.trim();
+            let icon = "📋";
+            let title = "Clinical Overview";
+            let bgStyle = "bg-slate-50 border-slate-200/90";
+            let titleColor = "text-slate-800";
+
+            if (trimmed.includes("Biomarker") || trimmed.includes("Laboratory")) {
+              icon = "🔬";
+              title = "Laboratory & Biomarker Analysis";
+              bgStyle = "bg-sky-50/60 border-sky-200/80";
+              titleColor = "text-sky-900";
+            } else if (trimmed.includes("Medication") || trimmed.includes("Treatment")) {
+              icon = "💊";
+              title = "Prescribed Treatment Plan";
+              bgStyle = "bg-teal-50/60 border-teal-200/80";
+              titleColor = "text-teal-900";
+            } else if (trimmed.includes("Guidance") || trimmed.includes("Patient")) {
+              icon = "💡";
+              title = "Patient Guidance & Action Plan";
+              bgStyle = "bg-amber-50/60 border-amber-200/80";
+              titleColor = "text-amber-900";
+            }
+
+            const cleanText = trimmed.replace(/^(?:📋|🔬|💊|💡)\s*(?:Clinical Overview|Laboratory & Biomarker Analysis|Prescribed Treatment Plan|Patient Guidance)\s*[:=\-]?\s*/i, '');
+
+            return (
+              <div key={idx} className={`p-4 rounded-xl border ${bgStyle} space-y-2 transition-all hover:shadow-xs`}>
+                <div className="flex items-center gap-2">
+                  <span className="text-base">{icon}</span>
+                  <h4 className={`text-xs font-black uppercase tracking-wider ${titleColor}`}>{title}</h4>
+                </div>
+                <p className="text-xs text-slate-700 font-normal leading-relaxed">
+                  {cleanText}
+                </p>
+              </div>
+            );
+          })}
+        </div>
       </Card>
 
       {/* EXTRACTED CLINICAL ENTITIES SUMMARY BADGE STRIP */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-4 rounded-2xl bg-teal-50 border border-teal-200/90 flex items-center justify-between">
+        <a 
+          href="#section-medications" 
+          onClick={(e) => {
+            e.preventDefault();
+            document.getElementById('section-medications')?.scrollIntoView({ behavior: 'smooth' });
+          }}
+          className="p-4 rounded-2xl bg-teal-50 hover:bg-teal-100/80 border border-teal-200/90 flex items-center justify-between transition-all shadow-2xs hover:shadow-xs cursor-pointer group"
+        >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-teal-600 text-white flex items-center justify-center font-black">
+            <div className="w-10 h-10 rounded-xl bg-teal-600 group-hover:bg-teal-700 text-white flex items-center justify-center font-black transition-colors">
               <Pill className="w-5 h-5" />
             </div>
             <div>
@@ -275,11 +326,19 @@ export const AIAnalysisPage = () => {
               <strong className="text-lg font-black text-[#0F172A]">{medications.length} {t('dosesIdentified')}</strong>
             </div>
           </div>
-        </div>
+          <ArrowRight className="w-4 h-4 text-teal-600 group-hover:translate-x-1 transition-transform" />
+        </a>
 
-        <div className="p-4 rounded-2xl bg-sky-50 border border-sky-200/90 flex items-center justify-between">
+        <a 
+          href="#section-biomarkers" 
+          onClick={(e) => {
+            e.preventDefault();
+            document.getElementById('section-biomarkers')?.scrollIntoView({ behavior: 'smooth' });
+          }}
+          className="p-4 rounded-2xl bg-sky-50 hover:bg-sky-100/80 border border-sky-200/90 flex items-center justify-between transition-all shadow-2xs hover:shadow-xs cursor-pointer group"
+        >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-sky-600 text-white flex items-center justify-center font-black">
+            <div className="w-10 h-10 rounded-xl bg-sky-600 group-hover:bg-sky-700 text-white flex items-center justify-center font-black transition-colors">
               <Activity className="w-5 h-5" />
             </div>
             <div>
@@ -287,11 +346,19 @@ export const AIAnalysisPage = () => {
               <strong className="text-lg font-black text-[#0F172A]">{biomarkers.length} {t('parametersParsed')}</strong>
             </div>
           </div>
-        </div>
+          <ArrowRight className="w-4 h-4 text-sky-600 group-hover:translate-x-1 transition-transform" />
+        </a>
 
-        <div className="p-4 rounded-2xl bg-indigo-50 border border-indigo-200/90 flex items-center justify-between">
+        <a 
+          href="#section-vitals" 
+          onClick={(e) => {
+            e.preventDefault();
+            document.getElementById('section-vitals')?.scrollIntoView({ behavior: 'smooth' });
+          }}
+          className="p-4 rounded-2xl bg-indigo-50 hover:bg-indigo-100/80 border border-indigo-200/90 flex items-center justify-between transition-all shadow-2xs hover:shadow-xs cursor-pointer group"
+        >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-black">
+            <div className="w-10 h-10 rounded-xl bg-indigo-600 group-hover:bg-indigo-700 text-white flex items-center justify-center font-black transition-colors">
               <HeartPulse className="w-5 h-5" />
             </div>
             <div>
@@ -299,12 +366,13 @@ export const AIAnalysisPage = () => {
               <strong className="text-lg font-black text-[#0F172A]">{vitals.length} {t('vitalsRecorded')}</strong>
             </div>
           </div>
-        </div>
+          <ArrowRight className="w-4 h-4 text-indigo-600 group-hover:translate-x-1 transition-transform" />
+        </a>
       </div>
 
       {/* 1. EXTRACTED MEDICATIONS & PRESCRIPTION INSTRUCTIONS (WITH PLAIN LANGUAGE EXPLANATION) */}
       {medications.length > 0 && (
-        <Card className="p-5 sm:p-6 bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-4">
+        <Card id="section-medications" className="p-5 sm:p-6 bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-4 scroll-mt-6">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div>
               <h3 className="text-base font-black text-[#0F172A] flex items-center gap-2">
@@ -389,7 +457,7 @@ export const AIAnalysisPage = () => {
 
       {/* 2. Vital Signs Grid (If extracted) */}
       {vitals.length > 0 && (
-        <Card className="p-5 bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-3">
+        <Card id="section-vitals" className="p-5 bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-3 scroll-mt-6">
           <h3 className="text-sm font-black text-[#0F172A] flex items-center gap-2">
             <HeartPulse className="w-4.5 h-4.5 text-[#0D9488]" /> Extracted Vital Signs ({vitals.length})
           </h3>
@@ -407,7 +475,7 @@ export const AIAnalysisPage = () => {
       )}
 
       {/* 3. Extracted Lab Results Table (WITH PLAIN LANGUAGE EXPLANATION) */}
-      <div className="space-y-4">
+      <div id="section-biomarkers" className="space-y-4 scroll-mt-6">
         <div className="flex items-center justify-between">
           <h3 className="text-base font-black text-[#0F172A]">{t('individualBiomarkerFindings')}</h3>
           <span className="text-xs font-semibold text-slate-500">
