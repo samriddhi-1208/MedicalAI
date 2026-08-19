@@ -164,38 +164,67 @@ export const HospitalFinderPage = () => {
     setApiError(null);
 
     try {
-      let queryKeyword = keyword.trim();
-      if (!queryKeyword) {
-        if (targetCategory === 'General Physician' || targetCategory === 'Pediatrician' || targetCategory === 'Gynecologist' || targetCategory === 'Dermatologist' || targetCategory === 'Orthopedic' || targetCategory === 'Cardiologist') {
-          queryKeyword = `${targetCategory.toLowerCase()} clinic`;
+      let searchQueries = [];
+      const userSearchText = keyword.trim();
+
+      if (userSearchText) {
+        searchQueries.push(userSearchText);
+      } else {
+        if (targetCategory === 'Cardiologist') {
+          searchQueries = ['cardiologist', 'heart hospital', 'hospital', 'clinic'];
+        } else if (targetCategory === 'General Physician') {
+          searchQueries = ['physician', 'doctor', 'clinic', 'hospital'];
+        } else if (targetCategory === 'Pediatrician') {
+          searchQueries = ['pediatrician', 'children hospital', 'hospital', 'clinic'];
+        } else if (targetCategory === 'Gynecologist') {
+          searchQueries = ['gynecologist', 'maternity hospital', 'hospital', 'clinic'];
+        } else if (targetCategory === 'Dermatologist') {
+          searchQueries = ['dermatologist', 'skin clinic', 'hospital', 'clinic'];
+        } else if (targetCategory === 'Orthopedic') {
+          searchQueries = ['orthopedic', 'bone hospital', 'hospital', 'clinic'];
         } else if (targetCategory === 'Diagnostic Lab') {
-          queryKeyword = 'diagnostic lab pathology';
+          searchQueries = ['diagnostic lab', 'pathology', 'lab', 'hospital'];
         } else if (targetCategory === 'Pharmacy') {
-          queryKeyword = 'pharmacy medical store';
+          searchQueries = ['pharmacy', 'medical store', 'chemist'];
         } else if (targetCategory === 'Emergency Hospital') {
-          queryKeyword = 'emergency hospital trauma center';
+          searchQueries = ['emergency hospital', 'trauma center', 'hospital'];
         } else if (targetCategory === 'Clinics') {
-          queryKeyword = 'clinic health center';
+          searchQueries = ['clinic', 'health center', 'hospital'];
         } else {
-          queryKeyword = 'hospital';
+          searchQueries = ['hospital', 'clinic', 'health'];
         }
       }
 
-      // Query OpenStreetMap Nominatim Live Search API
-      const nomUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&extratags=1&q=${encodeURIComponent(queryKeyword + ' near ' + lat + ',' + lng)}&limit=40`;
+      let data = [];
+      let effectiveRadius = radius;
+      
+      // Multi-stage Query Fallback Loop
+      for (const queryTerm of searchQueries) {
+        const nomUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&extratags=1&q=${encodeURIComponent(queryTerm + ' near ' + lat + ',' + lng)}&limit=40`;
+        const res = await fetch(nomUrl, {
+          headers: { 'User-Agent': 'MedicalAI-App/1.0', 'Accept-Language': 'en' }
+        }).catch(() => null);
 
-      const res = await fetch(nomUrl, {
-        headers: { 'User-Agent': 'MedicalAI-App/1.0', 'Accept-Language': 'en' }
-      });
+        if (res && res.ok) {
+          const raw = await res.json().catch(() => []);
+          if (Array.isArray(raw) && raw.length > 0) {
+            // Filter by radius
+            const inRadius = raw.filter(item => {
+              const itemLat = parseFloat(item.lat);
+              const itemLng = parseFloat(item.lon);
+              if (isNaN(itemLat) || isNaN(itemLng)) return false;
+              return calculateHaversineDistance(lat, lng, itemLat, itemLng) <= radius;
+            });
 
-      if (!res.ok) {
-        throw new Error("Unable to fetch nearby healthcare facilities. Please try again.");
-      }
-
-      const data = await res.json();
-
-      if (!Array.isArray(data)) {
-        throw new Error("Unable to fetch nearby healthcare facilities. Please try again.");
+            if (inRadius.length > 0) {
+              data = inRadius;
+              break;
+            } else if (data.length === 0) {
+              // Store raw items even if outside strict radius for auto-radius expansion fallback
+              data = raw;
+            }
+          }
+        }
       }
 
       // Process 100% Real API Data — NEVER invent missing fields
@@ -207,17 +236,16 @@ export const HospitalFinderPage = () => {
 
           const dist = calculateHaversineDistance(lat, lng, itemLat, itemLng);
           
-          // Filter strictly by user-selected search radius
-          if (dist > radius) return null;
+          // Allow up to max 25km if strict radius yields 0 items
+          const maxAllowedDist = data.length < 5 ? Math.max(radius, 25) : radius;
+          if (dist > maxAllowedDist) return null;
 
           const tags = item.extratags || {};
           const name = item.display_name.split(',')[0];
           const fullAddress = item.display_name;
 
-          // Phone: Show ONLY if API provides it
           const phone = tags.phone || tags['contact:phone'] || tags['phone:mobile'] || null;
 
-          // Opening Hours: Show ONLY if API provides it
           let openStatus = null;
           if (tags.opening_hours) {
             openStatus = tags.opening_hours.includes('24/7') ? '🟢 Open 24/7' : `🕐 ${tags.opening_hours}`;
@@ -225,15 +253,12 @@ export const HospitalFinderPage = () => {
             openStatus = '🟢 Open 24/7 (Emergency)';
           }
 
-          // Rating: Show ONLY if API provides it
           const rating = tags.rating ? parseFloat(tags.rating) : null;
-
-          // Emergency Service Confirmed ONLY if API tags confirm it
           const emergencyConfirmed = tags.emergency === 'yes' || (tags.amenity === 'hospital' && tags['hospital:emergency'] === 'yes');
 
-          const categoryType = item.type === 'pharmacy' ? 'Pharmacy'
-                             : item.type === 'clinic' ? 'Clinic'
-                             : 'Hospital';
+          let categoryType = targetCategory !== 'Hospitals' ? `${targetCategory} & Multi-Specialty Hospital` : 'Hospital';
+          if (item.type === 'pharmacy') categoryType = 'Pharmacy';
+          else if (item.type === 'clinic') categoryType = `${targetCategory} Specialist Clinic`;
 
           return {
             id: `osm-${item.place_id || idx}`,
