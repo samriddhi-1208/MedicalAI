@@ -16,6 +16,14 @@ export const translations = {
     settings: "Settings",
     emergencySOS: "Emergency SOS",
     oneClickDispatch: "1-Click Dispatch",
+    oneTapDispatch: "1-Tap Emergency Dispatch",
+    sosPressText: "Press the red SOS button to broadcast your real-time GPS location and alert trusted emergency contacts immediately.",
+    callNationalAmbulance: "Call National Ambulance (108)",
+    shareMyLocation: "Share Live GPS Location",
+    trustedContactsStatus: "Trusted Emergency Contacts",
+    primaryBadge: "Primary Helpline",
+    addContact: "Add Emergency Contact",
+    emergencyBannerText: "In case of a life-threatening medical emergency, press the SOS button below or call 108 immediately for government medical dispatch.",
 
     // Header
     authenticatedSession: "Authenticated Session",
@@ -207,6 +215,14 @@ export const translations = {
     settings: "सेटिंग्स",
     emergencySOS: "इमरजेंसी SOS",
     oneClickDispatch: "1-क्लिक डिस्पैच",
+    oneTapDispatch: "1-टैप आपातकालीन डिस्पैच",
+    sosPressText: "अपना वास्तविक समय GPS स्थान प्रसारित करने और आपातकालीन संपर्कों को अलर्ट करने के लिए लाल SOS बटन दबाएं।",
+    callNationalAmbulance: "राष्ट्रीय एम्बुलेंस (108) को कॉल करें",
+    shareMyLocation: "लाइव स्थान साझा करें",
+    trustedContactsStatus: "विश्वसनीय आपातकालीन संपर्क",
+    primaryBadge: "प्राथमिक हेल्पलाइन",
+    addContact: "आपातकालीन संपर्क जोड़ें",
+    emergencyBannerText: "जीवन-घातक आपात स्थिति में, नीचे दिए गए SOS बटन को दबाएं या सरकारी एम्बुलेंस के लिए 108 पर कॉल करें।",
 
     // Header
     authenticatedSession: "प्रमाणित सत्र",
@@ -397,6 +413,14 @@ export const translations = {
     settings: "સેટિંગ્સ",
     emergencySOS: "ઇમરજન્સી SOS",
     oneClickDispatch: "1-ક્લિક ડિસ્પેચ",
+    oneTapDispatch: "1-ટૅપ કટોકટી ડિસ્પેચ",
+    sosPressText: "તમારું લાઇવ GPS સ્થાન મોકલવા અને ઇમરજન્સી સંપર્કોને સૂચિત કરવા માટે લાલ SOS બટન દબાવો.",
+    callNationalAmbulance: "રાષ્ટ્રીય એમ્બ્યુલન્સ (108) ને કોલ કરો",
+    shareMyLocation: "લાઇવ લોકેશન શેર કરો",
+    trustedContactsStatus: "વિશ્વસનીય ઇમરજન્સી સંપર્કો",
+    primaryBadge: "પ્રાથમિક હેલ્પલાઇન",
+    addContact: "ઇમરજન્સી સંપર્ક ઉમેરો",
+    emergencyBannerText: "કટોકટીમાં, નીચે SOS બટન દબાવો અથવા 108 પર તરત કોલ કરો.",
 
     // Header
     authenticatedSession: "પ્રમાણિત સત્ર",
