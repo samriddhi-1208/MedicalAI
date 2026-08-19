@@ -541,90 +541,46 @@ export const HospitalFinderPage = () => {
       {/* Active Location Search Bar & Controls (Shown once Location is active) */}
       {locationState === 'granted' && (
         <>
-          <Card className="p-5 bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-teal-50 text-[#0D9488] flex items-center justify-center font-bold border border-teal-200 shrink-0">
-                  <MapPin className="w-4 h-4 text-[#0D9488]" />
-                </div>
-                <div>
-                  <h2 className="text-base font-black text-[#0F172A] tracking-tight">
-                    24/7 Hospital & Healthcare Finder
-                  </h2>
-                  <p className="text-xs text-slate-500 font-medium mt-0.5">
-                    Location: <strong className="text-[#0F172A] font-extrabold">{userCoords?.name?.split(',')[0] || 'Waghodia'}</strong>
-                  </p>
-                </div>
+          {/* Top Location & Hotlines Bar */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-white border border-slate-200/90 rounded-2xl shadow-2xs">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-teal-50 text-[#0D9488] flex items-center justify-center font-bold border border-teal-200 shrink-0">
+                <MapPin className="w-4 h-4 text-[#0D9488]" />
               </div>
-
-              <div className="flex items-center gap-2 flex-wrap">
-                <button
-                  onClick={handleUseCurrentLocation}
-                  disabled={locationState === 'loading'}
-                  className="px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200"
-                >
-                  <Compass className={`w-4 h-4 ${locationState === 'loading' ? 'animate-spin text-[#0D9488]' : 'text-[#0D9488]'}`} />
-                  <span>{locationState === 'loading' ? 'Locating...' : 'Use My Current Location'}</span>
-                </button>
-
-                <Button 
-                  variant="sos" 
-                  size="sm" 
-                  icon={PhoneCall} 
-                  className="py-1.5 px-3.5 text-xs font-bold rounded-xl cursor-pointer"
-                  onClick={() => {
-                    toast.success("Dialing 108 Ambulance Hotline...");
-                    window.open("tel:108");
-                  }}
-                >
-                  108 Hotline
-                </Button>
+              <div>
+                <h2 className="text-base font-black text-[#0F172A] tracking-tight">
+                  24/7 Hospital & Healthcare Finder
+                </h2>
+                <p className="text-xs text-slate-500 font-medium mt-0.5">
+                  Showing facilities near <strong className="text-[#0F172A] font-extrabold">{userCoords?.name?.split(',')[0] || 'Waghodia'}</strong>
+                </p>
               </div>
             </div>
 
-            {/* Integrated Search Controls Form */}
-            <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 sm:grid-cols-12 gap-2.5 text-xs">
-              
-              {/* Search Bar Input */}
-              <div className="sm:col-span-8 relative">
-                <input
-                  type="text"
-                  value={searchKeyword}
-                  onChange={(e) => setSearchKeyword(e.target.value)}
-                  placeholder="Search healthcare facilities... (e.g. hospital, cardiologist, lab)"
-                  className="med-input text-xs pl-9 w-full"
-                />
-                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
-              </div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                onClick={handleUseCurrentLocation}
+                disabled={locationState === 'loading'}
+                className="px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200"
+              >
+                <Compass className={`w-4 h-4 ${locationState === 'loading' ? 'animate-spin text-[#0D9488]' : 'text-[#0D9488]'}`} />
+                <span>{locationState === 'loading' ? 'Locating...' : 'Use My Location'}</span>
+              </button>
 
-              {/* Sort By Dropdown */}
-              <div className="sm:col-span-2">
-                <select
-                  value={sortBy}
-                  onChange={(e) => handleSortChange(e.target.value)}
-                  className="med-input text-xs w-full"
-                >
-                  <option value="distance">Sort: Distance</option>
-                  <option value="relevance">Sort: Relevance</option>
-                  <option value="rating">Sort: Rating</option>
-                </select>
-              </div>
-
-              {/* Search Submit Button */}
-              <div className="sm:col-span-2">
-                <Button
-                  variant="primary"
-                  size="md"
-                  type="submit"
-                  icon={Search}
-                  className="w-full bg-[#0F172A] hover:bg-[#1E293B] text-xs font-bold rounded-xl py-2.5 cursor-pointer shadow-xs"
-                >
-                  Search
-                </Button>
-              </div>
-
-            </form>
-          </Card>
+              <Button 
+                variant="sos" 
+                size="sm" 
+                icon={PhoneCall} 
+                className="py-1.5 px-3.5 text-xs font-bold rounded-xl cursor-pointer"
+                onClick={() => {
+                  toast.success("Dialing 108 Ambulance Hotline...");
+                  window.open("tel:108");
+                }}
+              >
+                108 Hotline
+              </Button>
+            </div>
+          </div>
 
           {/* Category Specialty Filter Pills */}
           <div className="space-y-2">
