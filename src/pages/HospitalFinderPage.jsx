@@ -454,52 +454,18 @@ export const HospitalFinderPage = () => {
   ];
 
   return (
-    <div className="space-y-6 pb-12 font-sans antialiased">
+    <div className="space-y-5 pb-12 font-sans antialiased">
       
-      {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-xs text-emerald-800 font-bold uppercase tracking-wider">{t('osmLocationEngine')}</span>
-          </div>
-          <h1 className="text-2.5xl font-extrabold text-[#0F172A] tracking-tight mt-0.5">
-            {t('hospitalFinder247')}
-          </h1>
-          <p className="text-xs font-normal text-slate-500">
-            {locationState === 'granted' && userCoords
-              ? `${t('facilitiesNear')} ${userCoords.name.split(',')[0]}`
-              : t('hospitalFinderSubtitle')
-            }
-          </p>
-        </div>
-
-        <div className="flex gap-2 flex-wrap">
-          <Button 
-            variant="sos" 
-            size="sm" 
-            icon={PhoneCall} 
-            className="py-2 px-3.5 text-xs font-semibold rounded-xl cursor-pointer"
-            onClick={() => {
-              toast.success("Dialing National Ambulance Helpline 108...");
-              window.open("tel:108");
-            }}
-          >
-            {t('ambulanceHotline')}
-          </Button>
-        </div>
-      </div>
-
       {/* Medical-AI Cautious Healthcare Guidance */}
       {reportAdvice && (
-        <Card className="p-5 bg-teal-50/60 border border-teal-200 rounded-2xl shadow-xs space-y-3">
+        <Card className="p-4 bg-teal-50/60 border border-teal-200 rounded-2xl shadow-2xs space-y-2">
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-xl bg-white text-[#0D9488] flex items-center justify-center font-bold border border-teal-200 shadow-2xs">
                 <Sparkles className="w-4 h-4 text-[#0D9488]" />
               </div>
               <div>
-                <h3 className="text-sm font-extrabold text-[#0F172A]">Healthcare Navigation Suggestion</h3>
+                <h3 className="text-sm font-black text-[#0F172A]">Healthcare Navigation Suggestion</h3>
                 <p className="text-xs text-slate-600 font-normal">
                   Flagged report biomarker: <strong className="text-[#0F172A] font-bold">{reportAdvice.biomarker} ({reportAdvice.value})</strong>
                 </p>
@@ -575,54 +541,68 @@ export const HospitalFinderPage = () => {
       {/* Active Location Search Bar & Controls (Shown once Location is active) */}
       {locationState === 'granted' && (
         <>
-          <Card className="p-6 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-4">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
-              <div>
-                <h3 className="text-base font-extrabold text-[#0F172A] flex items-center gap-2">
-                  <MapPin className="w-4.5 h-4.5 text-[#0D9488]" /> Active Location
-                </h3>
-                <p className="text-xs text-slate-500 font-medium mt-0.5">
-                  Healthcare facilities near <strong className="text-[#0F172A]">{userCoords?.name?.split(',')[0]}</strong>
-                </p>
+          <Card className="p-5 bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-teal-50 text-[#0D9488] flex items-center justify-center font-bold border border-teal-200 shrink-0">
+                  <MapPin className="w-4 h-4 text-[#0D9488]" />
+                </div>
+                <div>
+                  <h2 className="text-base font-black text-[#0F172A] tracking-tight">
+                    24/7 Hospital & Healthcare Finder
+                  </h2>
+                  <p className="text-xs text-slate-500 font-medium mt-0.5">
+                    Location: <strong className="text-[#0F172A] font-extrabold">{userCoords?.name?.split(',')[0] || 'Waghodia'}</strong>
+                  </p>
+                </div>
               </div>
 
               <div className="flex items-center gap-2 flex-wrap">
                 <button
                   onClick={handleUseCurrentLocation}
                   disabled={locationState === 'loading'}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer border ${
-                    locationMode === 'current'
-                      ? 'bg-[#0F172A] text-white border-slate-800 shadow-xs'
-                      : 'bg-white text-slate-800 hover:bg-slate-50 border-slate-200'
-                  }`}
+                  className="px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200"
                 >
-                  <Compass className={`w-4 h-4 ${locationMode === 'current' ? 'text-[#0D9488]' : 'text-slate-500'}`} />
+                  <Compass className={`w-4 h-4 ${locationState === 'loading' ? 'animate-spin text-[#0D9488]' : 'text-[#0D9488]'}`} />
                   <span>{locationState === 'loading' ? 'Locating...' : 'Use My Current Location'}</span>
                 </button>
+
+                <Button 
+                  variant="sos" 
+                  size="sm" 
+                  icon={PhoneCall} 
+                  className="py-1.5 px-3.5 text-xs font-bold rounded-xl cursor-pointer"
+                  onClick={() => {
+                    toast.success("Dialing 108 Ambulance Hotline...");
+                    window.open("tel:108");
+                  }}
+                >
+                  108 Hotline
+                </Button>
               </div>
             </div>
 
-            {/* Real Search Bar & Filters Form */}
-            <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 sm:grid-cols-12 gap-3 text-xs">
+            {/* Integrated Search Controls Form */}
+            <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 sm:grid-cols-12 gap-2.5 text-xs">
               
               {/* Search Bar Input */}
-              <div className="sm:col-span-6 relative">
+              <div className="sm:col-span-5 relative">
                 <input
                   type="text"
                   value={searchKeyword}
                   onChange={(e) => setSearchKeyword(e.target.value)}
                   placeholder="Search healthcare facilities... (e.g. hospital, cardiologist, lab)"
-                  className="med-input text-xs pl-9"
+                  className="med-input text-xs pl-9 w-full"
                 />
                 <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
               </div>
 
               {/* Search Radius Dropdown */}
-              <div className="sm:col-span-2">
+              <div className="sm:col-span-3">
                 <select
                   value={radiusKm}
                   onChange={(e) => handleRadiusChange(Number(e.target.value))}
-                  className="med-input text-xs"
+                  className="med-input text-xs w-full"
                 >
                   <option value={5}>Radius: 5 km</option>
                   <option value={10}>Radius: 10 km</option>
@@ -635,7 +615,7 @@ export const HospitalFinderPage = () => {
                 <select
                   value={sortBy}
                   onChange={(e) => handleSortChange(e.target.value)}
-                  className="med-input text-xs"
+                  className="med-input text-xs w-full"
                 >
                   <option value="distance">Sort: Distance</option>
                   <option value="relevance">Sort: Relevance</option>
@@ -649,8 +629,8 @@ export const HospitalFinderPage = () => {
                   variant="primary"
                   size="md"
                   type="submit"
-                  loading={loadingFacilities}
-                  className="bg-[#0F172A] hover:bg-[#1E293B] rounded-xl text-xs font-semibold py-2.5 w-full cursor-pointer"
+                  icon={Search}
+                  className="w-full bg-[#0F172A] hover:bg-[#1E293B] text-xs font-bold rounded-xl py-2.5 cursor-pointer shadow-xs"
                 >
                   Search
                 </Button>
