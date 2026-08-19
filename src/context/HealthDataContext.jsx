@@ -674,6 +674,21 @@ export const HealthDataProvider = ({ children }) => {
     throw new Error("SOS dispatch request failed. Please check network connectivity or call 108 directly.");
   };
 
+  const cancelSOS = async () => {
+    if (!token) return { success: true };
+    try {
+      const res = await fetch(`${API_BASE}/sos/cancel`, {
+        method: 'POST',
+        headers: getAuthHeaders()
+      }).catch(() => null);
+      const data = await safeParseJson(res);
+      return data || { success: true };
+    } catch (e) {
+      console.warn("Cancel SOS note:", e);
+      return { success: true };
+    }
+  };
+
   const markNotificationsRead = () => {
     setNotifications(prev => (Array.isArray(prev) ? prev : []).map(n => ({ ...n, unread: false })));
   };

@@ -105,7 +105,11 @@ export const EmergencySOSPage = () => {
 
   const initiateSOS = async () => {
     if (sosStep === 'active') {
-      toast.success("Emergency SOS is already active.");
+      try {
+        await cancelSOS();
+      } catch (e) {}
+      setSosStep('idle');
+      toast.success("ℹ️ Emergency SOS cancelled. System returned to standby state.", { duration: 4000 });
       return;
     }
 
@@ -120,14 +124,14 @@ export const EmergencySOSPage = () => {
     try {
       const res = await triggerSOS(userCoords.lat, userCoords.lng);
       toast.dismiss(toastId);
-      if (res && res.success) {
+      if (res && (res.success || res.sos)) {
         setSosStatusChecklist({
           locationAcquired: true,
           hospitalsFound: nearbyHospitals.length > 0,
           contactsAlerted: (res.contactsNotified || 0) > 0
         });
         setSosStep('active');
-        toast.success(`🚨 EMERGENCY SOS ACTIVATED! Real location (${userCoords.lat.toFixed(4)}, ${userCoords.lng.toFixed(4)}) dispatched via backend.`, { duration: 6000 });
+        toast.success(`🚨 EMERGENCY SOS ACTIVATED! Tap button again anytime to cancel alert.`, { duration: 6000 });
       } else {
         setSosStep('idle');
         toast.error("SOS dispatch failed on server.");

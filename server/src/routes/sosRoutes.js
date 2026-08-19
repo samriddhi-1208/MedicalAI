@@ -9,6 +9,11 @@ router.post('/', authMiddleware, sosController.triggerSOS);
 router.post('/sos', authMiddleware, sosController.triggerSOS);
 router.post('/alert', authMiddleware, sosController.triggerSOS);
 
+// Stand-down / Deactivate / Cancel SOS Alert Endpoints
+router.post('/cancel', authMiddleware, sosController.cancelSOS);
+router.post('/deactivate', authMiddleware, sosController.cancelSOS);
+router.post('/resolve', authMiddleware, sosController.cancelSOS);
+
 router.get('/contacts', authMiddleware, sosController.getContacts);
 router.post('/contacts', authMiddleware, sosController.addContact);
 router.delete('/contacts/:id', authMiddleware, sosController.deleteContact);

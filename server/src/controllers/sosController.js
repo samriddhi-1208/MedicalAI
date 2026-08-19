@@ -51,6 +51,24 @@ exports.triggerSOS = async (req, res, next) => {
   }
 };
 
+exports.cancelSOS = async (req, res, next) => {
+  try {
+    const user = await getUserFromReq(req);
+    if (!user) {
+      return res.status(401).json({ error: "Authentication required." });
+    }
+
+    await SOSEvent.updateMany(
+      { user_id: user._id, status: "DISPATCHED" },
+      { $set: { status: "CANCELLED", notes: "Emergency SOS cancelled by patient (Stand-down)" } }
+    );
+
+    res.json({ success: true, message: "Emergency SOS alert cancelled." });
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.getContacts = async (req, res, next) => {
   try {
     const user = await getUserFromReq(req);
