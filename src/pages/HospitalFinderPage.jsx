@@ -586,7 +586,7 @@ export const HospitalFinderPage = () => {
             <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 sm:grid-cols-12 gap-2.5 text-xs">
               
               {/* Search Bar Input */}
-              <div className="sm:col-span-5 relative">
+              <div className="sm:col-span-8 relative">
                 <input
                   type="text"
                   value={searchKeyword}
@@ -595,20 +595,6 @@ export const HospitalFinderPage = () => {
                   className="med-input text-xs pl-9 w-full"
                 />
                 <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
-              </div>
-
-              {/* Search Radius Dropdown */}
-              <div className="sm:col-span-3">
-                <select
-                  value={radiusKm}
-                  onChange={(e) => handleRadiusChange(Number(e.target.value))}
-                  className="med-input text-xs w-full"
-                >
-                  <option value={25}>Radius: 25 km (Default)</option>
-                  <option value={10}>Radius: 10 km</option>
-                  <option value={5}>Radius: 5 km</option>
-                  <option value={50}>Radius: 50 km</option>
-                </select>
               </div>
 
               {/* Sort By Dropdown */}
