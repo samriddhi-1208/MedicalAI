@@ -113,17 +113,17 @@ export const HospitalFinderPage = () => {
 
     const cardiacRisk = biomarkers.find(b => 
       (b.name?.toLowerCase().includes('cholesterol') || b.name?.toLowerCase().includes('triglyceride') || b.name?.toLowerCase().includes('ldl')) &&
-      (b.status === 'High' || b.status === 'Elevated' || b.statusType === 'warning')
+      (b.status === 'Critical' || b.status === 'Severe High')
     );
 
     const diabeticRisk = biomarkers.find(b => 
       (b.name?.toLowerCase().includes('glucose') || b.name?.toLowerCase().includes('hba1c') || b.name?.toLowerCase().includes('sugar')) &&
-      (b.status === 'High' || b.status === 'Elevated' || b.statusType === 'warning')
+      (b.status === 'Critical' || b.status === 'Severe High')
     );
 
     const anemiaRisk = biomarkers.find(b => 
       (b.name?.toLowerCase().includes('hemoglobin') || b.name?.toLowerCase().includes('rbc') || b.name?.toLowerCase().includes('iron')) &&
-      (b.status === 'Low' || b.status === 'Slightly Low' || b.statusType === 'warning')
+      (b.status === 'Critical' || b.status === 'Severe Low')
     );
 
     if (cardiacRisk) {
@@ -523,12 +523,6 @@ export const HospitalFinderPage = () => {
             {t('ambulanceHotline')}
           </Button>
         </div>
-      </div>
-
-      {/* Privacy Notice */}
-      <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 flex items-center gap-2">
-        <Info className="w-4 h-4 text-[#0D9488] shrink-0" />
-        <span>{t('locationPrivacyNotice')}</span>
       </div>
 
       {/* Medical-AI Cautious Healthcare Guidance */}
