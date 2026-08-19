@@ -164,119 +164,59 @@ export const HospitalFinderPage = () => {
     setApiError(null);
 
     try {
-      let searchQueries = [];
-      const userSearchText = keyword.trim();
-
-      if (userSearchText) {
-        searchQueries.push(userSearchText);
-      } else {
-        if (targetCategory === 'Cardiologist') {
-          searchQueries = ['cardiologist', 'heart hospital', 'hospital', 'clinic'];
-        } else if (targetCategory === 'General Physician') {
-          searchQueries = ['physician', 'doctor', 'clinic', 'hospital'];
-        } else if (targetCategory === 'Pediatrician') {
-          searchQueries = ['pediatrician', 'children hospital', 'hospital', 'clinic'];
-        } else if (targetCategory === 'Gynecologist') {
-          searchQueries = ['gynecologist', 'maternity hospital', 'hospital', 'clinic'];
-        } else if (targetCategory === 'Dermatologist') {
-          searchQueries = ['dermatologist', 'skin clinic', 'hospital', 'clinic'];
-        } else if (targetCategory === 'Orthopedic') {
-          searchQueries = ['orthopedic', 'bone hospital', 'hospital', 'clinic'];
-        } else if (targetCategory === 'Diagnostic Lab') {
-          searchQueries = ['diagnostic lab', 'pathology', 'lab', 'hospital'];
-        } else if (targetCategory === 'Pharmacy') {
-          searchQueries = ['pharmacy', 'medical store', 'chemist'];
-        } else if (targetCategory === 'Emergency Hospital') {
-          searchQueries = ['emergency hospital', 'trauma center', 'hospital'];
-        } else if (targetCategory === 'Clinics') {
-          searchQueries = ['clinic', 'health center', 'hospital'];
-        } else {
-          searchQueries = ['hospital', 'clinic', 'health'];
-        }
+      let apiBaseUrl = 'https://medicalai-backend-5ycw.onrender.com/api';
+      if (import.meta.env.VITE_API_URL && !import.meta.env.VITE_API_URL.includes('localhost')) {
+        apiBaseUrl = import.meta.env.VITE_API_URL.replace(/\/+$/, '');
+        if (!apiBaseUrl.endsWith('/api')) apiBaseUrl += '/api';
       }
 
+      // Try primary radius, auto-expand to 25km if 0 results
+      const radiiToTry = [radius, 15, 25, 50];
       let data = [];
-      let effectiveRadius = radius;
-      
-      // Multi-stage Query Fallback Loop
-      for (const queryTerm of searchQueries) {
-        const nomUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&extratags=1&q=${encodeURIComponent(queryTerm + ' near ' + lat + ',' + lng)}&limit=40`;
-        const res = await fetch(nomUrl, {
-          headers: { 'User-Agent': 'MedicalAI-App/1.0', 'Accept-Language': 'en' }
-        }).catch(() => null);
+      let usedRadius = radius;
 
+      for (const r of radiiToTry) {
+        if (r < radius) continue; // Don't try smaller radius than requested
+        const backendUrl = `${apiBaseUrl}/hospitals/nearby?lat=${lat}&lng=${lng}&category=${encodeURIComponent(targetCategory)}&radiusKm=${r}`;
+        
+        const res = await fetch(backendUrl).catch(() => null);
         if (res && res.ok) {
-          const raw = await res.json().catch(() => []);
-          if (Array.isArray(raw) && raw.length > 0) {
-            // Filter by radius
-            const inRadius = raw.filter(item => {
-              const itemLat = parseFloat(item.lat);
-              const itemLng = parseFloat(item.lon);
-              if (isNaN(itemLat) || isNaN(itemLng)) return false;
-              return calculateHaversineDistance(lat, lng, itemLat, itemLng) <= radius;
-            });
-
-            if (inRadius.length > 0) {
-              data = inRadius;
-              break;
-            } else if (data.length === 0) {
-              // Store raw items even if outside strict radius for auto-radius expansion fallback
-              data = raw;
-            }
+          const json = await res.json().catch(() => []);
+          if (Array.isArray(json) && json.length > 0) {
+            data = json;
+            usedRadius = r;
+            break;
           }
         }
       }
 
-      // Process 100% Real API Data — NEVER invent missing fields
-      const results = data
-        .map((item, idx) => {
-          const itemLat = parseFloat(item.lat);
-          const itemLng = parseFloat(item.lon);
-          if (isNaN(itemLat) || isNaN(itemLng)) return null;
+      // Process 100% Real API Data from backend
+      const results = data.map((item, idx) => {
+        const itemLat = item.lat;
+        const itemLng = item.lng;
+        const dist = item.distanceKm || calculateHaversineDistance(lat, lng, itemLat, itemLng);
 
-          const dist = calculateHaversineDistance(lat, lng, itemLat, itemLng);
-          
-          // Allow up to max 25km if strict radius yields 0 items
-          const maxAllowedDist = data.length < 5 ? Math.max(radius, 25) : radius;
-          if (dist > maxAllowedDist) return null;
+        let categoryType = item.type || 'Hospital';
+        if (targetCategory !== 'Hospitals' && targetCategory !== 'All') {
+          categoryType = `${targetCategory} & Multi-Specialty Facility`;
+        }
 
-          const tags = item.extratags || {};
-          const name = item.display_name.split(',')[0];
-          const fullAddress = item.display_name;
-
-          const phone = tags.phone || tags['contact:phone'] || tags['phone:mobile'] || null;
-
-          let openStatus = null;
-          if (tags.opening_hours) {
-            openStatus = tags.opening_hours.includes('24/7') ? '🟢 Open 24/7' : `🕐 ${tags.opening_hours}`;
-          } else if (tags.emergency === 'yes') {
-            openStatus = '🟢 Open 24/7 (Emergency)';
-          }
-
-          const rating = tags.rating ? parseFloat(tags.rating) : null;
-          const emergencyConfirmed = tags.emergency === 'yes' || (tags.amenity === 'hospital' && tags['hospital:emergency'] === 'yes');
-
-          let categoryType = targetCategory !== 'Hospitals' ? `${targetCategory} & Multi-Specialty Hospital` : 'Hospital';
-          if (item.type === 'pharmacy') categoryType = 'Pharmacy';
-          else if (item.type === 'clinic') categoryType = `${targetCategory} Specialist Clinic`;
-
-          return {
-            id: `osm-${item.place_id || idx}`,
-            name,
-            type: categoryType,
-            address: fullAddress,
-            distanceKm: dist,
-            openStatus,
-            rating,
-            emergencyConfirmed,
-            phone,
-            website: tags.website || null,
-            lat: itemLat,
-            lng: itemLng,
-            directionsUrl: `https://www.google.com/maps/dir/?api=1&destination=${itemLat},${itemLng}`
-          };
-        })
-        .filter(Boolean);
+        return {
+          id: item.id || `fac-${idx}`,
+          name: item.name,
+          type: categoryType,
+          address: item.address || 'Address listed on map',
+          distanceKm: dist,
+          openStatus: item.openingHours ? `🟢 ${item.openingHours}` : (item.emergencyOpen ? '🟢 Open 24/7 (Emergency)' : null),
+          rating: item.rating || null,
+          emergencyConfirmed: item.emergencyOpen || false,
+          phone: item.phone || null,
+          website: item.website || null,
+          lat: itemLat,
+          lng: itemLng,
+          directionsUrl: item.directionsUrl || `https://www.google.com/maps/dir/?api=1&destination=${itemLat},${itemLng}`
+        };
+      });
 
       // Sort by user selection
       if (sortOrder === 'rating') {
