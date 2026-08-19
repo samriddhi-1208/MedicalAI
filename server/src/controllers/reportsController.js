@@ -179,30 +179,16 @@ exports.uploadReport = async (req, res, next) => {
 
     const cleanTitle = file.originalname ? file.originalname.replace(/\.[^/.]+$/, "").trim() : "";
 
-    const queryOr = [];
-    if (fileHash) {
-      queryOr.push({ file_hash: fileHash });
-    }
-    if (file.originalname && file.size) {
-      queryOr.push({ file_name: file.originalname, file_size: file.size });
-    }
-    if (file.originalname) {
-      queryOr.push({ file_name: file.originalname });
-    }
-    if (cleanTitle) {
-      queryOr.push({ title: cleanTitle });
-    }
-
     let existingReport = null;
-    if (queryOr.length > 0) {
+    if (fileHash) {
       existingReport = await Report.findOne({
         user_id: user._id,
-        $or: queryOr
+        file_hash: fileHash
       });
     }
 
     if (existingReport) {
-      console.log(`[REPORT ENGINE] Duplicate report detected for user ${user._id}: "${file.originalname}". Rejecting upload & returning existing record.`);
+      console.log(`[REPORT ENGINE] Duplicate SHA-256 hash report detected for user ${user._id}: "${file.originalname}". Returning existing record.`);
       
       const values = await ReportValue.find({ report_id: existingReport._id });
       const summaryObj = await ReportSummary.findOne({ report_id: existingReport._id });

@@ -32,14 +32,14 @@ exports.analyzeReportText = async (rawText, fileName) => {
   "vitals": [
     {
       "name": "Temperature",
-      "value": "100.2",
+      "value": "98.2",
       "unit": "°F"
     }
   ],
   "labResults": [
     {
       "testName": "Hemoglobin",
-      "value": "12.8",
+      "value": "13.2",
       "unit": "g/dL",
       "referenceRange": "12.0 - 15.5",
       "status": "Normal"
@@ -47,13 +47,13 @@ exports.analyzeReportText = async (rawText, fileName) => {
   ],
   "medications": [
     {
-      "name": "Paracetamol",
-      "strength": "500 mg",
+      "name": "Pantoprazole",
+      "strength": "40 mg",
       "dose": "1 tablet",
-      "frequency": "Twice daily",
-      "timing": "After breakfast and after dinner",
-      "mealRelation": "After meal",
-      "duration": "5 days"
+      "frequency": "Once daily",
+      "timing": "08:00 AM",
+      "mealRelation": "Before meal",
+      "duration": "14 days"
     }
   ],
   "diagnoses": [],
@@ -65,7 +65,7 @@ Rules:
 - Do NOT invent, seed, or hallucinate missing data. Return empty array [] if a section is absent in text.
 
 Document Text:
-${cleanedText.slice(0, 5000)}
+${cleanedText.slice(0, 6000)}
 `;
 
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
@@ -111,7 +111,7 @@ ${cleanedText.slice(0, 5000)}
         }
       }
     } catch (err) {
-      console.warn(`[AI SERVICE] Gemini API call note: ${err.message}. Running Universal Dynamic Extractor.`);
+      console.warn(`[AI SERVICE] Gemini API note: ${err.message}. Running Universal Dynamic Extractor.`);
     }
   }
 
@@ -173,9 +173,6 @@ function universalClinicalExtractor(textStr, fileName) {
   const medications = [];
 
   // 1. Extract Vitals
-  const tempMatch = text.match(/(?:Temperature|Body Temp|Temp)\s*[:=\-]?\s*([\d\.]+)\s*(°[FC]|F|C)?/i);
-  if (tempMatch) vitals.push({ name: "Temperature", value: tempMatch[1], unit: tempMatch[2] || "°F" });
-
   const bpMatch = text.match(/(?:Blood Pressure|BP)\s*[:=\-]?\s*(\d{2,3}\/\d{2,3})\s*(mmHg)?/i);
   if (bpMatch) vitals.push({ name: "Blood Pressure", value: bpMatch[1], unit: bpMatch[2] || "mmHg" });
 
@@ -184,6 +181,9 @@ function universalClinicalExtractor(textStr, fileName) {
 
   const spo2Match = text.match(/(?:SpO2|Oxygen Saturation|O2 Sat)\s*[:=\-]?\s*(\d{2,3})\s*(%)?/i);
   if (spo2Match) vitals.push({ name: "SpO2", value: spo2Match[1], unit: "%" });
+
+  const tempMatch = text.match(/(?:Temperature|Body Temp|Temp)\s*[:=\-]?\s*([\d\.]+)\s*(°[FC]|F|C)?/i);
+  if (tempMatch) vitals.push({ name: "Temperature", value: tempMatch[1], unit: tempMatch[2] || "°F" });
 
   const rrMatch = text.match(/(?:Respiratory Rate|RR)\s*[:=\-]?\s*(\d{1,2})\s*(breaths\/min|\/min)?/i);
   if (rrMatch) vitals.push({ name: "Respiratory Rate", value: rrMatch[1], unit: "breaths/min" });
@@ -194,32 +194,31 @@ function universalClinicalExtractor(textStr, fileName) {
   // 2. Comprehensive Lab Parameter Extraction
   const labSpecs = [
     { keys: ["hemoglobin", "haemoglobin", "hb", "hgb"], name: "Hemoglobin", unit: "g/dL", ref: "12.0 - 15.5" },
-    { keys: ["wbc count", "wbc", "total leucocyte", "tlc", "white blood"], name: "WBC Count", unit: "cells/µL", ref: "4000 - 11000" },
-    { keys: ["platelet count", "platelets", "platelet", "plt"], name: "Platelets", unit: "lakh/µL", ref: "1.50 - 4.50" },
-    { keys: ["rbc count", "rbc", "red blood", "erythrocyte"], name: "RBC Count", unit: "mil/cu.mm", ref: "3.80 - 5.20" },
-    { keys: ["fasting glucose", "fasting sugar", "fasting blood sugar", "fbs"], name: "Fasting Glucose", unit: "mg/dL", ref: "70 - 99" },
+    { keys: ["wbc count", "wbc", "total leucocyte", "tlc", "white blood"], name: "WBC Count", unit: "/µL", ref: "4000 - 11000" },
+    { keys: ["platelet count", "platelets", "platelet", "plt"], name: "Platelet Count", unit: "lakh/µL", ref: "1.50 - 4.50" },
+    { keys: ["rbc count", "rbc", "red blood", "erythrocyte"], name: "RBC Count", unit: "million/µL", ref: "3.80 - 5.20" },
+    { keys: ["hematocrit", "hct", "packed cell volume", "pcv"], name: "Hematocrit", unit: "%", ref: "36.0 - 46.0" },
+    { keys: ["mcv", "mean corpuscular volume"], name: "MCV", unit: "fL", ref: "80 - 100" },
+    { keys: ["fasting blood glucose", "fasting glucose", "fasting sugar", "fbs"], name: "Fasting Blood Glucose", unit: "mg/dL", ref: "70 - 99" },
     { keys: ["postprandial glucose", "pp glucose", "ppbs"], name: "Postprandial Glucose", unit: "mg/dL", ref: "70 - 140" },
     { keys: ["random glucose", "blood glucose", "glucose", "sugar"], name: "Blood Glucose", unit: "mg/dL", ref: "70 - 140" },
     { keys: ["hba1c", "glycated hemoglobin"], name: "HbA1c", unit: "%", ref: "< 5.7" },
-    { keys: ["serum creatinine", "creatinine", "s.creatinine"], name: "Serum Creatinine", unit: "mg/dL", ref: "0.6 - 1.1" },
-    { keys: ["blood urea", "urea"], name: "Blood Urea", unit: "mg/dL", ref: "15 - 45" },
-    { keys: ["uric acid", "serum uric acid"], name: "Uric Acid", unit: "mg/dL", ref: "3.5 - 7.2" },
+    { keys: ["serum creatinine", "creatinine", "s.creatinine"], name: "Creatinine", unit: "mg/dL", ref: "0.6 - 1.1" },
+    { keys: ["blood urea", "urea"], name: "Urea", unit: "mg/dL", ref: "15 - 45" },
+    { keys: ["serum sodium", "sodium", "na+"], name: "Sodium", unit: "mmol/L", ref: "135 - 145" },
+    { keys: ["serum potassium", "potassium", "k+"], name: "Potassium", unit: "mmol/L", ref: "3.5 - 5.1" },
+    { keys: ["total cholesterol", "cholesterol"], name: "Total Cholesterol", unit: "mg/dL", ref: "< 200" },
+    { keys: ["ldl cholesterol", "ldl"], name: "LDL Cholesterol", unit: "mg/dL", ref: "< 100" },
+    { keys: ["hdl cholesterol", "hdl"], name: "HDL Cholesterol", unit: "mg/dL", ref: "> 40" },
+    { keys: ["triglycerides", "tg"], name: "Triglycerides", unit: "mg/dL", ref: "< 150" },
     { keys: ["tsh", "thyroid stimulating"], name: "TSH", unit: "µIU/mL", ref: "0.4 - 4.0" },
     { keys: ["free t3", "ft3"], name: "Free T3", unit: "pg/mL", ref: "2.3 - 4.2" },
     { keys: ["free t4", "ft4"], name: "Free T4", unit: "ng/dL", ref: "0.8 - 1.8" },
-    { keys: ["total cholesterol", "cholesterol"], name: "Total Cholesterol", unit: "mg/dL", ref: "< 200" },
-    { keys: ["triglycerides", "tg"], name: "Triglycerides", unit: "mg/dL", ref: "< 150" },
-    { keys: ["hdl cholesterol", "hdl"], name: "HDL Cholesterol", unit: "mg/dL", ref: "> 40" },
-    { keys: ["ldl cholesterol", "ldl"], name: "LDL Cholesterol", unit: "mg/dL", ref: "< 100" },
     { keys: ["alt", "sgpt", "alanine aminotransferase"], name: "ALT (SGPT)", unit: "U/L", ref: "7 - 35" },
     { keys: ["ast", "sgot", "aspartate aminotransferase"], name: "AST (SGOT)", unit: "U/L", ref: "8 - 40" },
     { keys: ["total bilirubin", "bilirubin"], name: "Total Bilirubin", unit: "mg/dL", ref: "0.2 - 1.2" },
     { keys: ["alkaline phosphatase", "alp"], name: "Alkaline Phosphatase", unit: "U/L", ref: "44 - 147" },
-    { keys: ["serum sodium", "sodium", "na+"], name: "Sodium", unit: "mEq/L", ref: "135 - 145" },
-    { keys: ["serum potassium", "potassium", "k+"], name: "Potassium", unit: "mEq/L", ref: "3.5 - 5.1" },
-    { keys: ["serum calcium", "calcium", "ca++"], name: "Serum Calcium", unit: "mg/dL", ref: "8.5 - 10.2" },
-    { keys: ["c-reactive protein", "crp"], name: "C-Reactive Protein (CRP)", unit: "mg/L", ref: "< 5.0" },
-    { keys: ["esr", "erythrocyte sedimentation rate"], name: "ESR", unit: "mm/hr", ref: "0 - 20" },
+    { keys: ["uric acid", "serum uric acid"], name: "Uric Acid", unit: "mg/dL", ref: "3.5 - 7.2" },
     { keys: ["vitamin d", "25-hydroxy vitamin d"], name: "Vitamin D", unit: "ng/mL", ref: "30 - 100" },
     { keys: ["vitamin b12", "b12"], name: "Vitamin B12", unit: "pg/mL", ref: "200 - 900" }
   ];
@@ -233,11 +232,12 @@ function universalClinicalExtractor(textStr, fileName) {
       const keyPos = lowerText.indexOf(key);
       if (keyPos !== -1) {
         const snippet = text.substring(keyPos, keyPos + 120);
-        const valMatch = snippet.match(/([<>]?\s*\d+(?:\.\d+)?)/);
+        // Handle numbers with commas e.g. 6,800 or 2.65 or 4.6 or 40.1
+        const valMatch = snippet.match(/([<>]?\s*[\d,]+(?:\.\d+)?)/);
         if (valMatch) {
-          const rawVal = valMatch[1].trim();
+          const rawVal = valMatch[1].replace(/,/g, '').trim();
           let unit = spec.unit;
-          const uMatch = snippet.match(/(g\/dL|gm\/dL|mg\/dL|mg\/L|mmol\/L|mIU\/L|uIU\/mL|µIU\/mL|µg\/dL|U\/L|unit\/L|ng\/mL|pg\/mL|cell\/cu\.mm|cells\/µL|cells\/uL|lakh\/uL|lakh\/µL|mil\/cu\.mm|lac\/cmm|Lakhs\/cumm|mm\/hr|fL|pg|%|k\/mcL|mEq\/L)/i);
+          const uMatch = snippet.match(/(g\/dL|gm\/dL|mg\/dL|mg\/L|mmol\/L|mEq\/L|mIU\/L|uIU\/mL|µIU\/mL|µg\/dL|U\/L|unit\/L|ng\/mL|pg\/mL|\/µL|\/uL|cells\/µL|cells\/uL|lakh\/uL|lakh\/µL|million\/µL|million\/uL|mil\/cu\.mm|lac\/cmm|Lakhs\/cumm|mm\/hr|fL|pg|%|k\/mcL)/i);
           if (uMatch) unit = uMatch[0];
 
           let ref = spec.ref;
@@ -254,6 +254,9 @@ function universalClinicalExtractor(textStr, fileName) {
             } else if (spec.ref.includes('<')) {
               const max = parseFloat(spec.ref.replace('<', '').trim());
               if (!isNaN(max) && numVal > max) status = "High";
+            } else if (spec.ref.includes('>')) {
+              const min = parseFloat(spec.ref.replace('>', '').trim());
+              if (!isNaN(min) && numVal < min) status = "Low";
             }
           }
 
@@ -272,43 +275,14 @@ function universalClinicalExtractor(textStr, fileName) {
     }
   });
 
-  // Generic Line-by-Line Regex Parser
-  const lines = text.split(/\r?\n/);
-  lines.forEach(line => {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.length < 5 || trimmed.length > 120) return;
-    
-    const genericLineMatch = trimmed.match(/^([A-Za-z0-9\s\/\-\(\)\,\.\+]{3,35})\s+([<>]?\s*\d+(?:\.\d+)?)\s*(g\/dL|gm\/dL|mg\/dL|mg\/L|mmol\/L|mIU\/L|uIU\/mL|µIU\/mL|µg\/dL|U\/L|unit\/L|ng\/mL|pg\/mL|cell\/cu\.mm|cells\/µL|cells\/uL|lakh\/uL|lakh\/µL|mil\/cu\.mm|lac\/cmm|Lakhs\/cumm|mm\/hr|fL|pg|%|k\/mcL|mEq\/L)?\s*(?:[\(\[\{]?\s*(\d+(?:\.\d+)?\s*[-–\sto]+\s*\d+(?:\.\d+)?|<[\s]?\d+(?:\.\d+)?|>[\s]?\d+(?:\.\d+)?)\s*[\)\]\}]?)?/i);
-
-    if (genericLineMatch) {
-      const pName = genericLineMatch[1].trim();
-      const pVal = genericLineMatch[2].trim();
-      const pUnit = genericLineMatch[3] || '';
-      const pRef = genericLineMatch[4] || 'Standard';
-
-      if (!/^(page|date|patient|doctor|sample|lab|result|parameter|test|range|units|sn)/i.test(pName) && !seenLabNames.has(pName)) {
-        seenLabNames.add(pName);
-        labResults.push({
-          testName: pName,
-          name: pName,
-          value: pVal,
-          unit: pUnit,
-          referenceRange: pRef,
-          refRange: pRef,
-          status: "Normal"
-        });
-      }
-    }
-  });
-
-  // 3. Extract Medications
+  // 3. Extract Medications Dynamically
   const medSpecs = [
-    { drug: "paracetamol", name: "Paracetamol", defaultDose: "500 mg", defaultFreq: "Twice daily", defaultTiming: "After breakfast and dinner", defaultMeal: "After meal", defaultDur: "5 days" },
+    { drug: "pantoprazole", name: "Pantoprazole", defaultDose: "40 mg", defaultFreq: "Once daily", defaultTiming: "08:00 AM", defaultMeal: "Before meal", defaultDur: "14 days" },
+    { drug: "paracetamol", name: "Paracetamol", defaultDose: "500 mg", defaultFreq: "Twice daily", defaultTiming: "08:00 AM and 08:00 PM", defaultMeal: "After meal", defaultDur: "5 days" },
     { drug: "dolo", name: "Dolo 650", defaultDose: "650 mg", defaultFreq: "As needed", defaultTiming: "After meals", defaultMeal: "After meal", defaultDur: "3 days" },
-    { drug: "cetirizine", name: "Cetirizine", defaultDose: "10 mg", defaultFreq: "Once daily", defaultTiming: "At bedtime after dinner", defaultMeal: "After meal", defaultDur: "5 days" },
-    { drug: "pantoprazole", name: "Pantoprazole", defaultDose: "40 mg", defaultFreq: "Once daily", defaultTiming: "30 mins before breakfast", defaultMeal: "Before meal", defaultDur: "7 days" },
+    { drug: "cetirizine", name: "Cetirizine", defaultDose: "10 mg", defaultFreq: "Once daily", defaultTiming: "At bedtime", defaultMeal: "After meal", defaultDur: "5 days" },
     { drug: "omeprazole", name: "Omeprazole", defaultDose: "20 mg", defaultFreq: "Once daily", defaultTiming: "Before breakfast", defaultMeal: "Before meal", defaultDur: "7 days" },
-    { drug: "metformin", name: "Metformin", defaultDose: "500 mg", defaultFreq: "Twice daily", defaultTiming: "After breakfast and dinner", defaultMeal: "After meal", defaultDur: "30 days" },
+    { drug: "metformin", name: "Metformin", defaultDose: "500 mg", defaultFreq: "Twice daily", defaultTiming: "After meals", defaultMeal: "After meal", defaultDur: "30 days" },
     { drug: "amoxicillin", name: "Amoxicillin", defaultDose: "500 mg", defaultFreq: "Three times daily", defaultTiming: "After meals", defaultMeal: "After meal", defaultDur: "7 days" },
     { drug: "azithromycin", name: "Azithromycin", defaultDose: "500 mg", defaultFreq: "Once daily", defaultTiming: "After lunch", defaultMeal: "After meal", defaultDur: "3 days" },
     { drug: "atorvastatin", name: "Atorvastatin", defaultDose: "10 mg", defaultFreq: "Once daily", defaultTiming: "At bedtime", defaultMeal: "After meal", defaultDur: "30 days" },
@@ -321,7 +295,8 @@ function universalClinicalExtractor(textStr, fileName) {
   medSpecs.forEach(spec => {
     const pos = lowerText.indexOf(spec.drug);
     if (pos !== -1) {
-      const snippet = text.substring(pos, pos + 150);
+      const snippet = text.substring(pos, pos + 200);
+      const lowerSnippet = snippet.toLowerCase();
       
       const doseMatch = snippet.match(/(\d+(?:\.\d+)?\s*(?:mg|g|ml|mcg|unit|units))/i);
       const strength = doseMatch ? doseMatch[1] : spec.defaultDose;
@@ -330,17 +305,20 @@ function universalClinicalExtractor(textStr, fileName) {
       const dose = qtyMatch ? qtyMatch[1] : "1 tablet";
 
       let freq = spec.defaultFreq;
-      const lowerSnippet = snippet.toLowerCase();
       if (lowerSnippet.includes('twice') || lowerSnippet.includes('1-0-1') || lowerSnippet.includes('bd')) freq = "Twice daily";
-      if (lowerSnippet.includes('thrice') || lowerSnippet.includes('1-1-1') || lowerSnippet.includes('tid')) freq = "Three times daily";
+      else if (lowerSnippet.includes('once') || lowerSnippet.includes('1-0-0') || lowerSnippet.includes('qd')) freq = "Once daily";
+      else if (lowerSnippet.includes('thrice') || lowerSnippet.includes('1-1-1') || lowerSnippet.includes('tid')) freq = "Three times daily";
 
       let mealRel = spec.defaultMeal;
       if (lowerSnippet.includes('before')) mealRel = "Before meal";
-      if (lowerSnippet.includes('with food') || lowerSnippet.includes('with meal')) mealRel = "With meal";
+      else if (lowerSnippet.includes('after') || lowerSnippet.includes('with food')) mealRel = "After meal";
 
       let timing = spec.defaultTiming;
-      let durDays = 5;
-      const durMatch = lowerSnippet.match(/for\s+(\d+)\s*day/i);
+      const timeMatch = snippet.match(/(\d{1,2}:\d{2}\s*(?:AM|PM))/i);
+      if (timeMatch) timing = timeMatch[1];
+
+      let durDays = parseInt(spec.defaultDur);
+      const durMatch = lowerSnippet.match(/duration:\s*(\d+)\s*day/i) || lowerSnippet.match(/for\s+(\d+)\s*day/i);
       if (durMatch) durDays = parseInt(durMatch[1]);
 
       medications.push({
@@ -356,7 +334,7 @@ function universalClinicalExtractor(textStr, fileName) {
         delayMinutes: 30,
         duration: `${durDays} days`,
         durationDays: durDays,
-        specialInstructions: `Extracted from report text: ${snippet.substring(0, 80)}`
+        specialInstructions: `Extracted from report text: ${snippet.substring(0, 100).replace(/\r?\n/g, ' ')}`
       });
     }
   });
