@@ -1,8 +1,5 @@
 const mongoose = require('mongoose');
 
-// Prevent Mongoose from buffering queries indefinitely when database connection is pending or retrying
-mongoose.set('bufferCommands', false);
-
 const connectDB = async () => {
   const mongoURI = process.env.MONGODB_URI;
 
@@ -13,7 +10,7 @@ const connectDB = async () => {
 
   try {
     await mongoose.connect(mongoURI, {
-      serverSelectionTimeoutMS: 4000
+      serverSelectionTimeoutMS: 5000
     });
     console.log('MongoDB Atlas connected successfully.');
   } catch (error) {
