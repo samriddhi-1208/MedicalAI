@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const mongoose = require('mongoose');
 const User = require('../src/models/User');
 const EmergencyContact = require('../src/models/EmergencyContact');
 const { JWT_SECRET, authenticateToken } = require('../middleware/authMiddleware');
@@ -13,10 +14,12 @@ router.post('/register', async (req, res) => {
     const cleanEmail = (email || '').toLowerCase().trim();
 
     let existing = null;
-    try {
-      existing = await User.findOne({ email: cleanEmail });
-    } catch (e) {
-      console.warn('[AUTH ROUTE] DB lookup warning:', e.message);
+    if (mongoose.connection && mongoose.connection.readyState === 1) {
+      try {
+        existing = await User.findOne({ email: cleanEmail });
+      } catch (e) {
+        console.warn('[AUTH ROUTE] DB lookup note:', e.message);
+      }
     }
 
     if (existing) {
@@ -27,18 +30,20 @@ router.post('/register', async (req, res) => {
     const password_hash = await bcrypt.hash(password || 'password123', salt);
 
     let newUser = null;
-    try {
-      newUser = await User.create({
-        full_name: name || 'Patient',
-        email: cleanEmail,
-        password_hash,
-        phone: phone || '9173737949',
-        age: parseInt(age) || 20,
-        gender: 'Female',
-        blood_group: bloodGroup || 'O+'
-      });
-    } catch (e) {
-      console.warn('[AUTH ROUTE] DB create warning:', e.message);
+    if (mongoose.connection && mongoose.connection.readyState === 1) {
+      try {
+        newUser = await User.create({
+          full_name: name || 'Patient',
+          email: cleanEmail,
+          password_hash,
+          phone: phone || '9173737949',
+          age: parseInt(age) || 20,
+          gender: 'Female',
+          blood_group: bloodGroup || 'O+'
+        });
+      } catch (e) {
+        console.warn('[AUTH ROUTE] DB create note:', e.message);
+      }
     }
 
     const userId = newUser?.id || newUser?._id || 'u-' + Date.now();
@@ -73,13 +78,15 @@ router.post('/login', async (req, res) => {
     const cleanEmail = (email || 'patient@medguardian.ai').toLowerCase().trim();
 
     let user = null;
-    try {
-      user = await User.findOne({ email: cleanEmail });
-      if (!user) {
-        user = await User.findOne();
+    if (mongoose.connection && mongoose.connection.readyState === 1) {
+      try {
+        user = await User.findOne({ email: cleanEmail });
+        if (!user) {
+          user = await User.findOne();
+        }
+      } catch (dbErr) {
+        console.warn('[AUTH ROUTE] DB Lookup note:', dbErr.message);
       }
-    } catch (dbErr) {
-      console.warn('[AUTH ROUTE] DB Lookup warning, using dynamic fallback user session:', dbErr.message);
     }
 
     const emailPrefix = cleanEmail.split('@')[0] || 'patient';
@@ -116,14 +123,16 @@ router.get('/me', authenticateToken, async (req, res) => {
   try {
     let user = null;
     let contacts = [];
-    try {
-      user = await User.findById(req.user.id);
-      if (!user) user = await User.findOne();
-      if (user) {
-        contacts = await EmergencyContact.find({ user_id: user._id });
+    if (mongoose.connection && mongoose.connection.readyState === 1) {
+      try {
+        user = await User.findById(req.user.id);
+        if (!user) user = await User.findOne();
+        if (user) {
+          contacts = await EmergencyContact.find({ user_id: user._id });
+        }
+      } catch (dbErr) {
+        console.warn('[AUTH ROUTE] Me route DB note:', dbErr.message);
       }
-    } catch (dbErr) {
-      console.warn('[AUTH ROUTE] Me route DB warning:', dbErr.message);
     }
 
     return res.json({
