@@ -18,7 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Health Check
-app.get(['/api/health', '/health'], (req, res) => {
+app.get(['/', '/api', '/api/health', '/health'], (req, res) => {
   res.json({
     status: 'online',
     system: 'MedGuardian AI REST Engine',

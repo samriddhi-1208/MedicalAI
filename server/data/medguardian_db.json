@@ -1,0 +1,172 @@
+{
+  "users": [
+    {
+      "id": "u-101",
+      "name": "Eleanor Vance",
+      "email": "eleanor.vance@example.com",
+      "password_hash": "$2a$10$wT8K0G.V3a4P9/1G0YvS.O7/aN1F1hF1hF1hF1hF1hF1hF1hF1hF",
+      "role": "patient",
+      "age": 42,
+      "gender": "Female",
+      "blood_group": "O+",
+      "created_at": "2026-01-10 09:00:00"
+    }
+  ],
+  "emergency_contacts": [
+    {
+      "id": "ec-1",
+      "user_id": "u-101",
+      "name": "Dr. Aris Thorne",
+      "email": "dr.thorne@apexhealth.org",
+      "phone": "+1 (555) 911-4040",
+      "relationship": "Primary Physician (Cardiologist)"
+    },
+    {
+      "id": "ec-2",
+      "user_id": "u-101",
+      "name": "Mark Vance",
+      "email": "mark.vance@example.com",
+      "phone": "+1 (555) 382-9911",
+      "relationship": "Spouse"
+    }
+  ],
+  "reports": [
+    {
+      "id": "rep-2026-001",
+      "user_id": "u-101",
+      "title": "Complete Blood Count (CBC) & Lipid Profile",
+      "lab_name": "Apex Clinical Laboratories",
+      "doctor_name": "Dr. Aris Thorne",
+      "file_url": "/uploads/sample_cbc.pdf",
+      "uploaded_at": "2026-07-28 10:15:00",
+      "ocr_status": "processed",
+      "score": 84
+    },
+    {
+      "id": "rep-2026-002",
+      "user_id": "u-101",
+      "title": "Thyroid Function Panel & Metabolic Assessment",
+      "lab_name": "MetroDiagnostics Center",
+      "doctor_name": "Dr. Elena Rostova",
+      "file_url": "/uploads/sample_thyroid.pdf",
+      "uploaded_at": "2026-05-12 14:30:00",
+      "ocr_status": "processed",
+      "score": 95
+    }
+  ],
+  "report_values": [
+    {
+      "id": "rv-1",
+      "report_id": "rep-2026-001",
+      "test_name": "Hemoglobin",
+      "value": 11.2,
+      "unit": "g/dL",
+      "reference_range": "12.0 - 15.5",
+      "is_critical": 0,
+      "category": "Hematology"
+    },
+    {
+      "id": "rv-2",
+      "report_id": "rep-2026-001",
+      "test_name": "Total Cholesterol",
+      "value": 224,
+      "unit": "mg/dL",
+      "reference_range": "< 200",
+      "is_critical": 1,
+      "category": "Lipids"
+    },
+    {
+      "id": "rv-3",
+      "report_id": "rep-2026-001",
+      "test_name": "HbA1c",
+      "value": 5.8,
+      "unit": "%",
+      "reference_range": "< 5.7",
+      "is_critical": 0,
+      "category": "Metabolic"
+    },
+    {
+      "id": "rv-4",
+      "report_id": "rep-2026-001",
+      "test_name": "WBC Count",
+      "value": 6.8,
+      "unit": "k/mcL",
+      "reference_range": "4.5 - 11.0",
+      "is_critical": 0,
+      "category": "Hematology"
+    },
+    {
+      "id": "rv-5",
+      "report_id": "rep-2026-002",
+      "test_name": "TSH",
+      "value": 2.1,
+      "unit": "mIU/L",
+      "reference_range": "0.4 - 4.0",
+      "is_critical": 0,
+      "category": "Endocrine"
+    }
+  ],
+  "report_summaries": [
+    {
+      "id": "rs-1",
+      "report_id": "rep-2026-001",
+      "summary_text": "Your recent blood panel shows elevated total cholesterol (224 mg/dL) and slightly low serum hemoglobin (11.2 g/dL). Blood sugar levels (HbA1c) remain stable within prediabetic boundary.",
+      "key_findings": "[\"Total Cholesterol measured at 224 mg/dL (Desirable: <200 mg/dL).\",\"Hemoglobin measured at 11.2 g/dL (Reference: 12.0 - 15.5 g/dL).\",\"HbA1c Sugar measured at 5.8% (Borderline prediabetes).\"]",
+      "recommendations": "{\"lifestyle\":[\"Increase soluble fiber (oats, flaxseeds).\",\"Maintain 150 mins aerobic exercise weekly.\"],\"medical\":[\"Schedule follow-up with Dr. Aris Thorne in 30 days.\"],\"questionsForDoctor\":[\"Is dietary modification sufficient for cholesterol reduction?\"]}",
+      "generated_at": "2026-07-28 10:16:00"
+    }
+  ],
+  "medicines": [
+    {
+      "id": "med-1",
+      "user_id": "u-101",
+      "name": "Metformin Hydrochloride",
+      "dosage": "500 mg",
+      "frequency": "Once Daily",
+      "time_slots": "[\"Morning 08:00 AM\"]",
+      "total_pills": 30,
+      "pills_remaining": 18
+    },
+    {
+      "id": "med-2",
+      "user_id": "u-101",
+      "name": "Atorvastatin Calcium",
+      "dosage": "10 mg",
+      "frequency": "Once Daily",
+      "time_slots": "[\"Night 09:30 PM\"]",
+      "total_pills": 30,
+      "pills_remaining": 4
+    }
+  ],
+  "medicine_logs": [
+    {
+      "id": "ml-1",
+      "medicine_id": "med-1",
+      "scheduled_at": "2026-08-05 08:00:00",
+      "taken": 1,
+      "responded_at": "2026-08-05 08:05:12"
+    }
+  ],
+  "sos_events": [
+    {
+      "id": "sos-1",
+      "user_id": "u-101",
+      "triggered_at": "2026-07-15 14:22:04",
+      "latitude": 28.6139,
+      "longitude": 77.209,
+      "trigger_type": "Manual SOS Button",
+      "status": "Dispatched",
+      "dispatched_to": "[\"Dr. Aris Thorne\",\"Mark Vance\"]"
+    },
+    {
+      "id": "sos-1785902832829",
+      "user_id": "u-101",
+      "triggered_at": "2026-08-05T04:07:12.829Z",
+      "latitude": 28.6139,
+      "longitude": 77.209,
+      "trigger_type": "Manual SOS Button",
+      "status": "Dispatched",
+      "dispatched_to": "[\"Dr. Aris Thorne\",\"Mark Vance\"]"
+    }
+  ]
+}
