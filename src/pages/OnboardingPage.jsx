@@ -223,7 +223,7 @@ export const OnboardingPage = () => {
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder="Full Name"
-                    className="med-input w-full block"
+                    className="med-input w-full block !pl-11"
                   />
                 </div>
               </div>

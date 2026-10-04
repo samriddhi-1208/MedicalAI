@@ -39,6 +39,7 @@ export const AppRoutes = () => {
           <OnboardingPage />
         </OnboardingRoute>
       } />
+      <Route path="/onboarding" element={<Navigate to="/complete-profile" replace />} />
 
       {/* Authenticated Protected Suite */}
       <Route path="/app" element={

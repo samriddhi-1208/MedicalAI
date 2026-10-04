@@ -5,14 +5,14 @@ const HealthDataContext = createContext(null);
 
 const getNormalizedApiUrl = () => {
   let envUrl = import.meta.env.VITE_API_URL;
-  if (!envUrl || envUrl.includes('localhost:5000')) {
-    envUrl = 'https://medicalai-backend-5ycw.onrender.com/api';
+  if (envUrl) {
+    envUrl = envUrl.trim().replace(/\/+$/, '');
+    return envUrl.endsWith('/api') ? envUrl : `${envUrl}/api`;
   }
-  envUrl = envUrl.trim().replace(/\/+$/, '');
-  if (!envUrl.endsWith('/api')) {
-    envUrl += '/api';
+  if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+    return 'http://localhost:5000/api';
   }
-  return envUrl;
+  return 'https://medicalai-backend-5ycw.onrender.com/api';
 };
 
 const API_BASE = getNormalizedApiUrl();
@@ -111,7 +111,7 @@ export const HealthDataProvider = ({ children }) => {
               state: rawUser.state || '',
               country: rawUser.country || 'India',
               occupation: rawUser.occupation || '',
-              profileCompleted: rawUser.profile_completed ?? true
+              profileCompleted: Boolean(rawUser.profile_completed ?? rawUser.profileCompleted ?? false)
             };
             setUserProfile(updatedProfile);
             localStorage.setItem('medguardian_user_profile', JSON.stringify(updatedProfile));
@@ -436,7 +436,9 @@ export const HealthDataProvider = ({ children }) => {
           gender: 'Not Specified',
           bloodGroup: 'Not Known',
           primaryPhysician: '',
-          country: 'India'
+          country: 'India',
+          profileCompleted: false,
+          profile_completed: false
         };
 
         setUserProfile(newProf);
@@ -490,6 +492,38 @@ export const HealthDataProvider = ({ children }) => {
       } catch (e) {
         console.warn("[API] Profile update sync note:", e);
       }
+    }
+  };
+
+  const completeOnboarding = async (profileData) => {
+    setLoadingData(true);
+    try {
+      const merged = {
+        ...(userProfile || {}),
+        ...profileData,
+        profileCompleted: true,
+        profile_completed: true
+      };
+      setUserProfile(merged);
+      localStorage.setItem('medguardian_user_profile', JSON.stringify(merged));
+
+      if (token) {
+        try {
+          await fetch(`${API_BASE}/auth/profile`, {
+            method: 'PUT',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({
+              ...profileData,
+              profile_completed: true
+            })
+          });
+        } catch (e) {
+          console.warn("[API] completeOnboarding network note:", e);
+        }
+      }
+      return { success: true, user: merged };
+    } finally {
+      setLoadingData(false);
     }
   };
 
@@ -805,6 +839,7 @@ export const HealthDataProvider = ({ children }) => {
     token,
     userProfile,
     updateUserProfile,
+    completeOnboarding,
     reports,
     activeReport,
     activeReportId,

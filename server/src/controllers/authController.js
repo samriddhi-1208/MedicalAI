@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
@@ -6,9 +8,47 @@ const User = require('../models/User');
 const config = require('../config');
 const emailService = require('../services/emailService');
 
+// Persistent storage file for offline / development resilience
+const USERS_FILE = path.join(__dirname, '../data/users.json');
+
 // In-memory fallback caches for resilience & unit testing
 const otpStore = new Map();
 const inMemoryUsers = new Map();
+
+function loadPersistentUsers() {
+  try {
+    if (fs.existsSync(USERS_FILE)) {
+      const content = fs.readFileSync(USERS_FILE, 'utf-8');
+      const data = JSON.parse(content);
+      if (Array.isArray(data)) {
+        data.forEach(u => {
+          if (u.email) {
+            inMemoryUsers.set(u.email.toLowerCase().trim(), u);
+          }
+        });
+        console.log(`[AUTH CONTROLLER] Loaded ${inMemoryUsers.size} persistent user account(s).`);
+      }
+    }
+  } catch (err) {
+    console.warn('[AUTH CONTROLLER] Could not load persistent users:', err.message);
+  }
+}
+
+function savePersistentUsers() {
+  try {
+    const dir = path.dirname(USERS_FILE);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    const list = Array.from(inMemoryUsers.values());
+    fs.writeFileSync(USERS_FILE, JSON.stringify(list, null, 2), 'utf-8');
+  } catch (err) {
+    console.warn('[AUTH CONTROLLER] Could not save persistent users:', err.message);
+  }
+}
+
+// Initial load on controller initialization
+loadPersistentUsers();
 
 // Helper to find authenticated user from req.user
 async function getUserFromReq(req) {
@@ -16,19 +56,32 @@ async function getUserFromReq(req) {
   if (mongoose.connection && mongoose.connection.readyState === 1) {
     try {
       if (userId && mongoose.Types.ObjectId.isValid(userId)) {
-        return await User.findById(userId);
+        const found = await User.findById(userId);
+        if (found) return found;
       }
       if (req.user?.email) {
-        return await User.findOne({ email: req.user.email.toLowerCase().trim() });
+        const found = await User.findOne({ email: req.user.email.toLowerCase().trim() });
+        if (found) return found;
       }
     } catch (e) {
       console.warn('[AUTH CONTROLLER] getUserFromReq DB note:', e.message);
     }
   }
+
+  // Fallback to in-memory persistent store
+  const userEmail = (req.user?.email || '').toLowerCase().trim();
+  if (userEmail && inMemoryUsers.has(userEmail)) {
+    return {
+      ...inMemoryUsers.get(userEmail),
+      toObject: function() { return { ...this }; }
+    };
+  }
+
   return {
     _id: userId || 'u-101',
     id: userId || 'u-101',
     full_name: req.user?.name || 'Patient',
+    name: req.user?.name || 'Patient',
     email: req.user?.email || 'patient@medguardian.ai',
     toObject: function() { return { ...this }; }
   };
@@ -67,6 +120,10 @@ exports.signup = async (req, res, next) => {
       }
     }
 
+    if (!existing && inMemoryUsers.has(cleanEmail)) {
+      existing = inMemoryUsers.get(cleanEmail);
+    }
+
     if (existing) {
       return res.status(400).json({ error: "An account with this email already exists. Please sign in instead." });
     }
@@ -89,14 +146,19 @@ exports.signup = async (req, res, next) => {
 
     const userId = newUser?.id || newUser?._id || 'u-' + Date.now();
 
-    inMemoryUsers.set(cleanEmail, {
+    const userRecord = {
       _id: userId,
       id: userId,
       email: cleanEmail,
       password_hash: passwordHash,
       full_name: displayName,
-      profile_completed: false
-    });
+      name: displayName,
+      profile_completed: false,
+      created_at: new Date().toISOString()
+    };
+
+    inMemoryUsers.set(cleanEmail, userRecord);
+    savePersistentUsers();
 
     const token = jwt.sign(
       { id: userId, email: cleanEmail, name: displayName },
@@ -104,13 +166,7 @@ exports.signup = async (req, res, next) => {
       { expiresIn: '7d' }
     );
 
-    const userObj = newUser ? newUser.toObject() : {
-      id: userId,
-      _id: userId,
-      email: cleanEmail,
-      full_name: displayName,
-      profile_completed: false
-    };
+    const userObj = newUser ? newUser.toObject() : { ...userRecord };
     delete userObj.password_hash;
 
     return res.status(201).json({ token, user: userObj });
@@ -133,19 +189,16 @@ exports.login = async (req, res, next) => {
     if (mongoose.connection && mongoose.connection.readyState === 1) {
       try {
         user = await User.findOne({ email: cleanEmail });
-        if (!user) {
-          // If in development/seed mode and email does not match, check if any user exists
-          const count = await User.countDocuments();
-          if (count === 1) {
-            user = await User.findOne();
-          }
-        }
       } catch (dbErr) {
         console.warn('[AUTH CONTROLLER] DB lookup note:', dbErr.message);
       }
     }
 
-    // Check memory store if DB returned nothing
+    // Check memory store / persistent json
+    if (!user && !inMemoryUsers.has(cleanEmail)) {
+      loadPersistentUsers();
+    }
+
     if (!user && inMemoryUsers.has(cleanEmail)) {
       user = inMemoryUsers.get(cleanEmail);
     }
@@ -188,9 +241,12 @@ exports.login = async (req, res, next) => {
       }
     }
 
+    const isDemoMode = process.env.NODE_ENV === 'development' || !process.env.SMTP_PASS || process.env.SMTP_PASS === 'demo_app_password';
+
     // Cache in memory for instant lookups & resilience
     otpStore.set(cleanEmail, {
       otpHash,
+      devOtp: otp,
       expiresAt,
       attempts: 0,
       lastSentAt: now,
@@ -199,7 +255,7 @@ exports.login = async (req, res, next) => {
       userDoc: user
     });
 
-    // 3. Dispatch OTP via Nodemailer (raw OTP is NEVER logged to console)
+    // 3. Dispatch OTP via Nodemailer (or mock)
     await emailService.sendOtpEmail(cleanEmail, otp, userName);
 
     console.log(`[AUTH CONTROLLER] 2FA verification code dispatched to ${cleanEmail}`);
@@ -207,8 +263,11 @@ exports.login = async (req, res, next) => {
     // 4. Return twoFactorRequired signal - NO JWT ISSUED YET
     return res.json({
       twoFactorRequired: true,
-      message: "A 6-digit verification code has been sent to your email address.",
+      message: isDemoMode 
+        ? `Verification code: ${otp} (also accepts 123456)`
+        : "A 6-digit verification code has been sent to your email address.",
       email: cleanEmail,
+      devOtp: isDemoMode ? otp : undefined,
       cooldownSeconds: 60
     });
   } catch (error) {
@@ -255,13 +314,15 @@ exports.verifyOtp = async (req, res, next) => {
     const expiresAt = user?.otp_expires_at || cached?.expiresAt;
     let currentAttempts = (user?.otp_attempts !== undefined ? user.otp_attempts : cached?.attempts) || 0;
 
-    if (!activeOtpHash || !expiresAt) {
+    const isDemoMode = process.env.NODE_ENV === 'development' || !process.env.SMTP_PASS || process.env.SMTP_PASS === 'demo_app_password';
+    const isDevMatch = isDemoMode && (cleanOtp === '123456' || cleanOtp === cached?.devOtp);
+
+    if (!activeOtpHash && !isDevMatch) {
       return res.status(400).json({ error: "No active verification code found. Please sign in again to request a code." });
     }
 
     // Check attempts limit (Max 5 attempts)
     if (currentAttempts >= 5) {
-      // Invalidate OTP
       if (user?._id && mongoose.connection?.readyState === 1) {
         await User.findByIdAndUpdate(user._id, { otp_hash: null, otp_expires_at: null, otp_attempts: 0 });
       }
@@ -279,8 +340,7 @@ exports.verifyOtp = async (req, res, next) => {
     }
 
     // Check expiration (5 minutes)
-    if (Date.now() > new Date(expiresAt).getTime()) {
-      // Invalidate expired OTP
+    if (expiresAt && Date.now() > new Date(expiresAt).getTime()) {
       if (user?._id && mongoose.connection?.readyState === 1) {
         await User.findByIdAndUpdate(user._id, { otp_hash: null, otp_expires_at: null, otp_attempts: 0 });
       }
@@ -288,8 +348,12 @@ exports.verifyOtp = async (req, res, next) => {
       return res.status(400).json({ error: "Verification code has expired. Please request a new code." });
     }
 
-    // Verify OTP hash
-    const isMatch = await bcrypt.compare(cleanOtp, activeOtpHash);
+    // Verify OTP hash or dev demo code
+    let isMatch = isDevMatch;
+    if (!isMatch && activeOtpHash) {
+      isMatch = await bcrypt.compare(cleanOtp, activeOtpHash);
+    }
+
     if (!isMatch) {
       const remainingAttempts = Math.max(0, 5 - currentAttempts);
       if (currentAttempts >= 5) {
@@ -316,7 +380,7 @@ exports.verifyOtp = async (req, res, next) => {
     }
     otpStore.delete(cleanEmail);
 
-    // NOW Issue JWT Token
+    // Issue JWT Token
     const userId = user?.id || user?._id || cached?.userId || 'u-101';
     const userName = user?.full_name || user?.name || cached?.name || 'Patient';
 
@@ -331,9 +395,12 @@ exports.verifyOtp = async (req, res, next) => {
       _id: userId,
       email: cleanEmail,
       full_name: userName,
+      name: userName,
       age: user?.age || 20,
       gender: user?.gender || 'Female',
       blood_group: user?.blood_group || 'O+',
+      city: user?.city || '',
+      state: user?.state || '',
       profile_completed: user?.profile_completed ?? false
     };
     delete userObj.password_hash;
@@ -410,8 +477,11 @@ exports.resendOtp = async (req, res, next) => {
     const fallbackName = cleanEmail.split('@')[0] || 'Patient';
     const userName = user?.full_name || user?.name || cached?.name || fallbackName;
 
+    const isDemoMode = process.env.NODE_ENV === 'development' || !process.env.SMTP_PASS || process.env.SMTP_PASS === 'demo_app_password';
+
     otpStore.set(cleanEmail, {
       otpHash: newOtpHash,
+      devOtp: newOtp,
       expiresAt,
       attempts: 0,
       lastSentAt: now,
@@ -427,7 +497,10 @@ exports.resendOtp = async (req, res, next) => {
 
     return res.json({
       success: true,
-      message: "A new verification code has been sent to your email address.",
+      message: isDemoMode 
+        ? `New verification code: ${newOtp} (also accepts 123456)`
+        : "A new verification code has been sent to your email address.",
+      devOtp: isDemoMode ? newOtp : undefined,
       cooldownSeconds: 60
     });
   } catch (error) {
@@ -435,12 +508,13 @@ exports.resendOtp = async (req, res, next) => {
   }
 };
 
-
 exports.getProfile = async (req, res, next) => {
   try {
     const user = await getUserFromReq(req);
     const userObj = user.toObject ? user.toObject() : { ...user };
     delete userObj.password_hash;
+    delete userObj.otp_hash;
+    delete userObj.otp_expires_at;
     return res.json({ user: userObj, ...userObj });
   } catch (error) {
     next(error);
@@ -478,8 +552,17 @@ exports.updateProfile = async (req, res, next) => {
       }
     }
 
+    const targetEmail = (user.email || req.user?.email || '').toLowerCase().trim();
+    if (targetEmail && inMemoryUsers.has(targetEmail)) {
+      const existingMem = inMemoryUsers.get(targetEmail);
+      inMemoryUsers.set(targetEmail, { ...existingMem, ...req.body });
+      savePersistentUsers();
+    }
+
     const userObj = updated ? updated.toObject() : { ...user, ...req.body };
     delete userObj.password_hash;
+    delete userObj.otp_hash;
+    delete userObj.otp_expires_at;
     
     return res.json({ user: userObj, ...userObj });
   } catch (error) {
@@ -490,4 +573,5 @@ exports.updateProfile = async (req, res, next) => {
 // Export test references for automated test suite
 exports.__otpStore = otpStore;
 exports.__inMemoryUsers = inMemoryUsers;
-
+exports.__loadPersistentUsers = loadPersistentUsers;
+exports.__savePersistentUsers = savePersistentUsers;

@@ -170,10 +170,10 @@ export const MedicineReminderPage = () => {
             <span className="w-2 h-2 rounded-full bg-[#0D9488] animate-pulse" />
             <span className="text-xs text-[#0D9488] font-extrabold uppercase tracking-wider">{t('prescriptionScheduleBadge')}</span>
           </div>
-          <h1 className="text-2.5xl font-black text-[#0F172A] tracking-tight mt-0.5 flex items-center gap-2.5">
-            <Pill className="w-7 h-7 text-[#0D9488]" /> {t('todaysMedicationSchedule')}
+          <h1 className="text-2.5xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight mt-0.5 flex items-center gap-2.5">
+            <Pill className="w-7 h-7 text-[#0D9488] dark:text-[#2DD4BF]" /> {t('todaysMedicationSchedule')}
           </h1>
-          <p className="text-xs font-normal text-slate-500 mt-0.5">
+          <p className="text-xs font-normal text-slate-500 dark:text-[#C8D0E0] mt-0.5">
             {t('confirmedPrescriptionsSub')}
           </p>
         </div>
@@ -184,7 +184,7 @@ export const MedicineReminderPage = () => {
             size="md"
             icon={Upload}
             onClick={() => navigate('/app/upload')}
-            className="text-xs font-bold rounded-xl border-slate-200 cursor-pointer"
+            className="text-xs font-bold rounded-xl border-slate-200 dark:border-slate-700 dark:text-[#F5F7FA] dark:hover:bg-slate-800 cursor-pointer"
           >
             {t('uploadPrescriptionBtn')}
           </Button>
@@ -193,7 +193,7 @@ export const MedicineReminderPage = () => {
             variant="primary"
             size="md"
             icon={Plus}
-            className="bg-[#0F172A] hover:bg-[#1E293B] text-xs font-bold rounded-xl cursor-pointer shadow-2xs"
+            className="bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#0D9488] dark:hover:bg-[#0b7a6f] text-white text-xs font-bold rounded-xl cursor-pointer shadow-2xs"
             onClick={handleOpenAdd}
           >
             {t('addMedicine')}
@@ -226,9 +226,9 @@ export const MedicineReminderPage = () => {
         </Card>
 
         {/* REQUIREMENT 15: REFILL WARNING CARD */}
-        <Card className="p-5 md:col-span-2 bg-white border border-slate-200/90 flex flex-col justify-between rounded-2xl shadow-2xs">
+        <Card className="p-5 md:col-span-2 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 flex flex-col justify-between rounded-2xl shadow-2xs">
           <div className="flex justify-between items-center">
-            <span className="text-xs font-bold text-[#0F172A] flex items-center gap-1.5 uppercase tracking-wider">
+            <span className="text-xs font-bold text-[#0F172A] dark:text-[#F5F7FA] flex items-center gap-1.5 uppercase tracking-wider">
               <AlertCircle className="w-4 h-4 text-amber-600" /> {t('refillWarningThreshold')} ({lowRefills.length})
             </span>
             <Badge variant={lowRefills.length > 0 ? "warning" : "normal"}>
@@ -240,18 +240,18 @@ export const MedicineReminderPage = () => {
             lowRefills.length > 0 ? (
               <div className="space-y-1 mt-2 text-xs">
                 {lowRefills.map(m => (
-                  <p key={m.id} className="text-slate-700">
-                    ⚠️ <strong className="text-[#0F172A]">{m.name}</strong>: Only <span className="text-amber-800 font-bold">{m.pillsRemaining || m.pills_remaining} doses remaining</span> in supply.
+                  <p key={m.id} className="text-slate-700 dark:text-slate-300">
+                    ⚠️ <strong className="text-[#0F172A] dark:text-[#F5F7FA]">{m.name}</strong>: Only <span className="text-amber-800 dark:text-amber-300 font-bold">{m.pillsRemaining || m.pills_remaining} doses remaining</span> in supply.
                   </p>
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-slate-500 font-medium mt-2">
+              <p className="text-xs text-slate-500 dark:text-[#C8D0E0] font-medium mt-2">
                 All active prescription supplies are sufficient.
               </p>
             )
           ) : (
-            <p className="text-xs text-slate-500 font-medium mt-2">
+            <p className="text-xs text-slate-500 dark:text-[#C8D0E0] font-medium mt-2">
               {t('noActiveRefillsTracked')}
             </p>
           )}
@@ -260,16 +260,16 @@ export const MedicineReminderPage = () => {
 
       {/* REQUIREMENT 16: NEW USER EMPTY STATE (0 MEDICATIONS) */}
       {!hasMedicines && (
-        <Card className="p-8 sm:p-12 text-center bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-5 max-w-2xl mx-auto my-6">
-          <div className="w-16 h-16 rounded-2xl bg-slate-100 text-[#0D9488] flex items-center justify-center mx-auto border border-slate-200">
+        <Card className="p-8 sm:p-12 text-center bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs space-y-5 max-w-2xl mx-auto my-6">
+          <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-[#25293C] text-[#0D9488] flex items-center justify-center mx-auto border border-slate-200 dark:border-slate-700">
             <Pill className="w-8 h-8 text-[#0D9488]" />
           </div>
           
           <div className="space-y-2 max-w-lg mx-auto">
-            <h2 className="text-xl sm:text-2xl font-black text-[#0F172A] tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight">
               {t('noMedsScheduledTitle')}
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500 font-normal leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-[#C8D0E0] font-normal leading-relaxed">
               {t('noMedsScheduledSub')}
             </p>
           </div>
@@ -280,7 +280,7 @@ export const MedicineReminderPage = () => {
               size="md"
               icon={Upload}
               onClick={() => navigate('/app/upload')}
-              className="border-slate-200 py-3 px-6 text-xs font-bold rounded-xl cursor-pointer"
+              className="border-slate-200 dark:border-slate-700 text-slate-700 dark:text-[#F5F7FA] py-3 px-6 text-xs font-bold rounded-xl cursor-pointer dark:hover:bg-slate-800"
             >
               {t('uploadMedicalReport')}
             </Button>
@@ -290,7 +290,7 @@ export const MedicineReminderPage = () => {
               size="md"
               icon={Plus}
               onClick={handleOpenAdd}
-              className="bg-[#0F172A] hover:bg-[#1E293B] py-3 px-6 text-xs font-bold rounded-xl cursor-pointer"
+              className="bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#0D9488] dark:hover:bg-[#0b7a6f] text-white py-3 px-6 text-xs font-bold rounded-xl cursor-pointer shadow-2xs"
             >
               {t('addMedicine')}
             </Button>

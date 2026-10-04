@@ -165,9 +165,11 @@ export const HospitalFinderPage = () => {
 
     try {
       let apiBaseUrl = 'https://medicalai-backend-5ycw.onrender.com/api';
-      if (import.meta.env.VITE_API_URL && !import.meta.env.VITE_API_URL.includes('localhost')) {
+      if (import.meta.env.VITE_API_URL) {
         apiBaseUrl = import.meta.env.VITE_API_URL.replace(/\/+$/, '');
         if (!apiBaseUrl.endsWith('/api')) apiBaseUrl += '/api';
+      } else if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+        apiBaseUrl = 'http://localhost:5000/api';
       }
 
       // Try primary radius, auto-expand to 25km if 0 results
@@ -489,20 +491,20 @@ export const HospitalFinderPage = () => {
 
       {/* Location Access Prompt UI (Initial Un-Granted / Denied State) */}
       {locationState !== 'granted' && (
-        <Card className="p-8 text-center bg-white border border-slate-200 rounded-2xl space-y-5 shadow-xs max-w-2xl mx-auto">
-          <div className="w-14 h-14 rounded-2xl bg-teal-50 text-[#0D9488] flex items-center justify-center mx-auto border border-teal-200 shadow-2xs">
+        <Card className="p-8 text-center bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-800 rounded-2xl space-y-5 shadow-xs max-w-2xl mx-auto">
+          <div className="w-14 h-14 rounded-2xl bg-teal-50 dark:bg-[#25293C] text-[#0D9488] dark:text-[#2DD4BF] flex items-center justify-center mx-auto border border-teal-200 dark:border-teal-800 shadow-2xs">
             <Compass className="w-7 h-7" />
           </div>
 
           <div className="space-y-2">
-            <h2 className="text-xl font-extrabold text-[#0F172A]">{t('findHealthcareNearYou')}</h2>
-            <p className="text-xs text-slate-600 font-normal leading-relaxed">
+            <h2 className="text-xl font-extrabold text-[#0F172A] dark:text-[#F5F7FA]">{t('findHealthcareNearYou')}</h2>
+            <p className="text-xs text-slate-600 dark:text-[#C8D0E0] font-normal leading-relaxed">
               {t('locationAccessReq')}
             </p>
           </div>
 
           {locationState === 'denied' && (
-            <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 font-semibold space-y-1">
+            <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-xs text-amber-900 dark:text-amber-200 font-semibold space-y-1">
               <p>⚠️ {t('locationDeniedWarning')}</p>
             </div>
           )}
@@ -514,7 +516,7 @@ export const HospitalFinderPage = () => {
               icon={Compass}
               loading={locationState === 'loading'}
               onClick={handleUseCurrentLocation}
-              className="bg-[#0F172A] hover:bg-[#1E293B] py-3 px-6 text-xs font-semibold rounded-xl w-full sm:w-auto cursor-pointer"
+              className="bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#0D9488] dark:hover:bg-[#0b7a6f] text-white py-3 px-6 text-xs font-semibold rounded-xl w-full sm:w-auto cursor-pointer"
             >
               {locationState === 'loading' ? t('loadingMedicalData') : t('useCurrentLocation')}
             </Button>
@@ -530,7 +532,7 @@ export const HospitalFinderPage = () => {
                   handleManualSearch();
                 }
               }}
-              className="py-3 px-6 text-xs font-semibold rounded-xl bg-slate-50 border-slate-200 text-[#0F172A] hover:bg-slate-100 w-full sm:w-auto cursor-pointer"
+              className="py-3 px-6 text-xs font-semibold rounded-xl bg-slate-50 dark:bg-[#25293C] border-slate-200 dark:border-slate-700 text-[#0F172A] dark:text-[#F5F7FA] hover:bg-slate-100 dark:hover:bg-slate-800 w-full sm:w-auto cursor-pointer"
             >
               {t('enterLocationManually')}
             </Button>

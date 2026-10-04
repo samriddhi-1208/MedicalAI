@@ -16,6 +16,15 @@ async function getUserFromReq(req) {
       const foundByEmail = await User.findOne({ email: req.user.email.toLowerCase() });
       if (foundByEmail) return foundByEmail;
     }
+  }
+
+  const authCtrl = require('./authController');
+  const userEmail = (req.user?.email || '').toLowerCase().trim();
+  if (userEmail && authCtrl.__inMemoryUsers?.has(userEmail)) {
+    return {
+      ...authCtrl.__inMemoryUsers.get(userEmail),
+      toObject: function() { return { ...this }; }
+    };
   } else if (req.user) {
     return {
       _id: userId || 'u-101',

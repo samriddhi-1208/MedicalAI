@@ -2,7 +2,18 @@
  * MedGuardian AI — Frontend API Endpoints Configuration
  */
 
-export const API_BASE = import.meta.env.VITE_API_URL || 'https://medicalai-backend-5ycw.onrender.com/api';
+const resolveApiBase = () => {
+  if (import.meta.env.VITE_API_URL) {
+    let url = import.meta.env.VITE_API_URL.trim().replace(/\/+$/, '');
+    return url.endsWith('/api') ? url : `${url}/api`;
+  }
+  if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+    return 'http://localhost:5000/api';
+  }
+  return 'https://medicalai-backend-5ycw.onrender.com/api';
+};
+
+export const API_BASE = resolveApiBase();
 
 export const API_ENDPOINTS = {
   AUTH: {

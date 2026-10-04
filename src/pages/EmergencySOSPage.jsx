@@ -291,11 +291,11 @@ export const EmergencySOSPage = () => {
       </Card>
 
       {/* Trusted Emergency Contacts */}
-      <Card className="p-6 bg-white border border-slate-200/90 rounded-2xl space-y-4 shadow-2xs">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+      <Card className="p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl space-y-4 shadow-2xs">
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
           <div className="flex items-center gap-2">
-            <Users className="w-5 h-5 text-[#0D9488]" />
-            <h3 className="text-base font-black text-[#0F172A]">{t('trustedContactsStatus') || "Trusted Emergency Contacts"}</h3>
+            <Users className="w-5 h-5 text-[#0D9488] dark:text-[#2DD4BF]" />
+            <h3 className="text-base font-black text-[#0F172A] dark:text-[#F5F7FA]">Trusted Emergency Contacts</h3>
           </div>
 
           <Button
@@ -309,7 +309,7 @@ export const EmergencySOSPage = () => {
               setContactPhone('');
               setShowContactModal(true);
             }}
-            className="rounded-xl border-slate-200 text-xs font-bold cursor-pointer"
+            className="rounded-xl border-slate-200 dark:border-slate-700 text-xs font-bold cursor-pointer dark:text-[#F5F7FA] dark:hover:bg-slate-800"
           >
             {t('addContact') || "Add Emergency Contact"}
           </Button>
@@ -317,15 +317,15 @@ export const EmergencySOSPage = () => {
 
         <div className="space-y-2.5 text-xs">
           {trustedContacts.map((contact) => (
-            <div key={contact.id || contact._id} className="flex items-center justify-between p-4 rounded-xl bg-slate-50 border border-slate-200/80">
+            <div key={contact.id || contact._id} className="flex items-center justify-between p-4 rounded-xl bg-slate-50 dark:bg-[#151824] border border-slate-200/80 dark:border-slate-800">
               <div>
                 <div className="flex items-center gap-2">
-                  <h4 className="font-black text-sm text-[#0F172A]">{contact.name}</h4>
+                  <h4 className="font-black text-sm text-[#0F172A] dark:text-[#F5F7FA]">{contact.name}</h4>
                   {contact.isPrimary && (
-                    <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold">{t('primaryBadge') || "Primary Helpline"}</span>
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 text-[10px] font-extrabold">{t('primaryBadge') || "Primary Helpline"}</span>
                   )}
                 </div>
-                <p className="text-slate-500 font-medium mt-0.5">{contact.relation} • {contact.phone}</p>
+                <p className="text-slate-500 dark:text-[#C8D0E0] font-medium mt-0.5">{contact.relation} • {contact.phone}</p>
               </div>
 
               <div className="flex items-center gap-2">
@@ -334,14 +334,14 @@ export const EmergencySOSPage = () => {
                     toast.success(`Dialing ${contact.name}...`);
                     window.open(`tel:${contact.phone}`);
                   }}
-                  className="px-3.5 py-1.5 rounded-xl bg-[#0F172A] text-white text-xs font-bold hover:bg-[#1E293B] cursor-pointer"
+                  className="px-3.5 py-1.5 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#0D9488] dark:hover:bg-[#0b7a6f] text-white text-xs font-bold cursor-pointer shadow-2xs"
                 >
                   Call
                 </button>
                 {!contact.isPrimary && (
                   <button
                     onClick={() => handleDeleteContact(contact.id || contact._id)}
-                    className="p-1.5 rounded-xl text-rose-600 hover:bg-rose-50 cursor-pointer transition-colors"
+                    className="p-1.5 rounded-xl text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 cursor-pointer transition-colors"
                     title="Remove Contact"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -354,14 +354,14 @@ export const EmergencySOSPage = () => {
       </Card>
 
       {/* Live Nearby Emergency Facilities */}
-      <Card className="p-6 bg-white border border-slate-200/90 rounded-2xl space-y-4 shadow-2xs">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+      <Card className="p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl space-y-4 shadow-2xs">
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
           <div className="flex items-center gap-2">
-            <Building2 className="w-5 h-5 text-[#0D9488]" />
-            <h3 className="text-base font-black text-[#0F172A]">{t('liveNearbyEmergencyFacilities') || "Live Nearby Emergency Hospitals"}</h3>
+            <Building2 className="w-5 h-5 text-[#0D9488] dark:text-[#2DD4BF]" />
+            <h3 className="text-base font-black text-[#0F172A] dark:text-[#F5F7FA]">{t('liveNearbyEmergencyFacilities') || "Live Nearby Emergency Hospitals"}</h3>
           </div>
 
-          <span className="text-xs font-bold text-[#0D9488] bg-teal-50 px-3 py-1 rounded-full border border-teal-200">
+          <span className="text-xs font-bold text-[#0D9488] dark:text-[#2DD4BF] bg-teal-50 dark:bg-teal-950/60 px-3 py-1 rounded-full border border-teal-200 dark:border-teal-800">
             {t('sortedByProximity') || "Sorted by Proximity"}
           </span>
         </div>
@@ -369,23 +369,23 @@ export const EmergencySOSPage = () => {
         {loadingHospitals ? (
           <div className="py-8 text-center space-y-2">
             <RefreshCw className="w-6 h-6 text-[#0D9488] animate-spin mx-auto" />
-            <p className="text-xs text-slate-500 font-medium">Querying OpenStreetMap live emergency database...</p>
+            <p className="text-xs text-slate-500 dark:text-[#C8D0E0] font-medium">Querying OpenStreetMap live emergency database...</p>
           </div>
         ) : nearbyHospitals.length === 0 ? (
-          <div className="py-6 text-center text-xs text-slate-500 font-medium">
+          <div className="py-6 text-center text-xs text-slate-500 dark:text-[#C8D0E0] font-medium">
             No live hospital data retrieved. Ensure GPS location is active.
           </div>
         ) : (
           <div className="space-y-3 text-xs">
             {nearbyHospitals.slice(0, 5).map((hosp) => (
-              <div key={hosp.id} className="p-4 rounded-xl border border-slate-200/80 hover:border-[#0D9488] bg-slate-50/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all">
+              <div key={hosp.id} className="p-4 rounded-xl border border-slate-200/80 dark:border-slate-800 hover:border-[#0D9488] bg-slate-50/60 dark:bg-[#151824] flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <h4 className="font-black text-sm text-[#0F172A]">{hosp.name}</h4>
-                    <span className="px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 text-[10px] font-extrabold">24/7 ER</span>
+                    <h4 className="font-black text-sm text-[#0F172A] dark:text-[#F5F7FA]">{hosp.name}</h4>
+                    <span className="px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 text-[10px] font-extrabold">24/7 ER</span>
                   </div>
-                  <p className="text-slate-500 font-medium truncate max-w-md">{hosp.address}</p>
-                  <p className="text-slate-700 font-bold">{hosp.distanceText} • {hosp.driveTimeText}</p>
+                  <p className="text-slate-500 dark:text-[#C8D0E0] font-medium truncate max-w-md">{hosp.address}</p>
+                  <p className="text-slate-700 dark:text-slate-300 font-bold">{hosp.distanceText} • {hosp.driveTimeText}</p>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -402,7 +402,7 @@ export const EmergencySOSPage = () => {
                     href={`https://www.google.com/maps/dir/?api=1&destination=${hosp.lat},${hosp.lng}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-3 py-1.5 rounded-xl bg-[#0F172A] text-white font-bold text-xs hover:bg-[#1E293B] cursor-pointer flex items-center gap-1"
+                    className="px-3 py-1.5 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#0D9488] dark:hover:bg-[#0b7a6f] text-white font-bold text-xs cursor-pointer flex items-center gap-1 shadow-2xs"
                   >
                     <Navigation className="w-3.5 h-3.5" /> Directions
                   </a>

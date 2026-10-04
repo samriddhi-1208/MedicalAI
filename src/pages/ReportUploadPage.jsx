@@ -250,25 +250,25 @@ export const ReportUploadPage = () => {
   };
 
   return (
-    <div className="space-y-6 pb-12 font-sans text-[#0F172A] max-w-4xl mx-auto">
+    <div className="space-y-6 pb-12 font-sans text-[#0F172A] dark:text-[#F5F7FA] max-w-4xl mx-auto">
       
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
         <div>
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-[#0D9488] animate-pulse" />
             <span className="text-xs text-[#0D9488] font-bold uppercase tracking-wider">AI Medical Intelligence</span>
           </div>
-          <h1 className="text-2.5xl font-extrabold text-[#0F172A] tracking-tight">
+          <h1 className="text-2.5xl font-extrabold text-[#0F172A] dark:text-[#F5F7FA] tracking-tight">
             {t('uploadMedicalReport')}
           </h1>
-          <p className="text-xs text-slate-500 font-normal mt-0.5">
+          <p className="text-xs text-slate-500 dark:text-[#C8D0E0] font-normal mt-0.5">
             {t('uploadSubtitle')}
           </p>
         </div>
       </div>
 
-      <Card className="p-6 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-6">
+      <Card className="p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs space-y-6">
         
         {/* Dropzone Container */}
         <div
@@ -278,10 +278,10 @@ export const ReportUploadPage = () => {
           onDrop={handleDrop}
           className={`relative border-2 border-dashed rounded-2xl p-8 text-center transition-all cursor-pointer ${
             dragActive 
-              ? 'border-[#0D9488] bg-[#F0FDF4]' 
+              ? 'border-[#0D9488] bg-[#F0FDF4] dark:bg-teal-950/30' 
               : selectedFile 
-              ? 'border-emerald-300 bg-emerald-50/50' 
-              : 'border-slate-300 hover:border-slate-400 bg-slate-50/50'
+              ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-50/50 dark:bg-emerald-950/20' 
+              : 'border-slate-300 dark:border-slate-700 hover:border-slate-400 bg-slate-50/50 dark:bg-[#151824]'
           }`}
         >
           <input
@@ -293,7 +293,7 @@ export const ReportUploadPage = () => {
 
           <div className="flex flex-col items-center gap-3">
             <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-transform ${
-              selectedFile ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'
+              selectedFile ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 dark:bg-[#25293C] text-slate-600 dark:text-[#AAB4E8]'
             }`}>
               {selectedFile ? (
                 <FileText className="w-7 h-7 text-emerald-700" />
@@ -304,17 +304,17 @@ export const ReportUploadPage = () => {
 
             {selectedFile ? (
               <div className="space-y-1">
-                <p className="text-sm font-extrabold text-[#0F172A]">{selectedFile.name}</p>
-                <p className="text-xs text-slate-500 font-medium">
+                <p className="text-sm font-extrabold text-[#0F172A] dark:text-[#F5F7FA]">{selectedFile.name}</p>
+                <p className="text-xs text-slate-500 dark:text-[#C8D0E0] font-medium">
                   {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB • Ready for SHA-256 duplicate check & AI parsing
                 </p>
               </div>
             ) : (
               <div className="space-y-1">
-                <p className="text-sm font-bold text-[#0F172A]">
+                <p className="text-sm font-bold text-[#0F172A] dark:text-[#F5F7FA]">
                   Drag and drop your medical report here, or <span className="text-[#0D9488] underline">browse files</span>
                 </p>
-                <p className="text-xs text-slate-500 font-normal">
+                <p className="text-xs text-slate-500 dark:text-[#C8D0E0] font-normal">
                   Supports PDF, PNG, JPG (Max 15MB). Instant SHA-256 duplicate detection.
                 </p>
               </div>
@@ -327,7 +327,7 @@ export const ReportUploadPage = () => {
           <Button
             onClick={handleUploadAndAnalyze}
             disabled={!selectedFile || uploading}
-            className="w-full py-3.5 bg-[#0F172A] hover:bg-[#1E293B] text-white font-extrabold text-sm rounded-xl shadow-md cursor-pointer flex items-center justify-center gap-2"
+            className="w-full py-3.5 bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#0D9488] dark:hover:bg-[#0b7a6f] text-white font-extrabold text-sm rounded-xl shadow-md cursor-pointer flex items-center justify-center gap-2"
           >
             {uploading ? (
               <>

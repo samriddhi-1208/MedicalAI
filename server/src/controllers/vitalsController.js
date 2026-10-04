@@ -5,12 +5,30 @@ const ReportValue = require('../models/ReportValue');
 
 async function getUserFromReq(req) {
   const userId = req.user?.id;
-  if (userId && mongoose.Types.ObjectId.isValid(userId)) {
-    return await User.findById(userId);
+  if (mongoose.connection && mongoose.connection.readyState === 1) {
+    try {
+      if (userId && mongoose.Types.ObjectId.isValid(userId)) {
+        const found = await User.findById(userId);
+        if (found) return found;
+      }
+      if (req.user?.email) {
+        const found = await User.findOne({ email: req.user.email.toLowerCase().trim() });
+        if (found) return found;
+      }
+    } catch (e) {
+      console.warn('[VITALS] getUserFromReq DB note:', e.message);
+    }
   }
-  if (req.user?.email) {
-    return await User.findOne({ email: req.user.email.toLowerCase().trim() });
+
+  const authCtrl = require('./authController');
+  const userEmail = (req.user?.email || '').toLowerCase().trim();
+  if (userEmail && authCtrl.__inMemoryUsers?.has(userEmail)) {
+    return {
+      ...authCtrl.__inMemoryUsers.get(userEmail),
+      toObject: function() { return { ...this }; }
+    };
   }
+
   return null;
 }
 

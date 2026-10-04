@@ -61,13 +61,13 @@ export const AIAnalysisPage = () => {
   if (!selectedReport) {
     return (
       <div className="space-y-6 pb-12 font-sans antialiased max-w-4xl mx-auto text-center py-12">
-        <Card className="p-10 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-4">
-          <div className="w-16 h-16 rounded-2xl bg-slate-100 text-slate-500 flex items-center justify-center mx-auto border border-slate-200">
-            <FileText className="w-8 h-8 text-slate-400" />
+        <Card className="p-10 bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs space-y-4">
+          <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-[#25293C] text-slate-500 dark:text-[#8BC7B5] flex items-center justify-center mx-auto border border-slate-200 dark:border-slate-700">
+            <FileText className="w-8 h-8 text-slate-400 dark:text-[#8BC7B5]" />
           </div>
           <div className="space-y-1.5 max-w-md mx-auto">
-            <h2 className="text-xl font-extrabold text-[#0F172A]">{t('noUploadedReports')}</h2>
-            <p className="text-xs text-slate-500 font-normal">
+            <h2 className="text-xl font-extrabold text-[#0F172A] dark:text-[#F5F7FA]">{t('noUploadedReports')}</h2>
+            <p className="text-xs text-slate-500 dark:text-[#C8D0E0] font-normal">
               {t('uploadSubtitle')}
             </p>
           </div>
@@ -77,7 +77,7 @@ export const AIAnalysisPage = () => {
               size="md"
               icon={Upload}
               onClick={() => navigate('/app/upload')}
-              className="bg-[#0F172A] hover:bg-[#1E293B] py-3 px-8 text-xs font-bold rounded-xl cursor-pointer"
+              className="bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#0D9488] dark:hover:bg-[#0b7a6f] text-white py-3 px-8 text-xs font-bold rounded-xl cursor-pointer shadow-2xs"
             >
               {t('uploadMedicalReport')}
             </Button>

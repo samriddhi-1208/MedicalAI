@@ -11,8 +11,10 @@ const startServer = async () => {
     // 1. Connect to MongoDB Atlas
     await connectDB();
 
-    // 2. Seed database if empty
-    await seedDatabase();
+    // 2. Seed database if connected and empty
+    if (require('mongoose').connection && require('mongoose').connection.readyState === 1) {
+      await seedDatabase();
+    }
   } catch (err) {
     console.warn('MongoDB Atlas connection note on startup:', err.message || err);
   } finally {

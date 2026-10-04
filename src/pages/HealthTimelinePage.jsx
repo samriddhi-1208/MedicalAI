@@ -281,16 +281,16 @@ export const HealthTimelinePage = () => {
     <div className="space-y-6 pb-12 font-sans antialiased max-w-7xl mx-auto">
       
       {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/90 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/90 dark:border-slate-800 pb-4">
         <div>
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-[#0D9488] animate-pulse" />
-            <span className="text-xs text-[#0D9488] font-extrabold uppercase tracking-wider">{t('longitudinalAnalytics')}</span>
+            <span className="text-xs text-[#0D9488] dark:text-[#2DD4BF] font-extrabold uppercase tracking-wider">{t('longitudinalAnalytics')}</span>
           </div>
-          <h1 className="text-2.5xl font-black text-[#0F172A] tracking-tight mt-0.5">
+          <h1 className="text-2.5xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight mt-0.5">
             {t('healthTrends')}
           </h1>
-          <p className="text-xs font-normal text-slate-500">
+          <p className="text-xs font-normal text-slate-500 dark:text-[#C8D0E0]">
             {t('trackBiomarkerProgressions')}
           </p>
         </div>
@@ -310,16 +310,16 @@ export const HealthTimelinePage = () => {
 
       {/* EMPTY STATE (0 REPORTS OR 0 EXTRACTED PARAMETERS) */}
       {(!hasReports || totalParametersCount === 0) && (
-        <Card className="p-8 sm:p-12 text-center bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-5 max-w-2xl mx-auto my-6">
-          <div className="w-16 h-16 rounded-2xl bg-slate-100 text-[#0D9488] flex items-center justify-center mx-auto border border-slate-200">
+        <Card className="p-8 sm:p-12 text-center bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs space-y-5 max-w-2xl mx-auto my-6">
+          <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-[#25293C] text-[#0D9488] flex items-center justify-center mx-auto border border-slate-200 dark:border-slate-700">
             <TrendingUp className="w-8 h-8 text-[#0D9488]" />
           </div>
           
           <div className="space-y-2 max-w-lg mx-auto">
-            <h2 className="text-xl sm:text-2xl font-black text-[#0F172A] tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight">
               No health trends available yet
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500 font-normal leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-[#C8D0E0] font-normal leading-relaxed">
               {hasReports 
                 ? "Your uploaded medical reports do not contain measurable health parameters. Please upload a lab report with structured test results to track trends."
                 : "Upload medical reports containing laboratory results to start tracking your health trends over time."}
@@ -332,7 +332,7 @@ export const HealthTimelinePage = () => {
               size="md"
               icon={Upload}
               onClick={() => navigate('/app/upload')}
-              className="bg-[#0F172A] hover:bg-[#1E293B] py-3.5 px-8 text-xs font-bold rounded-xl cursor-pointer shadow-2xs"
+              className="bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#0D9488] dark:hover:bg-[#0b7a6f] text-white py-3.5 px-8 text-xs font-bold rounded-xl cursor-pointer shadow-2xs"
             >
               {t('uploadMedicalReport')}
             </Button>

@@ -212,7 +212,29 @@ export const translations = {
     enterValidOtp: "Please enter a valid 6-digit numeric code.",
     verifying: "Verifying Code...",
     secureLogin: "Secure Two-Factor Authentication",
-    checkInbox: "Check your email inbox or spam folder for the code."
+    checkInbox: "Check your email inbox or spam folder for the code.",
+
+    // Medication Schedule & Alerts
+    prescriptionScheduleBadge: "PRESCRIPTION SCHEDULE",
+    todaysMedicationSchedule: "Today's Medication Schedule",
+    confirmedPrescriptionsSub: "Manage daily dosages, track adherence, and receive refill reminders",
+    uploadPrescriptionBtn: "Upload Prescription",
+    todaysAdherenceRate: "TODAY'S ADHERENCE RATE",
+    noMedsScheduledToday: "No Meds Scheduled Today",
+    uploadPrescriptionToTrack: "Upload a prescription or add medication manually",
+    refillWarningThreshold: "Refill Alerts & Supply Status",
+    supplyNormal: "Supply Normal",
+    refillAlert: "Refill Warning",
+    noActiveRefillsTracked: "All medications have sufficient supply",
+    noMedsScheduledTitle: "No Medications Scheduled",
+    noMedsScheduledSub: "Add your daily medications or upload a prescription to start receiving schedule reminders.",
+    dosesLogged: "doses logged",
+    logged: "logged",
+    of: "of",
+
+    // Emergency SOS Keys
+    liveNearbyEmergencyFacilities: "Live Nearby Emergency Hospitals",
+    sortedByProximity: "Sorted by Proximity"
   },
 
   HI: {
@@ -422,7 +444,29 @@ export const translations = {
     enterValidOtp: "कृपया 6 अंकों का मान्य संख्यात्मक कोड दर्ज करें।",
     verifying: "कोड सत्यापित किया जा रहा है...",
     secureLogin: "सुरक्षित दो-चरणीय प्रमाणीकरण",
-    checkInbox: "कोड के लिए अपना ईमेल इनबॉक्स या स्पैम फ़ोल्डर देखें।"
+    checkInbox: "कोड के लिए अपना ईमेल इनबॉक्स या स्पैम फ़ोल्डर देखें।",
+
+    // Medication Schedule & Alerts
+    prescriptionScheduleBadge: "दवा समय-सारणी",
+    todaysMedicationSchedule: "आज की दवा समय-सारणी",
+    confirmedPrescriptionsSub: "दैनिक खुराक प्रबंधित करें, पालन ट्रैक करें और रिफिल अनुस्मारक प्राप्त करें",
+    uploadPrescriptionBtn: "प्रिस्क्रिप्शन अपलोड करें",
+    todaysAdherenceRate: "आज की दवा लेने की दर",
+    noMedsScheduledToday: "आज कोई दवा निर्धारित नहीं है",
+    uploadPrescriptionToTrack: "ट्रैक करने के लिए प्रिस्क्रिप्शन अपलोड करें या दवा जोड़ें",
+    refillWarningThreshold: "दवा रिफिल अलर्ट और आपूर्ति",
+    supplyNormal: "आपूर्ति सामान्य",
+    refillAlert: "रिफिल चेतावनी",
+    noActiveRefillsTracked: "सभी दवाओं की पर्याप्त आपूर्ति है",
+    noMedsScheduledTitle: "कोई दवा निर्धारित नहीं है",
+    noMedsScheduledSub: "शेड्यूल अनुस्मारक प्राप्त करने के लिए अपनी दैनिक दवाएं जोड़ें या प्रिस्क्रिप्शन अपलोड करें।",
+    dosesLogged: "खुराकें दर्ज",
+    logged: "दर्ज",
+    of: "का",
+
+    // Emergency SOS Keys
+    liveNearbyEmergencyFacilities: "नजदीकी आपातकालीन अस्पताल",
+    sortedByProximity: "दूरी के आधार पर व्यवस्थित"
   },
 
   GU: {
@@ -632,7 +676,29 @@ export const translations = {
     enterValidOtp: "કૃપા કરીને માન્ય 6-અંકનો સંખ્યાત્મક કોડ દાખલ કરો.",
     verifying: "કોડ ચકાસી રહ્યા છીએ...",
     secureLogin: "સુરક્ષિત દ્વિ-પગલાની ચકાસણી",
-    checkInbox: "કોડ માટે તમારું ઇમેઇલ ઇનબોક્સ અથવા સ્પામ ફોલ્ડર તપાસો."
+    checkInbox: "કોડ માટે તમારું ઇમેઇલ ઇનબોક્સ અથવા સ્પામ ફોલ્ડર તપાસો.",
+
+    // Medication Schedule & Alerts
+    prescriptionScheduleBadge: "દવા સમય-પત્રક",
+    todaysMedicationSchedule: "આજની દવાઓનું સમયપત્રક",
+    confirmedPrescriptionsSub: "દૈનિક ડોઝ મેનેજ કરો, ટ્રેક કરો અને રિફિલ રિમાઇન્ડર મેળવો",
+    uploadPrescriptionBtn: "પ્રિસ્ક્રિપ્શન અપલોડ કરો",
+    todaysAdherenceRate: "આજનો દવા પાલન દર",
+    noMedsScheduledToday: "આજે કોઈ દવા સુનિશ્ચિત નથી",
+    uploadPrescriptionToTrack: "ટ્રેક કરવા માટે પ્રિસ્ક્રિપ્શન અપલોડ કરો અથવા દવા ઉમેરો",
+    refillWarningThreshold: "રિફિલ ચેતવણી અને પુરવઠો",
+    supplyNormal: "પુરવઠો સામાન્ય છે",
+    refillAlert: "રિફિલ ચેતવણી",
+    noActiveRefillsTracked: "બધી દવાઓનો પૂરતો પુરવઠો છે",
+    noMedsScheduledTitle: "કોઈ દવાઓ સુનિશ્ચિત નથી",
+    noMedsScheduledSub: "રિમાઇન્ડર મેળવવા માટે તમારી દૈનિક દવાઓ ઉમેરો અથવા પ્રિસ્ક્રિપ્શન અપલોડ કરો.",
+    dosesLogged: "ડોઝ નોંધાયેલ",
+    logged: "નોંધાયેલ",
+    of: "માંથી",
+
+    // Emergency SOS Keys
+    liveNearbyEmergencyFacilities: "નજીકના કટોકટી હોસ્પિટલો",
+    sortedByProximity: "અંતર પ્રમાણે ગોઠવેલ"
   }
 };
 
