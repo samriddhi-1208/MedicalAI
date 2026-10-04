@@ -287,8 +287,9 @@ exports.getMedicines = async (req, res, next) => {
       }
       if (!userReports || userReports.length === 0) {
         const reportsCtrl = require('./reportsController');
-        const uKey = String(user._id);
-        userReports = reportsCtrl.__inMemoryReports?.get(uKey) || reportsCtrl.__inMemoryReports?.get(String(user.email)) || [];
+        userReports = typeof reportsCtrl.getReportsForUser === 'function'
+          ? reportsCtrl.getReportsForUser(user)
+          : (reportsCtrl.__inMemoryReports?.get(String(user._id)) || []);
       }
 
       for (const rep of userReports) {

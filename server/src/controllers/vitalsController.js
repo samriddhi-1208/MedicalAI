@@ -85,7 +85,9 @@ exports.getBiomarkerHistories = async (req, res, next) => {
     // Offline / fallback from in-memory reports
     const reportsCtrl = require('./reportsController');
     const uKey = String(user._id);
-    const cachedReports = reportsCtrl.__inMemoryReports?.get(uKey) || reportsCtrl.__inMemoryReports?.get(String(user.email)) || [];
+    const cachedReports = typeof reportsCtrl.getReportsForUser === 'function'
+      ? reportsCtrl.getReportsForUser(user)
+      : (reportsCtrl.__inMemoryReports?.get(uKey) || reportsCtrl.__inMemoryReports?.get(String(user.email)) || []);
     const histories = {};
 
     cachedReports.forEach(report => {

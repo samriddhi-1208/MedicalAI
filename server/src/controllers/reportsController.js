@@ -13,9 +13,59 @@ function toIdString(val) {
   return typeof val.toHexString === 'function' ? val.toHexString() : String(val);
 }
 
-// In-memory fallback report store when MongoDB Atlas is offline or disconnected
+const path = require('path');
+
+// Persistent storage file for offline resilience
+const REPORTS_FILE = path.join(__dirname, '../data/reports.json');
+const allPersistentReports = [];
 const inMemoryReports = new Map();
+
+function loadPersistentReports() {
+  try {
+    if (fs.existsSync(REPORTS_FILE)) {
+      const content = fs.readFileSync(REPORTS_FILE, 'utf-8');
+      const data = JSON.parse(content);
+      if (Array.isArray(data)) {
+        allPersistentReports.length = 0;
+        data.forEach(r => allPersistentReports.push(r));
+        console.log(`[REPORTS CONTROLLER] Loaded ${allPersistentReports.length} persistent report(s) from disk.`);
+      }
+    }
+  } catch (err) {
+    console.warn('[REPORTS CONTROLLER] Could not load persistent reports:', err.message);
+  }
+}
+
+function savePersistentReports() {
+  try {
+    const dir = path.dirname(REPORTS_FILE);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(REPORTS_FILE, JSON.stringify(allPersistentReports, null, 2), 'utf-8');
+  } catch (err) {
+    console.warn('[REPORTS CONTROLLER] Could not save persistent reports:', err.message);
+  }
+}
+
+loadPersistentReports();
+
+function getReportsForUser(user) {
+  const userId = String(user._id || user.id || '').trim();
+  const userEmail = (user.email || '').toLowerCase().trim();
+
+  return allPersistentReports.filter(r => {
+    const rUid = String(r.user_id || r.userId || '').trim();
+    const rEmail = (r.user_email || r.userEmail || '').toLowerCase().trim();
+    if (userId && rUid && rUid === userId) return true;
+    if (userEmail && rEmail && rEmail === userEmail) return true;
+    return false;
+  });
+}
+
 exports.__inMemoryReports = inMemoryReports;
+exports.__allPersistentReports = allPersistentReports;
+exports.getReportsForUser = getReportsForUser;
 
 async function getUserFromReq(req) {
   const userId = req.user?.id;
@@ -117,15 +167,23 @@ exports.getReports = async (req, res, next) => {
           })
         );
 
-        return res.json(populated);
+        if (populated.length > 0) {
+          // Merge into persistent disk cache
+          populated.forEach(p => {
+            const idx = allPersistentReports.findIndex(r => String(r.id || r._id) === String(p.id || p._id));
+            if (idx >= 0) allPersistentReports[idx] = p;
+            else allPersistentReports.unshift(p);
+          });
+          savePersistentReports();
+          return res.json(populated);
+        }
       } catch (dbErr) {
-        console.warn('[REPORTS] DB getReports fallback to memory cache:', dbErr.message);
+        console.warn('[REPORTS] DB getReports fallback to disk cache:', dbErr.message);
       }
     }
 
-    const uKey = String(user._id);
-    const userReports = inMemoryReports.get(uKey) || inMemoryReports.get(String(user.email)) || [];
-    res.json(userReports);
+    const diskReports = getReportsForUser(user);
+    res.json(diskReports);
   } catch (error) {
     next(error);
   }
@@ -200,9 +258,8 @@ exports.getReportById = async (req, res, next) => {
       }
     }
 
-    const uKey = String(user._id);
-    const userReports = inMemoryReports.get(uKey) || inMemoryReports.get(String(user.email)) || [];
-    const found = userReports.find(r => String(r.id) === String(reportId) || String(r._id) === String(reportId));
+    const diskReports = getReportsForUser(user);
+    const found = diskReports.find(r => String(r.id) === String(reportId) || String(r._id) === String(reportId));
     if (found) {
       return res.json(found);
     }
@@ -252,9 +309,8 @@ exports.uploadReport = async (req, res, next) => {
       }
     }
 
-    // Check in-memory reports cache for duplicate
-    const uKey = String(user._id);
-    const cachedUserReports = inMemoryReports.get(uKey) || inMemoryReports.get(String(user.email)) || [];
+    // Check persistent disk cache for duplicate
+    const cachedUserReports = getReportsForUser(user);
     if (!existingReport && fileHash) {
       existingReport = cachedUserReports.find(r => r.file_hash === fileHash);
     }
@@ -434,7 +490,20 @@ exports.uploadReport = async (req, res, next) => {
       recommendations: ocrResult.recommendations || { lifestyle: [], medical: [] }
     };
 
+    populatedReport.user_id = String(user._id || user.id);
+    populatedReport.user_email = (user.email || '').toLowerCase().trim();
+
+    // Store in persistent reports array & save to disk
+    const existingIdx = allPersistentReports.findIndex(r => String(r.id || r._id) === String(populatedReport.id || populatedReport._id));
+    if (existingIdx >= 0) {
+      allPersistentReports[existingIdx] = populatedReport;
+    } else {
+      allPersistentReports.unshift(populatedReport);
+    }
+    savePersistentReports();
+
     // Store in in-memory store
+    const uKey = String(user._id);
     if (!inMemoryReports.has(uKey)) {
       inMemoryReports.set(uKey, []);
     }
@@ -503,6 +572,15 @@ exports.deleteReport = async (req, res, next) => {
     if (inMemoryReports.has(uKey)) {
       const filtered = inMemoryReports.get(uKey).filter(r => String(r.id) !== String(id) && String(r._id) !== String(id));
       inMemoryReports.set(uKey, filtered);
+    }
+
+    const delIdx = allPersistentReports.findIndex(r => 
+      (String(r.id) === String(id) || String(r._id) === String(id)) &&
+      (String(r.user_id) === String(user._id) || (user.email && r.user_email === user.email.toLowerCase()))
+    );
+    if (delIdx >= 0) {
+      allPersistentReports.splice(delIdx, 1);
+      savePersistentReports();
     }
 
     res.json({ success: true, message: "Report deleted successfully." });

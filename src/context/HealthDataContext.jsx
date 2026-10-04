@@ -39,8 +39,44 @@ export const HealthDataProvider = ({ children }) => {
     }
   });
 
-  const [reports, setReports] = useState([]);
-  const [medicines, setMedicines] = useState([]);
+  const [reports, setReports] = useState(() => {
+    try {
+      const savedUser = localStorage.getItem('medguardian_user_profile');
+      const userId = savedUser ? JSON.parse(savedUser)?.id : null;
+      if (userId) {
+        const savedReports = localStorage.getItem(`medguardian_reports_${userId}`);
+        if (savedReports) {
+          const parsed = JSON.parse(savedReports);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      }
+      const generic = localStorage.getItem('medguardian_reports_cache');
+      if (generic) {
+        const parsed = JSON.parse(generic);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+      return [];
+    } catch {
+      return [];
+    }
+  });
+
+  const [medicines, setMedicines] = useState(() => {
+    try {
+      const savedUser = localStorage.getItem('medguardian_user_profile');
+      const userId = savedUser ? JSON.parse(savedUser)?.id : null;
+      if (userId) {
+        const savedMeds = localStorage.getItem(`medguardian_medicines_${userId}`);
+        if (savedMeds) {
+          const parsed = JSON.parse(savedMeds);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      }
+      return [];
+    } catch {
+      return [];
+    }
+  });
   const [emergencyContacts, setEmergencyContacts] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [language, setLanguage] = useState(() => localStorage.getItem('medguardian_lang') || 'EN');
@@ -118,15 +154,40 @@ export const HealthDataProvider = ({ children }) => {
           }
 
           // Parse Reports
+          let finalReports = [];
           if (reportsRes && reportsRes.ok) {
             const rData = await safeParseJson(reportsRes);
             const safeReports = Array.isArray(rData) ? rData : [];
-            setReports(safeReports);
-            if (rawUser?.id) {
-              localStorage.setItem(`medguardian_reports_${rawUser.id}`, JSON.stringify(safeReports));
+            if (safeReports.length > 0) {
+              finalReports = safeReports;
             }
-            if (safeReports.length > 0 && !activeReportId) {
-              setActiveReportId(safeReports[0].id || safeReports[0]._id);
+          }
+
+          // If backend returned empty array, preserve existing reports from localStorage cache
+          if (finalReports.length === 0) {
+            const uId = rawUser?.id || userProfile?.id;
+            const cached = (uId ? localStorage.getItem(`medguardian_reports_${uId}`) : null) || localStorage.getItem('medguardian_reports_cache');
+            if (cached) {
+              try {
+                const parsedCached = JSON.parse(cached);
+                if (Array.isArray(parsedCached) && parsedCached.length > 0) {
+                  finalReports = parsedCached;
+                }
+              } catch (e) {
+                console.warn("[REPORTS] Error parsing cached reports:", e);
+              }
+            }
+          }
+
+          setReports(finalReports);
+          if (finalReports.length > 0) {
+            const uId = rawUser?.id || userProfile?.id;
+            if (uId) {
+              localStorage.setItem(`medguardian_reports_${uId}`, JSON.stringify(finalReports));
+            }
+            localStorage.setItem('medguardian_reports_cache', JSON.stringify(finalReports));
+            if (!activeReportId) {
+              setActiveReportId(finalReports[0].id || finalReports[0]._id);
             }
           }
 
@@ -592,7 +653,15 @@ export const HealthDataProvider = ({ children }) => {
           return { ...data.report, isDuplicate: true, duplicate: true };
         }
 
-        setReports(prev => [data.report, ...prev]);
+        setReports(prev => {
+          const nextReports = [data.report, ...prev.filter(r => String(r.id || r._id) !== String(data.report.id || data.report._id))];
+          const uId = userProfile?.id;
+          if (uId) {
+            localStorage.setItem(`medguardian_reports_${uId}`, JSON.stringify(nextReports));
+          }
+          localStorage.setItem('medguardian_reports_cache', JSON.stringify(nextReports));
+          return nextReports;
+        });
         setActiveReportId(data.report.id || data.report._id);
 
         // Directly refresh medications from backend so identified medicines appear immediately
