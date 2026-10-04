@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   ResponsiveContainer, 
+  LineChart,
+  Line,
   AreaChart, 
   Area, 
   BarChart,
   Bar,
   Cell,
-  ReferenceLine,
+  ReferenceLine, 
   XAxis, 
   YAxis, 
   Tooltip, 
@@ -561,12 +563,12 @@ export const HealthTimelinePage = () => {
                               : 'text-slate-500 hover:text-slate-800 dark:text-slate-400'
                           }`}
                         >
-                          <BarChart3 className="w-3.5 h-3.5" /> Benchmark
+                          <LineChartIcon className="w-3.5 h-3.5" /> Benchmark
                         </button>
                       </div>
                     ) : (
                       <span className="px-3 py-1 rounded-full bg-teal-50 dark:bg-teal-950/60 text-[#0D9488] dark:text-teal-300 text-xs font-bold border border-teal-200 dark:border-teal-800 flex items-center gap-1">
-                        <BarChart3 className="w-3.5 h-3.5" /> Clinical Reference Benchmark
+                        <LineChartIcon className="w-3.5 h-3.5" /> Clinical Reference Line Plot
                       </span>
                     )}
                   </div>
@@ -595,16 +597,10 @@ export const HealthTimelinePage = () => {
               {/* Chart Canvas Area */}
               <div className="min-h-[290px] w-full pt-2">
                 {shouldShowLongitudinal ? (
-                  // MULTI-REPORT LONGITUDINAL AREA CHART
+                  // MULTI-REPORT LONGITUDINAL LINE CHART
                   <div className="space-y-4">
                     <ResponsiveContainer width="100%" height={260}>
-                      <AreaChart data={activeChartData} margin={{ top: 20, right: 20, left: -10, bottom: 0 }}>
-                        <defs>
-                          <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#0D9488" stopOpacity={0.35}/>
-                            <stop offset="95%" stopColor="#0D9488" stopOpacity={0.0}/>
-                          </linearGradient>
-                        </defs>
+                      <LineChart data={activeChartData} margin={{ top: 20, right: 20, left: -10, bottom: 0 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" className="dark:stroke-slate-800" />
                         <XAxis dataKey="date" stroke="#94a3b8" fontSize={11} />
                         <YAxis stroke="#94a3b8" fontSize={11} domain={['auto', 'auto']} />
@@ -640,17 +636,15 @@ export const HealthTimelinePage = () => {
                             label={{ value: `Max: ${activeRefMax}`, fill: '#F59E0B', fontSize: 10, position: 'insideTopLeft' }} 
                           />
                         )}
-                        <Area 
+                        <Line 
                           type="monotone" 
                           dataKey="numValue" 
                           stroke="#0D9488" 
                           strokeWidth={3} 
                           dot={{ r: 5, fill: '#0D9488', stroke: '#ffffff', strokeWidth: 2 }} 
                           activeDot={{ r: 7 }} 
-                          fillOpacity={1} 
-                          fill="url(#colorValue)" 
                         />
-                      </AreaChart>
+                      </LineChart>
                     </ResponsiveContainer>
 
                     {/* Latest vs Previous Comparison Bar */}
@@ -674,23 +668,23 @@ export const HealthTimelinePage = () => {
                     )}
                   </div>
                 ) : (
-                  // SINGLE REPORT & BENCHMARK GRAPHICAL BAR CHART + SPECTRUM GAUGE
+                  // SINGLE REPORT & BENCHMARK GRAPHICAL LINE PLOT + SPECTRUM GAUGE
                   <div className="space-y-5">
                     
-                    {/* Clinical Benchmark Bar Chart */}
+                    {/* Clinical Benchmark Line Plot */}
                     <div className="bg-slate-50/60 dark:bg-[#161926] p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800">
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-xs font-black text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-                          <BarChart3 className="w-4 h-4 text-[#0D9488]" />
-                          Clinical Reference Comparison Chart
+                          <LineChartIcon className="w-4 h-4 text-[#0D9488]" />
+                          Clinical Reference Line Plot
                         </span>
                         <span className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold">
                           Unit: {latestDataPoint?.unit || 'Standard'}
                         </span>
                       </div>
 
-                      <ResponsiveContainer width="100%" height={210}>
-                        <BarChart data={benchmarkChartData} margin={{ top: 20, right: 20, left: -10, bottom: 5 }}>
+                      <ResponsiveContainer width="100%" height={215}>
+                        <LineChart data={benchmarkChartData} margin={{ top: 25, right: 30, left: -10, bottom: 5 }}>
                           <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" className="dark:stroke-slate-800" />
                           <XAxis dataKey="label" stroke="#94a3b8" fontSize={11} tickLine={false} />
                           <YAxis stroke="#94a3b8" fontSize={11} domain={[0, Math.ceil(Math.max(activeRefMax, latestDataPoint?.numValue || 0) * 1.25)]} />
@@ -701,9 +695,11 @@ export const HealthTimelinePage = () => {
                                 return (
                                   <div className="bg-[#0F172A] text-white p-3 rounded-xl border border-slate-700 shadow-xl text-xs space-y-1">
                                     <p className="font-extrabold text-teal-300">{item.label}</p>
-                                    <p className="font-bold text-sm">{item.value} {latestDataPoint?.unit}</p>
-                                    {item.type === 'patient' && (
-                                      <p className="text-[11px] text-slate-300">Measured from {latestDataPoint?.reportTitle || 'Report'}</p>
+                                    <p className="text-base font-black">{item.value} {latestDataPoint?.unit}</p>
+                                    {item.type === 'patient' ? (
+                                      <p className="text-[11px] text-emerald-400 font-medium">Your Measured Reading ({latestDataPoint?.date})</p>
+                                    ) : (
+                                      <p className="text-[10px] text-slate-400">Clinical Reference Limit</p>
                                     )}
                                   </div>
                                 );
@@ -711,18 +707,53 @@ export const HealthTimelinePage = () => {
                               return null;
                             }}
                           />
-                          <Bar dataKey="value" radius={[8, 8, 0, 0]} maxBarSize={55}>
-                            {benchmarkChartData.map((entry, index) => {
-                              let fill = '#94A3B8';
-                              if (entry.type === 'patient') {
-                                if (entry.value < activeRefMin) fill = '#3B82F6';
-                                else if (entry.value > activeRefMax) fill = '#F59E0B';
-                                else fill = '#0D9488';
-                              }
-                              return <Cell key={`cell-${index}`} fill={fill} />;
-                            })}
-                          </Bar>
-                        </BarChart>
+                          {activeRefMin !== null && (
+                            <ReferenceLine 
+                              y={activeRefMin} 
+                              stroke="#3B82F6" 
+                              strokeDasharray="4 4" 
+                              label={{ value: `Min: ${activeRefMin}`, fill: '#60A5FA', fontSize: 10, position: 'insideBottomLeft' }} 
+                            />
+                          )}
+                          {activeRefMax !== null && (
+                            <ReferenceLine 
+                              y={activeRefMax} 
+                              stroke="#F59E0B" 
+                              strokeDasharray="4 4" 
+                              label={{ value: `Max: ${activeRefMax}`, fill: '#FBBF24', fontSize: 10, position: 'insideTopLeft' }} 
+                            />
+                          )}
+                          <Line 
+                            type="monotone" 
+                            dataKey="value" 
+                            stroke="#0D9488" 
+                            strokeWidth={3} 
+                            dot={(props) => {
+                              const { cx, cy, payload } = props;
+                              if (!cx || !cy) return null;
+                              const isPatient = payload.type === 'patient';
+                              const fill = isPatient
+                                ? (activeStatusType === 'normal' ? '#0D9488' : activeStatusType === 'high' ? '#F59E0B' : '#3B82F6')
+                                : '#94A3B8';
+                              return (
+                                <g key={`dot-${payload.label}`}>
+                                  {isPatient && (
+                                    <circle cx={cx} cy={cy} r={12} fill={fill} opacity={0.25} />
+                                  )}
+                                  <circle 
+                                    cx={cx} 
+                                    cy={cy} 
+                                    r={isPatient ? 7 : 5} 
+                                    fill={fill} 
+                                    stroke="#ffffff" 
+                                    strokeWidth={2} 
+                                  />
+                                </g>
+                              );
+                            }}
+                            activeDot={{ r: 9 }} 
+                          />
+                        </LineChart>
                       </ResponsiveContainer>
                     </div>
 
@@ -1061,22 +1092,22 @@ export const HealthTimelinePage = () => {
           {/* Modal Mini Chart */}
           {modalDataPoints.length > 1 ? (
             <div className="p-3 bg-white dark:bg-[#1C1F2E] rounded-xl border border-slate-200 dark:border-slate-800">
-              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 block mb-2">Historical Progression</span>
+              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 block mb-2">Historical Progression Line Plot</span>
               <ResponsiveContainer width="100%" height={160}>
-                <AreaChart data={modalDataPoints} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <LineChart data={modalDataPoints} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" className="dark:stroke-slate-800" />
                   <XAxis dataKey="date" stroke="#94a3b8" fontSize={10} />
                   <YAxis stroke="#94a3b8" fontSize={10} />
                   <Tooltip contentStyle={{ backgroundColor: '#0F172A', borderRadius: '8px', color: '#fff', fontSize: '11px' }} />
-                  <Area type="monotone" dataKey="numValue" stroke="#0D9488" fill="#0D9488" fillOpacity={0.2} strokeWidth={2} dot={{ r: 4 }} />
-                </AreaChart>
+                  <Line type="monotone" dataKey="numValue" stroke="#0D9488" strokeWidth={2.5} dot={{ r: 4, fill: '#0D9488' }} />
+                </LineChart>
               </ResponsiveContainer>
             </div>
           ) : (
             <div className="p-3 bg-white dark:bg-[#1C1F2E] rounded-xl border border-slate-200 dark:border-slate-800">
-              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 block mb-2">Clinical Reference Benchmark</span>
+              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 block mb-2">Clinical Reference Line Plot</span>
               <ResponsiveContainer width="100%" height={150}>
-                <BarChart 
+                <LineChart 
                   data={[
                     { label: 'Min', value: modalRefMin },
                     { label: 'You', value: modalLatest?.numValue ?? 0 },
@@ -1087,8 +1118,8 @@ export const HealthTimelinePage = () => {
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" className="dark:stroke-slate-800" />
                   <XAxis dataKey="label" stroke="#94a3b8" fontSize={10} />
                   <YAxis stroke="#94a3b8" fontSize={10} />
-                  <Bar dataKey="value" fill="#0D9488" radius={[4, 4, 0, 0]} maxBarSize={40} />
-                </BarChart>
+                  <Line type="monotone" dataKey="value" stroke="#0D9488" strokeWidth={2.5} dot={{ r: 5, fill: '#0D9488' }} />
+                </LineChart>
               </ResponsiveContainer>
             </div>
           )}
