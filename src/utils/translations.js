@@ -200,7 +200,19 @@ export const translations = {
     selectAppLanguage: "Select Application Language",
     english: "English",
     hindi: "Hindi (हिंदी)",
-    gujarati: "Gujarati (ગુજરાતી)"
+    gujarati: "Gujarati (ગુજરાતી)",
+    twoFactorAuth: "Two-Factor Authentication",
+    enterOtpCode: "Enter 6-Digit Verification Code",
+    otpSentToEmail: "We sent a 6-digit verification code to your email:",
+    verifyAndSignIn: "Verify & Continue to Workspace",
+    resendCode: "Resend Code",
+    resendIn: "Resend code in",
+    codeExpiresIn: "Code expires in",
+    backToSignIn: "Back to Sign In",
+    enterValidOtp: "Please enter a valid 6-digit numeric code.",
+    verifying: "Verifying Code...",
+    secureLogin: "Secure Two-Factor Authentication",
+    checkInbox: "Check your email inbox or spam folder for the code."
   },
 
   HI: {
@@ -398,7 +410,19 @@ export const translations = {
     selectAppLanguage: "आवेदन की भाषा चुनें",
     english: "अंग्रेजी (English)",
     hindi: "हिंदी (Hindi)",
-    gujarati: "गुजराती (Gujarati)"
+    gujarati: "गुजराती (Gujarati)",
+    twoFactorAuth: "दो-चरणीय प्रमाणीकरण (2FA)",
+    enterOtpCode: "6-अंकों का सत्यापन कोड दर्ज करें",
+    otpSentToEmail: "हमने आपके ईमेल पर 6 अंकों का सत्यापन कोड भेजा है:",
+    verifyAndSignIn: "सत्यापित करें और कार्यक्षेत्र में प्रवेश करें",
+    resendCode: "कोड पुनः भेजें",
+    resendIn: "पुनः भेजने में शेष",
+    codeExpiresIn: "कोड समाप्ति में शेष",
+    backToSignIn: "साइन इन पर वापस जाएं",
+    enterValidOtp: "कृपया 6 अंकों का मान्य संख्यात्मक कोड दर्ज करें।",
+    verifying: "कोड सत्यापित किया जा रहा है...",
+    secureLogin: "सुरक्षित दो-चरणीय प्रमाणीकरण",
+    checkInbox: "कोड के लिए अपना ईमेल इनबॉक्स या स्पैम फ़ोल्डर देखें।"
   },
 
   GU: {
@@ -596,7 +620,19 @@ export const translations = {
     selectAppLanguage: "એપ્લિકેશન ભાષા પસંદ કરો",
     english: "અંગ્રેજી (English)",
     hindi: "હિન્દી (Hindi)",
-    gujarati: "ગુજરાતી (Gujarati)"
+    gujarati: "ગુજરાતી (Gujarati)",
+    twoFactorAuth: "દ્વિ-પરિબળ પ્રમાણીકરણ (2FA)",
+    enterOtpCode: "6-અંકનો વેરિફિકેશન કોડ દાખલ કરો",
+    otpSentToEmail: "અમે તમારા ઇમેઇલ પર 6-અંકનો ચકાસણી કોડ મોકલ્યો છે:",
+    verifyAndSignIn: "ચકાસો અને કાર્યક્ષેત્રમાં પ્રવેશ કરો",
+    resendCode: "કોડ ફરીથી મોકલો",
+    resendIn: "ફરી મોકલવામાં બાકી",
+    codeExpiresIn: "કોડ સમાપ્તિમાં બાકી",
+    backToSignIn: "સાઇન ઇન પર પાછા જાઓ",
+    enterValidOtp: "કૃપા કરીને માન્ય 6-અંકનો સંખ્યાત્મક કોડ દાખલ કરો.",
+    verifying: "કોડ ચકાસી રહ્યા છીએ...",
+    secureLogin: "સુરક્ષિત દ્વિ-પગલાની ચકાસણી",
+    checkInbox: "કોડ માટે તમારું ઇમેઇલ ઇનબોક્સ અથવા સ્પામ ફોલ્ડર તપાસો."
   }
 };
 

@@ -21,8 +21,8 @@ import {
   PhoneCall,
   LayoutDashboard
 } from 'lucide-react';
-import { Navbar } from '../components/layout/Navbar';
-import { Footer } from '../components/layout/Footer';
+import { Navbar } from '../components/shared/Navbar';
+import { Footer } from '../components/shared/Footer';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { useHealthData } from '../context/HealthDataContext';

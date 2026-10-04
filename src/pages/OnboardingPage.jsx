@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Activity, ArrowRight, ArrowLeft, Check, Calendar, User, MapPin, Heart, Briefcase, Ruler, Weight as WeightIcon } from 'lucide-react';
+import { Activity, ArrowRight, ArrowLeft, Check, Calendar, User } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
 
@@ -164,40 +164,40 @@ export const OnboardingPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-[#0F172A] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 font-sans antialiased">
+    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-main)] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 font-sans antialiased">
       
       {/* Brand Header */}
       <div className="sm:mx-auto sm:w-full sm:max-w-lg text-center space-y-3">
         <div className="inline-flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-[#0F172A] text-white flex items-center justify-center font-bold shadow-md">
-            <Activity className="w-6 h-6 text-[#0D9488]" />
+          <div className="w-11 h-11 rounded-2xl bg-[var(--color-primary)] text-white flex items-center justify-center font-bold shadow-md">
+            <Activity className="w-6 h-6 text-[var(--color-accent)]" />
           </div>
-          <span className="font-extrabold text-2xl text-[#0F172A] tracking-tight">
-            Medical<span className="text-[#0D9488]">AI</span>
+          <span className="font-extrabold text-2xl text-[var(--text-main)] tracking-tight">
+            Medical<span className="text-[var(--color-primary)]">AI</span>
           </span>
         </div>
-        <h2 className="text-2.5xl font-extrabold text-[#0F172A] tracking-tight">
+        <h2 className="text-2.5xl font-extrabold text-[var(--text-main)] tracking-tight">
           Complete Your Health Profile
         </h2>
-        <p className="text-xs font-medium text-slate-500 max-w-sm mx-auto">
+        <p className="text-xs font-medium text-[var(--text-muted)] max-w-sm mx-auto">
           Help us personalize your clinical AI interpretations and health risk assessments.
         </p>
       </div>
 
       {/* Progress Bar Header */}
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-lg">
-        <div className="bg-white border border-slate-200 p-6 sm:p-8 shadow-xl shadow-slate-200/50 rounded-2xl space-y-6">
+        <div className="bg-[var(--bg-surface)] border border-[var(--border-color)] p-6 sm:p-8 shadow-xl rounded-2xl space-y-6">
           
           {/* Progress Indicator */}
           <div className="space-y-2">
-            <div className="flex justify-between items-center text-xs font-bold text-[#0F172A]">
+            <div className="flex justify-between items-center text-xs font-bold text-[var(--text-main)]">
               <span>Step {step} of 2</span>
-              <span className="text-[#0D9488]">{step === 1 ? 'Personal Details' : 'Health & Location'}</span>
+              <span className="text-[var(--color-primary)]">{step === 1 ? 'Personal Details' : 'Health & Location'}</span>
             </div>
             
-            <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden flex">
+            <div className="w-full bg-[var(--bg-surface-subtle)] rounded-full h-2 overflow-hidden flex">
               <div 
-                className="bg-[#0F172A] h-2 rounded-full transition-all duration-300"
+                className="bg-[var(--color-primary)] h-2 rounded-full transition-all duration-300"
                 style={{ width: step === 1 ? '50%' : '100%' }}
               />
             </div>
@@ -206,16 +206,16 @@ export const OnboardingPage = () => {
           {/* STEP 1 OF 2: Personal Details */}
           {step === 1 && (
             <form onSubmit={handleNextStep} className="space-y-5 animate-in fade-in duration-200">
-              <div className="border-b border-slate-100 pb-3">
-                <h3 className="text-lg font-extrabold text-[#0F172A]">Let's get to know you</h3>
-                <p className="text-xs text-slate-500 font-medium">Basic information for clinical baseline</p>
+              <div className="border-b border-[var(--border-color)] pb-3">
+                <h3 className="text-lg font-extrabold text-[var(--text-main)]">Let's get to know you</h3>
+                <p className="text-xs text-[var(--text-muted)] font-medium">Basic information for clinical baseline</p>
               </div>
 
               <div className="med-form-group">
-                <label className="block text-xs font-bold text-[#0F172A] mb-1.5">Full Name <span className="text-rose-500">*</span></label>
+                <label className="block text-xs font-bold text-[var(--text-main)] mb-1.5">Full Name <span className="text-rose-500">*</span></label>
                 <div className="relative relative-icon-input w-full">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 z-10">
-                    <User className="w-4.5 h-4.5 text-[#0F172A]" />
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[var(--text-subtle)] z-10">
+                    <User className="w-4.5 h-4.5 text-[var(--color-primary)]" />
                   </div>
                   <input
                     type="text"
@@ -230,7 +230,7 @@ export const OnboardingPage = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="med-form-group">
-                  <label className="block text-xs font-bold text-[#0F172A] mb-1.5">Date of Birth <span className="text-rose-500">*</span></label>
+                  <label className="block text-xs font-bold text-[var(--text-main)] mb-1.5">Date of Birth <span className="text-rose-500">*</span></label>
                   <input
                     type="date"
                     required
@@ -241,16 +241,16 @@ export const OnboardingPage = () => {
                 </div>
 
                 <div className="med-form-group">
-                  <label className="block text-xs font-bold text-[#0F172A] mb-1.5">Age (Calculated)</label>
-                  <div className="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 border border-slate-200 text-xs font-bold text-[#0F172A] flex items-center justify-between">
+                  <label className="block text-xs font-bold text-[var(--text-main)] mb-1.5">Age (Calculated)</label>
+                  <div className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--bg-surface-subtle)] border border-[var(--border-color)] text-xs font-bold text-[var(--text-main)] flex items-center justify-between">
                     <span>{calculatedAge !== '' ? `${calculatedAge} years` : 'Select DOB'}</span>
-                    <Calendar className="w-4 h-4 text-[#0D9488]" />
+                    <Calendar className="w-4 h-4 text-[var(--color-primary)]" />
                   </div>
                 </div>
               </div>
 
               <div className="med-form-group">
-                <label className="block text-xs font-bold text-[#0F172A] mb-1.5">Gender <span className="text-rose-500">*</span></label>
+                <label className="block text-xs font-bold text-[var(--text-main)] mb-1.5">Gender <span className="text-rose-500">*</span></label>
                 <select
                   value={gender}
                   onChange={(e) => setGender(e.target.value)}
@@ -265,10 +265,10 @@ export const OnboardingPage = () => {
 
               <button
                 type="submit"
-                className="w-full py-3.5 px-4 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-md shadow-slate-900/10 transition-all cursor-pointer pt-3"
+                className="w-full py-3.5 px-4 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer pt-3"
               >
                 <span>Continue</span>
-                <ArrowRight className="w-4 h-4 text-[#0D9488]" />
+                <ArrowRight className="w-4 h-4 text-white" />
               </button>
             </form>
           )}
@@ -276,14 +276,14 @@ export const OnboardingPage = () => {
           {/* STEP 2 OF 2: Health Metrics & Location */}
           {step === 2 && (
             <form onSubmit={handleCompleteProfile} className="space-y-5 animate-in fade-in duration-200">
-              <div className="border-b border-slate-100 pb-3">
-                <h3 className="text-lg font-extrabold text-[#0F172A]">Your Health Profile</h3>
-                <p className="text-xs text-slate-500 font-medium">Physical measurements and general location</p>
+              <div className="border-b border-[var(--border-color)] pb-3">
+                <h3 className="text-lg font-extrabold text-[var(--text-main)]">Your Health Profile</h3>
+                <p className="text-xs text-[var(--text-muted)] font-medium">Physical measurements and general location</p>
               </div>
 
-              {/* Height & Unit (Unified Input Group) */}
+              {/* Height & Unit */}
               <div className="med-form-group">
-                <label className="block text-xs font-bold text-[#0F172A] mb-1.5">Height <span className="text-rose-500">*</span></label>
+                <label className="block text-xs font-bold text-[var(--text-main)] mb-1.5">Height <span className="text-rose-500">*</span></label>
                 <div className="unit-input-group">
                   <input
                     type="number"
@@ -303,10 +303,10 @@ export const OnboardingPage = () => {
                 </div>
               </div>
 
-              {/* Weight & Blood Group (Unified Input Group) */}
+              {/* Weight & Blood Group */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="med-form-group">
-                  <label className="block text-xs font-bold text-[#0F172A] mb-1.5">Weight (Optional)</label>
+                  <label className="block text-xs font-bold text-[var(--text-main)] mb-1.5">Weight (Optional)</label>
                   <div className="unit-input-group">
                     <input
                       type="number"
@@ -326,7 +326,7 @@ export const OnboardingPage = () => {
                 </div>
 
                 <div className="med-form-group">
-                  <label className="block text-xs font-bold text-[#0F172A] mb-1.5">Blood Group (Optional)</label>
+                  <label className="block text-xs font-bold text-[var(--text-main)] mb-1.5">Blood Group (Optional)</label>
                   <select
                     value={bloodGroup}
                     onChange={(e) => setBloodGroup(e.target.value)}
@@ -347,7 +347,7 @@ export const OnboardingPage = () => {
 
               {/* Location: City, State, Country */}
               <div className="med-form-group">
-                <label className="block text-xs font-bold text-[#0F172A] mb-1.5">General Location</label>
+                <label className="block text-xs font-bold text-[var(--text-main)] mb-1.5">General Location</label>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                   <input
                     type="text"
@@ -376,7 +376,7 @@ export const OnboardingPage = () => {
 
               {/* Occupation */}
               <div className="med-form-group">
-                <label className="block text-xs font-bold text-[#0F172A] mb-1.5">Occupation (Optional)</label>
+                <label className="block text-xs font-bold text-[var(--text-main)] mb-1.5">Occupation (Optional)</label>
                 <input
                   type="text"
                   value={occupation}
@@ -391,7 +391,7 @@ export const OnboardingPage = () => {
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="flex-1 py-3 px-4 rounded-xl border border-slate-200 text-slate-700 font-semibold text-xs hover:bg-slate-50 flex items-center justify-center gap-1.5 cursor-pointer"
+                  className="flex-1 py-3 px-4 rounded-xl border border-[var(--border-color)] text-[var(--text-main)] font-semibold text-xs hover:bg-[var(--bg-surface-subtle)] flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" /> Back
                 </button>
@@ -399,14 +399,14 @@ export const OnboardingPage = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-[2] py-3 px-4 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white font-semibold text-xs flex items-center justify-center gap-2 shadow-md shadow-slate-900/10 cursor-pointer"
+                  className="flex-[2] py-3 px-4 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-semibold text-xs flex items-center justify-center gap-2 shadow-md cursor-pointer"
                 >
                   {loading ? (
                     <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   ) : (
                     <>
                       <span>Complete Profile</span>
-                      <Check className="w-4 h-4 text-[#0D9488]" />
+                      <Check className="w-4 h-4 text-white" />
                     </>
                   )}
                 </button>

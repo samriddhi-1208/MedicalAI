@@ -19,7 +19,11 @@ const userSchema = new mongoose.Schema(
     country: { type: String, default: 'India' },
     occupation: { type: String, default: '' },
     primary_physician: { type: String, default: '' },
-    profile_completed: { type: Boolean, default: false }
+    profile_completed: { type: Boolean, default: false },
+    otp_hash: { type: String, default: null },
+    otp_expires_at: { type: Date, default: null },
+    otp_attempts: { type: Number, default: 0 },
+    otp_last_sent_at: { type: Date, default: null }
   },
   {
     timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },

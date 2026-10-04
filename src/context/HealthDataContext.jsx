@@ -242,6 +242,18 @@ export const HealthDataProvider = ({ children }) => {
       }
 
       const data = await safeParseJson(res);
+
+      // Handle 2FA Challenge: User entered correct password, OTP generated and emailed
+      if (res.ok && data && data.twoFactorRequired) {
+        return {
+          success: false,
+          twoFactorRequired: true,
+          email: data.email || emailStr,
+          message: data.message || "A 6-digit verification code has been sent to your email.",
+          cooldownSeconds: data.cooldownSeconds || 60
+        };
+      }
+
       if (res.ok && data && data.token) {
         setToken(data.token);
         localStorage.setItem('medguardian_jwt_token', data.token);
@@ -264,7 +276,8 @@ export const HealthDataProvider = ({ children }) => {
           weight: userObj.weight || '',
           bloodGroup: userObj.blood_group || 'Not Known',
           primaryPhysician: userObj.primary_physician || '',
-          country: userObj.country || 'India'
+          country: userObj.country || 'India',
+          profileCompleted: userObj.profile_completed ?? false
         };
 
         setUserProfile(newProf);
@@ -281,6 +294,94 @@ export const HealthDataProvider = ({ children }) => {
       return { success: false, error: "Network error." };
     } finally {
       setLoadingData(false);
+    }
+  };
+
+  const verifyOtp = async (email, otp) => {
+    setLoadingData(true);
+    try {
+      const res = await fetch(`${API_BASE}/auth/verify-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: (email || '').trim(), otp: (otp || '').trim() })
+      });
+
+      const data = await safeParseJson(res);
+      if (res.ok && data && data.token) {
+        setToken(data.token);
+        localStorage.setItem('medguardian_jwt_token', data.token);
+
+        const userObj = data.user || { email };
+        const userEmail = userObj.email || email;
+        const emailPrefix = userEmail.split('@')[0] || '';
+        const fallbackName = emailPrefix ? emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1) : 'User';
+
+        const rawName = typeof userObj.name === 'string' ? userObj.name : (typeof userObj.full_name === 'string' ? userObj.full_name : '');
+        const finalName = (rawName && rawName.toLowerCase() !== 'patient') ? rawName : fallbackName;
+
+        const newProf = {
+          id: userObj.id || userObj._id,
+          name: finalName,
+          email: userEmail,
+          phone: userObj.phone || '',
+          gender: userObj.gender || 'Not Specified',
+          height: userObj.height || '',
+          weight: userObj.weight || '',
+          bloodGroup: userObj.blood_group || 'Not Known',
+          primaryPhysician: userObj.primary_physician || '',
+          country: userObj.country || 'India',
+          profileCompleted: userObj.profile_completed ?? false
+        };
+
+        setUserProfile(newProf);
+        localStorage.setItem('medguardian_user_profile', JSON.stringify(newProf));
+        toast.success(`✓ 2FA Verified! Welcome back, ${newProf.name}!`);
+        return { success: true, user: newProf };
+      } else {
+        const errMsg = data?.error || data?.message || "Invalid verification code.";
+        toast.error(errMsg);
+        return { 
+          success: false, 
+          error: errMsg, 
+          attemptsRemaining: data?.attemptsRemaining 
+        };
+      }
+    } catch (err) {
+      toast.error("Network error during code verification.");
+      return { success: false, error: "Network error." };
+    } finally {
+      setLoadingData(false);
+    }
+  };
+
+  const resendOtp = async (email) => {
+    try {
+      const res = await fetch(`${API_BASE}/auth/resend-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: (email || '').trim() })
+      });
+
+      const data = await safeParseJson(res);
+      if (res.ok) {
+        toast.success(data?.message || "Verification code resent!");
+        return { 
+          success: true, 
+          message: data?.message, 
+          cooldownSeconds: data?.cooldownSeconds || 60 
+        };
+      } else {
+        const errMsg = data?.error || data?.message || "Failed to resend code.";
+        toast.error(errMsg);
+        return { 
+          success: false, 
+          error: errMsg, 
+          cooldownSeconds: data?.cooldownSeconds 
+        };
+      }
+    } catch (err) {
+      toast.error("Network error while resending verification code.");
+      return { success: false, error: "Network error." };
     }
   };
 
@@ -720,6 +821,8 @@ export const HealthDataProvider = ({ children }) => {
     apiError,
     API_BASE,
     login,
+    verifyOtp,
+    resendOtp,
     signup,
     logout,
     addReport,

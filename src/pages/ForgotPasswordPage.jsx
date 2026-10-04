@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Activity, ArrowRight, Mail, ArrowLeft, CheckCircle2, KeyRound } from 'lucide-react';
+import { Activity, ArrowRight, Mail, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export const ForgotPasswordPage = () => {
@@ -25,41 +25,41 @@ export const ForgotPasswordPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-[#0F172A] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 font-sans antialiased">
+    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-main)] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 font-sans antialiased">
       
       {/* Brand Header */}
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center space-y-3">
         <Link to="/" className="inline-flex items-center gap-3 transition-transform hover:scale-105">
-          <div className="w-11 h-11 rounded-2xl bg-[#0F172A] text-white flex items-center justify-center font-bold shadow-md">
-            <Activity className="w-6 h-6 text-[#0D9488]" />
+          <div className="w-11 h-11 rounded-2xl bg-[var(--color-primary)] text-white flex items-center justify-center font-bold shadow-md">
+            <Activity className="w-6 h-6 text-[var(--color-accent)]" />
           </div>
-          <span className="font-extrabold text-2xl text-[#0F172A] tracking-tight">
-            Medical<span className="text-[#0D9488]">AI</span>
+          <span className="font-extrabold text-2xl text-[var(--text-main)] tracking-tight">
+            Medical<span className="text-[var(--color-primary)]">AI</span>
           </span>
         </Link>
         
-        <h2 className="text-2.5xl font-extrabold text-[#0F172A] tracking-tight">
+        <h2 className="text-2.5xl font-extrabold text-[var(--text-main)] tracking-tight">
           Reset Your Password
         </h2>
-        <p className="text-xs font-medium text-slate-500 max-w-sm mx-auto">
+        <p className="text-xs font-medium text-[var(--text-muted)] max-w-sm mx-auto">
           Enter your registered email address to receive password recovery instructions
         </p>
       </div>
 
       {/* Card Form */}
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white border border-slate-200/90 py-8 px-6 shadow-xl shadow-slate-200/50 rounded-2xl sm:px-8 space-y-6">
+        <div className="bg-[var(--bg-surface)] border border-[var(--border-color)] py-8 px-6 shadow-xl rounded-2xl sm:px-8 space-y-6">
           
           {submitted ? (
             <div className="text-center space-y-5 animate-in fade-in duration-200 py-2">
-              <div className="w-14 h-14 rounded-2xl bg-teal-50 border border-teal-200 text-[#0D9488] flex items-center justify-center mx-auto shadow-2xs">
+              <div className="w-14 h-14 rounded-2xl bg-teal-50 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-900 text-[var(--color-accent-dark)] flex items-center justify-center mx-auto shadow-2xs">
                 <CheckCircle2 className="w-7 h-7 text-[#0D9488]" />
               </div>
               
               <div className="space-y-1.5">
-                <h3 className="text-lg font-extrabold text-[#0F172A]">Recovery Email Sent!</h3>
-                <p className="text-xs text-slate-600 leading-relaxed max-w-xs mx-auto">
-                  We have sent password reset instructions to <strong className="text-[#0F172A] font-bold">{email}</strong>. Please check your inbox and spam folder.
+                <h3 className="text-lg font-extrabold text-[var(--text-main)]">Recovery Email Sent!</h3>
+                <p className="text-xs text-[var(--text-muted)] leading-relaxed max-w-xs mx-auto">
+                  We have sent password reset instructions to <strong className="text-[var(--text-main)] font-bold">{email}</strong>. Please check your inbox and spam folder.
                 </p>
               </div>
 
@@ -67,16 +67,16 @@ export const ForgotPasswordPage = () => {
                 <button
                   type="button"
                   onClick={() => navigate('/login')}
-                  className="w-full py-3 px-4 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white font-semibold text-xs flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                  className="w-full py-3 px-4 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-semibold text-xs flex items-center justify-center gap-2 cursor-pointer shadow-md"
                 >
                   <span>Return to Sign In</span>
-                  <ArrowRight className="w-4 h-4 text-[#0D9488]" />
+                  <ArrowRight className="w-4 h-4 text-white" />
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setSubmitted(false)}
-                  className="text-xs font-bold text-[#0D9488] hover:underline cursor-pointer block mx-auto"
+                  className="text-xs font-bold text-[var(--color-primary)] hover:underline cursor-pointer block mx-auto"
                 >
                   Didn't receive email? Try again
                 </button>
@@ -85,12 +85,12 @@ export const ForgotPasswordPage = () => {
           ) : (
             <form onSubmit={handleReset} className="space-y-5">
               <div className="med-form-group">
-                <label htmlFor="email" className="block text-xs font-bold text-[#0F172A] mb-1.5">
+                <label htmlFor="email" className="block text-xs font-bold text-[var(--text-main)] mb-1.5">
                   Registered Email Address <span className="text-rose-500">*</span>
                 </label>
                 <div className="relative w-full">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 z-10">
-                    <Mail className="w-4.5 h-4.5 text-[#0F172A]" />
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[var(--text-subtle)] z-10">
+                    <Mail className="w-4.5 h-4.5 text-[var(--color-primary)]" />
                   </div>
                   <input
                     id="email"
@@ -99,7 +99,7 @@ export const ForgotPasswordPage = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="patient@example.com"
-                    className="med-input w-full block !pl-11 py-3 text-xs sm:text-sm rounded-xl border-slate-200 focus:border-[#0D9488]"
+                    className="med-input w-full block !pl-11 py-3 text-xs sm:text-sm rounded-xl border-[var(--border-color)]"
                   />
                 </div>
               </div>
@@ -107,21 +107,21 @@ export const ForgotPasswordPage = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 px-4 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-slate-900/10 transition-all cursor-pointer"
+                className="w-full py-3.5 px-4 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer"
               >
                 {loading ? (
                   <span className="w-4.5 h-4.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 ) : (
                   <>
                     <span>Send Recovery Email</span>
-                    <ArrowRight className="w-4 h-4 text-[#0D9488]" />
+                    <ArrowRight className="w-4 h-4 text-white" />
                   </>
                 )}
               </button>
 
-              <div className="text-center pt-3 border-t border-slate-100">
-                <Link to="/login" className="inline-flex items-center gap-2 text-xs font-bold text-[#0F172A] hover:text-[#0D9488] transition-colors">
-                  <ArrowLeft className="w-4 h-4 text-[#0D9488]" /> Back to Sign In
+              <div className="text-center pt-3 border-t border-[var(--border-color)]">
+                <Link to="/login" className="inline-flex items-center gap-2 text-xs font-bold text-[var(--text-main)] hover:text-[var(--color-primary)] transition-colors">
+                  <ArrowLeft className="w-4 h-4 text-[var(--color-primary)]" /> Back to Sign In
                 </Link>
               </div>
             </form>
