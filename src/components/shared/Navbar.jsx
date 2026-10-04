@@ -30,7 +30,7 @@ export const Navbar = () => {
           </div>
           <div className="flex flex-col">
             <span className="font-extrabold text-lg text-[#0F172A] tracking-tight leading-none">
-              Medical<span className="text-[#0D9488]">AI</span>
+              MedGuardian<span className="text-[#0D9488]"> AI</span>
             </span>
             <span className="text-[10px] text-slate-500 font-medium tracking-wide">Clinical Intelligence</span>
           </div>

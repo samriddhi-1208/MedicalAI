@@ -15,7 +15,7 @@ export const Footer = () => {
                 <Activity className="w-5 h-5 text-[#0D9488]" />
               </div>
               <span className="font-extrabold text-lg text-white tracking-tight">
-                Medical<span className="text-[#0D9488]">AI</span>
+                MedGuardian<span className="text-[#0D9488]"> AI</span>
               </span>
             </Link>
             <p className="text-xs text-slate-400 leading-relaxed">
@@ -29,7 +29,7 @@ export const Footer = () => {
             <ul className="space-y-2.5 text-xs">
               <li><Link to="/app/dashboard" className="hover:text-white transition-colors">Patient Dashboard</Link></li>
               <li><Link to="/app/upload" className="hover:text-white transition-colors">Upload Blood Report</Link></li>
-              <li><Link to="/app/analysis" className="hover:text-white transition-colors">AI Diagnostic Analysis</Link></li>
+              <li><Link to="/app/analysis" className="hover:text-white transition-colors">AI Report Analysis</Link></li>
               <li><Link to="/app/trends" className="hover:text-white transition-colors">Biomarker History</Link></li>
             </ul>
           </div>
@@ -53,7 +53,7 @@ export const Footer = () => {
           <div className="space-y-3">
             <h4 className="font-bold text-white text-xs uppercase tracking-wider">Clinical Disclaimer</h4>
             <p className="text-[11px] text-slate-400 leading-relaxed">
-              MedicalAI is an educational health Literacy and record tracking tool. It does not provide medical diagnosis or treatment advice. Always consult a licensed medical professional for clinical emergencies.
+              MedGuardian AI is an educational health literacy and record tracking tool. It does not provide definitive medical diagnoses or treatment advice. Always consult a licensed medical professional for clinical emergencies.
             </p>
             <div className="flex items-center gap-2 text-xs text-emerald-400 font-medium pt-1">
               <ShieldCheck className="w-4 h-4 text-emerald-400" /> 256-Bit Encrypted Data Privacy
@@ -63,7 +63,7 @@ export const Footer = () => {
         </div>
 
         <div className="mt-12 pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
-          <p>© 2026 MedicalAI. All rights reserved. Designed for healthcare clarity.</p>
+          <p>© 2026 MedGuardian AI. All rights reserved. Designed for healthcare clarity.</p>
           <div className="flex items-center gap-6">
             <span className="hover:text-slate-300 cursor-pointer">Privacy Policy</span>
             <span className="hover:text-slate-300 cursor-pointer">Terms of Service</span>

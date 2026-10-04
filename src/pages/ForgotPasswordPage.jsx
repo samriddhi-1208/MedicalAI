@@ -34,7 +34,7 @@ export const ForgotPasswordPage = () => {
             <Activity className="w-6 h-6 text-[var(--color-accent)]" />
           </div>
           <span className="font-extrabold text-2xl text-[var(--text-main)] tracking-tight">
-            Medical<span className="text-[var(--color-primary)]">AI</span>
+            MedGuardian<span className="text-[var(--color-primary)]"> AI</span>
           </span>
         </Link>
         

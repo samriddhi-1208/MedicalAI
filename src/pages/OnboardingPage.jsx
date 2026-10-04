@@ -173,7 +173,7 @@ export const OnboardingPage = () => {
             <Activity className="w-6 h-6 text-[var(--color-accent)]" />
           </div>
           <span className="font-extrabold text-2xl text-[var(--text-main)] tracking-tight">
-            Medical<span className="text-[var(--color-primary)]">AI</span>
+            MedGuardian<span className="text-[var(--color-primary)]"> AI</span>
           </span>
         </div>
         <h2 className="text-2.5xl font-extrabold text-[var(--text-main)] tracking-tight">

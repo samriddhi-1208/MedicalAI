@@ -52,7 +52,7 @@ export const LandingPage = () => {
     {
       icon: FileText,
       title: "AI Medical Report Analysis",
-      description: "Upload scanned lab tests (PDF, JPG, PNG). MedicalAI reads report text and extracts key parameters into your private patient portal."
+      description: "Upload scanned lab tests (PDF, JPG, PNG). MedGuardian AI reads report text and extracts key parameters into your private patient portal."
     },
     {
       icon: BrainCircuit,
@@ -76,8 +76,8 @@ export const LandingPage = () => {
     },
     {
       icon: Siren,
-      title: "Emergency SOS Dispatch",
-      description: "1-click automated SMS/Email alert dispatch with live GPS coordinates to your emergency contacts and care providers."
+      title: "Emergency SOS Assistance",
+      description: "1-click automated email alert dispatch with live GPS coordinates to your emergency contacts, plus direct 108 ambulance dialing."
     }
   ];
 
@@ -100,26 +100,26 @@ export const LandingPage = () => {
     {
       step: "04",
       title: "View Insights",
-      description: "Explore plain-language diagnostic summaries and monitor your longitudinal health metrics."
+      description: "Explore plain-language medical summaries and monitor your longitudinal health metrics."
     }
   ];
 
   const faqs = [
     {
-      question: "How does MedicalAI process my medical reports?",
-      answer: "When you upload a PDF or image report, MedicalAI extracts text, identifies test names, measured values, and reference ranges, and organizes the findings into your private patient dashboard."
+      question: "How does MedGuardian AI process my medical reports?",
+      answer: "When you upload a PDF or image report, MedGuardian AI extracts text, identifies test names, measured values, and reference ranges, and organizes the findings into your private patient dashboard."
     },
     {
       question: "Will unauthenticated visitors or other users see my health data?",
-      answer: "No. Your health records are strictly isolated under your authenticated account ID. MedicalAI enforces strict JWT session security, ensuring no unauthenticated visitor or other user can ever view your records."
+      answer: "No. Your health records are strictly isolated under your authenticated account ID. MedGuardian AI enforces strict JWT session security, ensuring no unauthenticated visitor or other user can ever view your records."
     },
     {
-      question: "Does MedicalAI provide a definitive medical diagnosis?",
-      answer: "No. MedicalAI provides AI-generated interpretations intended strictly for informational and record organization purposes. It is not a replacement for professional consultation with a qualified medical doctor."
+      question: "Does MedGuardian AI provide a definitive medical diagnosis?",
+      answer: "No. MedGuardian AI provides AI-generated plain-language interpretations intended strictly for informational and record organization purposes. It does not provide definitive medical diagnoses and is not a replacement for consultation with a qualified medical doctor."
     },
     {
       question: "How does the Emergency SOS feature work?",
-      answer: "When triggered, Emergency SOS dispatches automated alert payloads containing live GPS coordinates to your saved emergency contacts and care providers."
+      answer: "When triggered, Emergency SOS dispatches automated email alerts containing live GPS coordinates to your saved emergency contacts and provides a direct shortcut to call the 108 ambulance helpline."
     }
   ];
 
@@ -127,7 +127,7 @@ export const LandingPage = () => {
     <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] font-sans antialiased">
       <Navbar />
 
-      {/* Serene Guardian Hero Section */}
+      {/* MedGuardian AI Hero Section */}
       <section className="py-16 md:py-24 bg-white border-b border-slate-200 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
@@ -137,7 +137,7 @@ export const LandingPage = () => {
               
               <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-teal-50 text-[#0D9488] text-xs font-semibold border border-teal-200">
                 <ShieldCheck className="w-3.5 h-3.5 text-[#0D9488]" />
-                <span>Serene Guardian • Clinical Intelligence</span>
+                <span>MedGuardian AI • Clinical Intelligence</span>
               </div>
 
               <h1 className="text-4xl sm:text-5xl lg:text-5.5xl font-extrabold text-[#0F172A] tracking-tight leading-[1.15]">
@@ -146,7 +146,7 @@ export const LandingPage = () => {
               </h1>
 
               <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl font-normal">
-                MedicalAI turns scanned paper lab reports into structured biomarker data, longitudinal trend graphs, and 24/7 emergency dispatch.
+                MedGuardian AI turns scanned paper lab reports into structured biomarker data, longitudinal trend graphs, and rapid emergency location sharing.
               </p>
 
               <div className="flex flex-wrap items-center gap-4 pt-2">
@@ -183,7 +183,7 @@ export const LandingPage = () => {
                 </div>
                 <div>
                   <span className="block font-bold text-sm text-[#0F172A]">24/7 Emergency SOS</span>
-                  <span>1-click GPS dispatch</span>
+                  <span>1-click GPS email alert</span>
                 </div>
               </div>
 
@@ -200,7 +200,7 @@ export const LandingPage = () => {
                       <BrainCircuit className="w-5 h-5 text-[#0D9488]" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-bold text-[#0F172A]">Serene Guardian Workflow</h3>
+                      <h3 className="text-sm font-bold text-[#0F172A]">MedGuardian AI Clinical Workflow</h3>
                       <p className="text-xs text-slate-500 font-medium">Patient Analysis System</p>
                     </div>
                   </div>
@@ -254,7 +254,7 @@ export const LandingPage = () => {
                   <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 space-y-2 text-emerald-950">
                     <div className="flex items-center justify-between font-bold text-xs text-emerald-900">
                       <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-emerald-600" /> 3. AI-Extracted Health Data</span>
-                      <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold">Serene Guardian Engine</span>
+                      <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold">MedGuardian AI Analysis Engine</span>
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 text-[11px] pt-1">
@@ -287,23 +287,23 @@ export const LandingPage = () => {
         </div>
       </section>
 
-      {/* Serene Guardian Interactive Application Showcase Section */}
+      {/* MedGuardian AI Interactive Application Showcase Section */}
       <section className="py-20 bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
           
           <div className="text-center max-w-2xl mx-auto space-y-3">
             <span className="px-3.5 py-1 rounded-full bg-teal-50 text-[#0D9488] text-xs font-bold uppercase tracking-wider border border-teal-200">
-              Figma Artboard Preview
+              Platform Feature Preview
             </span>
             <h2 className="text-3xl font-extrabold text-[#0F172A] tracking-tight">
-              Interactive Serene Guardian Portal Preview
+              Interactive Patient Portal Preview
             </h2>
             <p className="text-sm text-slate-600">
-              Explore the newly updated Patient Portal interface: Dashboard, Health Trends & Analytics, and Emergency SOS Center.
+              Sample interface preview illustrating key patient features: Dashboard, Health Trends & Analytics, and Emergency SOS Center.
             </p>
           </div>
 
-          {/* Interactive Viewport Tabs matching Figma Artboards */}
+          {/* Interactive Viewport Tabs */}
           <div className="flex justify-center gap-2">
             <button
               onClick={() => setPreviewTab('dashboard')}
@@ -339,15 +339,15 @@ export const LandingPage = () => {
             </button>
           </div>
 
-          {/* Artboard Mockup Display Container */}
+          {/* Feature Showcase Container */}
           <Card className="p-8 bg-slate-900 text-white rounded-3xl shadow-2xl border border-slate-800 max-w-4xl mx-auto space-y-6">
             
             {previewTab === 'dashboard' && (
               <div className="space-y-5 animate-in fade-in duration-200">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-4">
                   <div>
-                    <span className="text-xs text-[#0D9488] font-bold uppercase tracking-wider block">Dashboard Artboard</span>
-                    <h3 className="text-xl font-extrabold text-white">Good Morning, Patient</h3>
+                    <span className="text-xs text-teal-400 font-bold uppercase tracking-wider block">Dashboard Preview</span>
+                    <h3 className="text-xl font-extrabold text-white">Patient Workspace Overview</h3>
                   </div>
                   <Link to="/signup" className="px-3.5 py-1.5 rounded-xl bg-[#0D9488] text-white text-xs font-bold hover:bg-teal-600 transition-colors">
                     Try Live Dashboard →
@@ -355,32 +355,32 @@ export const LandingPage = () => {
                 </div>
 
                 <div className="grid grid-cols-3 gap-3">
-                  <div className="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700 text-center space-y-1">
-                    <Upload className="w-5 h-5 text-[#0D9488] mx-auto" />
-                    <span className="block text-xs font-bold">Upload Report</span>
+                  <div className="p-3.5 rounded-xl bg-slate-800 border border-slate-700 text-center space-y-1">
+                    <Upload className="w-5 h-5 text-teal-400 mx-auto" />
+                    <span className="block text-xs font-bold text-slate-200">Upload Report</span>
                   </div>
-                  <div className="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700 text-center space-y-1">
-                    <Building2 className="w-5 h-5 text-[#0D9488] mx-auto" />
-                    <span className="block text-xs font-bold">Find Hospital</span>
+                  <div className="p-3.5 rounded-xl bg-slate-800 border border-slate-700 text-center space-y-1">
+                    <Building2 className="w-5 h-5 text-teal-400 mx-auto" />
+                    <span className="block text-xs font-bold text-slate-200">Find Hospital</span>
                   </div>
-                  <div className="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700 text-center space-y-1">
-                    <Pill className="w-5 h-5 text-[#0D9488] mx-auto" />
-                    <span className="block text-xs font-bold">Medicine</span>
+                  <div className="p-3.5 rounded-xl bg-slate-800 border border-slate-700 text-center space-y-1">
+                    <Pill className="w-5 h-5 text-teal-400 mx-auto" />
+                    <span className="block text-xs font-bold text-slate-200">Medicine</span>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-3 gap-3 text-xs">
                   <div className="p-3 rounded-xl bg-slate-800 border border-slate-700 space-y-1">
-                    <span className="text-slate-400 block text-[11px]">Blood Pressure</span>
-                    <strong className="text-white text-base font-extrabold block">118/78 <span className="text-[10px] font-normal text-slate-400">mmHg</span></strong>
+                    <span className="text-slate-300 block text-[11px] font-medium">Blood Pressure</span>
+                    <strong className="text-white text-base font-extrabold block">118/78 <span className="text-[10px] font-normal text-slate-300">mmHg</span></strong>
                   </div>
                   <div className="p-3 rounded-xl bg-slate-800 border border-slate-700 space-y-1">
-                    <span className="text-slate-400 block text-[11px]">Fasting Glucose</span>
-                    <strong className="text-white text-base font-extrabold block">95 <span className="text-[10px] font-normal text-slate-400">mg/dL</span></strong>
+                    <span className="text-slate-300 block text-[11px] font-medium">Fasting Glucose</span>
+                    <strong className="text-white text-base font-extrabold block">95 <span className="text-[10px] font-normal text-slate-300">mg/dL</span></strong>
                   </div>
                   <div className="p-3 rounded-xl bg-slate-800 border border-slate-700 space-y-1">
-                    <span className="text-slate-400 block text-[11px]">Hemoglobin (Hb)</span>
-                    <strong className="text-white text-base font-extrabold block">13.8 <span className="text-[10px] font-normal text-slate-400">g/dL</span></strong>
+                    <span className="text-slate-300 block text-[11px] font-medium">Hemoglobin (Hb)</span>
+                    <strong className="text-white text-base font-extrabold block">13.8 <span className="text-[10px] font-normal text-slate-300">g/dL</span></strong>
                   </div>
                 </div>
               </div>
@@ -390,7 +390,7 @@ export const LandingPage = () => {
               <div className="space-y-5 animate-in fade-in duration-200">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-4">
                   <div>
-                    <span className="text-xs text-[#0D9488] font-bold uppercase tracking-wider block">Health Trends Artboard</span>
+                    <span className="text-xs text-teal-400 font-bold uppercase tracking-wider block">Health Trends & Analytics</span>
                     <h3 className="text-xl font-extrabold text-white">Biomarker Longitudinal Progression</h3>
                   </div>
                   <Link to="/signup" className="px-3.5 py-1.5 rounded-xl bg-[#0D9488] text-white text-xs font-bold hover:bg-teal-600 transition-colors">
@@ -398,12 +398,12 @@ export const LandingPage = () => {
                   </Link>
                 </div>
 
-                <div className="p-4 rounded-xl bg-slate-800/90 border border-slate-700 space-y-2 text-xs">
+                <div className="p-4 rounded-xl bg-slate-800 border border-slate-700 space-y-2 text-xs">
                   <div className="flex justify-between items-center">
                     <span className="font-bold text-white">Hemoglobin (Hb) Trend Line</span>
                     <span className="text-emerald-400 font-bold">+1.4 g/dL (6M Gain)</span>
                   </div>
-                  <div className="h-20 bg-slate-900 rounded-lg border border-slate-700 flex items-center justify-center text-slate-400 text-xs font-mono">
+                  <div className="h-20 bg-slate-950 rounded-lg border border-slate-700 flex items-center justify-center text-slate-200 text-xs font-mono font-medium">
                     📈 [Interactive Line Graph: Jan 12.4 → Aug 13.8 g/dL]
                   </div>
                 </div>
@@ -414,8 +414,8 @@ export const LandingPage = () => {
               <div className="space-y-5 animate-in fade-in duration-200 text-center">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-4 text-left">
                   <div>
-                    <span className="text-xs text-rose-400 font-bold uppercase tracking-wider block">Emergency Center Artboard</span>
-                    <h3 className="text-xl font-extrabold text-white">24/7 Emergency SOS Dispatch</h3>
+                    <span className="text-xs text-rose-400 font-bold uppercase tracking-wider block">Emergency SOS Center</span>
+                    <h3 className="text-xl font-extrabold text-white">Emergency Assistance</h3>
                   </div>
                   <Link to="/signup" className="px-3.5 py-1.5 rounded-xl bg-rose-600 text-white text-xs font-bold hover:bg-rose-700 transition-colors">
                     Open Emergency SOS →
@@ -427,8 +427,8 @@ export const LandingPage = () => {
                   <span>SOS</span>
                 </div>
 
-                <p className="text-xs text-slate-300 max-w-sm mx-auto">
-                  Dispatches automated SMS/Email alerts with live GPS coordinates to your saved contacts & 108 helpline.
+                <p className="text-xs text-slate-200 max-w-sm mx-auto font-medium">
+                  Dispatches automated email alerts with live GPS coordinates to saved emergency contacts, with one-tap 108 ambulance calling.
                 </p>
               </div>
             )}
@@ -484,7 +484,7 @@ export const LandingPage = () => {
               Simple Workflow
             </span>
             <h2 className="text-3xl font-extrabold text-[#0F172A] tracking-tight">
-              How MedicalAI Works
+              How MedGuardian AI Works
             </h2>
             <p className="text-sm text-slate-600">
               Four simple steps from account creation to AI report insights.
