@@ -168,11 +168,157 @@ async function cleanupUserDuplicates(userId) {
   }
 }
 
+// Automatically schedule an identified prescription medication directly into user's schedule
+async function autoScheduleExtractedMedication(user, medData) {
+  const cleanName = (medData.name || '').trim();
+  if (!cleanName) return null;
+
+  const cleanDose = (medData.dose || medData.dosage || '1 tablet').trim();
+  const cleanFreq = (medData.frequency || 'Once daily').trim();
+  const cleanTime = (medData.scheduled_time || medData.time || '08:00 AM').trim();
+
+  // Check existing in memory
+  const existingInMemory = Array.from(inMemoryMedicines.values()).find(
+    m => matchesUser(m, user) && (m.name || '').toLowerCase().trim() === cleanName.toLowerCase()
+  );
+
+  if (mongoose.connection && mongoose.connection.readyState === 1) {
+    try {
+      const existingMed = await Medicine.findOne({
+        user_id: user._id,
+        name: { $regex: new RegExp(`^${cleanName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') }
+      });
+
+      if (existingMed) {
+        const existingObj = existingMed.toObject ? existingMed.toObject() : { ...existingMed };
+        existingObj.id = toIdString(existingMed._id);
+        inMemoryMedicines.set(String(existingObj.id), existingObj);
+        return existingObj;
+      }
+
+      const newMed = await Medicine.create({
+        user_id: user._id,
+        report_id: medData.report_id || null,
+        source_title: medData.source_title || 'Extracted Prescription',
+        name: cleanName,
+        dose: cleanDose,
+        dosage: cleanDose,
+        frequency: cleanFreq,
+        scheduled_time: cleanTime,
+        time_slot: medData.time_slot || 'Morning',
+        meal_relation: medData.meal_relation || 'After meal',
+        meal_type: medData.meal_type || 'Lunch',
+        delay_minutes: Number(medData.delay_minutes || 30),
+        duration_days: Number(medData.duration_days || 5),
+        start_date: medData.start_date || new Date().toISOString().split('T')[0],
+        end_date: medData.end_date || null,
+        instructions: medData.instructions || '',
+        purpose: medData.purpose || 'Prescribed Medication',
+        total_pills: parseInt(medData.total_pills || 30),
+        pills_remaining: parseInt(medData.total_pills || 30),
+        is_paused: false,
+        is_taken: false
+      });
+
+      const savedObj = newMed.toObject ? newMed.toObject() : { ...newMed };
+      savedObj.id = toIdString(newMed._id);
+      inMemoryMedicines.set(String(savedObj.id), savedObj);
+      savePersistentMedicines();
+      return savedObj;
+    } catch (e) {
+      console.warn('[MEDICINES] autoScheduleExtractedMedication DB note:', e.message);
+    }
+  }
+
+  if (existingInMemory) {
+    return existingInMemory;
+  }
+
+  const offlineId = `med-${Date.now()}-${crypto.randomBytes(4).toString('hex')}`;
+  const newMedObj = {
+    _id: offlineId,
+    id: offlineId,
+    user_id: String(user._id || user.id),
+    user_email: user.email ? user.email.toLowerCase() : '',
+    report_id: medData.report_id || null,
+    source_title: medData.source_title || 'Extracted Prescription',
+    name: cleanName,
+    dose: cleanDose,
+    dosage: cleanDose,
+    frequency: cleanFreq,
+    scheduled_time: cleanTime,
+    time_slot: medData.time_slot || 'Morning',
+    meal_relation: medData.meal_relation || 'After meal',
+    meal_type: medData.meal_type || 'Lunch',
+    delay_minutes: Number(medData.delay_minutes || 30),
+    duration_days: Number(medData.duration_days || 5),
+    start_date: medData.start_date || new Date().toISOString().split('T')[0],
+    end_date: medData.end_date || null,
+    instructions: medData.instructions || '',
+    purpose: medData.purpose || 'Prescribed Medication',
+    total_pills: parseInt(medData.total_pills || 30),
+    pills_remaining: parseInt(medData.total_pills || 30),
+    is_paused: false,
+    is_taken: false,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  };
+
+  inMemoryMedicines.set(offlineId, newMedObj);
+  savePersistentMedicines();
+  return newMedObj;
+}
+
+exports.autoScheduleExtractedMedication = autoScheduleExtractedMedication;
+
 exports.getMedicines = async (req, res, next) => {
   try {
     const user = await getUserFromReq(req);
     if (!user) {
       return res.json([]);
+    }
+
+    // Auto-sync any extracted medications from user's reports directly into medicine schedule
+    try {
+      const Report = require('../models/Report');
+      let userReports = [];
+      if (mongoose.connection && mongoose.connection.readyState === 1) {
+        userReports = await Report.find({ user_id: user._id });
+      }
+      if (!userReports || userReports.length === 0) {
+        const reportsCtrl = require('./reportsController');
+        const uKey = String(user._id);
+        userReports = reportsCtrl.__inMemoryReports?.get(uKey) || reportsCtrl.__inMemoryReports?.get(String(user.email)) || [];
+      }
+
+      for (const rep of userReports) {
+        const repMeds = Array.isArray(rep.extracted_medications) && rep.extracted_medications.length > 0
+          ? rep.extracted_medications
+          : (Array.isArray(rep.extractedMedications) ? rep.extractedMedications : []);
+
+        for (const m of repMeds) {
+          const medName = (m.medicineName || m.name || '').trim();
+          if (medName) {
+            await autoScheduleExtractedMedication(user, {
+              name: medName,
+              dose: m.dose || m.strength || '1 tablet',
+              frequency: m.frequency || 'Once daily',
+              scheduled_time: m.timing || '08:00 AM',
+              time: m.timing || '08:00 AM',
+              meal_relation: m.mealRelation || 'After meal',
+              meal_type: m.mealType || 'Lunch',
+              delay_minutes: Number(m.delayMinutes || 30),
+              duration_days: parseInt(m.durationDays || m.duration || 5) || 5,
+              source_title: rep.title || 'Uploaded Medical Report',
+              report_id: rep._id || rep.id,
+              purpose: m.genericName ? `Prescribed: ${m.genericName}` : 'Prescribed Medication',
+              instructions: m.specialInstructions || ''
+            });
+          }
+        }
+      }
+    } catch (syncErr) {
+      console.warn('[MEDICINES] Auto-sync from reports note:', syncErr.message);
     }
 
     if (mongoose.connection && mongoose.connection.readyState === 1) {

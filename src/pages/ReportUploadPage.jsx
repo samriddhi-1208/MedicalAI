@@ -159,9 +159,30 @@ export const ReportUploadPage = () => {
       });
 
       if (uniqueMeds.length > 0) {
-        setPendingMedications(uniqueMeds);
-        setIsVerificationModalOpen(true);
-        setUploading(false);
+        // Directly add identified prescription medications to user's daily medication schedule
+        for (const med of uniqueMeds) {
+          try {
+            await addMedicine({
+              name: med.medicineName || med.name,
+              dose: med.dose || '1 tablet',
+              dosage: med.dose || '1 tablet',
+              frequency: med.frequency || 'Once daily',
+              scheduled_time: med.timing || med.scheduled_time || '08:00 AM',
+              time: med.timing || med.scheduled_time || '08:00 AM',
+              timeSlot: 'Morning',
+              meal_relation: med.mealRelation || 'After meal',
+              meal_type: med.mealType || 'Lunch',
+              delay_minutes: Number(med.delayMinutes || 30),
+              duration_days: parseInt(med.duration || 5),
+              source_title: selectedFile?.name ? `Report: ${selectedFile.name}` : 'Uploaded Lab Report',
+              purpose: 'Prescribed Medication'
+            });
+          } catch (e) {
+            console.warn("[UPLOAD] Auto-add med note:", e);
+          }
+        }
+        toast.success(`✓ ${uniqueMeds.length} prescription medications identified and directly added to your schedule!`);
+        navigate('/app/analysis');
       } else {
         toast.success("✓ Report analyzed successfully. View diagnostic findings.");
         navigate('/app/analysis');

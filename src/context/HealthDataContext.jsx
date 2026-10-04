@@ -173,6 +173,40 @@ export const HealthDataProvider = ({ children }) => {
               }
             });
 
+            // Automatically directly add any medications identified from saved reports
+            if (Array.isArray(rData)) {
+              rData.forEach(rep => {
+                const repMeds = Array.isArray(rep.extractedMedications) ? rep.extractedMedications : (Array.isArray(rep.medications) ? rep.medications : []);
+                repMeds.forEach(rm => {
+                  const name = (rm.medicineName || rm.name || '').trim();
+                  const k = name.toLowerCase();
+                  if (name && !seenNames.has(k)) {
+                    seenNames.add(k);
+                    deduplicated.push({
+                      id: rm.id || `med-ext-${Date.now()}-${deduplicated.length}`,
+                      name,
+                      dose: rm.dose || rm.strength || '1 tablet',
+                      dosage: rm.dose || rm.strength || '1 tablet',
+                      frequency: rm.frequency || 'Once daily',
+                      scheduledTime: rm.timing || '08:00 AM',
+                      time: rm.timing || '08:00 AM',
+                      timeSlot: 'Morning',
+                      mealRelation: rm.mealRelation || 'After meal',
+                      mealType: rm.mealType || 'Lunch',
+                      delayMinutes: Number(rm.delayMinutes || 30),
+                      durationDays: parseInt(rm.durationDays || rm.duration || 5) || 5,
+                      sourceTitle: rep.title || 'Extracted Prescription',
+                      purpose: rm.genericName ? `Prescribed: ${rm.genericName}` : 'Prescribed Medication',
+                      totalPills: 30,
+                      pillsRemaining: 30,
+                      isPaused: false,
+                      taken: false
+                    });
+                  }
+                });
+              });
+            }
+
             setMedicines(deduplicated);
             if (rawUser?.id) {
               localStorage.setItem(`medguardian_medicines_${rawUser.id}`, JSON.stringify(deduplicated));
@@ -560,6 +594,20 @@ export const HealthDataProvider = ({ children }) => {
 
         setReports(prev => [data.report, ...prev]);
         setActiveReportId(data.report.id || data.report._id);
+
+        // Directly refresh medications from backend so identified medicines appear immediately
+        try {
+          const medRes = await fetch(`${API_BASE}/medicines`, { headers: getAuthHeaders() });
+          if (medRes.ok) {
+            const mData = await safeParseJson(medRes);
+            if (Array.isArray(mData)) {
+              setMedicines(mData);
+            }
+          }
+        } catch (mErr) {
+          console.warn("[UPLOAD] Refresh medicines note:", mErr);
+        }
+
         return data.report;
       }
 

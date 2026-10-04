@@ -22,7 +22,8 @@ import {
   Activity,
   Pill,
   HeartPulse,
-  Plus
+  Plus,
+  Check
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
@@ -40,7 +41,7 @@ import { Modal } from '../components/ui/Modal';
 
 export const AIAnalysisPage = () => {
   const navigate = useNavigate();
-  const { reports, activeReportId, setActiveReportId, userProfile, language, addMedicine } = useHealthData();
+  const { reports, activeReportId, setActiveReportId, userProfile, language, addMedicine, medicines } = useHealthData();
   const t = (key) => getTranslation(language, key);
 
   const [viewOriginalModal, setViewOriginalModal] = useState(false);
@@ -116,6 +117,36 @@ export const AIAnalysisPage = () => {
       language
     );
   };
+
+  // Directly ensure all identified medications from the selected report are scheduled
+  React.useEffect(() => {
+    if (selectedReport) {
+      const repMeds = Array.isArray(selectedReport.extractedMedications) && selectedReport.extractedMedications.length > 0
+        ? selectedReport.extractedMedications
+        : (Array.isArray(selectedReport.medications) ? selectedReport.medications : []);
+
+      if (repMeds.length > 0) {
+        repMeds.forEach(m => {
+          const medName = (m.medicineName || m.name || '').trim();
+          if (!medName) return;
+          const exists = (medicines || []).some(med => (med.name || '').toLowerCase().trim() === medName.toLowerCase());
+          if (!exists) {
+            addMedicine({
+              name: medName,
+              dose: m.dose || m.strength || '1 tablet',
+              frequency: m.frequency || 'Once daily',
+              scheduled_time: m.timing || '08:00 AM',
+              meal_relation: m.mealRelation || 'After meal',
+              meal_type: m.mealType || 'Lunch',
+              delay_minutes: Number(m.delayMinutes || 30),
+              duration_days: parseInt(m.durationDays || m.duration || 5) || 5,
+              source_title: selectedReport.title || 'Extracted Prescription'
+            });
+          }
+        });
+      }
+    }
+  }, [selectedReportId, selectedReport?.id, medicines?.length]);
 
   const handleAddMedToSchedule = (med) => {
     addMedicine({
@@ -393,7 +424,13 @@ export const AIAnalysisPage = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {medications.map((m, idx) => (
+            {medications.map((m, idx) => {
+              const medName = (m.medicineName || m.name || '').toLowerCase().trim();
+              const isScheduled = (medicines || []).some(
+                med => (med.name || '').toLowerCase().trim() === medName
+              );
+
+              return (
               <div key={idx} className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3 text-xs">
                 <div className="flex justify-between items-start gap-2">
                   <div>
@@ -442,15 +479,25 @@ export const AIAnalysisPage = () => {
                   <span className="text-[11px] text-slate-500 font-medium">
                     100% extracted from document OCR text
                   </span>
-                  <button
-                    onClick={() => handleAddMedToSchedule(m)}
-                    className="px-3.5 py-1.5 rounded-xl bg-[#0F172A] text-white hover:bg-[#1E293B] font-bold text-[11px] flex items-center gap-1 cursor-pointer transition-colors"
-                  >
-                    <Plus className="w-3.5 h-3.5" /> Add to Schedule
-                  </button>
+                  {isScheduled ? (
+                    <button
+                      onClick={() => navigate('/app/medicines')}
+                      className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] flex items-center gap-1.5 cursor-pointer transition-colors shadow-2xs"
+                    >
+                      <Check className="w-3.5 h-3.5" /> In Schedule ✓
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleAddMedToSchedule(m)}
+                      className="px-3.5 py-1.5 rounded-xl bg-[#0F172A] text-white hover:bg-[#1E293B] font-bold text-[11px] flex items-center gap-1 cursor-pointer transition-colors"
+                    >
+                      <Plus className="w-3.5 h-3.5" /> Add to Schedule
+                    </button>
+                  )}
                 </div>
               </div>
-            ))}
+            );
+            })}
           </div>
         </Card>
       )}

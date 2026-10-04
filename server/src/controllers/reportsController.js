@@ -440,6 +440,37 @@ exports.uploadReport = async (req, res, next) => {
     }
     inMemoryReports.get(uKey).unshift(populatedReport);
 
+    // Directly add identified prescription medications to user's daily medication schedule
+    const allExtractedMeds = Array.isArray(ocrResult.extractedMedications) ? ocrResult.extractedMedications : (Array.isArray(ocrResult.medications) ? ocrResult.medications : []);
+    if (allExtractedMeds.length > 0) {
+      try {
+        const medCtrl = require('./medicinesController');
+        for (const m of allExtractedMeds) {
+          const medName = (m.medicineName || m.name || '').trim();
+          if (medName) {
+            await medCtrl.autoScheduleExtractedMedication(user, {
+              name: medName,
+              dose: m.dose || m.strength || '1 tablet',
+              frequency: m.frequency || 'Once daily',
+              scheduled_time: m.timing || '08:00 AM',
+              time: m.timing || '08:00 AM',
+              meal_relation: m.mealRelation || 'After meal',
+              meal_type: m.mealType || 'Lunch',
+              delay_minutes: Number(m.delayMinutes || 30),
+              duration_days: parseInt(m.durationDays || m.duration || 5) || 5,
+              source_title: cleanTitle || file.originalname || 'Uploaded Lab Report',
+              report_id: savedReportId,
+              purpose: m.genericName ? `Prescribed: ${m.genericName}` : 'Prescribed Medication',
+              instructions: m.specialInstructions || ''
+            });
+          }
+        }
+        console.log(`[REPORT ENGINE] Directly scheduled ${allExtractedMeds.length} identified medication(s) for user ${user._id}`);
+      } catch (autoMedErr) {
+        console.warn('[REPORTS] Auto-schedule medication error:', autoMedErr.message);
+      }
+    }
+
     console.log(`[REPORT ENGINE DEBUG] Successfully processed report ${savedReportId} with ${uniqueBiomarkers.length} biomarkers, ${ocrResult.vitals?.length || 0} vitals, ${ocrResult.extractedMedications?.length || 0} medications`);
 
     res.status(201).json({ report: populatedReport, isDuplicate: false, duplicate: false });
