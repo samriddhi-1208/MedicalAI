@@ -51,6 +51,14 @@ export const OnboardingPage = () => {
     setCalculatedAge(ageYears >= 0 ? ageYears : 0);
   }, [dateOfBirth]);
 
+  const handleSkipToDashboard = () => {
+    localStorage.setItem('medguardian_onboarding_completed', 'true');
+    if (typeof updateUserProfile === 'function') {
+      updateUserProfile({ profileCompleted: true });
+    }
+    navigate('/app/dashboard');
+  };
+
   const handleNextStep = (e) => {
     e.preventDefault();
 
@@ -270,6 +278,16 @@ export const OnboardingPage = () => {
                 <span>Continue</span>
                 <ArrowRight className="w-4 h-4 text-white" />
               </button>
+
+              <div className="text-center pt-2">
+                <button
+                  type="button"
+                  onClick={handleSkipToDashboard}
+                  className="text-xs font-semibold text-[var(--text-muted)] hover:text-[var(--text-main)] underline cursor-pointer"
+                >
+                  Skip for now & go to Dashboard →
+                </button>
+              </div>
             </form>
           )}
 
@@ -409,6 +427,16 @@ export const OnboardingPage = () => {
                       <Check className="w-4 h-4 text-white" />
                     </>
                   )}
+                </button>
+              </div>
+
+              <div className="text-center pt-2">
+                <button
+                  type="button"
+                  onClick={handleSkipToDashboard}
+                  className="text-xs font-semibold text-[var(--text-muted)] hover:text-[var(--text-main)] underline cursor-pointer"
+                >
+                  Skip for now & go to Dashboard →
                 </button>
               </div>
 

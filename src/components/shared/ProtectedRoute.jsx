@@ -14,10 +14,5 @@ export const ProtectedRoute = ({ children }) => {
     return <Navigate to="/login" replace />;
   }
 
-  // Redirect users who haven't completed onboarding yet to profile setup
-  if (userProfile && userProfile.profileCompleted === false) {
-    return <Navigate to="/complete-profile" replace />;
-  }
-
   return children;
 };

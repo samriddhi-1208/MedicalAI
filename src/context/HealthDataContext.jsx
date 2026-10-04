@@ -111,7 +111,7 @@ export const HealthDataProvider = ({ children }) => {
               state: rawUser.state || '',
               country: rawUser.country || 'India',
               occupation: rawUser.occupation || '',
-              profileCompleted: Boolean(rawUser.profile_completed ?? rawUser.profileCompleted ?? false)
+              profileCompleted: Boolean(rawUser.profile_completed ?? rawUser.profileCompleted ?? (localStorage.getItem('medguardian_onboarding_completed') === 'true'))
             };
             setUserProfile(updatedProfile);
             localStorage.setItem('medguardian_user_profile', JSON.stringify(updatedProfile));
@@ -506,6 +506,7 @@ export const HealthDataProvider = ({ children }) => {
       };
       setUserProfile(merged);
       localStorage.setItem('medguardian_user_profile', JSON.stringify(merged));
+      localStorage.setItem('medguardian_onboarding_completed', 'true');
 
       if (token) {
         try {

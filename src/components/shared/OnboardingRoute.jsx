@@ -14,7 +14,12 @@ export const OnboardingRoute = ({ children }) => {
     return <Navigate to="/login" replace />;
   }
 
-  if (userProfile && userProfile.profileCompleted) {
+  const isOnboardingDone = Boolean(
+    (userProfile && userProfile.profileCompleted) ||
+    localStorage.getItem('medguardian_onboarding_completed') === 'true'
+  );
+
+  if (isOnboardingDone) {
     return <Navigate to="/app/dashboard" replace />;
   }
 
