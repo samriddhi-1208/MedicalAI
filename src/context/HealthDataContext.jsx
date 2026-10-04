@@ -235,8 +235,8 @@ export const HealthDataProvider = ({ children }) => {
             });
 
             // Automatically directly add any medications identified from saved reports
-            if (Array.isArray(rData)) {
-              rData.forEach(rep => {
+            if (Array.isArray(finalReports)) {
+              finalReports.forEach(rep => {
                 const repMeds = Array.isArray(rep.extractedMedications) ? rep.extractedMedications : (Array.isArray(rep.medications) ? rep.medications : []);
                 repMeds.forEach(rm => {
                   const name = (rm.medicineName || rm.name || '').trim();

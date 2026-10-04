@@ -118,35 +118,6 @@ export const AIAnalysisPage = () => {
     );
   };
 
-  // Directly ensure all identified medications from the selected report are scheduled
-  React.useEffect(() => {
-    if (selectedReport) {
-      const repMeds = Array.isArray(selectedReport.extractedMedications) && selectedReport.extractedMedications.length > 0
-        ? selectedReport.extractedMedications
-        : (Array.isArray(selectedReport.medications) ? selectedReport.medications : []);
-
-      if (repMeds.length > 0) {
-        repMeds.forEach(m => {
-          const medName = (m.medicineName || m.name || '').trim();
-          if (!medName) return;
-          const exists = (medicines || []).some(med => (med.name || '').toLowerCase().trim() === medName.toLowerCase());
-          if (!exists) {
-            addMedicine({
-              name: medName,
-              dose: m.dose || m.strength || '1 tablet',
-              frequency: m.frequency || 'Once daily',
-              scheduled_time: m.timing || '08:00 AM',
-              meal_relation: m.mealRelation || 'After meal',
-              meal_type: m.mealType || 'Lunch',
-              delay_minutes: Number(m.delayMinutes || 30),
-              duration_days: parseInt(m.durationDays || m.duration || 5) || 5,
-              source_title: selectedReport.title || 'Extracted Prescription'
-            });
-          }
-        });
-      }
-    }
-  }, [selectedReportId, selectedReport?.id, medicines?.length]);
 
   const handleAddMedToSchedule = (med) => {
     addMedicine({
