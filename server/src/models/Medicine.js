@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const medicineSchema = new mongoose.Schema(
   {
-    user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    user_id: { type: mongoose.Schema.Types.Mixed, ref: 'User', required: true },
     report_id: { type: String, default: null },
     source_title: { type: String, default: 'Prescription' },
     name: { type: String, required: true },
@@ -34,7 +34,7 @@ const medicineSchema = new mongoose.Schema(
 );
 
 medicineSchema.virtual('id').get(function () {
-  return this._id.toHexString();
+  return this._id ? (this._id.toHexString ? this._id.toHexString() : String(this._id)) : '';
 });
 
 module.exports = mongoose.model('Medicine', medicineSchema);

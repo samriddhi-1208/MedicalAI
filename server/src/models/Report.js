@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const reportSchema = new mongoose.Schema(
   {
-    user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    user_id: { type: mongoose.Schema.Types.Mixed, ref: 'User', required: true },
     title: { type: String, required: true },
     patient_name: { type: String, default: 'Unspecified' },
     lab_name: { type: String, default: '' },
@@ -27,7 +27,7 @@ const reportSchema = new mongoose.Schema(
 );
 
 reportSchema.virtual('id').get(function () {
-  return this._id.toHexString();
+  return this._id ? (this._id.toHexString ? this._id.toHexString() : String(this._id)) : '';
 });
 
 reportSchema.index({ user_id: 1, file_hash: 1 }, { unique: true, sparse: true });

@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const reportValueSchema = new mongoose.Schema(
   {
-    report_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Report', required: true },
+    report_id: { type: mongoose.Schema.Types.Mixed, ref: 'Report', required: true },
     biomarker_name: { type: String, required: true },
     value: { type: String, required: true },
     unit: { type: String, default: '' },
@@ -18,7 +18,7 @@ const reportValueSchema = new mongoose.Schema(
 );
 
 reportValueSchema.virtual('id').get(function () {
-  return this._id.toHexString();
+  return this._id ? (this._id.toHexString ? this._id.toHexString() : String(this._id)) : '';
 });
 
 module.exports = mongoose.model('ReportValue', reportValueSchema);

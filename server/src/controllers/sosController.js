@@ -51,8 +51,7 @@ exports.triggerSOS = async (req, res, next) => {
     }
 
     let contacts = [];
-    let sosRecord = {
-      _id: 'sos-' + Date.now(),
+    const sosData = {
       user_id: user._id,
       trigger_type: triggerType || "Manual SOS Button",
       latitude: Number(latitude),
@@ -61,9 +60,15 @@ exports.triggerSOS = async (req, res, next) => {
       notes: notes || "Manual High-Intensity Emergency SOS Alert"
     };
 
+    let sosRecord = null;
     if (mongoose.connection && mongoose.connection.readyState === 1) {
       contacts = await EmergencyContact.find({ user_id: user._id });
-      sosRecord = await SOSEvent.create(sosRecord);
+      sosRecord = await SOSEvent.create(sosData);
+    } else {
+      sosRecord = {
+        _id: 'sos-' + Date.now(),
+        ...sosData
+      };
     }
 
     await sosAlertService.dispatchSOSAlert(user, contacts, { ...req.body, latitude: Number(latitude), longitude: Number(longitude) });
@@ -121,8 +126,7 @@ exports.addContact = async (req, res, next) => {
       return res.status(400).json({ error: "Contact name and phone number are required." });
     }
 
-    let created = {
-      _id: 'c-' + Date.now(),
+    const contactData = {
       user_id: user._id,
       name: name.trim(),
       relation: (relation || "Family").trim(),
@@ -132,8 +136,14 @@ exports.addContact = async (req, res, next) => {
       notify_on_sos: 1
     };
 
+    let created = null;
     if (mongoose.connection && mongoose.connection.readyState === 1) {
-      created = await EmergencyContact.create(created);
+      created = await EmergencyContact.create(contactData);
+    } else {
+      created = {
+        _id: 'c-' + Date.now(),
+        ...contactData
+      };
     }
 
     return res.status(201).json(created);
@@ -150,13 +160,16 @@ exports.deleteContact = async (req, res, next) => {
     }
 
     const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    if (!id) {
       return res.status(400).json({ error: "Invalid contact ID" });
     }
 
-    const deleted = await EmergencyContact.findOneAndDelete({ _id: id, user_id: user._id });
-    if (!deleted) {
-      return res.status(404).json({ error: "Emergency contact not found or access denied." });
+    if (mongoose.connection && mongoose.connection.readyState === 1) {
+      const query = mongoose.Types.ObjectId.isValid(id) ? { _id: id } : { id: id };
+      const deleted = await EmergencyContact.findOneAndDelete({ ...query, user_id: user._id });
+      if (!deleted) {
+        return res.status(404).json({ error: "Emergency contact not found or access denied." });
+      }
     }
 
     res.json({ success: true, message: "Emergency contact deleted." });

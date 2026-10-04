@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const emergencyContactSchema = new mongoose.Schema(
   {
-    user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    user_id: { type: mongoose.Schema.Types.Mixed, ref: 'User', required: true },
     name: { type: String, required: true },
     relation: { type: String, default: 'Family' },
     phone: { type: String, required: true },
@@ -18,7 +18,7 @@ const emergencyContactSchema = new mongoose.Schema(
 );
 
 emergencyContactSchema.virtual('id').get(function () {
-  return this._id.toHexString();
+  return this._id ? (this._id.toHexString ? this._id.toHexString() : String(this._id)) : '';
 });
 
 module.exports = mongoose.model('EmergencyContact', emergencyContactSchema);

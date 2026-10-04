@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const medicineLogSchema = new mongoose.Schema(
   {
-    medicine_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Medicine', required: true },
+    medicine_id: { type: mongoose.Schema.Types.Mixed, ref: 'Medicine', required: true },
     taken_at: { type: Date, default: Date.now },
     status: { type: String, default: 'Logged' }
   },
@@ -14,7 +14,7 @@ const medicineLogSchema = new mongoose.Schema(
 );
 
 medicineLogSchema.virtual('id').get(function () {
-  return this._id.toHexString();
+  return this._id ? (this._id.toHexString ? this._id.toHexString() : String(this._id)) : '';
 });
 
 module.exports = mongoose.model('MedicineLog', medicineLogSchema);

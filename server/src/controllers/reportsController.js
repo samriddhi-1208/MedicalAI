@@ -7,8 +7,15 @@ const ReportSummary = require('../models/ReportSummary');
 const ocrService = require('../services/ocrService');
 const User = require('../models/User');
 
+// Helper to safely format ID whether ObjectId or string
+function toIdString(val) {
+  if (!val) return '';
+  return typeof val.toHexString === 'function' ? val.toHexString() : String(val);
+}
+
 // In-memory fallback report store when MongoDB Atlas is offline or disconnected
 const inMemoryReports = new Map();
+exports.__inMemoryReports = inMemoryReports;
 
 async function getUserFromReq(req) {
   const userId = req.user?.id;
@@ -64,7 +71,7 @@ exports.getReports = async (req, res, next) => {
 
             const rObj = r.toObject();
             const mappedBiomarkers = values.map(v => ({
-              id: v._id.toHexString(),
+              id: toIdString(v._id),
               name: v.biomarker_name,
               testName: v.biomarker_name,
               value: isNaN(Number(v.value)) ? v.value : Number(v.value),
@@ -81,7 +88,7 @@ exports.getReports = async (req, res, next) => {
 
             return {
               ...rObj,
-              id: r._id.toHexString(),
+              id: toIdString(r._id),
               title: r.title,
               patientName: r.patient_name || 'Unspecified',
               labName: r.lab_name || '',
@@ -145,7 +152,7 @@ exports.getReportById = async (req, res, next) => {
           const summaryObj = await ReportSummary.findOne({ report_id: report._id });
 
           const mappedBiomarkers = values.map(v => ({
-            id: v._id.toHexString(),
+            id: toIdString(v._id),
             name: v.biomarker_name,
             testName: v.biomarker_name,
             value: isNaN(Number(v.value)) ? v.value : Number(v.value),
@@ -161,7 +168,7 @@ exports.getReportById = async (req, res, next) => {
           const rawText = report.raw_text || report.rawText || '';
 
           return res.json({
-            id: report._id.toHexString(),
+            id: toIdString(report._id),
             title: report.title,
             patientName: report.patient_name || 'Unspecified',
             labName: report.lab_name || '',
@@ -262,7 +269,7 @@ exports.uploadReport = async (req, res, next) => {
           const summaryObj = await ReportSummary.findOne({ report_id: existingReport._id });
 
           const mappedBiomarkers = values.map(v => ({
-            id: v._id.toHexString(),
+            id: toIdString(v._id),
             name: v.biomarker_name,
             testName: v.biomarker_name,
             value: isNaN(Number(v.value)) ? v.value : Number(v.value),
@@ -274,7 +281,7 @@ exports.uploadReport = async (req, res, next) => {
           }));
 
           populatedExisting = {
-            id: existingReport._id.toHexString(),
+            id: toIdString(existingReport._id),
             title: existingReport.title,
             patientName: existingReport.patient_name || 'Unspecified',
             labName: existingReport.lab_name || '',
@@ -371,7 +378,7 @@ exports.uploadReport = async (req, res, next) => {
           raw_text: ocrResult.rawText || ''
         });
 
-        savedReportId = newReport._id.toHexString();
+        savedReportId = toIdString(newReport._id);
 
         if (uniqueBiomarkers.length > 0) {
           const valuesToInsert = uniqueBiomarkers.map(bm => ({
