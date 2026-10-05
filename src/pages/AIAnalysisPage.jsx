@@ -45,12 +45,31 @@ export const AIAnalysisPage = () => {
   const t = (key) => getTranslation(language, key);
 
   const [viewOriginalModal, setViewOriginalModal] = useState(false);
-  const [openInsightIndices, setOpenInsightIndices] = useState([]);
+  const [activeInsight, setActiveInsight] = useState(null);
+  const [allExpanded, setAllExpanded] = useState(false);
 
   const toggleInsight = (idx) => {
-    setOpenInsightIndices(prev => 
-      prev.includes(idx) ? prev.filter(i => i !== idx) : [...prev, idx]
-    );
+    if (allExpanded) {
+      setAllExpanded(false);
+      setActiveInsight(idx);
+    } else {
+      setActiveInsight(prev => (prev === idx ? null : idx));
+    }
+  };
+
+  const toggleAll = () => {
+    if (allExpanded) {
+      setAllExpanded(false);
+      setActiveInsight(null);
+    } else {
+      setAllExpanded(true);
+      setActiveInsight(null);
+    }
+  };
+
+  const isInsightOpen = (idx) => {
+    if (allExpanded) return true;
+    return activeInsight === idx;
   };
 
   const userReports = Array.isArray(reports) ? reports : [];
@@ -267,7 +286,7 @@ export const AIAnalysisPage = () => {
               <div className="flex items-center gap-2">
                 <h2 className="text-xl sm:text-[22px] font-black text-[#0F172A] dark:text-[#F5F7FA]">{t('aiClinicalSummary')}</h2>
                 <span className="hidden sm:inline-flex px-2.5 py-0.5 rounded-full bg-[#EEF1FA] dark:bg-[#2C3146] text-[#66729F] dark:text-[#9DA8D0] font-black text-xs border border-[#D9DDEC] dark:border-[#313750]">
-                  4 Dropdowns
+                  4 Insights
                 </span>
               </div>
               <p className="text-sm text-slate-500 dark:text-[#C8D0E0] font-medium mt-0.5">Click any insight box below to expand its structured clinical analysis</p>
@@ -283,23 +302,17 @@ export const AIAnalysisPage = () => {
             {/* Quick Toggle All Pill */}
             <button
               type="button"
-              onClick={() => {
-                if (openInsightIndices.length === 4) {
-                  setOpenInsightIndices([]);
-                } else {
-                  setOpenInsightIndices([0, 1, 2, 3]);
-                }
-              }}
+              onClick={toggleAll}
               className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#EEF1FA] dark:bg-[#2C3146] hover:bg-slate-200 dark:hover:bg-[#343a52] text-[#66729F] dark:text-[#9DA8D0] border border-[#D9DDEC] dark:border-[#313750] transition-colors cursor-pointer shadow-2xs"
             >
-              {openInsightIndices.length === 4 ? 'Collapse All' : 'Expand All'}
+              {allExpanded ? 'Collapse All' : 'Expand All'}
             </button>
           </div>
         </div>
 
-        {/* 4 Individual Dropdown Boxes */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
-          {getFormattedSummary().split(/\n\n+/).map((para, idx) => {
+        {/* 4 Individual Dropdown Boxes - Independent Flow Columns to prevent any layout jumping / gaps */}
+        {(() => {
+          const insightItems = getFormattedSummary().split(/\n\n+/).map((para, idx) => {
             const trimmed = para.trim();
             let icon = "📋";
             let title = "Clinical Overview";
@@ -324,27 +337,32 @@ export const AIAnalysisPage = () => {
             }
 
             const cleanText = trimmed.replace(/^(?:📋|🔬|💊|💡)\s*(?:Clinical Overview|Laboratory & Biomarker Analysis|Prescribed Treatment Plan|Patient Guidance)\s*[:=\-]?\s*/i, '');
-            const isOpen = openInsightIndices.includes(idx);
+            return { idx, icon, title, bgStyle, titleColor, cleanText };
+          });
+
+          const renderCard = (item) => {
+            if (!item) return null;
+            const isOpen = isInsightOpen(item.idx);
 
             return (
               <div 
-                key={idx} 
-                className={`rounded-2xl border transition-all ${bgStyle} overflow-hidden ${
+                key={item.idx} 
+                className={`rounded-2xl border transition-all ${item.bgStyle} overflow-hidden ${
                   isOpen ? 'shadow-xs ring-1 ring-[#66729F]/30 dark:ring-[#7C87B8]/30' : 'hover:border-slate-300 dark:hover:border-slate-700'
                 }`}
               >
                 {/* Clickable Dropdown Trigger Header for this individual box */}
                 <button
                   type="button"
-                  onClick={() => toggleInsight(idx)}
+                  onClick={() => toggleInsight(item.idx)}
                   className="w-full p-4.5 sm:p-5 flex items-center justify-between gap-3 text-left cursor-pointer select-none transition-colors hover:bg-black/[0.02] dark:hover:bg-white/[0.02]"
                   aria-expanded={isOpen}
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <span className="text-xl sm:text-2xl shrink-0">{icon}</span>
+                    <span className="text-xl sm:text-2xl shrink-0">{item.icon}</span>
                     <div className="min-w-0">
-                      <h4 className={`text-sm sm:text-[15px] font-black uppercase tracking-[0.04em] truncate ${titleColor}`}>
-                        {title}
+                      <h4 className={`text-sm sm:text-[15px] font-black uppercase tracking-[0.04em] truncate ${item.titleColor}`}>
+                        {item.title}
                       </h4>
                       <span className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium">
                         {isOpen ? 'Click to collapse' : 'Click to view insight'}
@@ -371,8 +389,29 @@ export const AIAnalysisPage = () => {
                 )}
               </div>
             );
-          })}
-        </div>
+          };
+
+          return (
+            <div className="pt-1">
+              {/* Desktop: 2 Independent Columns to prevent unequal height row-stretch clashes */}
+              <div className="hidden md:grid md:grid-cols-2 gap-4 items-start">
+                <div className="flex flex-col gap-4">
+                  {renderCard(insightItems[0])}
+                  {renderCard(insightItems[2])}
+                </div>
+                <div className="flex flex-col gap-4">
+                  {renderCard(insightItems[1])}
+                  {renderCard(insightItems[3])}
+                </div>
+              </div>
+
+              {/* Mobile: Clean single-column vertical stack */}
+              <div className="flex flex-col gap-4 md:hidden">
+                {insightItems.map(renderCard)}
+              </div>
+            </div>
+          );
+        })()}
       </Card>
 
       {/* EXTRACTED CLINICAL ENTITIES SUMMARY BADGE STRIP */}
