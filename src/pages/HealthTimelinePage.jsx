@@ -424,8 +424,8 @@ export const HealthTimelinePage = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/90 dark:border-slate-800 pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#0D9488] animate-pulse" />
-            <span className="text-xs text-[#0D9488] dark:text-[#2DD4BF] font-extrabold uppercase tracking-wider">{t('longitudinalAnalytics')}</span>
+            <span className="w-2 h-2 rounded-full bg-[#66729F] dark:bg-[#9DA8D0] animate-pulse" />
+            <span className="text-xs text-[#66729F] dark:text-[#9DA8D0] font-extrabold uppercase tracking-wider">{t('longitudinalAnalytics')}</span>
           </div>
           <h1 className="text-2.5xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight mt-0.5">
             {t('healthTrends')}
@@ -441,7 +441,7 @@ export const HealthTimelinePage = () => {
             size="sm"
             icon={Upload}
             onClick={() => navigate('/app/upload')}
-            className="bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#0D9488] dark:hover:bg-[#0b7a6f] text-xs font-bold rounded-xl cursor-pointer shadow-2xs self-start sm:self-auto text-white"
+            className="bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-xs font-bold rounded-xl cursor-pointer shadow-2xs self-start sm:self-auto text-white dark:text-[#172033]"
           >
             {t('uploadAnotherReport')}
           </Button>
@@ -451,8 +451,8 @@ export const HealthTimelinePage = () => {
       {/* EMPTY STATE (0 REPORTS OR 0 EXTRACTED PARAMETERS) */}
       {(!hasReports || totalParametersCount === 0) && (
         <Card className="p-8 sm:p-12 text-center bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs space-y-5 max-w-2xl mx-auto my-6">
-          <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-[#25293C] text-[#0D9488] flex items-center justify-center mx-auto border border-slate-200 dark:border-slate-700">
-            <TrendingUp className="w-8 h-8 text-[#0D9488]" />
+          <div className="w-16 h-16 rounded-2xl bg-[#EEF1FA] dark:bg-[#2C3146] text-[#66729F] dark:text-[#9DA8D0] flex items-center justify-center mx-auto border border-[#D9DDEC] dark:border-[#313750]">
+            <TrendingUp className="w-8 h-8 text-[#66729F] dark:text-[#9DA8D0]" />
           </div>
           
           <div className="space-y-2 max-w-lg mx-auto">
@@ -472,7 +472,7 @@ export const HealthTimelinePage = () => {
               size="md"
               icon={Upload}
               onClick={() => navigate('/app/upload')}
-              className="bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#0D9488] dark:hover:bg-[#0b7a6f] text-white py-3.5 px-8 text-xs font-bold rounded-xl cursor-pointer shadow-2xs"
+              className="bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-white dark:text-[#172033] py-3.5 px-8 text-xs font-bold rounded-xl cursor-pointer shadow-2xs"
             >
               {t('uploadMedicalReport')}
             </Button>
@@ -487,8 +487,8 @@ export const HealthTimelinePage = () => {
           {/* Top Health Trend Summary */}
           <Card className="p-6 bg-gradient-to-r from-[#0F172A] to-[#1E293B] text-white rounded-2xl shadow-2xs space-y-3">
             <div className="flex items-center justify-between flex-wrap gap-2">
-              <div className="flex items-center gap-2 text-xs font-extrabold text-[#0D9488] uppercase tracking-wider">
-                <Sparkles className="w-4 h-4 text-[#0D9488]" /> Health Trend &amp; Visual Analytics Summary
+              <div className="flex items-center gap-2 text-xs font-extrabold text-[#66729F] dark:text-[#9DA8D0] uppercase tracking-wider">
+                <Sparkles className="w-4 h-4 text-[#66729F] dark:text-[#9DA8D0]" /> Health Trend &amp; Visual Analytics Summary
               </div>
               <span className="px-3 py-1 rounded-full bg-white/10 text-white text-xs font-bold border border-white/10">
                 {reportCount} Uploaded ({reportsWithMeasurableDataCount} with Data)
@@ -514,7 +514,7 @@ export const HealthTimelinePage = () => {
               </div>
               <div>
                 <span className="text-[11px] font-bold text-slate-400 uppercase block">Monitoring Mode</span>
-                <span className={`text-xl font-black flex items-center gap-1 ${isLongitudinalActive ? 'text-emerald-400' : 'text-teal-300'}`}>
+                <span className={`text-xl font-black flex items-center gap-1 ${isLongitudinalActive ? 'text-emerald-400' : 'text-[#AEB7D5]'}`}>
                   {isLongitudinalActive ? 'Longitudinal Trend' : 'Clinical Benchmark'} 
                   <Activity className="w-5 h-5 ml-1" />
                 </span>
@@ -533,7 +533,7 @@ export const HealthTimelinePage = () => {
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <div>
                     <h3 className="text-base sm:text-lg font-black text-[#0F172A] dark:text-[#F5F7FA] flex items-center gap-2">
-                      <TrendingUp className="w-5 h-5 text-[#0D9488]" />
+                      <TrendingUp className="w-5 h-5 text-[#66729F] dark:text-[#9DA8D0]" />
                       {activeMetricName} Visualization
                     </h3>
                     <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
@@ -567,7 +567,7 @@ export const HealthTimelinePage = () => {
                         </button>
                       </div>
                     ) : (
-                      <span className="px-3 py-1 rounded-full bg-teal-50 dark:bg-teal-950/60 text-[#0D9488] dark:text-teal-300 text-xs font-bold border border-teal-200 dark:border-teal-800 flex items-center gap-1">
+                      <span className="px-3 py-1 rounded-full bg-[#EEF1FA] dark:bg-[#2C3146] text-[#66729F] dark:text-[#9DA8D0] text-xs font-bold border border-[#D9DDEC] dark:border-[#313750] flex items-center gap-1">
                         <LineChartIcon className="w-3.5 h-3.5" /> Clinical Reference Line Plot
                       </span>
                     )}
@@ -583,7 +583,7 @@ export const HealthTimelinePage = () => {
                         onClick={() => setSelectedMetric(m)}
                         className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer ${
                           activeMetricName === m 
-                            ? 'bg-[#0F172A] dark:bg-[#0D9488] text-white shadow-xs' 
+                            ? 'bg-[#66729F] dark:bg-[#7C87B8] text-white dark:text-[#172033] shadow-xs' 
                             : 'bg-slate-100 dark:bg-[#25293C] text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-[#2e334a] border border-slate-200/60 dark:border-slate-700/60'
                         }`}
                       >
@@ -639,9 +639,9 @@ export const HealthTimelinePage = () => {
                         <Line 
                           type="monotone" 
                           dataKey="numValue" 
-                          stroke="#0D9488" 
+                          stroke="#66729F" 
                           strokeWidth={3} 
-                          dot={{ r: 5, fill: '#0D9488', stroke: '#ffffff', strokeWidth: 2 }} 
+                          dot={{ r: 5, fill: '#66729F', stroke: '#ffffff', strokeWidth: 2 }} 
                           activeDot={{ r: 7 }} 
                         />
                       </LineChart>
@@ -675,7 +675,7 @@ export const HealthTimelinePage = () => {
                     <div className="bg-slate-50/60 dark:bg-[#161926] p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800">
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-xs font-black text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-                          <LineChartIcon className="w-4 h-4 text-[#0D9488]" />
+                          <LineChartIcon className="w-4 h-4 text-[#66729F] dark:text-[#9DA8D0]" />
                           Clinical Reference Line Plot
                         </span>
                         <span className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold">
@@ -694,7 +694,7 @@ export const HealthTimelinePage = () => {
                                 const item = payload[0].payload;
                                 return (
                                   <div className="bg-[#0F172A] text-white p-3 rounded-xl border border-slate-700 shadow-xl text-xs space-y-1">
-                                    <p className="font-extrabold text-teal-300">{item.label}</p>
+                                    <p className="font-extrabold text-[#C9CEE3]">{item.label}</p>
                                     <p className="text-base font-black">{item.value} {latestDataPoint?.unit}</p>
                                     {item.type === 'patient' ? (
                                       <p className="text-[11px] text-emerald-400 font-medium">Your Measured Reading ({latestDataPoint?.date})</p>
@@ -726,14 +726,14 @@ export const HealthTimelinePage = () => {
                           <Line 
                             type="monotone" 
                             dataKey="value" 
-                            stroke="#0D9488" 
+                            stroke="#66729F" 
                             strokeWidth={3} 
                             dot={(props) => {
                               const { cx, cy, payload } = props;
                               if (!cx || !cy) return null;
                               const isPatient = payload.type === 'patient';
                               const fill = isPatient
-                                ? (activeStatusType === 'normal' ? '#0D9488' : activeStatusType === 'high' ? '#F59E0B' : '#3B82F6')
+                                ? (activeStatusType === 'normal' ? '#66729F' : activeStatusType === 'high' ? '#F59E0B' : '#3B82F6')
                                 : '#94A3B8';
                               return (
                                 <g key={`dot-${payload.label}`}>
@@ -758,10 +758,10 @@ export const HealthTimelinePage = () => {
                     </div>
 
                     {/* Interactive Clinical Range Spectrum Gauge */}
-                    <div className="p-4 rounded-2xl bg-teal-50/50 dark:bg-teal-950/20 border border-teal-200/80 dark:border-teal-800 space-y-3">
+                    <div className="p-4 rounded-2xl bg-[#EEF1FA]/50 dark:bg-[#2C3146]/40 border border-[#D9DDEC] dark:border-[#313750] space-y-3">
                       <div className="flex items-center justify-between flex-wrap gap-2 text-xs font-bold">
-                        <div className="flex items-center gap-1.5 text-teal-950 dark:text-teal-200">
-                          <Activity className="w-4 h-4 text-[#0D9488]" />
+                        <div className="flex items-center gap-1.5 text-[#172033] dark:text-[#F5F7FA]">
+                          <Activity className="w-4 h-4 text-[#66729F] dark:text-[#9DA8D0]" />
                           <span>Clinical Range Visual Spectrum Gauge</span>
                         </div>
                         <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-black ${
@@ -804,7 +804,7 @@ export const HealthTimelinePage = () => {
                       </div>
 
                       {/* Measurement Context Card */}
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 rounded-xl bg-white dark:bg-[#1C1F2E] border border-teal-200/60 dark:border-teal-900 shadow-2xs text-xs">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 rounded-xl bg-white dark:bg-[#1C1F2E] border border-[#D9DDEC] dark:border-[#313750] shadow-2xs text-xs">
                         <div>
                           <span className="text-slate-500 dark:text-slate-400 block text-[11px]">Measured Result</span>
                           <strong className="text-lg font-black text-[#0F172A] dark:text-[#F5F7FA]">
@@ -817,7 +817,7 @@ export const HealthTimelinePage = () => {
                         </div>
                         <div>
                           <span className="text-slate-500 dark:text-slate-400 block text-[11px]">Report Date</span>
-                          <strong className="text-[#0D9488] dark:text-[#2DD4BF] font-bold text-xs">{latestDataPoint?.date}</strong>
+                          <strong className="text-[#66729F] dark:text-[#9DA8D0] font-bold text-xs">{latestDataPoint?.date}</strong>
                         </div>
                       </div>
 
@@ -875,9 +875,9 @@ export const HealthTimelinePage = () => {
                         setSelectedMetric(mName);
                         setDetailModalMetric(mName);
                       }}
-                      className={`p-4 bg-white dark:bg-[#1C1F2E] border rounded-2xl shadow-2xs space-y-2 cursor-pointer transition-all hover:border-[#0D9488] ${
+                      className={`p-4 bg-white dark:bg-[#1C1F2E] border rounded-2xl shadow-2xs space-y-2 cursor-pointer transition-all hover:border-[#66729F] ${
                         activeMetricName === mName 
-                          ? 'border-[#0D9488] ring-1 ring-[#0D9488] bg-slate-50/50 dark:bg-[#25293C]/50' 
+                          ? 'border-[#66729F] dark:border-[#7C87B8] ring-1 ring-[#66729F] dark:ring-[#7C87B8] bg-slate-50/50 dark:bg-[#25293C]/50' 
                           : 'border-slate-200/90 dark:border-slate-800'
                       }`}
                     >
@@ -928,7 +928,7 @@ export const HealthTimelinePage = () => {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
               <div>
                 <h3 className="text-base sm:text-lg font-black text-[#0F172A] dark:text-[#F5F7FA] flex items-center gap-2">
-                  <BarChart3 className="w-5 h-5 text-[#0D9488]" />
+                  <BarChart3 className="w-5 h-5 text-[#66729F] dark:text-[#9DA8D0]" />
                   Tracked Lab Biomarkers Comparative Matrix
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
@@ -962,7 +962,7 @@ export const HealthTimelinePage = () => {
                     }}
                     className={`p-4 rounded-xl border transition-all cursor-pointer ${
                       isSelected
-                        ? 'border-[#0D9488] bg-teal-50/40 dark:bg-teal-950/30 ring-1 ring-[#0D9488]'
+                        ? 'border-[#66729F] dark:border-[#7C87B8] bg-[#EEF1FA]/60 dark:bg-[#2C3146]/50 ring-1 ring-[#66729F] dark:ring-[#7C87B8]'
                         : 'border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-[#161926] hover:border-slate-300 dark:hover:border-slate-700'
                     }`}
                   >
@@ -1046,7 +1046,7 @@ export const HealthTimelinePage = () => {
                     <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">
                       {isExtractionSuccess ? (
                         <>
-                          <strong className="text-[#0F172A] dark:text-[#F5F7FA] font-extrabold">{bCount} biomarkers</strong> • <strong className="text-[#0F172A] dark:text-[#F5F7FA] font-extrabold">{vCount} vitals</strong> • <strong className="text-[#0D9488] font-extrabold">{mCount} medications</strong> extracted
+                          <strong className="text-[#0F172A] dark:text-[#F5F7FA] font-extrabold">{bCount} biomarkers</strong> • <strong className="text-[#0F172A] dark:text-[#F5F7FA] font-extrabold">{vCount} vitals</strong> • <strong className="text-[#66729F] dark:text-[#9DA8D0] font-extrabold">{mCount} medications</strong> extracted
                         </>
                       ) : (
                         "0 biomarkers extracted • Document stored in history"
@@ -1099,7 +1099,7 @@ export const HealthTimelinePage = () => {
                   <XAxis dataKey="date" stroke="#94a3b8" fontSize={10} />
                   <YAxis stroke="#94a3b8" fontSize={10} />
                   <Tooltip contentStyle={{ backgroundColor: '#0F172A', borderRadius: '8px', color: '#fff', fontSize: '11px' }} />
-                  <Line type="monotone" dataKey="numValue" stroke="#0D9488" strokeWidth={2.5} dot={{ r: 4, fill: '#0D9488' }} />
+                  <Line type="monotone" dataKey="numValue" stroke="#66729F" strokeWidth={2.5} dot={{ r: 4, fill: '#66729F' }} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -1118,7 +1118,7 @@ export const HealthTimelinePage = () => {
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" className="dark:stroke-slate-800" />
                   <XAxis dataKey="label" stroke="#94a3b8" fontSize={10} />
                   <YAxis stroke="#94a3b8" fontSize={10} />
-                  <Line type="monotone" dataKey="value" stroke="#0D9488" strokeWidth={2.5} dot={{ r: 5, fill: '#0D9488' }} />
+                  <Line type="monotone" dataKey="value" stroke="#66729F" strokeWidth={2.5} dot={{ r: 5, fill: '#66729F' }} />
                 </LineChart>
               </ResponsiveContainer>
             </div>

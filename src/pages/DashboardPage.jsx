@@ -115,7 +115,7 @@ export const DashboardPage = () => {
                 />
                 <button
                   onClick={saveName}
-                  className="px-3 py-1.5 rounded-lg bg-[#0F172A] dark:bg-[#0D9488] text-white text-xs font-bold flex items-center gap-1 cursor-pointer"
+                  className="px-3 py-1.5 rounded-lg bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-white dark:text-[#172033] text-xs font-bold flex items-center gap-1 cursor-pointer"
                 >
                   <Check className="w-3.5 h-3.5" /> Save
                 </button>
@@ -123,7 +123,7 @@ export const DashboardPage = () => {
             ) : (
               <div className="flex items-center gap-2">
                 <h1 className="text-xl sm:text-2xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight">
-                  {getGreeting()}, <span className="text-[#0D9488]">{userDisplayName}</span>
+                  {getGreeting()}, <span className="text-[#66729F] dark:text-[#9DA8D0]">{userDisplayName}</span>
                 </h1>
                 <button
                   onClick={() => {
@@ -183,7 +183,7 @@ export const DashboardPage = () => {
           <span className="text-xs font-bold text-slate-500 dark:text-[#C8D0E0] block uppercase tracking-wider">Reports</span>
           <div className="flex items-baseline justify-between pt-1">
             <span className="text-2.5xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight">{reportCount}</span>
-            <span className="text-[11px] font-bold text-[#0D9488]">Saved</span>
+            <span className="text-[11px] font-bold text-[#66729F] dark:text-[#9DA8D0]">Saved</span>
           </div>
         </Card>
 
@@ -192,7 +192,7 @@ export const DashboardPage = () => {
           <span className="text-xs font-bold text-slate-500 dark:text-[#C8D0E0] block uppercase tracking-wider">Active Medications</span>
           <div className="flex items-baseline justify-between pt-1">
             <span className="text-2.5xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight">{userMedicines.length}</span>
-            <span className="text-[11px] font-bold text-[#0D9488]">Scheduled</span>
+            <span className="text-[11px] font-bold text-[#66729F] dark:text-[#9DA8D0]">Scheduled</span>
           </div>
         </Card>
 
@@ -211,7 +211,7 @@ export const DashboardPage = () => {
           <span className="text-xs font-bold text-slate-500 dark:text-[#C8D0E0] block uppercase tracking-wider">Tracked Parameters</span>
           <div className="flex items-baseline justify-between pt-1">
             <span className="text-2.5xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight">{totalTrackedParameters}</span>
-            <span className="text-[11px] font-bold text-[#0D9488]">Extracted</span>
+            <span className="text-[11px] font-bold text-[#66729F] dark:text-[#9DA8D0]">Extracted</span>
           </div>
         </Card>
 
@@ -227,14 +227,14 @@ export const DashboardPage = () => {
           <Card className="p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <FileText className="w-5 h-5 text-[#0D9488]" />
+                <FileText className="w-5 h-5 text-[#66729F] dark:text-[#9DA8D0]" />
                 <h3 className="text-base font-black text-[#0F172A] dark:text-[#F5F7FA]">Latest Medical Report</h3>
               </div>
 
               {hasReports && (
                 <button 
                   onClick={() => navigate('/app/reports')}
-                  className="text-xs font-bold text-[#0D9488] hover:underline flex items-center gap-1 cursor-pointer"
+                  className="text-xs font-bold text-[#66729F] dark:text-[#9DA8D0] hover:underline flex items-center gap-1 cursor-pointer"
                 >
                   View All Reports <ChevronRight className="w-3.5 h-3.5" />
                 </button>
@@ -260,7 +260,7 @@ export const DashboardPage = () => {
                   <span className="px-2 py-1 rounded-lg bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-700 font-bold text-[#0F172A] dark:text-[#F5F7FA]">
                     {(latestReport.biomarkers || latestReport.labResults || []).length} biomarkers
                   </span>
-                  <span className="px-2 py-1 rounded-lg bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-700 font-bold text-[#0D9488]">
+                  <span className="px-2 py-1 rounded-lg bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-700 font-bold text-[#66729F] dark:text-[#9DA8D0]">
                     {(latestReport.vitals || []).length} vitals
                   </span>
                   <span className="px-2 py-1 rounded-lg bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-700 font-bold text-slate-700 dark:text-slate-300">
@@ -273,7 +273,7 @@ export const DashboardPage = () => {
                     size="sm"
                     variant="primary"
                     onClick={() => navigate('/app/analysis')}
-                    className="bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#0D9488] dark:hover:bg-[#0b7a6f] text-xs font-bold rounded-xl cursor-pointer text-white"
+                    className="bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-xs font-bold rounded-xl cursor-pointer text-white dark:text-[#172033]"
                   >
                     View Analysis <ArrowRight className="w-3.5 h-3.5 ml-1" />
                   </Button>
@@ -287,7 +287,7 @@ export const DashboardPage = () => {
                   variant="primary"
                   icon={Upload}
                   onClick={() => navigate('/app/upload')}
-                  className="bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#0D9488] dark:hover:bg-[#0b7a6f] text-xs font-bold rounded-xl cursor-pointer text-white"
+                  className="bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-xs font-bold rounded-xl cursor-pointer text-white dark:text-[#172033]"
                 >
                   Upload Medical Report
                 </Button>
@@ -299,13 +299,13 @@ export const DashboardPage = () => {
           <Card className="p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Pill className="w-5 h-5 text-[#0D9488]" />
+                <Pill className="w-5 h-5 text-[#66729F] dark:text-[#9DA8D0]" />
                 <h3 className="text-base font-black text-[#0F172A] dark:text-[#F5F7FA]">Medication Summary</h3>
               </div>
 
               <button 
                 onClick={() => navigate('/app/medicines')}
-                className="text-xs font-bold text-[#0D9488] hover:underline flex items-center gap-1 cursor-pointer"
+                className="text-xs font-bold text-[#66729F] dark:text-[#9DA8D0] hover:underline flex items-center gap-1 cursor-pointer"
               >
                 View Medicines <ChevronRight className="w-3.5 h-3.5" />
               </button>
@@ -313,9 +313,9 @@ export const DashboardPage = () => {
 
             {userMedicines.length > 0 ? (
               <div className="space-y-3">
-                <div className="flex items-center justify-between text-xs p-3 rounded-xl bg-teal-50/60 dark:bg-teal-950/40 border border-teal-200/80 dark:border-teal-800/60">
-                  <span className="font-extrabold text-teal-900 dark:text-teal-200">{userMedicines.length} Active Medication(s) Scheduled</span>
-                  <span className="font-bold text-[#0D9488]">Next dose: {userMedicines[0]?.scheduledTime || userMedicines[0]?.time || '08:00 PM'}</span>
+                <div className="flex items-center justify-between text-xs p-3 rounded-xl bg-[#EEF1FA] dark:bg-[#2C3146] border border-[#D9DDEC] dark:border-[#313750]">
+                  <span className="font-extrabold text-[#172033] dark:text-[#F5F7FA]">{userMedicines.length} Active Medication(s) Scheduled</span>
+                  <span className="font-bold text-[#66729F] dark:text-[#9DA8D0]">Next dose: {userMedicines[0]?.scheduledTime || userMedicines[0]?.time || '08:00 PM'}</span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -325,7 +325,7 @@ export const DashboardPage = () => {
                         <strong className="text-[#0F172A] dark:text-[#F5F7FA] font-black block">{med.name}</strong>
                         <span className="text-slate-500 dark:text-[#C8D0E0] text-[11px]">{med.dose || med.dosage || '1 tablet'} • {med.frequency || 'Daily'}</span>
                       </div>
-                      <span className="text-[#0D9488] font-bold text-[11px]">{med.scheduledTime || med.time || '08:00 AM'}</span>
+                      <span className="text-[#66729F] dark:text-[#9DA8D0] font-bold text-[11px]">{med.scheduledTime || med.time || '08:00 AM'}</span>
                     </div>
                   ))}
                 </div>
@@ -355,13 +355,13 @@ export const DashboardPage = () => {
           <Card className="p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-[#0D9488]" />
+                <TrendingUp className="w-5 h-5 text-[#66729F] dark:text-[#9DA8D0]" />
                 <h3 className="text-base font-black text-[#0F172A] dark:text-[#F5F7FA]">Health Trend</h3>
               </div>
 
               <button 
                 onClick={() => navigate('/app/trends')}
-                className="text-xs font-bold text-[#0D9488] hover:underline flex items-center gap-1 cursor-pointer"
+                className="text-xs font-bold text-[#66729F] dark:text-[#9DA8D0] hover:underline flex items-center gap-1 cursor-pointer"
               >
                 View Trends <ChevronRight className="w-3.5 h-3.5" />
               </button>
@@ -380,7 +380,7 @@ export const DashboardPage = () => {
                   <span className="text-2xl font-black text-[#0F172A] dark:text-[#F5F7FA]">
                     {latestFeaturedReading.value} <span className="text-xs font-normal text-slate-500 dark:text-[#C8D0E0]">{latestFeaturedReading.unit}</span>
                   </span>
-                  <span className="text-[11px] font-bold text-[#0D9488]">{latestFeaturedReading.date || latestReport?.reportDate}</span>
+                  <span className="text-[11px] font-bold text-[#66729F] dark:text-[#9DA8D0]">{latestFeaturedReading.date || latestReport?.reportDate}</span>
                 </div>
 
                 <p className="text-[11px] text-slate-500 dark:text-[#C8D0E0] pt-1">
@@ -400,7 +400,7 @@ export const DashboardPage = () => {
           {/* RECENT ACTIVITY FEED */}
           <Card className="p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs space-y-4">
             <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
-              <Activity className="w-5 h-5 text-[#0D9488]" />
+              <Activity className="w-5 h-5 text-[#66729F] dark:text-[#9DA8D0]" />
               <h3 className="text-base font-black text-[#0F172A] dark:text-[#F5F7FA]">Recent Activity</h3>
             </div>
 
@@ -408,7 +408,7 @@ export const DashboardPage = () => {
               {hasReports ? (
                 userReports.slice(0, 3).map((r, idx) => (
                   <div key={r.id || idx} className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                    <div className="w-7 h-7 rounded-lg bg-teal-50 dark:bg-teal-950/60 text-[#0D9488] flex items-center justify-center shrink-0 mt-0.5 border border-teal-100 dark:border-teal-800">
+                    <div className="w-7 h-7 rounded-lg bg-[#EEF1FA] dark:bg-[#2C3146] text-[#66729F] dark:text-[#9DA8D0] flex items-center justify-center shrink-0 mt-0.5 border border-[#D9DDEC] dark:border-[#313750]">
                       <FileCheck className="w-3.5 h-3.5" />
                     </div>
                     <div className="space-y-0.5 flex-1 min-w-0">

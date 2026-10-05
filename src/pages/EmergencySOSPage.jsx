@@ -526,7 +526,7 @@ export const EmergencySOSPage = () => {
               Offline First-Aid Emergency Guides
             </h3>
           </div>
-          <span className="text-[11px] font-black uppercase tracking-wider text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/60 px-2.5 py-1 rounded-full border border-teal-200 dark:border-teal-800">
+          <span className="text-[11px] font-black uppercase tracking-wider text-[#66729F] dark:text-[#9DA8D0] bg-[#D9DDEC]/40 dark:bg-[#7C87B8]/20 px-2.5 py-1 rounded-full border border-[#AEB7D5]/40 dark:border-[#7C87B8]/40">
             Immediate Bystander Protocols
           </span>
         </div>
@@ -668,7 +668,7 @@ export const EmergencySOSPage = () => {
       <Card className="p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl space-y-4 shadow-sm">
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
           <div className="flex items-center gap-2">
-            <Users className="w-5 h-5 text-[#0D9488] dark:text-[#2DD4BF]" />
+            <Users className="w-5 h-5 text-[#66729F] dark:text-[#9DA8D0]" />
             <h3 className="text-base font-black text-[#0F172A] dark:text-[#F5F7FA]">Designated Emergency Contacts</h3>
           </div>
 
@@ -727,20 +727,20 @@ export const EmergencySOSPage = () => {
       <Card className="p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl space-y-4 shadow-sm">
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
           <div className="flex items-center gap-2">
-            <Building2 className="w-5 h-5 text-[#0D9488] dark:text-[#2DD4BF]" />
+            <Building2 className="w-5 h-5 text-[#66729F] dark:text-[#9DA8D0]" />
             <h3 className="text-base font-black text-[#0F172A] dark:text-[#F5F7FA]">
               {t('liveNearbyEmergencyFacilities') || "Live Nearby Emergency Hospitals & Trauma Centers"}
             </h3>
           </div>
 
-          <span className="text-xs font-bold text-[#0D9488] dark:text-[#2DD4BF] bg-teal-50 dark:bg-teal-950/60 px-3 py-1 rounded-full border border-teal-200 dark:border-teal-800">
+          <span className="text-xs font-bold text-[#66729F] dark:text-[#9DA8D0] bg-[#EEF1FA] dark:bg-[#2C3146] px-3 py-1 rounded-full border border-[#D9DDEC] dark:border-[#313750]">
             {t('sortedByProximity') || "Sorted by Live Proximity"}
           </span>
         </div>
 
         {loadingHospitals ? (
           <div className="py-8 text-center space-y-2">
-            <RefreshCw className="w-6 h-6 text-[#0D9488] animate-spin mx-auto" />
+            <RefreshCw className="w-6 h-6 text-[#66729F] dark:text-[#9DA8D0] animate-spin mx-auto" />
             <p className="text-xs text-slate-500 dark:text-[#C8D0E0] font-medium">Scanning live OpenStreetMap emergency facilities...</p>
           </div>
         ) : nearbyHospitals.length === 0 ? (
@@ -750,7 +750,7 @@ export const EmergencySOSPage = () => {
         ) : (
           <div className="space-y-3 text-xs">
             {nearbyHospitals.slice(0, 6).map((hosp) => (
-              <div key={hosp.id} className="p-4 rounded-xl border border-slate-200/80 dark:border-slate-800 hover:border-[#0D9488] bg-slate-50/60 dark:bg-[#151824] flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all">
+              <div key={hosp.id} className="p-4 rounded-xl border border-slate-200/80 dark:border-slate-800 hover:border-[#66729F] dark:hover:border-[#7C87B8] bg-slate-50/60 dark:bg-[#151824] flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <h4 className="font-black text-sm text-[#0F172A] dark:text-[#F5F7FA]">{hosp.name}</h4>
@@ -774,7 +774,7 @@ export const EmergencySOSPage = () => {
                     href={`https://www.google.com/maps/dir/?api=1&destination=${hosp.lat},${hosp.lng}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-3 py-1.5 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#0D9488] dark:hover:bg-[#0b7a6f] text-white font-bold text-xs cursor-pointer flex items-center gap-1 shadow-2xs"
+                    className="px-3 py-1.5 rounded-xl bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-white dark:text-[#172033] font-bold text-xs cursor-pointer flex items-center gap-1 shadow-2xs"
                   >
                     <Navigation className="w-3.5 h-3.5" /> Directions
                   </a>

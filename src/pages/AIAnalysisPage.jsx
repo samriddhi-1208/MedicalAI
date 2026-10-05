@@ -78,7 +78,7 @@ export const AIAnalysisPage = () => {
               size="md"
               icon={Upload}
               onClick={() => navigate('/app/upload')}
-              className="bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#0D9488] dark:hover:bg-[#0b7a6f] text-white py-3 px-8 text-xs font-bold rounded-xl cursor-pointer shadow-2xs"
+              className="bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-white dark:text-[#172033] py-3 px-8 text-xs font-bold rounded-xl cursor-pointer shadow-2xs"
             >
               {t('uploadMedicalReport')}
             </Button>
@@ -139,8 +139,8 @@ export const AIAnalysisPage = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#0D9488] animate-pulse" />
-              <span className="text-xs text-[#0D9488] font-bold uppercase tracking-wider">{t('statusReportParsed')}</span>
+              <span className="w-2 h-2 rounded-full bg-[#66729F] dark:bg-[#9DA8D0] animate-pulse" />
+              <span className="text-xs text-[#66729F] dark:text-[#9DA8D0] font-bold uppercase tracking-wider">{t('statusReportParsed')}</span>
             </div>
             <h1 className="text-2.5xl font-extrabold text-[#0F172A] tracking-tight mt-0.5">
               {t('aiDiagnosticAnalysis')}
@@ -166,7 +166,7 @@ export const AIAnalysisPage = () => {
               size="sm"
               icon={Upload}
               onClick={() => navigate('/app/upload')}
-              className="bg-[#0F172A] hover:bg-[#1E293B] text-xs font-semibold rounded-xl cursor-pointer"
+              className="bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-white dark:text-[#172033] text-xs font-semibold rounded-xl cursor-pointer"
             >
               {t('uploadNew')}
             </Button>
@@ -175,9 +175,9 @@ export const AIAnalysisPage = () => {
 
         {/* Multi-Report Document Selection Pill */}
         {userReports.length > 1 && (
-          <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-teal-50/80 border border-teal-200 text-xs">
+          <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-[#EEF1FA] dark:bg-[#2C3146] border border-[#D9DDEC] dark:border-[#313750] text-xs">
             <div className="flex items-center gap-2">
-              <FileText className="w-4 h-4 text-[#0D9488] shrink-0" />
+              <FileText className="w-4 h-4 text-[#66729F] dark:text-[#9DA8D0] shrink-0" />
               <span className="font-extrabold text-[#0F172A]">{t('viewingReport')} ({userReports.length} {t('totalReportsSaved')}):</span>
             </div>
             <select
@@ -186,7 +186,7 @@ export const AIAnalysisPage = () => {
                 setSelectedReportId(e.target.value);
                 setActiveReportId(e.target.value);
               }}
-              className="med-input text-xs font-bold text-[#0F172A] bg-white border-teal-300 py-1.5 px-3 rounded-xl shadow-2xs cursor-pointer max-w-xs"
+              className="med-input text-xs font-bold text-[#0F172A] bg-white border-[#D9DDEC] py-1.5 px-3 rounded-xl shadow-2xs cursor-pointer max-w-xs"
             >
               {userReports.map((r, idx) => (
                 <option key={r.id} value={r.id}>
@@ -200,8 +200,8 @@ export const AIAnalysisPage = () => {
 
       {/* Patient Information Banner */}
       <Card className="p-5 bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs space-y-3">
-        <h3 className="text-xs font-bold text-[#0D9488] dark:text-[#2DD4BF] uppercase tracking-wider flex items-center gap-2">
-          <User className="w-4 h-4 text-[#0D9488] dark:text-[#2DD4BF]" /> {t('patientIdentification')}
+        <h3 className="text-xs font-bold text-[#66729F] dark:text-[#9DA8D0] uppercase tracking-wider flex items-center gap-2">
+          <User className="w-4 h-4 text-[#66729F] dark:text-[#9DA8D0]" /> {t('patientIdentification')}
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs p-3.5 rounded-xl bg-slate-50 dark:bg-[#151824] border border-slate-200/80 dark:border-slate-800">
           <div>
@@ -252,16 +252,16 @@ export const AIAnalysisPage = () => {
       <Card className="p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-sm space-y-4">
         <div className="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-teal-50 dark:bg-teal-950/40 border border-teal-200/80 dark:border-teal-800/60 flex items-center justify-center">
-              <Sparkles className="w-4.5 h-4.5 text-[#0D9488] dark:text-[#2DD4BF]" />
+            <div className="w-8 h-8 rounded-xl bg-[#EEF1FA] dark:bg-[#2C3146] border border-[#D9DDEC] dark:border-[#313750] flex items-center justify-center">
+              <Sparkles className="w-4.5 h-4.5 text-[#66729F] dark:text-[#9DA8D0]" />
             </div>
             <div>
               <h2 className="text-base font-black text-[#0F172A] dark:text-[#F5F7FA]">{t('aiClinicalSummary')}</h2>
               <p className="text-[11px] text-slate-500 dark:text-[#C8D0E0] font-medium">Real-time clinical insights structured from extracted report data</p>
             </div>
           </div>
-          <span className="px-3 py-1 rounded-full bg-[#F0FDF4] dark:bg-emerald-950/60 text-[#0D9488] dark:text-[#2DD4BF] font-bold text-xs border border-[#0D9488]/30 dark:border-emerald-800/50 flex items-center gap-1.5 shadow-2xs">
-            <span className="w-2 h-2 rounded-full bg-[#0D9488] dark:bg-[#2DD4BF] animate-pulse"></span>
+          <span className="px-3 py-1 rounded-full bg-[#EEF1FA] dark:bg-[#2C3146] text-[#66729F] dark:text-[#9DA8D0] font-bold text-xs border border-[#D9DDEC] dark:border-[#313750] flex items-center gap-1.5 shadow-2xs">
+            <span className="w-2 h-2 rounded-full bg-[#66729F] dark:bg-[#9DA8D0] animate-pulse"></span>
             {t('extractedFromDoc')}
           </span>
         </div>
@@ -377,18 +377,18 @@ export const AIAnalysisPage = () => {
         <Card id="section-medications" className="p-5 sm:p-6 bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-4 scroll-mt-6">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div>
-              <h3 className="text-base font-black text-[#0F172A] flex items-center gap-2">
-                <Pill className="w-5 h-5 text-[#0D9488]" />
+              <h3 className="text-base font-black text-[#0F172A] dark:text-[#F5F7FA] flex items-center gap-2">
+                <Pill className="w-5 h-5 text-[#66729F] dark:text-[#9DA8D0]" />
                 Extracted Prescription & Medication Findings ({medications.length})
               </h3>
-              <p className="text-xs text-slate-500 font-medium mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-[#C8D0E0] font-medium mt-0.5">
                 AI extracted medicine names, dosage timings, and generated plain-language explanations.
               </p>
             </div>
 
             <button
               onClick={() => navigate('/app/medicines')}
-              className="text-xs font-bold text-[#0D9488] hover:underline flex items-center gap-1 cursor-pointer shrink-0"
+              className="text-xs font-bold text-[#66729F] dark:text-[#9DA8D0] hover:underline flex items-center gap-1 cursor-pointer shrink-0"
             >
               View Medicine Schedule <ArrowRight className="w-3.5 h-3.5" />
             </button>
@@ -402,52 +402,52 @@ export const AIAnalysisPage = () => {
               );
 
               return (
-              <div key={idx} className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3 text-xs">
+              <div key={idx} className="p-4 rounded-2xl bg-slate-50 dark:bg-[#151824] border border-slate-200 dark:border-slate-800 space-y-3 text-xs">
                 <div className="flex justify-between items-start gap-2">
                   <div>
-                    <h4 className="font-black text-sm text-[#0F172A] flex items-center gap-1.5">
+                    <h4 className="font-black text-sm text-[#0F172A] dark:text-[#F5F7FA] flex items-center gap-1.5">
                       <span>💊</span> {m.medicineName || m.name}
                     </h4>
                     {m.genericName && (
-                      <p className="text-[11px] text-slate-500 font-medium mt-0.5">Generic: {m.genericName}</p>
+                      <p className="text-[11px] text-slate-500 dark:text-[#C8D0E0] font-medium mt-0.5">Generic: {m.genericName}</p>
                     )}
                   </div>
-                  <span className="px-3 py-1 rounded-full bg-teal-100 text-teal-800 font-black text-xs shrink-0">
+                  <span className="px-3 py-1 rounded-full bg-[#EEF1FA] dark:bg-[#2C3146] text-[#66729F] dark:text-[#9DA8D0] font-black text-xs shrink-0">
                     {m.dose || m.strength || '1 tablet'}
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 text-xs p-3 rounded-xl bg-white border border-slate-200">
+                <div className="grid grid-cols-2 gap-2 text-xs p-3 rounded-xl bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-800">
                   <div>
-                    <span className="text-slate-500 block text-[11px]">Frequency</span>
-                    <strong className="text-slate-800 font-bold">{m.frequency || 'Once daily'}</strong>
+                    <span className="text-slate-500 dark:text-[#C8D0E0] block text-[11px]">Frequency</span>
+                    <strong className="text-slate-800 dark:text-slate-200 font-bold">{m.frequency || 'Once daily'}</strong>
                   </div>
                   <div>
-                    <span className="text-slate-500 block text-[11px]">Timing & Meal</span>
-                    <strong className="text-[#0D9488] font-bold">{m.mealRelation || 'After meal'} ({m.timing || '08:00 AM'})</strong>
+                    <span className="text-slate-500 dark:text-[#C8D0E0] block text-[11px]">Timing & Meal</span>
+                    <strong className="text-[#66729F] dark:text-[#9DA8D0] font-bold">{m.mealRelation || 'After meal'} ({m.timing || '08:00 AM'})</strong>
                   </div>
                   <div>
-                    <span className="text-slate-500 block text-[11px]">Duration</span>
-                    <strong className="text-slate-800 font-bold">{m.duration || '5 days'}</strong>
+                    <span className="text-slate-500 dark:text-[#C8D0E0] block text-[11px]">Duration</span>
+                    <strong className="text-slate-800 dark:text-slate-200 font-bold">{m.duration || '5 days'}</strong>
                   </div>
                   <div>
-                    <span className="text-slate-500 block text-[11px]">Source</span>
-                    <strong className="text-slate-700 font-bold truncate block">{selectedReport.title || 'Prescription'}</strong>
+                    <span className="text-slate-500 dark:text-[#C8D0E0] block text-[11px]">Source</span>
+                    <strong className="text-slate-700 dark:text-slate-300 font-bold truncate block">{selectedReport.title || 'Prescription'}</strong>
                   </div>
                 </div>
 
                 {/* PLAIN LANGUAGE EXPLANATION BOX */}
-                <div className="p-3 rounded-xl bg-teal-50/90 border border-teal-200/90 text-xs text-teal-950 font-medium space-y-1">
-                  <div className="flex items-center gap-1.5 text-[#0D9488] font-bold text-[11px] uppercase tracking-wider">
-                    <Sparkles className="w-3.5 h-3.5 text-[#0D9488]" /> What this medicine does (Easy Terms):
+                <div className="p-3 rounded-xl bg-[#EEF1FA] dark:bg-[#2C3146] border border-[#D9DDEC] dark:border-[#313750] text-xs text-[#172033] dark:text-[#F5F7FA] font-medium space-y-1">
+                  <div className="flex items-center gap-1.5 text-[#66729F] dark:text-[#9DA8D0] font-bold text-[11px] uppercase tracking-wider">
+                    <Sparkles className="w-3.5 h-3.5 text-[#66729F] dark:text-[#9DA8D0]" /> What this medicine does (Easy Terms):
                   </div>
-                  <p className="text-slate-700 leading-relaxed text-[11px]">
+                  <p className="text-slate-700 dark:text-[#C8D0E0] leading-relaxed text-[11px]">
                     {m.easyExplanation || getEasyMedicineExplanation(m.medicineName || m.name)}
                   </p>
                 </div>
 
                 <div className="flex items-center justify-between pt-1">
-                  <span className="text-[11px] text-slate-500 font-medium">
+                  <span className="text-[11px] text-slate-500 dark:text-[#C8D0E0] font-medium">
                     100% extracted from document OCR text
                   </span>
                   {isScheduled ? (
@@ -475,16 +475,16 @@ export const AIAnalysisPage = () => {
 
       {/* 2. Vital Signs Grid (If extracted) */}
       {vitals.length > 0 && (
-        <Card id="section-vitals" className="p-5 bg-white border border-slate-200/90 rounded-2xl shadow-2xs space-y-3 scroll-mt-6">
-          <h3 className="text-sm font-black text-[#0F172A] flex items-center gap-2">
-            <HeartPulse className="w-4.5 h-4.5 text-[#0D9488]" /> Extracted Vital Signs ({vitals.length})
+        <Card id="section-vitals" className="p-5 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs space-y-3 scroll-mt-6">
+          <h3 className="text-sm font-black text-[#0F172A] dark:text-[#F5F7FA] flex items-center gap-2">
+            <HeartPulse className="w-4.5 h-4.5 text-[#66729F] dark:text-[#9DA8D0]" /> Extracted Vital Signs ({vitals.length})
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
             {vitals.map((v, i) => (
-              <div key={i} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-center space-y-1">
-                <span className="text-slate-500 font-medium block truncate">{v.name}</span>
-                <span className="text-base sm:text-lg font-black text-[#0F172A]">
-                  {v.value} <span className="text-xs font-bold text-slate-600">{v.unit}</span>
+              <div key={i} className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#151824] border border-slate-200 dark:border-slate-800 text-center space-y-1">
+                <span className="text-slate-500 dark:text-[#C8D0E0] font-medium block truncate">{v.name}</span>
+                <span className="text-base sm:text-lg font-black text-[#0F172A] dark:text-[#F5F7FA]">
+                  {v.value} <span className="text-xs font-bold text-slate-600 dark:text-[#C8D0E0]">{v.unit}</span>
                 </span>
               </div>
             ))}
@@ -495,8 +495,8 @@ export const AIAnalysisPage = () => {
       {/* 3. Extracted Lab Results Table (WITH PLAIN LANGUAGE EXPLANATION) */}
       <div id="section-biomarkers" className="space-y-4 scroll-mt-6">
         <div className="flex items-center justify-between">
-          <h3 className="text-base font-black text-[#0F172A]">{t('individualBiomarkerFindings')}</h3>
-          <span className="text-xs font-semibold text-slate-500">
+          <h3 className="text-base font-black text-[#0F172A] dark:text-[#F5F7FA]">{t('individualBiomarkerFindings')}</h3>
+          <span className="text-xs font-semibold text-slate-500 dark:text-[#C8D0E0]">
             {biomarkers.length} {biomarkers.length === 1 ? t('parameterParsed') : t('parametersParsed')}
           </span>
         </div>
@@ -540,8 +540,8 @@ export const AIAnalysisPage = () => {
 
                   {/* PLAIN LANGUAGE EXPLANATION BOX */}
                   <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#151824] border border-slate-200 dark:border-slate-800 text-xs text-slate-800 dark:text-[#F5F7FA] font-medium space-y-1">
-                    <div className="flex items-center gap-1.5 text-[#0D9488] dark:text-[#2DD4BF] font-bold text-[11px] uppercase tracking-wider">
-                      <Sparkles className="w-3.5 h-3.5 text-[#0D9488] dark:text-[#2DD4BF]" /> What this means for you:
+                    <div className="flex items-center gap-1.5 text-[#66729F] dark:text-[#9DA8D0] font-bold text-[11px] uppercase tracking-wider">
+                      <Sparkles className="w-3.5 h-3.5 text-[#66729F] dark:text-[#9DA8D0]" /> What this means for you:
                     </div>
                     <p className="text-slate-600 dark:text-[#C8D0E0] leading-relaxed text-[11px]">
                       {bm.easyExplanation || getEasyBiomarkerExplanation(bm.name || bm.biomarker_name, bm.status || 'Normal', bm.value, bm.unit)}

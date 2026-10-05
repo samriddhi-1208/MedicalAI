@@ -277,8 +277,8 @@ export const ReportUploadPage = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
         <div>
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#0D9488] animate-pulse" />
-            <span className="text-xs text-[#0D9488] font-bold uppercase tracking-wider">AI Medical Intelligence</span>
+            <span className="w-2 h-2 rounded-full bg-[#66729F] dark:bg-[#9DA8D0] animate-pulse" />
+            <span className="text-xs text-[#66729F] dark:text-[#9DA8D0] font-bold uppercase tracking-wider">AI Medical Intelligence</span>
           </div>
           <h1 className="text-2.5xl font-extrabold text-[#0F172A] dark:text-[#F5F7FA] tracking-tight">
             {t('uploadMedicalReport')}
@@ -299,9 +299,9 @@ export const ReportUploadPage = () => {
           onDrop={handleDrop}
           className={`relative border-2 border-dashed rounded-2xl p-8 text-center transition-all cursor-pointer ${
             dragActive 
-              ? 'border-[#0D9488] bg-[#F0FDF4] dark:bg-teal-950/30' 
+              ? 'border-[#66729F] dark:border-[#7C87B8] bg-[#EEF1FA] dark:bg-[#2C3146]' 
               : selectedFile 
-              ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-50/50 dark:bg-emerald-950/20' 
+              ? 'border-[#AEB7D5] dark:border-[#7C87B8] bg-[#EEF1FA]/60 dark:bg-[#2C3146]/60' 
               : 'border-slate-300 dark:border-slate-700 hover:border-slate-400 bg-slate-50/50 dark:bg-[#151824]'
           }`}
         >
@@ -314,12 +314,12 @@ export const ReportUploadPage = () => {
 
           <div className="flex flex-col items-center gap-3">
             <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-transform ${
-              selectedFile ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 dark:bg-[#25293C] text-slate-600 dark:text-[#AAB4E8]'
+              selectedFile ? 'bg-[#EEF1FA] dark:bg-[#2C3146] text-[#66729F] dark:text-[#9DA8D0]' : 'bg-slate-100 dark:bg-[#25293C] text-slate-600 dark:text-[#AAB4E8]'
             }`}>
               {selectedFile ? (
-                <FileText className="w-7 h-7 text-emerald-700" />
+                <FileText className="w-7 h-7 text-[#66729F] dark:text-[#9DA8D0]" />
               ) : (
-                <Upload className="w-7 h-7 text-[#0D9488]" />
+                <Upload className="w-7 h-7 text-[#66729F] dark:text-[#9DA8D0]" />
               )}
             </div>
 
@@ -333,7 +333,7 @@ export const ReportUploadPage = () => {
             ) : (
               <div className="space-y-1">
                 <p className="text-sm font-bold text-[#0F172A] dark:text-[#F5F7FA]">
-                  Drag and drop your medical report here, or <span className="text-[#0D9488] underline">browse files</span>
+                  Drag and drop your medical report here, or <span className="text-[#66729F] dark:text-[#9DA8D0] underline">browse files</span>
                 </p>
                 <p className="text-xs text-slate-500 dark:text-[#C8D0E0] font-normal">
                   Supports PDF, PNG, JPG (Max 15MB). Instant SHA-256 duplicate detection.
@@ -348,7 +348,7 @@ export const ReportUploadPage = () => {
           <Button
             onClick={handleUploadAndAnalyze}
             disabled={!selectedFile || uploading}
-            className="w-full py-3.5 bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#52857C] dark:hover:bg-[#45726A] text-white font-extrabold text-sm rounded-xl shadow-md cursor-pointer flex items-center justify-center gap-2"
+            className="w-full py-3.5 bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-white dark:text-[#172033] font-extrabold text-sm rounded-xl shadow-md cursor-pointer flex items-center justify-center gap-2"
           >
             {uploading ? (
               <>
@@ -357,7 +357,7 @@ export const ReportUploadPage = () => {
               </>
             ) : (
               <>
-                <Sparkles className="w-4 h-4 text-[#0D9488]" />
+                <Sparkles className="w-4 h-4 text-white dark:text-[#172033]" />
                 <span>Upload & Run AI Diagnostic Analysis</span>
               </>
             )}
@@ -368,11 +368,11 @@ export const ReportUploadPage = () => {
             <div className="space-y-2 p-4 rounded-xl bg-slate-50 border border-slate-200">
               <div className="flex items-center justify-between text-xs font-bold text-slate-700">
                 <span>Parsing Progress</span>
-                <span className="text-[#0D9488]">{activeStep * 20}%</span>
+                <span className="text-[#66729F] dark:text-[#9DA8D0]">{activeStep * 20}%</span>
               </div>
               <div className="w-full h-2 rounded-full bg-slate-200 overflow-hidden">
                 <div 
-                  className="h-full bg-[#0D9488] transition-all duration-300 rounded-full"
+                  className="h-full bg-[#66729F] dark:bg-[#7C87B8] transition-all duration-300 rounded-full"
                   style={{ width: `${activeStep * 20}%` }}
                 />
               </div>
@@ -447,9 +447,9 @@ export const ReportUploadPage = () => {
                 setIsDuplicateModalOpen(false);
                 navigate('/app/analysis');
               }}
-              className="px-5 py-2.5 rounded-lg bg-[#0F172A] hover:bg-[#1E293B] text-white font-extrabold text-xs cursor-pointer shadow-sm flex items-center justify-center gap-1.5"
+              className="px-5 py-2.5 rounded-lg bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-white dark:text-[#172033] font-extrabold text-xs cursor-pointer shadow-sm flex items-center justify-center gap-1.5"
             >
-              <FileText className="w-4 h-4 text-[#0D9488]" />
+              <FileText className="w-4 h-4 text-white dark:text-[#172033]" />
               <span>View Existing Report</span>
             </button>
           </div>
@@ -463,11 +463,11 @@ export const ReportUploadPage = () => {
         title="Medication Instructions Found in Report"
       >
         <div className="space-y-4 text-xs font-sans">
-          <div className="p-3.5 rounded-xl bg-slate-100 border border-slate-200 text-[#0F172A] flex items-center gap-3">
-            <Pill className="w-6 h-6 text-[#0D9488] shrink-0" />
+          <div className="p-3.5 rounded-xl bg-slate-100 dark:bg-[#2C3146] border border-slate-200 dark:border-[#313750] text-[#0F172A] dark:text-[#F5F7FA] flex items-center gap-3">
+            <Pill className="w-6 h-6 text-[#66729F] dark:text-[#9DA8D0] shrink-0" />
             <div>
               <p className="font-black text-sm">Verify Extracted Medications</p>
-              <p className="text-[11px] text-slate-600 font-normal">
+              <p className="text-[11px] text-slate-600 dark:text-[#C8D0E0] font-normal">
                 Review dosages and reminder times before saving to your schedule.
               </p>
             </div>
@@ -476,36 +476,36 @@ export const ReportUploadPage = () => {
           {/* Medication Cards List */}
           <div className="space-y-3 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
             {pendingMedications.map((med, idx) => (
-              <Card key={med.id || idx} className="p-4 border border-slate-200 bg-white space-y-2.5 rounded-xl shadow-2xs">
+              <Card key={med.id || idx} className="p-4 border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1C1F2E] space-y-2.5 rounded-xl shadow-2xs">
                 <div className="flex justify-between items-start">
                   <div>
-                    <h4 className="font-black text-sm text-[#0F172A] flex items-center gap-1.5">
+                    <h4 className="font-black text-sm text-[#0F172A] dark:text-[#F5F7FA] flex items-center gap-1.5">
                       💊 {med.medicineName}
                     </h4>
-                    <p className="text-xs text-slate-500 font-bold">{med.dose} • {med.quantity}</p>
+                    <p className="text-xs text-slate-500 dark:text-[#C8D0E0] font-bold">{med.dose} • {med.quantity}</p>
                   </div>
 
                   <div className="flex gap-1 shrink-0">
                     <button
                       onClick={() => handleOpenEditMed(med, idx)}
-                      className="px-2.5 py-1.5 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 text-[11px] font-bold cursor-pointer inline-flex items-center gap-1 min-h-[36px]"
+                      className="px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-[#25293C] text-slate-700 dark:text-[#F5F7FA] hover:bg-slate-200 text-[11px] font-bold cursor-pointer inline-flex items-center gap-1 min-h-[36px]"
                     >
-                      <Edit2 className="w-3.5 h-3.5 text-[#0D9488]" /> Edit
+                      <Edit2 className="w-3.5 h-3.5 text-[#66729F] dark:text-[#9DA8D0]" /> Edit
                     </button>
                     <button
                       onClick={() => handleRemovePendingMed(idx)}
-                      className="px-2.5 py-1.5 rounded-lg bg-rose-50 text-rose-700 hover:bg-rose-100 text-[11px] font-bold cursor-pointer inline-flex items-center gap-1 min-h-[36px]"
+                      className="px-2.5 py-1.5 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 hover:bg-rose-100 text-[11px] font-bold cursor-pointer inline-flex items-center gap-1 min-h-[36px]"
                     >
                       <Trash2 className="w-3.5 h-3.5 text-[#DC2626]" /> Remove
                     </button>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-2.5 rounded-lg bg-slate-50 border border-slate-200/80 text-[11px]">
-                  <p><span className="text-slate-500">Frequency:</span> <strong className="text-[#0F172A] font-bold">{med.frequency}</strong></p>
-                  <p><span className="text-slate-500">Meal Relation:</span> <strong className="text-slate-800 font-semibold">{med.mealRelation} ({med.mealType})</strong></p>
-                  <p><span className="text-slate-500">Duration:</span> <strong className="text-slate-800 font-semibold">{med.duration}</strong></p>
-                  <p><span className="text-slate-500">Scheduled Time:</span> <strong className="text-[#0D9488] font-bold">{med.timing || med.scheduled_time || '08:00 AM'}</strong></p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-2.5 rounded-lg bg-slate-50 dark:bg-[#151824] border border-slate-200/80 dark:border-slate-800 text-[11px]">
+                  <p><span className="text-slate-500 dark:text-[#C8D0E0]">Frequency:</span> <strong className="text-[#0F172A] dark:text-[#F5F7FA] font-bold">{med.frequency}</strong></p>
+                  <p><span className="text-slate-500 dark:text-[#C8D0E0]">Meal Relation:</span> <strong className="text-slate-800 dark:text-slate-200 font-semibold">{med.mealRelation} ({med.mealType})</strong></p>
+                  <p><span className="text-slate-500 dark:text-[#C8D0E0]">Duration:</span> <strong className="text-slate-800 dark:text-slate-200 font-semibold">{med.duration}</strong></p>
+                  <p><span className="text-slate-500 dark:text-[#C8D0E0]">Scheduled Time:</span> <strong className="text-[#66729F] dark:text-[#9DA8D0] font-bold">{med.timing || med.scheduled_time || '08:00 AM'}</strong></p>
                 </div>
               </Card>
             ))}

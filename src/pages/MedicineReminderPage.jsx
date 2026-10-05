@@ -167,11 +167,11 @@ export const MedicineReminderPage = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#0D9488] animate-pulse" />
-            <span className="text-xs text-[#0D9488] font-extrabold uppercase tracking-wider">{t('prescriptionScheduleBadge')}</span>
+            <span className="w-2 h-2 rounded-full bg-[#66729F] dark:bg-[#9DA8D0] animate-pulse" />
+            <span className="text-xs text-[#66729F] dark:text-[#9DA8D0] font-extrabold uppercase tracking-wider">{t('prescriptionScheduleBadge')}</span>
           </div>
           <h1 className="text-2.5xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight mt-0.5 flex items-center gap-2.5">
-            <Pill className="w-7 h-7 text-[#0D9488] dark:text-[#2DD4BF]" /> {t('todaysMedicationSchedule')}
+            <Pill className="w-7 h-7 text-[#66729F] dark:text-[#9DA8D0]" /> {t('todaysMedicationSchedule')}
           </h1>
           <p className="text-xs font-normal text-slate-500 dark:text-[#C8D0E0] mt-0.5">
             {t('confirmedPrescriptionsSub')}
@@ -261,8 +261,8 @@ export const MedicineReminderPage = () => {
       {/* REQUIREMENT 16: NEW USER EMPTY STATE (0 MEDICATIONS) */}
       {!hasMedicines && (
         <Card className="p-8 sm:p-12 text-center bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs space-y-5 max-w-2xl mx-auto my-6">
-          <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-[#25293C] text-[#0D9488] flex items-center justify-center mx-auto border border-slate-200 dark:border-slate-700">
-            <Pill className="w-8 h-8 text-[#0D9488]" />
+          <div className="w-16 h-16 rounded-2xl bg-[#EEF1FA] dark:bg-[#2C3146] text-[#66729F] dark:text-[#9DA8D0] flex items-center justify-center mx-auto border border-[#D9DDEC] dark:border-[#313750]">
+            <Pill className="w-8 h-8 text-[#66729F] dark:text-[#9DA8D0]" />
           </div>
           
           <div className="space-y-2 max-w-lg mx-auto">
@@ -449,10 +449,10 @@ export const MedicineReminderPage = () => {
 
       {/* REQUIREMENT 20: MEDICATION HISTORY LOG */}
       {hasMedicines && (
-        <Card className="p-6 space-y-4 bg-white border border-slate-200/90 rounded-2xl shadow-2xs">
+        <Card className="p-6 space-y-4 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs">
           <div className="flex items-center justify-between">
-            <h3 className="text-base font-black text-[#0F172A] flex items-center gap-2">
-              <History className="w-4.5 h-4.5 text-[#0D9488]" /> Medication History Log
+            <h3 className="text-base font-black text-[#0F172A] dark:text-[#F5F7FA] flex items-center gap-2">
+              <History className="w-4.5 h-4.5 text-[#66729F] dark:text-[#9DA8D0]" /> Medication History Log
             </h3>
           </div>
 

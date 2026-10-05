@@ -52,8 +52,8 @@ export const ForgotPasswordPage = () => {
           
           {submitted ? (
             <div className="text-center space-y-5 animate-in fade-in duration-200 py-2">
-              <div className="w-14 h-14 rounded-2xl bg-teal-50 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-900 text-[var(--color-accent-dark)] flex items-center justify-center mx-auto shadow-2xs">
-                <CheckCircle2 className="w-7 h-7 text-[#0D9488]" />
+              <div className="w-14 h-14 rounded-2xl bg-[#D9DDEC]/50 dark:bg-[#7C87B8]/20 border border-[#AEB7D5]/40 dark:border-[#7C87B8]/40 text-[#66729F] dark:text-[#9DA8D0] flex items-center justify-center mx-auto shadow-2xs">
+                <CheckCircle2 className="w-7 h-7 text-[#66729F] dark:text-[#9DA8D0]" />
               </div>
               
               <div className="space-y-1.5">

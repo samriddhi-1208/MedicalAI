@@ -158,32 +158,32 @@ export const ProfilePage = () => {
       {/* Profile Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-2xl bg-[#0F172A] text-white font-black text-2xl flex items-center justify-center border-2 border-[#0D9488] shadow-md shrink-0">
+          <div className="w-16 h-16 rounded-2xl bg-[#0F172A] text-white font-black text-2xl flex items-center justify-center border-2 border-[#66729F] dark:border-[#7C87B8] shadow-md shrink-0">
             {formData.name ? formData.name.charAt(0).toUpperCase() : 'P'}
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#0D9488] animate-pulse" />
-              <span className="text-xs text-[#0D9488] font-bold uppercase tracking-wider">Patient Identity Baseline</span>
+              <span className="w-2 h-2 rounded-full bg-[#66729F] dark:bg-[#9DA8D0] animate-pulse" />
+              <span className="text-xs text-[#66729F] dark:text-[#9DA8D0] font-bold uppercase tracking-wider">Patient Identity Baseline</span>
             </div>
-            <h1 className="text-2.5xl font-extrabold text-[#0F172A] tracking-tight">
+            <h1 className="text-2.5xl font-extrabold text-[#0F172A] dark:text-[#F5F7FA] tracking-tight">
               {t('personalHealthProfile')}
             </h1>
-            <p className="text-xs text-slate-500 font-normal mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-[#C8D0E0] font-normal mt-0.5">
               {t('personalHealthSubtitle')}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="px-3 py-1.5 rounded-full bg-teal-50 text-[#0D9488] text-xs font-bold border border-teal-200 shrink-0 flex items-center gap-1.5">
-            <ShieldCheck className="w-4 h-4 text-[#0D9488]" /> {t('authenticatedSession')}
+          <span className="px-3 py-1.5 rounded-full bg-[#EEF1FA] dark:bg-[#2C3146] text-[#66729F] dark:text-[#9DA8D0] text-xs font-bold border border-[#D9DDEC] dark:border-[#313750] shrink-0 flex items-center gap-1.5">
+            <ShieldCheck className="w-4 h-4 text-[#66729F] dark:text-[#9DA8D0]" /> {t('authenticatedSession')}
           </span>
           <button
             onClick={handleSaveProfile}
-            className="px-4 py-2 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white font-extrabold text-xs flex items-center gap-1.5 shadow-md cursor-pointer transition-all shrink-0"
+            className="px-4 py-2 rounded-xl bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-white dark:text-[#172033] font-extrabold text-xs flex items-center gap-1.5 shadow-md cursor-pointer transition-all shrink-0"
           >
-            <Save className="w-3.5 h-3.5 text-[#0D9488]" />
+            <Save className="w-3.5 h-3.5 text-white dark:text-[#172033]" />
             <span>{t('save')}</span>
           </button>
         </div>
@@ -192,9 +192,9 @@ export const ProfilePage = () => {
       <form onSubmit={handleSaveProfile} className="space-y-6">
 
         {/* 1. Personal Information */}
-        <Card className="p-6 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-4">
-          <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-            <User className="w-5 h-5 text-[#0D9488]" />
+        <Card className="p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs space-y-4">
+          <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+            <User className="w-5 h-5 text-[#66729F] dark:text-[#9DA8D0]" />
             <h3 className="text-base font-extrabold text-[#0F172A]">{t('personalInformation')}</h3>
           </div>
 
@@ -267,10 +267,10 @@ export const ProfilePage = () => {
         </Card>
 
         {/* 2. Physical & Health Information (WITH STRICT UNIT-INPUT-GROUP FIX) */}
-        <Card className="p-6 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-4">
-          <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-            <Heart className="w-5 h-5 text-[#0D9488]" />
-            <h3 className="text-base font-extrabold text-[#0F172A]">{t('physicalHealthBaseline')}</h3>
+        <Card className="p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs space-y-4">
+          <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+            <Heart className="w-5 h-5 text-[#66729F] dark:text-[#9DA8D0]" />
+            <h3 className="text-base font-extrabold text-[#0F172A] dark:text-[#F5F7FA]">{t('physicalHealthBaseline')}</h3>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
@@ -364,19 +364,19 @@ export const ProfilePage = () => {
         </Card>
 
         {/* 3. Location & Geographic Metadata */}
-        <Card className="p-6 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+        <Card className="p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
             <div className="flex items-center gap-2">
-              <MapPin className="w-5 h-5 text-[#0D9488]" />
-              <h3 className="text-base font-extrabold text-[#0F172A]">{t('location')}</h3>
+              <MapPin className="w-5 h-5 text-[#66729F] dark:text-[#9DA8D0]" />
+              <h3 className="text-base font-extrabold text-[#0F172A] dark:text-[#F5F7FA]">{t('location')}</h3>
             </div>
             <button
               type="button"
               onClick={handleUseCurrentLocation}
               disabled={locLoading}
-              className="px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs self-start sm:self-auto transition-colors"
+              className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#25293C] hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-[#F5F7FA] text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs self-start sm:self-auto transition-colors"
             >
-              <Compass className={`w-3.5 h-3.5 text-[#0D9488] ${locLoading ? 'animate-spin' : ''}`} />
+              <Compass className={`w-3.5 h-3.5 text-[#66729F] dark:text-[#9DA8D0] ${locLoading ? 'animate-spin' : ''}`} />
               <span>{locLoading ? t('locating') : t('useCurrentLocation')}</span>
             </button>
           </div>
@@ -476,9 +476,9 @@ export const ProfilePage = () => {
         <div className="flex items-center justify-end gap-3 pt-2">
           <button
             type="submit"
-            className="px-6 py-3 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white font-extrabold text-sm flex items-center gap-2 shadow-md cursor-pointer transition-all"
+            className="px-6 py-3 rounded-xl bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-white dark:text-[#172033] font-extrabold text-sm flex items-center gap-2 shadow-md cursor-pointer transition-all"
           >
-            <Save className="w-4 h-4 text-[#0D9488]" />
+            <Save className="w-4 h-4 text-white dark:text-[#172033]" />
             <span>{t('saveProfileDetails')}</span>
           </button>
         </div>

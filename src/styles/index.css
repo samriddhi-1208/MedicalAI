@@ -5,83 +5,83 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  /* LIGHT MODE TOKENS — High-Contrast Healthcare Palette */
-  --bg-primary: #F8FAFC;
+  /* LIGHT MODE TOKENS — Calm Muted Blue/Lavender Healthcare Palette */
+  --bg-primary: #F7F8FC;
   --bg-surface: #FFFFFF;
-  --bg-surface-subtle: #F1F5F9;
+  --bg-surface-subtle: #EEF1FA;
 
-  --color-primary: #0D9488; /* medical teal */
-  --color-primary-hover: #0F766E;
-  --color-primary-light: #F0FDFA;
+  --color-primary: #66729F; /* primary accent: calm muted blue/lavender */
+  --color-primary-hover: #55608B;
+  --color-primary-light: #EEF1FA;
 
-  --color-secondary: #E2E8F0;
-  --color-secondary-hover: #CBD5E1;
+  --color-secondary: #D9DDEC; /* secondary accent */
+  --color-secondary-hover: #C5CBDD;
 
-  --color-accent: #14B8A6;
-  --color-accent-hover: #0D9488;
-  --color-accent-dark: #0F766E;
+  --color-accent: #AEB7D5; /* soft accent / highlight */
+  --color-accent-hover: #9DA8D0;
+  --color-accent-dark: #66729F;
 
-  --text-main: #0F172A; /* deep bold slate/navy for maximum contrast */
-  --text-muted: #475569; /* clear readable slate-600 */
-  --text-subtle: #64748B; /* distinct slate-500 */
+  --text-main: #172033; /* main text: calm deep navy/slate */
+  --text-muted: #526078; /* secondary text: calm muted slate */
+  --text-subtle: #748299;
 
-  --border-color: #E2E8F0;
-  --border-color-hover: #CBD5E1;
+  --border-color: #D9DDEC;
+  --border-color-hover: #C5CBDD;
 
   /* STATUS & MEDICAL ALERTS */
-  --status-normal: #15803D;
-  --status-normal-bg: #DCFCE7;
-  --status-warning: #B45309;
-  --status-warning-bg: #FEF3C7;
+  --status-normal: #4B7D6C;
+  --status-normal-bg: #E8F2EE;
+  --status-warning: #A67C38;
+  --status-warning-bg: #F9F3E8;
   --status-critical: #B91C1C;
   --status-critical-bg: #FEE2E2;
-  --status-info: #1D4ED8;
-  --status-info-bg: #DBEAFE;
+  --status-info: #66729F;
+  --status-info-bg: #EEF1FA;
 
-  --focus-ring: 0 0 0 2px #0D9488;
+  --focus-ring: 0 0 0 2px #66729F;
 }
 
 .dark {
-  /* DARK MODE TOKENS */
-  --bg-primary: #12141D;
-  --bg-surface: #1C1F2E;
-  --bg-surface-subtle: #25293C;
+  /* DARK MODE TOKENS — Calm Muted Blue/Lavender Healthcare Palette */
+  --bg-primary: #1B1E2D;
+  --bg-surface: #24283A;
+  --bg-surface-subtle: #2C3146;
 
-  --color-primary: #AAB4E8; /* light lavender */
-  --color-primary-hover: #BCC4F0;
-  --color-primary-light: #292D40;
+  --color-primary: #7C87B8; /* primary accent: soft blue/lavender */
+  --color-primary-hover: #8F99C8;
+  --color-primary-light: #2C3146;
 
-  --color-secondary: #292D40; /* deep blue-charcoal */
-  --color-secondary-hover: #353A52;
+  --color-secondary: #C9CEE3; /* secondary accent */
+  --color-secondary-hover: #DDE1F0;
 
-  --color-accent: #8BC7B5; /* muted sage green */
-  --color-accent-hover: #A1D4C5;
-  --color-accent-dark: #64A895;
+  --color-accent: #9DA8D0; /* soft accent / highlight */
+  --color-accent-hover: #AEB7D5;
+  --color-accent-dark: #7C87B8;
 
-  --text-main: #F1F3F9;
-  --text-muted: #949DB3;
-  --text-subtle: #70788C;
+  --text-main: #F5F7FA; /* main text */
+  --text-muted: #C8D0E0; /* secondary text */
+  --text-subtle: #96A0B8;
 
-  --border-color: #2E3346;
-  --border-color-hover: #3F465E;
+  --border-color: #313750;
+  --border-color-hover: #3E4564;
 
   /* STATUS & MEDICAL ALERTS IN DARK MODE */
-  --status-normal: #4ADE80;
-  --status-normal-bg: #143324;
-  --status-warning: #FBBF24;
-  --status-warning-bg: #3D2912;
-  --status-critical: #F87171;
+  --status-normal: #7EAFA0;
+  --status-normal-bg: #1B2D26;
+  --status-warning: #D6B86A;
+  --status-warning-bg: #322B18;
+  --status-critical: #EF4444;
   --status-critical-bg: #3D1919;
-  --status-info: #60A5FA;
-  --status-info-bg: #172A46;
+  --status-info: #9DA8D0;
+  --status-info-bg: #262B40;
 
-  --focus-ring: 0 0 0 2px #AAB4E8;
+  --focus-ring: 0 0 0 2px #7C87B8;
 }
 
 /* ==========================================================================
    LIGHT MODE HIGH-CONTRAST ACCESSIBILITY SYSTEM
-   Guarantees deep bold slate (#0F172A) headings, readable slate (#475569)
-   subtext, crisp white surfaces, and bold numbers across all pages.
+   Guarantees deep bold slate (#172033) headings, readable slate (#526078)
+   subtext, crisp white surfaces, and accessible contrast across all pages.
    ========================================================================== */
 
 html:not(.dark) h1,
@@ -90,36 +90,37 @@ html:not(.dark) h3,
 html:not(.dark) h4,
 html:not(.dark) h5,
 html:not(.dark) h6 {
-  color: #0F172A;
+  color: #172033;
 }
 
-html:not(.dark) .text-\[\#0F172A\] {
-  color: #0F172A !important;
+html:not(.dark) .text-\[\#0F172A\],
+html:not(.dark) .text-\[\#172033\] {
+  color: #172033 !important;
 }
 
 html:not(.dark) strong {
-  color: #0F172A;
+  color: #172033;
 }
 
 html:not(.dark) label {
-  color: #334155;
+  color: #24304A;
 }
 
 html:not(.dark) .text-slate-500 {
-  color: #64748B !important;
+  color: #526078 !important;
 }
 
 html:not(.dark) .text-slate-600 {
-  color: #475569 !important;
+  color: #526078 !important;
 }
 
 html:not(.dark) .text-slate-700 {
-  color: #334155 !important;
+  color: #334058 !important;
 }
 
 html:not(.dark) .text-slate-800,
 html:not(.dark) .text-slate-900 {
-  color: #0F172A !important;
+  color: #172033 !important;
 }
 
 html:not(.dark) .bg-white {
@@ -127,20 +128,43 @@ html:not(.dark) .bg-white {
 }
 
 html:not(.dark) .bg-slate-50 {
-  background-color: #F8FAFC !important;
+  background-color: #F7F8FC !important;
 }
 
 html:not(.dark) .border-slate-200,
 html:not(.dark) .border-slate-200\/80,
 html:not(.dark) .border-slate-200\/90 {
-  border-color: #E2E8F0 !important;
+  border-color: #D9DDEC !important;
+}
+
+/* Light mode primary accents (calm muted blue/lavender) */
+html:not(.dark) .text-\[\#0D9488\],
+html:not(.dark) .text-teal-600,
+html:not(.dark) .text-teal-700 {
+  color: #66729F !important;
+}
+
+html:not(.dark) .bg-\[\#0D9488\],
+html:not(.dark) .bg-teal-600 {
+  background-color: #66729F !important;
+}
+
+html:not(.dark) .border-\[\#0D9488\],
+html:not(.dark) .border-teal-200,
+html:not(.dark) .border-teal-300 {
+  border-color: #D9DDEC !important;
+}
+
+html:not(.dark) .bg-teal-50,
+html:not(.dark) .bg-teal-50\/60,
+html:not(.dark) .bg-teal-50\/90 {
+  background-color: #EEF1FA !important;
 }
 
 /* ==========================================================================
    DARK MODE HIGH-CONTRAST ACCESSIBILITY SYSTEM
-   Guarantees near-white (#F5F7FA) headings, readable light slate (#C8D0E0)
-   labels/subtext, bright teal (#2DD4BF) accents, and dark navy card surfaces
-   across all portals, modals, and views in dark mode.
+   Guarantees near-white (#F5F7FA) headings, readable soft slate (#C8D0E0)
+   labels/subtext, soft lavender/blue (#9DA8D0) accents, and #24283A card surfaces.
    ========================================================================== */
 
 .dark h1,
@@ -158,6 +182,7 @@ html:not(.dark) .border-slate-200\/90 {
 
 /* Force dark-mode readability for elements with hardcoded light-mode text colors */
 .dark .text-\[\#0F172A\],
+.dark .text-\[\#172033\],
 .dark .text-slate-900,
 .dark .text-slate-800,
 .dark .text-slate-700,
@@ -181,16 +206,31 @@ html:not(.dark) .border-slate-200\/90 {
   color: #F5F7FA;
 }
 
-/* Bright accessible teal and emerald accents on dark backgrounds */
+/* Soft accessible lavender / muted blue accents on dark backgrounds */
 .dark .text-\[\#0D9488\],
+.dark .text-teal-400,
+.dark .text-teal-500,
 .dark .text-teal-600,
-.dark .text-teal-700 {
-  color: #2DD4BF !important;
+.dark .text-teal-700,
+.dark .text-\[\#2DD4BF\] {
+  color: #9DA8D0 !important;
 }
 
-/* Ensure background cards in dark mode adhere to surface tokens instead of blinding white */
-.dark .bg-white {
-  background-color: var(--bg-surface) !important;
+.dark .bg-\[\#0D9488\],
+.dark .bg-teal-600,
+.dark .bg-teal-700 {
+  background-color: #7C87B8 !important;
+  color: #172033 !important;
+}
+
+/* Ensure background cards in dark mode adhere to surface tokens #24283A */
+.dark .bg-white,
+.dark .bg-\[\#1C1F2E\] {
+  background-color: #24283A !important;
+}
+
+.dark .bg-\[\#12141D\] {
+  background-color: #1B1E2D !important;
 }
 
 .dark .bg-slate-50,
@@ -198,8 +238,18 @@ html:not(.dark) .border-slate-200\/90 {
 .dark .bg-slate-50\/60,
 .dark .bg-slate-50\/80,
 .dark .bg-slate-50\/90,
-.dark .bg-slate-100 {
-  background-color: var(--bg-surface-subtle) !important;
+.dark .bg-slate-100,
+.dark .bg-\[\#25293C\],
+.dark .bg-\[\#151824\] {
+  background-color: #2C3146 !important;
+}
+
+.dark .bg-teal-50,
+.dark .bg-teal-950,
+.dark .bg-teal-950\/30,
+.dark .bg-teal-950\/40,
+.dark .bg-teal-950\/60 {
+  background-color: #2C3146 !important;
 }
 
 /* Prevent hover states from reverting to blinding light/white backgrounds in dark mode */
@@ -207,7 +257,7 @@ html:not(.dark) .border-slate-200\/90 {
 .dark .hover\:bg-slate-100:hover,
 .dark .hover\:bg-slate-200:hover,
 .dark .hover\:bg-white:hover {
-  background-color: var(--bg-surface-subtle) !important;
+  background-color: #2C3146 !important;
   color: #F5F7FA !important;
 }
 
@@ -215,20 +265,23 @@ html:not(.dark) .border-slate-200\/90 {
 .dark .border-slate-200,
 .dark .border-slate-200\/80,
 .dark .border-slate-200\/90,
-.dark .border-slate-300 {
-  border-color: var(--border-color) !important;
+.dark .border-slate-300,
+.dark .border-slate-700,
+.dark .border-slate-800,
+.dark .border-teal-800,
+.dark .border-teal-900 {
+  border-color: #313750 !important;
 }
 
 /* ==========================================================================
    MEDGUARDIAN AI — MUTED HEALTHCARE CONTROLS & CALM PALETTES
-   Softer action colors that eliminate loud/"chatak" saturation in both modes
    ========================================================================== */
 
 /* 1. Mark as Taken Button — Muted Healthcare Teal/Sage */
 [class*="bg-[#6FA89E]"],
 button.bg-\[\#6FA89E\] {
   background-color: #6FA89E !important;
-  color: #0F172A !important;
+  color: #172033 !important;
 }
 [class*="bg-[#6FA89E]"]:hover,
 button.bg-\[\#6FA89E\]:hover {
@@ -246,16 +299,17 @@ button.bg-\[\#D6B86A\]:hover {
   background-color: #C5A85D !important;
 }
 
-/* In dark mode, primary action buttons switch to calm, muted healthcare slate-teal */
-.dark button.bg-\[\#0F172A\]:not([class*="bg-[#6FA89E]"]):not([class*="bg-[#D6B86A]"]),
-.dark a.bg-\[\#0F172A\]:not([class*="bg-[#6FA89E]"]):not([class*="bg-[#D6B86A]"]) {
-  background-color: #52857C !important;
-  color: #FFFFFF !important;
+/* In dark mode, primary action buttons switch to calm, muted lavender/blue #7C87B8 */
+.dark button.bg-\[\#0F172A\]:not([class*="bg-[#6FA89E]"]):not([class*="bg-[#D6B86A]"]):not([class*="bg-red-"]):not([class*="bg-[#DC2626]"]):not([class*="bg-emerald-"]),
+.dark a.bg-\[\#0F172A\]:not([class*="bg-[#6FA89E]"]):not([class*="bg-[#D6B86A]"]):not([class*="bg-red-"]):not([class*="bg-[#DC2626]"]):not([class*="bg-emerald-"]) {
+  background-color: #7C87B8 !important;
+  color: #172033 !important;
+  font-weight: 700 !important;
 }
 
-.dark button.bg-\[\#0F172A\]:not([class*="bg-[#6FA89E]"]):not([class*="bg-[#D6B86A]"]):hover,
-.dark a.bg-\[\#0F172A\]:not([class*="bg-[#6FA89E]"]):not([class*="bg-[#D6B86A]"]):hover {
-  background-color: #45726A !important;
+.dark button.bg-\[\#0F172A\]:not([class*="bg-[#6FA89E]"]):not([class*="bg-[#D6B86A]"]):not([class*="bg-red-"]):hover,
+.dark a.bg-\[\#0F172A\]:not([class*="bg-[#6FA89E]"]):not([class*="bg-[#D6B86A]"]):not([class*="bg-red-"]):hover {
+  background-color: #8F99C8 !important;
 }
 
 /* Global Reset & Typography Defaults */

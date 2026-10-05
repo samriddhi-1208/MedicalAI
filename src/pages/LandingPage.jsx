@@ -142,24 +142,24 @@ export const LandingPage = () => {
       </div>
 
       {/* MedGuardian AI Hero Section */}
-      <section className="py-16 md:py-24 bg-white border-b border-slate-200 relative overflow-hidden">
+      <section className="py-16 md:py-24 bg-white dark:bg-[#1B1E2D] border-b border-[#D9DDEC] dark:border-[#313750] relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             
             {/* Hero Left Content */}
             <div className="lg:col-span-7 space-y-6">
               
-              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-teal-50 text-[#0D9488] text-xs font-semibold border border-teal-200">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#0D9488]" />
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#EEF1FA] dark:bg-[#2C3146] text-[#66729F] dark:text-[#C9CEE3] text-xs font-semibold border border-[#D9DDEC] dark:border-[#3E4564]">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#66729F] dark:text-[#9DA8D0]" />
                 <span>MedGuardian AI • Clinical Intelligence</span>
               </div>
 
-              <h1 className="text-4xl sm:text-5xl lg:text-5.5xl font-extrabold text-[#0F172A] tracking-tight leading-[1.15]">
+              <h1 className="text-4xl sm:text-5xl lg:text-5.5xl font-extrabold text-[#172033] dark:text-[#F5F7FA] tracking-tight leading-[1.15]">
                 Understand Your Health <br className="hidden sm:inline" />
-                <span className="text-[#0D9488]">with AI Intelligence</span>
+                <span className="text-[#66729F] dark:text-[#9DA8D0]">with AI Intelligence</span>
               </h1>
 
-              <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl font-normal">
+              <p className="text-base sm:text-lg text-[#526078] dark:text-[#C8D0E0] leading-relaxed max-w-2xl font-normal">
                 MedGuardian AI turns scanned paper lab reports into structured biomarker data, longitudinal trend graphs, and rapid emergency location sharing.
               </p>
 
@@ -168,7 +168,7 @@ export const LandingPage = () => {
                   variant="primary"
                   size="md"
                   icon={Upload}
-                  className="bg-[#0F172A] hover:bg-[#1E293B] py-3.5 px-6 text-sm font-semibold rounded-xl shadow-md shadow-slate-900/10 cursor-pointer"
+                  className="bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-white dark:text-[#172033] py-3.5 px-6 text-sm font-bold rounded-xl shadow-md cursor-pointer"
                   onClick={handleUploadClick}
                 >
                   Upload Medical Report
@@ -186,7 +186,7 @@ export const LandingPage = () => {
                   variant="secondary"
                   size="md"
                   icon={ArrowRight}
-                  className="py-3.5 px-6 text-sm font-semibold rounded-xl bg-slate-50 border-slate-200 text-[#0F172A] hover:bg-slate-100 cursor-pointer"
+                  className="py-3.5 px-6 text-sm font-semibold rounded-xl bg-slate-50 dark:bg-[#24283A] border-[#D9DDEC] dark:border-[#313750] text-[#172033] dark:text-[#F5F7FA] hover:bg-slate-100 dark:hover:bg-[#2C3146] cursor-pointer"
                   onClick={handleHowItWorksClick}
                 >
                   How It Works
@@ -194,17 +194,17 @@ export const LandingPage = () => {
               </div>
 
               {/* Trust Indicators */}
-              <div className="grid grid-cols-3 gap-6 pt-6 border-t border-slate-100 text-xs text-slate-600">
+              <div className="grid grid-cols-3 gap-6 pt-6 border-t border-slate-100 dark:border-[#313750] text-xs text-[#526078] dark:text-[#C8D0E0]">
                 <div>
-                  <span className="block font-bold text-sm text-[#0F172A]">AI Report OCR</span>
+                  <span className="block font-bold text-sm text-[#172033] dark:text-[#F5F7FA]">AI Report OCR</span>
                   <span>PDF & photo parsing</span>
                 </div>
                 <div>
-                  <span className="block font-bold text-sm text-[#0F172A]">Biomarker Trends</span>
+                  <span className="block font-bold text-sm text-[#172033] dark:text-[#F5F7FA]">Biomarker Trends</span>
                   <span>Longitudinal line graphs</span>
                 </div>
                 <div>
-                  <span className="block font-bold text-sm text-[#0F172A]">24/7 Emergency SOS</span>
+                  <span className="block font-bold text-sm text-[#172033] dark:text-[#F5F7FA]">24/7 Emergency SOS</span>
                   <span>1-click GPS email alert</span>
                 </div>
               </div>
@@ -213,21 +213,21 @@ export const LandingPage = () => {
 
             {/* Hero Right Patient-Facing Product Demonstration Flow */}
             <div className="lg:col-span-5">
-              <Card className="p-6 space-y-4 bg-white border border-slate-200 shadow-xl shadow-slate-200/50 rounded-2xl">
+              <Card className="p-6 space-y-4 bg-white dark:bg-[#24283A] border border-[#D9DDEC] dark:border-[#313750] shadow-xl shadow-slate-200/50 dark:shadow-none rounded-2xl">
                 
                 {/* Header Badge */}
-                <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#313750] pb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-[#0F172A] text-white flex items-center justify-center font-bold">
-                      <BrainCircuit className="w-5 h-5 text-[#0D9488]" />
+                    <div className="w-10 h-10 rounded-xl bg-[#172033] dark:bg-[#7C87B8] text-white dark:text-[#172033] flex items-center justify-center font-bold">
+                      <BrainCircuit className="w-5 h-5 text-[#AEB7D5] dark:text-[#172033]" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-bold text-[#0F172A]">MedGuardian AI Clinical Workflow</h3>
-                      <p className="text-xs text-slate-500 font-medium">Patient Analysis System</p>
+                      <h3 className="text-sm font-bold text-[#172033] dark:text-[#F5F7FA]">MedGuardian AI Clinical Workflow</h3>
+                      <p className="text-xs text-slate-500 dark:text-[#C8D0E0] font-medium">Patient Analysis System</p>
                     </div>
                   </div>
-                  <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-bold border border-emerald-200 flex items-center gap-1">
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> Secure AI Analysis
+                  <span className="px-2.5 py-1 rounded-full bg-[#EEF1FA] dark:bg-[#2C3146] text-[#66729F] dark:text-[#C9CEE3] text-xs font-bold border border-[#D9DDEC] dark:border-[#3E4564] flex items-center gap-1">
+                    <ShieldCheck className="w-3.5 h-3.5 text-[#66729F] dark:text-[#9DA8D0]" /> Secure AI Analysis
                   </span>
                 </div>
 
@@ -235,69 +235,69 @@ export const LandingPage = () => {
                 <div className="space-y-2.5 text-xs">
                   
                   {/* Step 1: Medical Report */}
-                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                  <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#2C3146] border border-[#D9DDEC] dark:border-[#313750] flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 text-[#0F172A] flex items-center justify-center font-bold">
-                        <FileText className="w-4 h-4 text-[#0D9488]" />
+                      <div className="w-8 h-8 rounded-lg bg-white dark:bg-[#24283A] border border-[#D9DDEC] dark:border-[#313750] text-[#172033] dark:text-[#F5F7FA] flex items-center justify-center font-bold">
+                        <FileText className="w-4 h-4 text-[#66729F] dark:text-[#9DA8D0]" />
                       </div>
                       <div>
-                        <span className="font-bold text-[#0F172A] block text-xs">1. Medical Report</span>
-                        <span className="text-[11px] text-slate-500 font-medium">Scanned PDF or photo lab result</span>
+                        <span className="font-bold text-[#172033] dark:text-[#F5F7FA] block text-xs">1. Medical Report</span>
+                        <span className="text-[11px] text-slate-500 dark:text-[#C8D0E0] font-medium">Scanned PDF or photo lab result</span>
                       </div>
                     </div>
-                    <span className="text-[11px] font-bold text-slate-500">PDF / Photo</span>
+                    <span className="text-[11px] font-bold text-slate-500 dark:text-[#C8D0E0]">PDF / Photo</span>
                   </div>
 
                   {/* Flow Arrow */}
                   <div className="flex justify-center text-slate-400">
-                    <ArrowDown className="w-4 h-4 text-[#0D9488]" />
+                    <ArrowDown className="w-4 h-4 text-[#66729F] dark:text-[#9DA8D0]" />
                   </div>
 
                   {/* Step 2: AI Analysis */}
-                  <div className="p-3.5 rounded-xl bg-[#0F172A] text-white flex items-center justify-between">
+                  <div className="p-3.5 rounded-xl bg-[#172033] dark:bg-[#202434] text-white flex items-center justify-between border border-transparent dark:border-[#313750]">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-slate-800 text-white flex items-center justify-center font-bold">
-                        <Sparkles className="w-4 h-4 text-[#0D9488]" />
+                      <div className="w-8 h-8 rounded-lg bg-slate-800 dark:bg-[#2C3146] text-white flex items-center justify-center font-bold">
+                        <Sparkles className="w-4 h-4 text-[#AEB7D5] dark:text-[#9DA8D0]" />
                       </div>
                       <div>
                         <span className="font-bold block text-xs text-white">2. AI Analysis</span>
-                        <span className="text-[11px] text-slate-300 font-normal">Extracting test names, values & reference bounds</span>
+                        <span className="text-[11px] text-slate-300 dark:text-[#C8D0E0] font-normal">Extracting test names, values & reference bounds</span>
                       </div>
                     </div>
-                    <span className="text-[11px] font-bold text-[#0D9488]">Report Analyzed</span>
+                    <span className="text-[11px] font-bold text-[#AEB7D5] dark:text-[#9DA8D0]">Report Analyzed</span>
                   </div>
 
                   {/* Flow Arrow */}
                   <div className="flex justify-center text-slate-400">
-                    <ArrowDown className="w-4 h-4 text-[#0D9488]" />
+                    <ArrowDown className="w-4 h-4 text-[#66729F] dark:text-[#9DA8D0]" />
                   </div>
 
                   {/* Step 3: Extracted Health Information */}
-                  <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 space-y-2 text-emerald-950">
-                    <div className="flex items-center justify-between font-bold text-xs text-emerald-900">
-                      <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-emerald-600" /> 3. AI-Extracted Health Data</span>
-                      <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold">MedGuardian AI Analysis Engine</span>
+                  <div className="p-3.5 rounded-xl bg-[#EEF1FA] dark:bg-[#2C3146] border border-[#D9DDEC] dark:border-[#3E4564] space-y-2 text-[#172033] dark:text-[#F5F7FA]">
+                    <div className="flex items-center justify-between font-bold text-xs text-[#172033] dark:text-[#F5F7FA]">
+                      <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-[#66729F] dark:text-[#9DA8D0]" /> 3. AI-Extracted Health Data</span>
+                      <span className="text-[10px] bg-[#D9DDEC] dark:bg-[#202434] text-[#172033] dark:text-[#C9CEE3] px-2 py-0.5 rounded-full font-bold">MedGuardian AI Engine</span>
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 text-[11px] pt-1">
-                      <div className="p-2 rounded-lg bg-white border border-emerald-200/80">
-                        <span className="text-slate-500 block text-[10px]">Test Parameter:</span>
-                        <strong className="text-[#0F172A] font-bold">Hemoglobin (13.8 g/dL)</strong>
+                      <div className="p-2 rounded-lg bg-white dark:bg-[#24283A] border border-[#D9DDEC] dark:border-[#313750]">
+                        <span className="text-slate-500 dark:text-[#C8D0E0] block text-[10px]">Test Parameter:</span>
+                        <strong className="text-[#172033] dark:text-[#F5F7FA] font-bold">Hemoglobin (13.8 g/dL)</strong>
                       </div>
-                      <div className="p-2 rounded-lg bg-white border border-emerald-200/80">
-                        <span className="text-slate-500 block text-[10px]">Clinical Summary:</span>
-                        <strong className="text-[#0F172A] font-bold">Plain-Language Insights</strong>
+                      <div className="p-2 rounded-lg bg-white dark:bg-[#24283A] border border-[#D9DDEC] dark:border-[#313750]">
+                        <span className="text-slate-500 dark:text-[#C8D0E0] block text-[10px]">Clinical Summary:</span>
+                        <strong className="text-[#172033] dark:text-[#F5F7FA] font-bold">Plain-Language Insights</strong>
                       </div>
                     </div>
                   </div>
 
                 </div>
 
-                <div className="pt-2 flex items-center justify-between text-xs text-slate-500 border-t border-slate-100">
+                <div className="pt-2 flex items-center justify-between text-xs text-slate-500 dark:text-[#C8D0E0] border-t border-slate-100 dark:border-[#313750]">
                   <span className="flex items-center gap-1.5 font-medium">
-                    <Shield className="w-3.5 h-3.5 text-[#0D9488]" /> Account-Isolated Patient Records
+                    <Shield className="w-3.5 h-3.5 text-[#66729F] dark:text-[#9DA8D0]" /> Account-Isolated Patient Records
                   </span>
-                  <Link to="/signup" className="text-[#0D9488] font-bold hover:underline">
+                  <Link to="/signup" className="text-[#66729F] dark:text-[#9DA8D0] font-bold hover:underline">
                     Get Started Free →
                   </Link>
                 </div>
@@ -314,13 +314,13 @@ export const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
           
           <div className="text-center max-w-2xl mx-auto space-y-3">
-            <span className="px-3.5 py-1 rounded-full bg-teal-50 text-[#0D9488] text-xs font-bold uppercase tracking-wider border border-teal-200">
+            <span className="px-3.5 py-1 rounded-full bg-[#EEF1FA] dark:bg-[#2C3146] text-[#66729F] dark:text-[#C9CEE3] text-xs font-bold uppercase tracking-wider border border-[#D9DDEC] dark:border-[#3E4564]">
               Platform Feature Preview
             </span>
-            <h2 className="text-3xl font-extrabold text-[#0F172A] tracking-tight">
+            <h2 className="text-3xl font-extrabold text-[#172033] dark:text-[#F5F7FA] tracking-tight">
               Interactive Patient Portal Preview
             </h2>
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-[#526078] dark:text-[#C8D0E0]">
               Sample interface preview illustrating key patient features: Dashboard, Health Trends & Analytics, and Emergency SOS Center.
             </p>
           </div>
@@ -331,22 +331,22 @@ export const LandingPage = () => {
               onClick={() => setPreviewTab('dashboard')}
               className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer transition-all ${
                 previewTab === 'dashboard'
-                  ? 'bg-[#0F172A] text-white shadow-xs'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                  ? 'bg-[#172033] dark:bg-[#7C87B8] text-white dark:text-[#172033] shadow-xs'
+                  : 'bg-slate-100 dark:bg-[#2C3146] text-slate-700 dark:text-[#C8D0E0] hover:bg-slate-200 dark:hover:bg-[#353B54]'
               }`}
             >
-              <LayoutDashboard className="w-4 h-4 text-[#0D9488]" /> Dashboard
+              <LayoutDashboard className="w-4 h-4 text-[#66729F] dark:text-[#172033]" /> Dashboard
             </button>
 
             <button
               onClick={() => setPreviewTab('trends')}
               className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer transition-all ${
                 previewTab === 'trends'
-                  ? 'bg-[#0F172A] text-white shadow-xs'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                  ? 'bg-[#172033] dark:bg-[#7C87B8] text-white dark:text-[#172033] shadow-xs'
+                  : 'bg-slate-100 dark:bg-[#2C3146] text-slate-700 dark:text-[#C8D0E0] hover:bg-slate-200 dark:hover:bg-[#353B54]'
               }`}
             >
-              <TrendingUp className="w-4 h-4 text-[#0D9488]" /> Health Trends & Analytics
+              <TrendingUp className="w-4 h-4 text-[#66729F] dark:text-[#172033]" /> Health Trends & Analytics
             </button>
 
             <button
@@ -362,45 +362,45 @@ export const LandingPage = () => {
           </div>
 
           {/* Feature Showcase Container */}
-          <Card className="p-8 bg-slate-900 text-white rounded-3xl shadow-2xl border border-slate-800 max-w-4xl mx-auto space-y-6">
+          <Card className="p-8 bg-[#172033] dark:bg-[#202434] text-white rounded-3xl shadow-2xl border border-slate-800 max-w-4xl mx-auto space-y-6">
             
             {previewTab === 'dashboard' && (
               <div className="space-y-5 animate-in fade-in duration-200">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-4">
                   <div>
-                    <span className="text-xs text-teal-400 font-bold uppercase tracking-wider block">Dashboard Preview</span>
+                    <span className="text-xs text-[#9DA8D0] font-bold uppercase tracking-wider block">Dashboard Preview</span>
                     <h3 className="text-xl font-extrabold text-white">Patient Workspace Overview</h3>
                   </div>
-                  <Link to="/signup" className="px-3.5 py-1.5 rounded-xl bg-[#0D9488] text-white text-xs font-bold hover:bg-teal-600 transition-colors">
+                  <Link to="/signup" className="px-3.5 py-1.5 rounded-xl bg-[#66729F] hover:bg-[#55608B] text-white text-xs font-bold transition-colors">
                     Try Live Dashboard →
                   </Link>
                 </div>
 
                 <div className="grid grid-cols-3 gap-3">
-                  <div className="p-3.5 rounded-xl bg-slate-800 border border-slate-700 text-center space-y-1">
-                    <Upload className="w-5 h-5 text-teal-400 mx-auto" />
+                  <div className="p-3.5 rounded-xl bg-[#202434] border border-slate-700 text-center space-y-1">
+                    <Upload className="w-5 h-5 text-[#9DA8D0] mx-auto" />
                     <span className="block text-xs font-bold text-slate-200">Upload Report</span>
                   </div>
-                  <div className="p-3.5 rounded-xl bg-slate-800 border border-slate-700 text-center space-y-1">
-                    <Building2 className="w-5 h-5 text-teal-400 mx-auto" />
+                  <div className="p-3.5 rounded-xl bg-[#202434] border border-slate-700 text-center space-y-1">
+                    <Building2 className="w-5 h-5 text-[#9DA8D0] mx-auto" />
                     <span className="block text-xs font-bold text-slate-200">Find Hospital</span>
                   </div>
-                  <div className="p-3.5 rounded-xl bg-slate-800 border border-slate-700 text-center space-y-1">
-                    <Pill className="w-5 h-5 text-teal-400 mx-auto" />
+                  <div className="p-3.5 rounded-xl bg-[#202434] border border-slate-700 text-center space-y-1">
+                    <Pill className="w-5 h-5 text-[#9DA8D0] mx-auto" />
                     <span className="block text-xs font-bold text-slate-200">Medicine</span>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-3 gap-3 text-xs">
-                  <div className="p-3 rounded-xl bg-slate-800 border border-slate-700 space-y-1">
+                  <div className="p-3 rounded-xl bg-[#202434] border border-slate-700 space-y-1">
                     <span className="text-slate-300 block text-[11px] font-medium">Blood Pressure</span>
                     <strong className="text-white text-base font-extrabold block">118/78 <span className="text-[10px] font-normal text-slate-300">mmHg</span></strong>
                   </div>
-                  <div className="p-3 rounded-xl bg-slate-800 border border-slate-700 space-y-1">
+                  <div className="p-3 rounded-xl bg-[#202434] border border-slate-700 space-y-1">
                     <span className="text-slate-300 block text-[11px] font-medium">Fasting Glucose</span>
                     <strong className="text-white text-base font-extrabold block">95 <span className="text-[10px] font-normal text-slate-300">mg/dL</span></strong>
                   </div>
-                  <div className="p-3 rounded-xl bg-slate-800 border border-slate-700 space-y-1">
+                  <div className="p-3 rounded-xl bg-[#202434] border border-slate-700 space-y-1">
                     <span className="text-slate-300 block text-[11px] font-medium">Hemoglobin (Hb)</span>
                     <strong className="text-white text-base font-extrabold block">13.8 <span className="text-[10px] font-normal text-slate-300">g/dL</span></strong>
                   </div>
@@ -412,20 +412,20 @@ export const LandingPage = () => {
               <div className="space-y-5 animate-in fade-in duration-200">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-4">
                   <div>
-                    <span className="text-xs text-teal-400 font-bold uppercase tracking-wider block">Health Trends & Analytics</span>
+                    <span className="text-xs text-[#9DA8D0] font-bold uppercase tracking-wider block">Health Trends & Analytics</span>
                     <h3 className="text-xl font-extrabold text-white">Biomarker Longitudinal Progression</h3>
                   </div>
-                  <Link to="/signup" className="px-3.5 py-1.5 rounded-xl bg-[#0D9488] text-white text-xs font-bold hover:bg-teal-600 transition-colors">
+                  <Link to="/signup" className="px-3.5 py-1.5 rounded-xl bg-[#66729F] hover:bg-[#55608B] text-white text-xs font-bold transition-colors">
                     View Interactive Trends →
                   </Link>
                 </div>
 
-                <div className="p-4 rounded-xl bg-slate-800 border border-slate-700 space-y-2 text-xs">
+                <div className="p-4 rounded-xl bg-[#202434] border border-slate-700 space-y-2 text-xs">
                   <div className="flex justify-between items-center">
                     <span className="font-bold text-white">Hemoglobin (Hb) Trend Line</span>
-                    <span className="text-emerald-400 font-bold">+1.4 g/dL (6M Gain)</span>
+                    <span className="text-[#9DA8D0] font-bold">+1.4 g/dL (6M Gain)</span>
                   </div>
-                  <div className="h-20 bg-slate-950 rounded-lg border border-slate-700 flex items-center justify-center text-slate-200 text-xs font-mono font-medium">
+                  <div className="h-20 bg-[#172033] rounded-lg border border-slate-700 flex items-center justify-center text-slate-200 text-xs font-mono font-medium">
                     📈 [Interactive Line Graph: Jan 12.4 → Aug 13.8 g/dL]
                   </div>
                 </div>
@@ -461,17 +461,17 @@ export const LandingPage = () => {
       </section>
 
       {/* Feature Section */}
-      <section id="features" className="py-20 bg-slate-50 dark:bg-[#12141D]">
+      <section id="features" className="py-20 bg-[#F7F8FC] dark:bg-[#1B1E2D]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
           
           <div className="text-center max-w-2xl mx-auto space-y-3">
-            <span className="px-3.5 py-1 rounded-full bg-teal-50 dark:bg-teal-950/40 text-[#0D9488] dark:text-teal-400 text-xs font-bold uppercase tracking-wider border border-teal-200 dark:border-teal-900">
+            <span className="px-3.5 py-1 rounded-full bg-[#EEF1FA] dark:bg-[#2C3146] text-[#66729F] dark:text-[#C9CEE3] text-xs font-bold uppercase tracking-wider border border-[#D9DDEC] dark:border-[#3E4564]">
               Core Capabilities
             </span>
-            <h2 className="text-3xl font-extrabold text-[#0F172A] dark:text-[#F5F7FA] tracking-tight">
+            <h2 className="text-3xl font-extrabold text-[#172033] dark:text-[#F5F7FA] tracking-tight">
               Integrated Healthcare Management Suite
             </h2>
-            <p className="text-sm text-slate-600 dark:text-[#C8D0E0] font-normal">
+            <p className="text-sm text-[#526078] dark:text-[#C8D0E0] font-normal">
               Designed for secure health record organization, AI-assisted report analysis, medication tracking, emergency assistance, and nearby hospital discovery.
             </p>
           </div>
@@ -482,13 +482,13 @@ export const LandingPage = () => {
               return (
                 <Card 
                   key={idx} 
-                  className="p-6 space-y-3 bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-800 rounded-2xl card-hover-lift shadow-xs"
+                  className="p-6 space-y-3 bg-white dark:bg-[#24283A] border border-[#D9DDEC] dark:border-[#313750] rounded-2xl card-hover-lift shadow-xs"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-[#0F172A] dark:text-[#F5F7FA] flex items-center justify-center border border-slate-200 dark:border-slate-700">
-                    <Icon className="w-5 h-5 text-[#0D9488]" />
+                  <div className="w-10 h-10 rounded-xl bg-[#EEF1FA] dark:bg-[#2C3146] text-[#66729F] dark:text-[#9DA8D0] flex items-center justify-center border border-[#D9DDEC] dark:border-[#313750]">
+                    <Icon className="w-5 h-5 text-[#66729F] dark:text-[#9DA8D0]" />
                   </div>
-                  <h3 className="text-base font-bold text-[#0F172A] dark:text-[#F5F7FA]">{item.title}</h3>
-                  <p className="text-xs text-slate-600 dark:text-[#C8D0E0] leading-relaxed font-normal">{item.description}</p>
+                  <h3 className="text-base font-bold text-[#172033] dark:text-[#F5F7FA]">{item.title}</h3>
+                  <p className="text-xs text-[#526078] dark:text-[#C8D0E0] leading-relaxed font-normal">{item.description}</p>
                 </Card>
               );
             })}
@@ -498,29 +498,29 @@ export const LandingPage = () => {
       </section>
 
       {/* How It Works Section */}
-      <section id="how-it-works" className="py-20 bg-white dark:bg-[#161926] border-t border-b border-slate-200 dark:border-slate-800 transition-colors">
+      <section id="how-it-works" className="py-20 bg-white dark:bg-[#202434] border-t border-b border-[#D9DDEC] dark:border-[#313750] transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-14">
           
           <div className="text-center max-w-2xl mx-auto space-y-3">
-            <span className="px-3.5 py-1 rounded-full bg-slate-100 dark:bg-[#25293C] text-slate-800 dark:text-slate-200 text-xs font-bold uppercase tracking-wider border border-slate-200 dark:border-slate-700">
+            <span className="px-3.5 py-1 rounded-full bg-[#EEF1FA] dark:bg-[#2C3146] text-[#66729F] dark:text-[#C9CEE3] text-xs font-bold uppercase tracking-wider border border-[#D9DDEC] dark:border-[#3E4564]">
               Simple Workflow
             </span>
-            <h2 className="text-3xl font-extrabold text-[#0F172A] dark:text-[#F5F7FA] tracking-tight">
+            <h2 className="text-3xl font-extrabold text-[#172033] dark:text-[#F5F7FA] tracking-tight">
               How MedGuardian AI Works
             </h2>
-            <p className="text-sm text-slate-600 dark:text-[#C8D0E0]">
+            <p className="text-sm text-[#526078] dark:text-[#C8D0E0]">
               Four simple steps from account creation to AI report insights.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {steps.map((s, idx) => (
-              <div key={idx} className="relative p-6 rounded-2xl bg-slate-50 dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 space-y-3">
-                <div className="text-3xl font-extrabold text-[#0D9488]/40 dark:text-teal-400/40 tracking-tight">
+              <div key={idx} className="relative p-6 rounded-2xl bg-[#F7F8FC] dark:bg-[#24283A] border border-[#D9DDEC] dark:border-[#313750] space-y-3">
+                <div className="text-3xl font-extrabold text-[#66729F]/50 dark:text-[#9DA8D0]/50 tracking-tight">
                   {s.step}
                 </div>
-                <h3 className="text-lg font-bold text-[#0F172A] dark:text-[#F5F7FA]">{s.title}</h3>
-                <p className="text-xs text-slate-600 dark:text-[#C8D0E0] leading-relaxed font-normal">{s.description}</p>
+                <h3 className="text-lg font-bold text-[#172033] dark:text-[#F5F7FA]">{s.title}</h3>
+                <p className="text-xs text-[#526078] dark:text-[#C8D0E0] leading-relaxed font-normal">{s.description}</p>
               </div>
             ))}
           </div>
@@ -530,7 +530,7 @@ export const LandingPage = () => {
               variant="primary"
               size="md"
               icon={ArrowRight}
-              className="bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#0D9488] dark:hover:bg-[#0f766e] text-white py-3.5 px-8 text-sm font-semibold rounded-xl cursor-pointer shadow-md"
+              className="bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-white dark:text-[#172033] font-bold py-3.5 px-8 text-sm rounded-xl cursor-pointer shadow-md"
               onClick={() => navigate('/signup')}
             >
               Get Started (Create Account)
@@ -538,7 +538,7 @@ export const LandingPage = () => {
             <Button
               variant="secondary"
               size="md"
-              className="py-3.5 px-8 text-sm font-semibold rounded-xl bg-white dark:bg-[#25293C] border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-[#2e334a] text-[#0F172A] dark:text-[#F5F7FA] cursor-pointer shadow-2xs"
+              className="py-3.5 px-8 text-sm font-semibold rounded-xl bg-white dark:bg-[#24283A] border border-[#D9DDEC] dark:border-[#313750] hover:bg-slate-100 dark:hover:bg-[#2C3146] text-[#172033] dark:text-[#F5F7FA] cursor-pointer shadow-2xs"
               onClick={() => navigate('/login')}
             >
               Already Have An Account? Sign In
@@ -549,15 +549,15 @@ export const LandingPage = () => {
       </section>
 
       {/* FAQ Interactive Accordion Section */}
-      <section id="faq" className="py-20 bg-slate-50 dark:bg-[#12141D] transition-colors">
+      <section id="faq" className="py-20 bg-[#F7F8FC] dark:bg-[#1B1E2D] transition-colors">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
           
           <div className="text-center space-y-2">
-            <span className="px-3 py-1 rounded-full bg-slate-200 dark:bg-[#25293C] text-slate-800 dark:text-slate-200 text-xs font-bold uppercase tracking-wider border border-slate-300 dark:border-slate-700">
+            <span className="px-3 py-1 rounded-full bg-[#EEF1FA] dark:bg-[#2C3146] text-[#66729F] dark:text-[#C9CEE3] text-xs font-bold uppercase tracking-wider border border-[#D9DDEC] dark:border-[#3E4564]">
               FAQ
             </span>
-            <h2 className="text-3xl font-extrabold text-[#0F172A] dark:text-[#F5F7FA]">Frequently Asked Questions</h2>
-            <p className="text-xs text-slate-600 dark:text-[#C8D0E0] font-medium">Answers to common questions about report OCR, privacy, and clinical features.</p>
+            <h2 className="text-3xl font-extrabold text-[#172033] dark:text-[#F5F7FA]">Frequently Asked Questions</h2>
+            <p className="text-xs text-[#526078] dark:text-[#C8D0E0] font-medium">Answers to common questions about report OCR, privacy, and clinical features.</p>
           </div>
 
           <div className="space-y-3">
@@ -566,30 +566,30 @@ export const LandingPage = () => {
                 key={idx} 
                 className={`border rounded-xl overflow-hidden shadow-xs transition-all ${
                   faqOpen === idx 
-                    ? 'border-[#0D9488]/50 dark:border-[#0D9488]/60 bg-white dark:bg-[#1C1F2E]' 
-                    : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1C1F2E]'
+                    ? 'border-[#66729F]/50 dark:border-[#7C87B8]/60 bg-white dark:bg-[#24283A]' 
+                    : 'border-[#D9DDEC] dark:border-[#313750] bg-white dark:bg-[#24283A]'
                 }`}
               >
                 <button
                   onClick={() => setFaqOpen(faqOpen === idx ? null : idx)}
                   className={`w-full p-5 text-left font-bold text-sm flex justify-between items-center cursor-pointer transition-colors ${
                     faqOpen === idx 
-                      ? 'bg-slate-50/60 dark:bg-[#25293C]/50 text-[#0D9488] dark:text-[#2DD4BF]' 
-                      : 'text-[#0F172A] dark:text-[#F5F7FA] hover:bg-slate-100 dark:hover:bg-[#25293C]'
+                      ? 'bg-[#EEF1FA]/60 dark:bg-[#2C3146]/50 text-[#66729F] dark:text-[#9DA8D0]' 
+                      : 'text-[#172033] dark:text-[#F5F7FA] hover:bg-[#EEF1FA] dark:hover:bg-[#2C3146]'
                   }`}
                 >
-                  <span className={faqOpen === idx ? 'text-[#0D9488] dark:text-[#2DD4BF]' : 'text-[#0F172A] dark:text-[#F5F7FA]'}>
+                  <span className={faqOpen === idx ? 'text-[#66729F] dark:text-[#9DA8D0]' : 'text-[#172033] dark:text-[#F5F7FA]'}>
                     {faq.question}
                   </span>
                   <ChevronDown className={`w-4 h-4 transition-transform duration-200 shrink-0 ${
                     faqOpen === idx 
-                      ? 'rotate-180 text-[#0D9488] dark:text-[#2DD4BF]' 
+                      ? 'rotate-180 text-[#66729F] dark:text-[#9DA8D0]' 
                       : 'text-slate-500 dark:text-slate-400'
                   }`} />
                 </button>
                 
                 {faqOpen === idx && (
-                  <div className="px-5 pb-5 pt-2 text-xs text-slate-600 dark:text-[#C8D0E0] border-t border-slate-100 dark:border-slate-800/80 leading-relaxed font-normal animate-in fade-in duration-150">
+                  <div className="px-5 pb-5 pt-2 text-xs text-[#526078] dark:text-[#C8D0E0] border-t border-slate-100 dark:border-[#313750] leading-relaxed font-normal animate-in fade-in duration-150">
                     {faq.answer}
                   </div>
                 )}
