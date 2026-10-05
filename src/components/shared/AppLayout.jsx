@@ -16,7 +16,7 @@ export const AppLayout = () => {
           collapsed ? 'md:pl-24' : 'md:pl-72'
         }`}
       >
-        <div className="max-w-7xl mx-auto w-full min-w-0">
+        <div className="w-full min-w-0 flex-1">
           <Outlet />
         </div>
       </main>

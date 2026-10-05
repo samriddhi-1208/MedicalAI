@@ -161,10 +161,10 @@ export const MedicineReminderPage = () => {
   };
 
   return (
-    <div className="space-y-6 pb-12 font-sans antialiased max-w-5xl mx-auto">
+    <div className="space-y-6 pb-12 font-sans antialiased w-full min-w-0 flex-1">
       
       {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full min-w-0">
         <div>
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-[#66729F] dark:bg-[#9DA8D0] animate-pulse" />
@@ -193,7 +193,7 @@ export const MedicineReminderPage = () => {
             variant="primary"
             size="md"
             icon={Plus}
-            className="bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#52857C] dark:hover:bg-[#45726A] text-white text-xs font-bold rounded-xl cursor-pointer shadow-2xs"
+            className="bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] dark:text-[#172033] text-white text-xs font-bold rounded-xl cursor-pointer shadow-2xs"
             onClick={handleOpenAdd}
           >
             {t('addMedicine')}
@@ -290,7 +290,7 @@ export const MedicineReminderPage = () => {
               size="md"
               icon={Plus}
               onClick={handleOpenAdd}
-              className="bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#52857C] dark:hover:bg-[#45726A] text-white py-3 px-6 text-xs font-bold rounded-xl cursor-pointer shadow-2xs"
+              className="bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] dark:text-[#172033] text-white py-3 px-6 text-xs font-bold rounded-xl cursor-pointer shadow-2xs"
             >
               {t('addMedicine')}
             </Button>
@@ -298,150 +298,146 @@ export const MedicineReminderPage = () => {
         </Card>
       )}
 
-      {/* REQUIREMENTS 7, 8, 17, 18, 19: TODAY'S MEDICATIONS TIMELINE SCHEDULE */}
+      {/* REQUIREMENTS 7, 8, 17, 18, 19: TODAY'S MEDICATIONS SCHEDULE */}
       {hasMedicines && (
-        <div className="space-y-4">
+        <div className="space-y-4 w-full min-w-0">
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-black text-[#0F172A]">Today's Medication Schedule ({totalCount})</h2>
+            <h2 className="text-base font-black text-[#0F172A] dark:text-[#F5F7FA]">Today's Medication Schedule ({totalCount})</h2>
           </div>
 
-          <div className="relative border-l-2 border-slate-200/90 ml-2.5 sm:ml-4 pl-4 sm:pl-6 space-y-5">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-5 w-full min-w-0">
             {safeMedicines.map((med, idx) => (
-              <div key={med.id || idx} className="relative">
-                {/* Timeline Dot */}
-                <div className={`absolute -left-[23px] sm:-left-[31px] top-2 w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full border-2 ${
-                  med.taken 
-                    ? 'border-[#6FA89E] bg-[#6FA89E]' 
-                    : 'border-slate-400 dark:border-slate-600 bg-white dark:bg-[#1C1F2E]'
-                }`} />
-
-                <Card className={`p-4 sm:p-5 space-y-3 bg-white dark:bg-[#1C1F2E] border rounded-2xl shadow-2xs transition-all w-full min-w-0 ${
+              <Card 
+                key={med.id || idx} 
+                className={`p-4 sm:p-5 space-y-3.5 bg-white dark:bg-[#1C1F2E] border rounded-2xl shadow-2xs transition-all w-full min-w-0 flex flex-col justify-between ${
                   med.isPaused 
                     ? 'border-[#D6B86A]/40 opacity-90 bg-[#D6B86A]/5 dark:bg-[#D6B86A]/10' 
-                    : 'border-slate-200/90 dark:border-slate-800'
-                }`}>
-                  
-                  {/* Top Row: Time, Name, Dose, Source Tag, Edit/Delete Actions */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-slate-100 dark:border-slate-800/80 pb-3">
-                    <div className="flex items-center gap-2.5 flex-wrap">
-                      <span className="px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-[#25293C] font-black text-[11px] sm:text-xs text-[#0F172A] dark:text-[#F1F3F9] border border-slate-200/80 dark:border-slate-700 flex items-center gap-1.5 shrink-0">
-                        <Clock className="w-3.5 h-3.5 text-[#5F958C] dark:text-[#8BC7B5]" />
-                        {med.scheduledTime || med.time || '08:00 AM'}
-                      </span>
-
-                      <div className="flex items-center gap-2 flex-wrap min-w-0">
-                        <h3 className="text-sm sm:text-base font-black text-[#0F172A] dark:text-[#F1F3F9] truncate">💊 {med.name}</h3>
-                        <span className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-[#25293C] text-slate-700 dark:text-slate-300 text-[11px] font-bold border border-slate-200 dark:border-slate-700 shrink-0">
-                          {med.dose || med.dosage || '1 tablet'}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-1 shrink-0 self-end sm:self-auto">
-                      <button
-                        onClick={() => handleOpenEdit(med)}
-                        className="p-1.5 text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                        title="Edit medication schedule"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => deleteMedicine(med.id)}
-                        className="p-1.5 text-slate-400 hover:text-[#DC2626] rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
-                        title="Delete medication"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Schedule Attribute Grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-xs p-3 rounded-xl bg-slate-50 dark:bg-[#151824] border border-slate-200/80 dark:border-slate-800">
-                    <div>
-                      <span className="text-slate-500 dark:text-slate-400 block">Frequency</span>
-                      <strong className="text-[#0F172A] dark:text-[#F1F3F9] font-bold">{med.frequency || 'Once daily'}</strong>
-                    </div>
-                    <div>
-                      <span className="text-slate-500 dark:text-slate-400 block">Meal Relation</span>
-                      <strong className="text-slate-800 dark:text-slate-200 font-bold">{med.mealRelation || 'After meal'} ({med.mealType || 'Lunch'})</strong>
-                    </div>
-                    <div>
-                      <span className="text-slate-500 dark:text-slate-400 block">Duration / Supply</span>
-                      <strong className="text-slate-800 dark:text-slate-200 font-bold">{med.pillsRemaining ?? med.pills_remaining ?? 30} doses left</strong>
-                    </div>
-                    <div>
-                      <span className="text-slate-500 dark:text-slate-400 block">Indication / Purpose</span>
-                      <strong className="text-[#5F958C] dark:text-[#8BC7B5] font-bold">{med.purpose || 'Prescription'}</strong>
-                    </div>
-                  </div>
-
-                  {/* REQUIREMENT 17: MEDICATION SOURCE DISCLOSURE */}
-                  <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                    <span className="inline-flex items-center gap-1 text-slate-600 dark:text-slate-300">
-                      <FileText className="w-3.5 h-3.5 text-[#5F958C] dark:text-[#8BC7B5]" /> Source: <strong className="text-slate-800 dark:text-slate-200 font-bold">{med.sourceTitle || 'Prescription Schedule'}</strong>
+                    : med.taken
+                      ? 'border-[#6FA89E]/40'
+                      : 'border-slate-200/90 dark:border-slate-800'
+                }`}
+              >
+                
+                {/* Top Row: Time, Name, Dose, Source Tag, Edit/Delete Actions */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-slate-100 dark:border-slate-800/80 pb-3">
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                    <span className="px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-[#25293C] font-black text-[11px] sm:text-xs text-[#0F172A] dark:text-[#F1F3F9] border border-slate-200/80 dark:border-slate-700 flex items-center gap-1.5 shrink-0">
+                      <Clock className="w-3.5 h-3.5 text-[#5F958C] dark:text-[#8BC7B5]" />
+                      {med.scheduledTime || med.time || '08:00 AM'}
                     </span>
 
-                    {med.instructions && (
-                      <span className="text-slate-500 dark:text-slate-400 truncate max-w-xs">
-                        Instructions: {med.instructions}
+                    <div className="flex items-center gap-2 flex-wrap min-w-0">
+                      <h3 className="text-sm sm:text-base font-black text-[#0F172A] dark:text-[#F1F3F9] truncate">💊 {med.name}</h3>
+                      <span className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-[#25293C] text-slate-700 dark:text-slate-300 text-[11px] font-bold border border-slate-200 dark:border-slate-700 shrink-0">
+                        {med.dose || med.dosage || '1 tablet'}
                       </span>
-                    )}
-                  </div>
-
-                  {/* Actions Row: Status Badge, Pause/Resume, Mark as Taken */}
-                  <div className="flex items-center justify-between pt-1 flex-wrap gap-2">
-                    <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
-                      med.taken 
-                        ? 'bg-[#6FA89E]/15 text-[#2D5A52] dark:text-[#9DD3C8] border border-[#6FA89E]/30' 
-                        : med.isPaused 
-                          ? 'bg-[#D6B86A]/20 text-[#4D3F1E] dark:text-[#E2C785] border border-[#D6B86A]/30' 
-                          : 'bg-slate-100 dark:bg-[#25293C] text-slate-600 dark:text-[#949DB3]'
-                    }`}>
-                      Status: {med.taken ? 'Logged' : med.isPaused ? 'Paused' : 'Upcoming'}
-                    </span>
-
-                    <div className="flex items-center gap-2">
-                      {/* Secondary Pause/Resume Action — Soft Muted Amber (#D6B86A) */}
-                      <button
-                        onClick={() => toggleMedicinePause(med.id)}
-                        className={`px-3 py-1.5 rounded-xl font-semibold text-xs border transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs ${
-                          med.isPaused 
-                            ? 'bg-[#6FA89E]/20 text-[#2D5A52] dark:text-[#A8D5CC] border-[#6FA89E]/40 hover:bg-[#6FA89E]/30' 
-                            : 'bg-[#D6B86A] text-[#332D1A] border-[#C5A85D] hover:bg-[#C5A85D]'
-                        }`}
-                        title={med.isPaused ? "Resume this medication schedule" : "Pause this medication schedule"}
-                      >
-                        {med.isPaused ? <PlayCircle className="w-3.5 h-3.5 text-[#2D5A52] dark:text-[#A8D5CC]" /> : <PauseCircle className="w-3.5 h-3.5 text-[#332D1A]" />}
-                        <span>{med.isPaused ? 'Resume' : 'Pause'}</span>
-                      </button>
-
-                      {/* Primary Mark as Taken Action — Softer Muted Healthcare Teal/Sage (#6FA89E) */}
-                      <button
-                        disabled={med.isPaused}
-                        onClick={() => toggleMedicineTaken(med.id)}
-                        className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 border disabled:opacity-50 disabled:cursor-not-allowed shadow-2xs ${
-                          med.taken
-                            ? 'bg-[#6FA89E]/15 text-[#2D5A52] dark:text-[#9DD3C8] border-[#6FA89E]/30 hover:bg-[#6FA89E]/25'
-                            : 'bg-[#6FA89E] hover:bg-[#5F958C] text-[#0F172A] border-[#5F958C]'
-                        }`}
-                      >
-                        {med.taken ? (
-                          <>
-                            <Check className="w-3.5 h-3.5 text-[#2D5A52] dark:text-[#9DD3C8]" />
-                            <span>{t('logged')}</span>
-                          </>
-                        ) : (
-                          <>
-                            <Pill className="w-3.5 h-3.5 text-[#0F172A]" />
-                            <span>{t('markAsTaken')}</span>
-                          </>
-                        )}
-                      </button>
                     </div>
                   </div>
 
-                </Card>
-              </div>
+                  <div className="flex items-center gap-1 shrink-0 self-end sm:self-auto">
+                    <button
+                      onClick={() => handleOpenEdit(med)}
+                      className="p-1.5 text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                      title="Edit medication schedule"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => deleteMedicine(med.id)}
+                      className="p-1.5 text-slate-400 hover:text-[#DC2626] rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                      title="Delete medication"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Schedule Attribute Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs p-3 rounded-xl bg-slate-50 dark:bg-[#151824] border border-slate-200/80 dark:border-slate-800">
+                  <div>
+                    <span className="text-slate-500 dark:text-slate-400 block text-[11px]">Frequency</span>
+                    <strong className="text-[#0F172A] dark:text-[#F1F3F9] font-bold truncate block">{med.frequency || 'Once daily'}</strong>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 dark:text-slate-400 block text-[11px]">Meal Relation</span>
+                    <strong className="text-slate-800 dark:text-slate-200 font-bold truncate block">{med.mealRelation || 'After meal'} ({med.mealType || 'Lunch'})</strong>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 dark:text-slate-400 block text-[11px]">Duration / Supply</span>
+                    <strong className="text-slate-800 dark:text-slate-200 font-bold truncate block">{med.pillsRemaining ?? med.pills_remaining ?? 30} doses left</strong>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 dark:text-slate-400 block text-[11px]">Indication / Purpose</span>
+                    <strong className="text-[#5F958C] dark:text-[#8BC7B5] font-bold truncate block">{med.purpose || 'Prescription'}</strong>
+                  </div>
+                </div>
+
+                {/* REQUIREMENT 17: MEDICATION SOURCE DISCLOSURE */}
+                <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 font-medium flex-wrap gap-2">
+                  <span className="inline-flex items-center gap-1 text-slate-600 dark:text-slate-300">
+                    <FileText className="w-3.5 h-3.5 text-[#5F958C] dark:text-[#8BC7B5]" /> Source: <strong className="text-slate-800 dark:text-slate-200 font-bold">{med.sourceTitle || 'Prescription Schedule'}</strong>
+                  </span>
+
+                  {med.instructions && (
+                    <span className="text-slate-500 dark:text-slate-400 truncate max-w-xs sm:max-w-sm lg:max-w-md">
+                      Instructions: {med.instructions}
+                    </span>
+                  )}
+                </div>
+
+                {/* Actions Row: Status Badge, Pause/Resume, Mark as Taken */}
+                <div className="flex items-center justify-between pt-1 flex-wrap gap-2">
+                  <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
+                    med.taken 
+                      ? 'bg-[#6FA89E]/15 text-[#2D5A52] dark:text-[#9DD3C8] border border-[#6FA89E]/30' 
+                      : med.isPaused 
+                        ? 'bg-[#D6B86A]/20 text-[#4D3F1E] dark:text-[#E2C785] border border-[#D6B86A]/30' 
+                        : 'bg-slate-100 dark:bg-[#25293C] text-slate-600 dark:text-[#949DB3]'
+                  }`}>
+                    Status: {med.taken ? 'Logged' : med.isPaused ? 'Paused' : 'Upcoming'}
+                  </span>
+
+                  <div className="flex items-center gap-2">
+                    {/* Secondary Pause/Resume Action — Soft Muted Amber (#D6B86A) */}
+                    <button
+                      onClick={() => toggleMedicinePause(med.id)}
+                      className={`px-3 py-1.5 rounded-xl font-semibold text-xs border transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs ${
+                        med.isPaused 
+                          ? 'bg-[#6FA89E]/20 text-[#2D5A52] dark:text-[#A8D5CC] border-[#6FA89E]/40 hover:bg-[#6FA89E]/30' 
+                          : 'bg-[#D6B86A] text-[#332D1A] border-[#C5A85D] hover:bg-[#C5A85D]'
+                      }`}
+                      title={med.isPaused ? "Resume this medication schedule" : "Pause this medication schedule"}
+                    >
+                      {med.isPaused ? <PlayCircle className="w-3.5 h-3.5 text-[#2D5A52] dark:text-[#A8D5CC]" /> : <PauseCircle className="w-3.5 h-3.5 text-[#332D1A]" />}
+                      <span>{med.isPaused ? 'Resume' : 'Pause'}</span>
+                    </button>
+
+                    {/* Primary Mark as Taken Action — Softer Muted Healthcare Teal/Sage (#6FA89E) */}
+                    <button
+                      disabled={med.isPaused}
+                      onClick={() => toggleMedicineTaken(med.id)}
+                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 border disabled:opacity-50 disabled:cursor-not-allowed shadow-2xs ${
+                        med.taken
+                          ? 'bg-[#6FA89E]/15 text-[#2D5A52] dark:text-[#9DD3C8] border-[#6FA89E]/30 hover:bg-[#6FA89E]/25'
+                          : 'bg-[#6FA89E] hover:bg-[#5F958C] text-[#0F172A] border-[#5F958C]'
+                      }`}
+                    >
+                      {med.taken ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-[#2D5A52] dark:text-[#9DD3C8]" />
+                          <span>{t('logged')}</span>
+                        </>
+                      ) : (
+                        <>
+                          <Pill className="w-3.5 h-3.5 text-[#0F172A]" />
+                          <span>{t('markAsTaken')}</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+              </Card>
             ))}
           </div>
         </div>
@@ -449,22 +445,32 @@ export const MedicineReminderPage = () => {
 
       {/* REQUIREMENT 20: MEDICATION HISTORY LOG */}
       {hasMedicines && (
-        <Card className="p-6 space-y-4 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs">
+        <Card className="p-5 sm:p-6 space-y-4 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs w-full min-w-0">
           <div className="flex items-center justify-between">
             <h3 className="text-base font-black text-[#0F172A] dark:text-[#F5F7FA] flex items-center gap-2">
               <History className="w-4.5 h-4.5 text-[#66729F] dark:text-[#9DA8D0]" /> Medication History Log
             </h3>
+            <span className="text-xs font-semibold text-slate-500 dark:text-[#C8D0E0]">
+              {safeMedicines.length} {safeMedicines.length === 1 ? 'entry' : 'entries'}
+            </span>
           </div>
 
-          <div className="space-y-2 text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 text-xs w-full min-w-0">
             {safeMedicines.map((m) => (
-              <div key={m.id} className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
-                <div>
-                  <p className="font-extrabold text-[#0F172A]">{m.name} ({m.dose || m.dosage})</p>
-                  <p className="text-slate-500 text-[11px]">{m.scheduledTime || m.time} • {m.mealRelation}</p>
+              <div 
+                key={m.id} 
+                className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#151824] border border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-3 min-w-0"
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="font-extrabold text-[#0F172A] dark:text-[#F5F7FA] truncate">{m.name}</p>
+                  <p className="text-slate-500 dark:text-[#C8D0E0] text-[11px] truncate">
+                    {m.dose || m.dosage} • {m.scheduledTime || m.time}
+                  </p>
                 </div>
-                <span className={`px-2.5 py-1 rounded-full font-bold text-[10px] ${
-                  m.taken ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-700'
+                <span className={`px-2.5 py-1 rounded-full font-bold text-[10px] shrink-0 ${
+                  m.taken 
+                    ? 'bg-[#6FA89E]/20 text-[#2D5A52] dark:text-[#9DD3C8] border border-[#6FA89E]/30' 
+                    : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
                 }`}>
                   {m.taken ? 'Taken ✓' : 'Scheduled'}
                 </span>
