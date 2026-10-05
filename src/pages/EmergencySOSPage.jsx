@@ -296,18 +296,18 @@ export const EmergencySOSPage = () => {
         </div>
       )}
 
-      {/* High-Alert Header Banner */}
-      <Card className="p-6 bg-[#3A2028] dark:bg-[#3A2028] text-white rounded-2xl shadow-md border border-[#A83D49] space-y-4">
+      {/* High-Alert Header Banner - Prominent Medical Red */}
+      <Card className="p-6 bg-[#C94B55] dark:bg-[#A83D49] text-white rounded-2xl shadow-lg border border-[#A83D49] space-y-4">
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-white/10 rounded-xl border border-[#A83D49]/50">
-              <ShieldAlert className="w-7 h-7 text-[#F3C6CB]" />
+            <div className="p-2.5 bg-white/20 rounded-xl border border-white/30">
+              <ShieldAlert className="w-7 h-7 text-white" />
             </div>
             <div>
               <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2">
                 {t('emergencySOSCenter') || "Emergency Medical SOS"}
               </h1>
-              <p className="text-xs sm:text-[13px] text-[#F3C6CB] font-medium">
+              <p className="text-xs sm:text-[13px] text-white/90 font-medium">
                 Instant Lifesaving Dispatch & National Helplines (24x7 India)
               </p>
             </div>
@@ -316,52 +316,52 @@ export const EmergencySOSPage = () => {
           <div className="flex items-center gap-2">
             <a
               href="tel:108"
-              className="px-4 py-2 rounded-xl bg-white text-[#C94B55] font-black text-xs sm:text-sm hover:bg-[#FDF2F4] transition-all shadow-md flex items-center gap-2 active:scale-95 border border-[#A83D49]/30"
+              className="px-4 py-2 rounded-xl bg-white text-[#C94B55] font-black text-xs sm:text-sm hover:bg-white/90 transition-all shadow-md flex items-center gap-2 active:scale-95"
             >
               <PhoneCall className="w-4 h-4 text-[#C94B55] animate-bounce" /> Call 108 Now
             </a>
             <a
               href="tel:112"
-              className="px-3.5 py-2 rounded-xl bg-[#A83D49]/30 hover:bg-[#A83D49]/50 text-[#F3C6CB] font-black text-xs sm:text-sm transition-all border border-[#A83D49]/50 flex items-center gap-1.5"
+              className="px-3.5 py-2 rounded-xl bg-white/20 hover:bg-white/30 text-white font-black text-xs sm:text-sm transition-all border border-white/30 flex items-center gap-1.5"
             >
-              <Phone className="w-4 h-4" /> 112 (All-in-One)
+              <Phone className="w-4 h-4 text-white" /> 112 (All-in-One)
             </a>
           </div>
         </div>
 
-        <p className="text-xs sm:text-[13px] text-[#F3C6CB]/90 font-normal leading-relaxed">
-          {t('emergencyBannerText') || "In life-threatening emergencies, press the large SOS button below to broadcast your live GPS coordinates, alert emergency contacts, and locate the nearest hospital immediately."}
+        <p className="text-xs sm:text-[13px] text-white/95 font-normal leading-relaxed">
+          {t('emergencyBannerText') || "In case of a life-threatening medical emergency, press the SOS button below or call 108 immediately for government medical dispatch."}
         </p>
 
         {/* 1-Tap Government Hotlines Bar */}
         <div className="pt-2 grid grid-cols-2 sm:grid-cols-4 gap-2 text-[13px] font-bold">
           <a
             href="tel:108"
-            className="p-2.5 rounded-xl bg-white/10 hover:bg-white/15 border border-[#A83D49]/40 text-[#F3C6CB] flex items-center justify-between transition-colors"
+            className="p-2.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/25 text-white flex items-center justify-between transition-colors"
           >
             <span>🚑 Ambulance</span>
             <span className="font-black text-white">108</span>
           </a>
           <a
             href="tel:112"
-            className="p-2.5 rounded-xl bg-white/10 hover:bg-white/15 border border-[#A83D49]/40 text-[#F3C6CB] flex items-center justify-between transition-colors"
+            className="p-2.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/25 text-white flex items-center justify-between transition-colors"
           >
             <span>🚨 National ER</span>
             <span className="font-black text-white">112</span>
           </a>
           <a
             href="tel:102"
-            className="p-2.5 rounded-xl bg-white/10 hover:bg-white/15 border border-[#A83D49]/40 text-[#F3C6CB] flex items-center justify-between transition-colors"
+            className="p-2.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/25 text-white flex items-center justify-between transition-colors"
           >
             <span>👶 Maternity/Ped</span>
             <span className="font-black text-white">102</span>
           </a>
           <a
             href="tel:1075"
-            className="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 flex items-center justify-between transition-colors"
+            className="p-2.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/25 text-white flex items-center justify-between transition-colors"
           >
             <span>🩺 Health Helpline</span>
-            <span className="font-black text-yellow-300">1075</span>
+            <span className="font-black text-white">1075</span>
           </a>
         </div>
       </Card>
