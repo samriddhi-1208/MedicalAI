@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, Menu, X, Activity, Siren } from 'lucide-react';
+import { ArrowRight, Menu, X, Activity, Siren, Sun, Moon } from 'lucide-react';
+import { useTheme } from '../../context/ThemeContext';
 
 export const Navbar = () => {
   const navigate = useNavigate();
+  const { theme, toggleTheme } = useTheme();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -54,6 +56,17 @@ export const Navbar = () => {
 
         {/* Desktop Action CTAs */}
         <div className="hidden md:flex items-center gap-3">
+          {/* Theme Toggle Button */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="p-2 rounded-xl text-[#526078] dark:text-[#C8D0E0] hover:text-[#172033] dark:hover:text-[#F5F7FA] hover:bg-[#EEF1FA] dark:hover:bg-[#2C3146] border border-[#D9DDEC] dark:border-[#313750] transition-colors cursor-pointer shadow-2xs"
+            title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+            aria-label="Toggle theme"
+          >
+            {theme === 'dark' ? <Sun className="w-4.5 h-4.5 text-amber-400" /> : <Moon className="w-4.5 h-4.5 text-[#66729F]" />}
+          </button>
+
           {/* Zero-Login Emergency SOS Button (Muted Medical Red) */}
           <Link
             to="/sos"
@@ -81,6 +94,17 @@ export const Navbar = () => {
 
         {/* Mobile Header Actions */}
         <div className="flex md:hidden items-center gap-2">
+          {/* Mobile Theme Toggle Button */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="p-1.5 rounded-lg text-[#526078] dark:text-[#C8D0E0] hover:bg-[#EEF1FA] dark:hover:bg-[#2C3146] border border-[#D9DDEC] dark:border-[#313750] transition-colors cursor-pointer"
+            title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+            aria-label="Toggle theme"
+          >
+            {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-[#66729F]" />}
+          </button>
+
           <Link
             to="/sos"
             className="py-1.5 px-3 text-xs font-black rounded-xl bg-[#C94B55] text-white flex items-center gap-1 shadow-sm border border-[#A83D49]"
@@ -143,6 +167,19 @@ export const Navbar = () => {
           </a>
 
           <div className="pt-3 border-t border-[#D9DDEC] dark:border-[#313750] flex flex-col gap-2">
+            {/* Mobile Theme Toggle Button in Drawer */}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="w-full py-2.5 px-3.5 rounded-xl border border-[#D9DDEC] dark:border-[#313750] flex items-center justify-between font-bold text-sm text-[#172033] dark:text-[#F5F7FA] bg-[#EEF1FA]/60 dark:bg-[#2C3146]/60 cursor-pointer"
+            >
+              <span className="flex items-center gap-2">
+                {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-[#66729F]" />}
+                <span>{theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}</span>
+              </span>
+              <span className="text-xs uppercase font-extrabold text-slate-400 dark:text-slate-500">{theme}</span>
+            </button>
+
             <Link 
               to="/login" 
               onClick={() => setMobileMenuOpen(false)}

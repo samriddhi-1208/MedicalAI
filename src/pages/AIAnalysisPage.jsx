@@ -45,7 +45,13 @@ export const AIAnalysisPage = () => {
   const t = (key) => getTranslation(language, key);
 
   const [viewOriginalModal, setViewOriginalModal] = useState(false);
-  const [isSummaryOpen, setIsSummaryOpen] = useState(false);
+  const [openInsightIndices, setOpenInsightIndices] = useState([]);
+
+  const toggleInsight = (idx) => {
+    setOpenInsightIndices(prev => 
+      prev.includes(idx) ? prev.filter(i => i !== idx) : [...prev, idx]
+    );
+  };
 
   const userReports = Array.isArray(reports) ? reports : [];
   const [selectedReportId, setSelectedReportId] = useState(() => activeReportId || userReports[0]?.id || userReports[0]?._id);
@@ -249,16 +255,10 @@ export const AIAnalysisPage = () => {
         )}
       </Card>
 
-      {/* AI Clinical Summary Dropdown / Accordion Card */}
-      <Card className="bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden transition-all">
-        {/* Clickable Dropdown Trigger Header */}
-        <div 
-          onClick={() => setIsSummaryOpen(!isSummaryOpen)}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setIsSummaryOpen(!isSummaryOpen); }}
-          className="p-5 sm:p-6 flex items-center justify-between flex-wrap gap-3 cursor-pointer select-none hover:bg-slate-50/70 dark:hover:bg-[#25293C]/40 transition-colors"
-        >
+      {/* AI Clinical Summary Card with 4 Individual Dropdown Insight Boxes */}
+      <Card className="p-5 sm:p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-xs space-y-4">
+        {/* Header Bar */}
+        <div className="flex items-center justify-between flex-wrap gap-3 pb-1 border-b border-slate-100 dark:border-slate-800/80">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-[#EEF1FA] dark:bg-[#2C3146] border border-[#D9DDEC] dark:border-[#313750] flex items-center justify-center shrink-0">
               <Sparkles className="w-5 h-5 text-[#66729F] dark:text-[#9DA8D0]" />
@@ -267,10 +267,10 @@ export const AIAnalysisPage = () => {
               <div className="flex items-center gap-2">
                 <h2 className="text-xl sm:text-[22px] font-black text-[#0F172A] dark:text-[#F5F7FA]">{t('aiClinicalSummary')}</h2>
                 <span className="hidden sm:inline-flex px-2.5 py-0.5 rounded-full bg-[#EEF1FA] dark:bg-[#2C3146] text-[#66729F] dark:text-[#9DA8D0] font-black text-xs border border-[#D9DDEC] dark:border-[#313750]">
-                  4 Insights
+                  4 Dropdowns
                 </span>
               </div>
-              <p className="text-sm text-slate-500 dark:text-[#C8D0E0] font-medium mt-1">Real-time clinical insights structured from extracted report data</p>
+              <p className="text-sm text-slate-500 dark:text-[#C8D0E0] font-medium mt-0.5">Click any insight box below to expand its structured clinical analysis</p>
             </div>
           </div>
 
@@ -280,68 +280,99 @@ export const AIAnalysisPage = () => {
               {t('extractedFromDoc')}
             </span>
 
-            {/* Dropdown Action Toggle Pill */}
-            <div className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all shadow-2xs border ${
-              isSummaryOpen
-                ? 'bg-slate-100 dark:bg-[#25293C] text-slate-800 dark:text-[#F5F7FA] border-slate-200 dark:border-slate-700'
-                : 'bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-white dark:text-[#172033] border-transparent'
-            }`}>
-              <span>{isSummaryOpen ? 'Hide Summary' : 'View Summary'}</span>
-              {isSummaryOpen ? (
-                <ChevronUp className="w-4 h-4 transition-transform" />
-              ) : (
-                <ChevronDown className="w-4 h-4 transition-transform" />
-              )}
-            </div>
+            {/* Quick Toggle All Pill */}
+            <button
+              type="button"
+              onClick={() => {
+                if (openInsightIndices.length === 4) {
+                  setOpenInsightIndices([]);
+                } else {
+                  setOpenInsightIndices([0, 1, 2, 3]);
+                }
+              }}
+              className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#EEF1FA] dark:bg-[#2C3146] hover:bg-slate-200 dark:hover:bg-[#343a52] text-[#66729F] dark:text-[#9DA8D0] border border-[#D9DDEC] dark:border-[#313750] transition-colors cursor-pointer shadow-2xs"
+            >
+              {openInsightIndices.length === 4 ? 'Collapse All' : 'Expand All'}
+            </button>
           </div>
         </div>
 
-        {/* Dropdown Expandable Content Panel */}
-        {isSummaryOpen && (
-          <div className="px-5 pb-6 sm:px-6 sm:pb-6 pt-1 border-t border-slate-100 dark:border-slate-800/80 space-y-4">
-            {/* Structured Clinical Insight Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-              {getFormattedSummary().split(/\n\n+/).map((para, idx) => {
-                const trimmed = para.trim();
-                let icon = "📋";
-                let title = "Clinical Overview";
-                let bgStyle = "bg-slate-50 dark:bg-[#151824] border-slate-200/90 dark:border-slate-800";
-                let titleColor = "text-slate-800 dark:text-[#F5F7FA]";
+        {/* 4 Individual Dropdown Boxes */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+          {getFormattedSummary().split(/\n\n+/).map((para, idx) => {
+            const trimmed = para.trim();
+            let icon = "📋";
+            let title = "Clinical Overview";
+            let bgStyle = "bg-slate-50 dark:bg-[#151824] border-slate-200/90 dark:border-slate-800";
+            let titleColor = "text-slate-800 dark:text-[#F5F7FA]";
 
-                if (trimmed.includes("Biomarker") || trimmed.includes("Laboratory")) {
-                  icon = "🔬";
-                  title = "Laboratory & Biomarker Analysis";
-                  bgStyle = "bg-sky-50/60 dark:bg-sky-950/40 border-sky-200/80 dark:border-sky-800/60";
-                  titleColor = "text-sky-900 dark:text-sky-300";
-                } else if (trimmed.includes("Medication") || trimmed.includes("Treatment")) {
-                  icon = "💊";
-                  title = "Prescribed Treatment Plan";
-                  bgStyle = "bg-teal-50/60 dark:bg-teal-950/40 border-teal-200/80 dark:border-teal-800/60";
-                  titleColor = "text-teal-900 dark:text-[#2DD4BF]";
-                } else if (trimmed.includes("Guidance") || trimmed.includes("Patient")) {
-                  icon = "💡";
-                  title = "Patient Guidance & Action Plan";
-                  bgStyle = "bg-amber-50/60 dark:bg-amber-950/40 border-amber-200/80 dark:border-amber-800/60";
-                  titleColor = "text-amber-900 dark:text-amber-300";
-                }
+            if (trimmed.includes("Biomarker") || trimmed.includes("Laboratory")) {
+              icon = "🔬";
+              title = "Laboratory & Biomarker Analysis";
+              bgStyle = "bg-sky-50/60 dark:bg-sky-950/40 border-sky-200/80 dark:border-sky-800/60";
+              titleColor = "text-sky-900 dark:text-sky-300";
+            } else if (trimmed.includes("Medication") || trimmed.includes("Treatment")) {
+              icon = "💊";
+              title = "Prescribed Treatment Plan";
+              bgStyle = "bg-teal-50/60 dark:bg-teal-950/40 border-teal-200/80 dark:border-teal-800/60";
+              titleColor = "text-teal-900 dark:text-[#2DD4BF]";
+            } else if (trimmed.includes("Guidance") || trimmed.includes("Patient")) {
+              icon = "💡";
+              title = "Patient Guidance & Action Plan";
+              bgStyle = "bg-amber-50/60 dark:bg-amber-950/40 border-amber-200/80 dark:border-amber-800/60";
+              titleColor = "text-amber-900 dark:text-amber-300";
+            }
 
-                const cleanText = trimmed.replace(/^(?:📋|🔬|💊|💡)\s*(?:Clinical Overview|Laboratory & Biomarker Analysis|Prescribed Treatment Plan|Patient Guidance)\s*[:=\-]?\s*/i, '');
+            const cleanText = trimmed.replace(/^(?:📋|🔬|💊|💡)\s*(?:Clinical Overview|Laboratory & Biomarker Analysis|Prescribed Treatment Plan|Patient Guidance)\s*[:=\-]?\s*/i, '');
+            const isOpen = openInsightIndices.includes(idx);
 
-                return (
-                  <div key={idx} className={`p-5 rounded-xl border ${bgStyle} space-y-2.5 transition-all hover:shadow-xs`}>
-                    <div className="flex items-center gap-2.5">
-                      <span className="text-lg">{icon}</span>
-                      <h4 className={`text-sm sm:text-[15px] font-black uppercase tracking-[0.04em] ${titleColor}`}>{title}</h4>
+            return (
+              <div 
+                key={idx} 
+                className={`rounded-2xl border transition-all ${bgStyle} overflow-hidden ${
+                  isOpen ? 'shadow-xs ring-1 ring-[#66729F]/30 dark:ring-[#7C87B8]/30' : 'hover:border-slate-300 dark:hover:border-slate-700'
+                }`}
+              >
+                {/* Clickable Dropdown Trigger Header for this individual box */}
+                <button
+                  type="button"
+                  onClick={() => toggleInsight(idx)}
+                  className="w-full p-4.5 sm:p-5 flex items-center justify-between gap-3 text-left cursor-pointer select-none transition-colors hover:bg-black/[0.02] dark:hover:bg-white/[0.02]"
+                  aria-expanded={isOpen}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="text-xl sm:text-2xl shrink-0">{icon}</span>
+                    <div className="min-w-0">
+                      <h4 className={`text-sm sm:text-[15px] font-black uppercase tracking-[0.04em] truncate ${titleColor}`}>
+                        {title}
+                      </h4>
+                      <span className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium">
+                        {isOpen ? 'Click to collapse' : 'Click to view insight'}
+                      </span>
                     </div>
-                    <p className="text-[15px] sm:text-base text-slate-700 dark:text-[#C8D0E0] font-normal leading-[1.6]">
+                  </div>
+
+                  <div className="w-8 h-8 rounded-xl bg-white/90 dark:bg-[#1E2333] border border-slate-200/80 dark:border-slate-700/80 flex items-center justify-center shrink-0 shadow-2xs">
+                    {isOpen ? (
+                      <ChevronUp className="w-4 h-4 text-slate-700 dark:text-slate-300" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 text-slate-700 dark:text-slate-300" />
+                    )}
+                  </div>
+                </button>
+
+                {/* Dropdown Content for this individual box */}
+                {isOpen && (
+                  <div className="px-5 pb-5 pt-1 border-t border-slate-200/60 dark:border-slate-800/60 animate-in fade-in duration-150">
+                    <p className="text-[15px] sm:text-base text-slate-700 dark:text-[#C8D0E0] font-normal leading-[1.6] pt-2">
                       {cleanText}
                     </p>
                   </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
+                )}
+              </div>
+            );
+          })}
+        </div>
       </Card>
 
       {/* EXTRACTED CLINICAL ENTITIES SUMMARY BADGE STRIP */}

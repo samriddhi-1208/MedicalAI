@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowRight, Lock, Mail, User, Activity, Eye, EyeOff, Check, X, Siren } from 'lucide-react';
+import { ArrowRight, Lock, Mail, User, Activity, Eye, EyeOff, Check, X, Siren, Sun, Moon } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
+import { useTheme } from '../context/ThemeContext';
 
 export const SignupPage = () => {
   const navigate = useNavigate();
+  const { theme, toggleTheme } = useTheme();
   const { signup } = useHealthData();
 
   const [fullName, setFullName] = useState('');
@@ -65,8 +67,22 @@ export const SignupPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-main)] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 font-sans antialiased">
+    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-main)] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 font-sans antialiased relative">
       
+      {/* Top Floating Controls: Theme Toggle */}
+      <div className="absolute top-4 right-4 sm:top-6 sm:right-6 flex items-center gap-2 z-20">
+        <button
+          type="button"
+          onClick={toggleTheme}
+          className="p-2 sm:px-3 sm:py-2 rounded-xl text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-surface-subtle)] bg-[var(--bg-surface)] border border-[var(--border-color)] transition-colors cursor-pointer shadow-xs flex items-center gap-2"
+          title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+          aria-label="Toggle theme"
+        >
+          {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-[var(--color-primary)]" />}
+          <span className="text-xs font-bold hidden sm:inline">{theme === 'dark' ? 'Light' : 'Dark'}</span>
+        </button>
+      </div>
+
       {/* Zero-Login Emergency SOS Quick Access Banner */}
       <div className="sm:mx-auto sm:w-full sm:max-w-md mb-6">
         <div className="p-3.5 bg-[#3A2028] text-white rounded-2xl shadow-md border border-[#A83D49] flex items-center justify-between gap-3">
