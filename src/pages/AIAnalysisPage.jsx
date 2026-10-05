@@ -340,13 +340,13 @@ export const AIAnalysisPage = () => {
             return { idx, icon, title, bgStyle, titleColor, cleanText };
           });
 
-          const renderCard = (item) => {
+          const renderCard = (item, prefix = 'card') => {
             if (!item) return null;
             const isOpen = isInsightOpen(item.idx);
 
             return (
               <div 
-                key={item.idx} 
+                key={`${prefix}-${item.idx}`} 
                 className={`rounded-2xl border transition-all ${item.bgStyle} overflow-hidden ${
                   isOpen ? 'shadow-xs ring-1 ring-[#66729F]/30 dark:ring-[#7C87B8]/30' : 'hover:border-slate-300 dark:hover:border-slate-700'
                 }`}
@@ -383,7 +383,7 @@ export const AIAnalysisPage = () => {
                 {isOpen && (
                   <div className="px-5 pb-5 pt-1 border-t border-slate-200/60 dark:border-slate-800/60 animate-in fade-in duration-150">
                     <p className="text-[15px] sm:text-base text-slate-700 dark:text-[#C8D0E0] font-normal leading-[1.6] pt-2">
-                      {cleanText}
+                      {item.cleanText}
                     </p>
                   </div>
                 )}
@@ -396,18 +396,18 @@ export const AIAnalysisPage = () => {
               {/* Desktop: 2 Independent Columns to prevent unequal height row-stretch clashes */}
               <div className="hidden md:grid md:grid-cols-2 gap-4 items-start">
                 <div className="flex flex-col gap-4">
-                  {renderCard(insightItems[0])}
-                  {renderCard(insightItems[2])}
+                  {renderCard(insightItems[0], 'd-left')}
+                  {renderCard(insightItems[2], 'd-left')}
                 </div>
                 <div className="flex flex-col gap-4">
-                  {renderCard(insightItems[1])}
-                  {renderCard(insightItems[3])}
+                  {renderCard(insightItems[1], 'd-right')}
+                  {renderCard(insightItems[3], 'd-right')}
                 </div>
               </div>
 
               {/* Mobile: Clean single-column vertical stack */}
               <div className="flex flex-col gap-4 md:hidden">
-                {insightItems.map(renderCard)}
+                {insightItems.map(item => renderCard(item, 'm-col'))}
               </div>
             </div>
           );

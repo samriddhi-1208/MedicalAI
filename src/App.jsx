@@ -4,11 +4,13 @@ import { Toaster } from 'react-hot-toast';
 import { ThemeProvider } from './context/ThemeContext';
 import { HealthDataProvider } from './context/HealthDataContext';
 import { AppRoutes } from './routes/AppRoutes';
+import { ErrorBoundary } from './components/shared/ErrorBoundary';
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <HealthDataProvider>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <HealthDataProvider>
         <Toaster
           position="top-right"
           toastOptions={{
@@ -30,5 +32,6 @@ export default function App() {
         </BrowserRouter>
       </HealthDataProvider>
     </ThemeProvider>
+  </ErrorBoundary>
   );
 }
