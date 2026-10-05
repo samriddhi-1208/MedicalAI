@@ -32,15 +32,15 @@ export const MobileBottomNav = () => {
               className={({ isActive }) =>
                 `flex flex-col items-center justify-center min-h-[44px] px-1.5 py-1 rounded-lg transition-all flex-1 ${
                   item.isEmergency
-                    ? 'text-rose-600 dark:text-rose-400 font-bold'
+                    ? 'text-[#C94B55] dark:text-[#F3C6CB] font-bold'
                     : isActive
                     ? 'text-[var(--color-primary)] font-bold'
                     : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'
                 }`
               }
             >
-              <Icon className={`w-5 h-5 shrink-0 ${item.isEmergency ? 'text-rose-600 dark:text-rose-400 animate-pulse' : ''}`} />
-              <span className="text-[10px] leading-tight mt-0.5 font-medium whitespace-nowrap text-center truncate max-w-[54px]">{item.label}</span>
+              <Icon className={`w-5 h-5 shrink-0 ${item.isEmergency ? 'text-[#C94B55] dark:text-[#F3C6CB]' : ''}`} />
+              <span className="text-[11px] leading-tight mt-0.5 font-medium whitespace-nowrap text-center truncate max-w-[58px]">{item.label}</span>
             </NavLink>
           );
         })}

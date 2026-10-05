@@ -297,17 +297,17 @@ export const EmergencySOSPage = () => {
       )}
 
       {/* High-Alert Header Banner */}
-      <Card className="p-6 bg-gradient-to-r from-red-600 via-rose-700 to-red-800 text-white rounded-2xl shadow-lg border border-red-500/50 space-y-4">
+      <Card className="p-6 bg-[#3A2028] dark:bg-[#3A2028] text-white rounded-2xl shadow-md border border-[#A83D49] space-y-4">
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-white/20 rounded-xl backdrop-blur-xs">
-              <ShieldAlert className="w-7 h-7 text-white" />
+            <div className="p-2.5 bg-white/10 rounded-xl border border-[#A83D49]/50">
+              <ShieldAlert className="w-7 h-7 text-[#F3C6CB]" />
             </div>
             <div>
               <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2">
                 {t('emergencySOSCenter') || "Emergency Medical SOS"}
               </h1>
-              <p className="text-xs text-red-100 font-medium">
+              <p className="text-xs sm:text-[13px] text-[#F3C6CB] font-medium">
                 Instant Lifesaving Dispatch & National Helplines (24x7 India)
               </p>
             </div>
@@ -316,45 +316,45 @@ export const EmergencySOSPage = () => {
           <div className="flex items-center gap-2">
             <a
               href="tel:108"
-              className="px-4 py-2 rounded-xl bg-white text-red-700 font-black text-xs sm:text-sm hover:bg-red-50 transition-all shadow-md flex items-center gap-2 active:scale-95"
+              className="px-4 py-2 rounded-xl bg-white text-[#C94B55] font-black text-xs sm:text-sm hover:bg-[#FDF2F4] transition-all shadow-md flex items-center gap-2 active:scale-95 border border-[#A83D49]/30"
             >
-              <PhoneCall className="w-4 h-4 text-red-600 animate-bounce" /> Call 108 Now
+              <PhoneCall className="w-4 h-4 text-[#C94B55] animate-bounce" /> Call 108 Now
             </a>
             <a
               href="tel:112"
-              className="px-3.5 py-2 rounded-xl bg-red-950/60 hover:bg-red-950 text-white font-black text-xs sm:text-sm transition-all border border-red-300/30 flex items-center gap-1.5"
+              className="px-3.5 py-2 rounded-xl bg-[#A83D49]/30 hover:bg-[#A83D49]/50 text-[#F3C6CB] font-black text-xs sm:text-sm transition-all border border-[#A83D49]/50 flex items-center gap-1.5"
             >
               <Phone className="w-4 h-4" /> 112 (All-in-One)
             </a>
           </div>
         </div>
 
-        <p className="text-xs sm:text-sm text-red-50 font-normal leading-relaxed">
+        <p className="text-xs sm:text-[13px] text-[#F3C6CB]/90 font-normal leading-relaxed">
           {t('emergencyBannerText') || "In life-threatening emergencies, press the large SOS button below to broadcast your live GPS coordinates, alert emergency contacts, and locate the nearest hospital immediately."}
         </p>
 
         {/* 1-Tap Government Hotlines Bar */}
-        <div className="pt-2 grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-bold">
+        <div className="pt-2 grid grid-cols-2 sm:grid-cols-4 gap-2 text-[13px] font-bold">
           <a
             href="tel:108"
-            className="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 flex items-center justify-between transition-colors"
+            className="p-2.5 rounded-xl bg-white/10 hover:bg-white/15 border border-[#A83D49]/40 text-[#F3C6CB] flex items-center justify-between transition-colors"
           >
             <span>🚑 Ambulance</span>
-            <span className="font-black text-yellow-300">108</span>
+            <span className="font-black text-white">108</span>
           </a>
           <a
             href="tel:112"
-            className="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 flex items-center justify-between transition-colors"
+            className="p-2.5 rounded-xl bg-white/10 hover:bg-white/15 border border-[#A83D49]/40 text-[#F3C6CB] flex items-center justify-between transition-colors"
           >
             <span>🚨 National ER</span>
-            <span className="font-black text-yellow-300">112</span>
+            <span className="font-black text-white">112</span>
           </a>
           <a
             href="tel:102"
-            className="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 flex items-center justify-between transition-colors"
+            className="p-2.5 rounded-xl bg-white/10 hover:bg-white/15 border border-[#A83D49]/40 text-[#F3C6CB] flex items-center justify-between transition-colors"
           >
             <span>👶 Maternity/Ped</span>
-            <span className="font-black text-yellow-300">102</span>
+            <span className="font-black text-white">102</span>
           </a>
           <a
             href="tel:1075"
@@ -445,7 +445,7 @@ export const EmergencySOSPage = () => {
       {/* Main Circular Pulsing SOS Button */}
       <Card className="p-8 sm:p-10 text-center bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-sm space-y-6">
         <div className="space-y-2 max-w-lg mx-auto">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-300 text-xs font-black uppercase tracking-wider">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FDF2F4] dark:bg-[#3A2028] text-[#C94B55] dark:text-[#F3C6CB] border border-[#F0B8BF] dark:border-[#A83D49] text-[13px] font-black uppercase tracking-wider">
             <Zap className="w-3.5 h-3.5" /> 1-Tap Emergency Trigger
           </div>
           <h2 className="text-2xl font-black text-[#0F172A] dark:text-white tracking-tight">
@@ -462,7 +462,7 @@ export const EmergencySOSPage = () => {
         <div className="py-6 flex justify-center items-center">
           <div className="relative flex items-center justify-center">
             {sosStep !== 'active' && (
-              <span className="absolute w-48 h-48 sm:w-60 sm:h-60 rounded-full bg-red-500/25 animate-ping pointer-events-none" />
+              <span className="absolute w-48 h-48 sm:w-60 sm:h-60 rounded-full bg-[#C94B55]/20 animate-ping pointer-events-none" />
             )}
             
             <button
@@ -471,14 +471,14 @@ export const EmergencySOSPage = () => {
               className={`relative z-10 w-40 h-40 sm:w-48 sm:h-48 rounded-full text-white flex flex-col items-center justify-center shadow-2xl transition-all transform active:scale-95 cursor-pointer ring-8 ${
                 sosStep === 'active' 
                   ? 'ring-emerald-500 bg-emerald-600 shadow-emerald-600/50 hover:bg-emerald-700' 
-                  : 'bg-red-600 hover:bg-red-700 shadow-red-600/60 ring-red-400/40 hover:ring-red-400/70'
+                  : 'bg-[#C94B55] hover:bg-[#B33D46] shadow-[#C94B55]/40 ring-[#A83D49]/40 hover:ring-[#A83D49]/70'
               }`}
             >
               <Siren className={`w-14 h-14 sm:w-16 sm:h-16 text-white ${sosStep === 'active' ? 'animate-bounce' : 'animate-pulse'}`} />
               <span className="text-2xl sm:text-3xl font-black tracking-widest mt-1">
                 {sosStep === 'dispatching' ? 'ALERTING...' : sosStep === 'active' ? 'CANCEL' : 'SOS'}
               </span>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-red-100 mt-0.5">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#F3C6CB] mt-0.5">
                 {sosStep === 'active' ? 'Tap to Stand-Down' : 'No Login Needed'}
               </span>
             </button>
@@ -503,7 +503,7 @@ export const EmergencySOSPage = () => {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
           <a
             href="tel:108"
-            className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-red-600 text-white text-xs font-black flex items-center justify-center gap-2 cursor-pointer shadow-md hover:bg-red-700 transition-colors"
+            className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-[#C94B55] hover:bg-[#B33D46] text-white text-xs font-black flex items-center justify-center gap-2 cursor-pointer shadow-md transition-colors border border-[#A83D49]"
           >
             <PhoneCall className="w-4 h-4" /> Call National Ambulance (108)
           </a>
@@ -521,23 +521,23 @@ export const EmergencySOSPage = () => {
       <Card className="p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl space-y-4 shadow-sm">
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 flex-wrap gap-2">
           <div className="flex items-center gap-2">
-            <LifeBuoy className="w-5 h-5 text-red-600" />
+            <LifeBuoy className="w-5 h-5 text-[#C94B55]" />
             <h3 className="text-base font-black text-[#0F172A] dark:text-white">
               Offline First-Aid Emergency Guides
             </h3>
           </div>
-          <span className="text-[11px] font-black uppercase tracking-wider text-[#66729F] dark:text-[#9DA8D0] bg-[#D9DDEC]/40 dark:bg-[#7C87B8]/20 px-2.5 py-1 rounded-full border border-[#AEB7D5]/40 dark:border-[#7C87B8]/40">
+          <span className="text-xs font-black uppercase tracking-wider text-[#66729F] dark:text-[#9DA8D0] bg-[#D9DDEC]/40 dark:bg-[#7C87B8]/20 px-2.5 py-1 rounded-full border border-[#AEB7D5]/40 dark:border-[#7C87B8]/40">
             Immediate Bystander Protocols
           </span>
         </div>
 
         {/* Tab Buttons */}
-        <div className="flex flex-wrap gap-2 text-xs font-bold">
+        <div className="flex flex-wrap gap-2 text-[13px] font-bold">
           <button
             onClick={() => setActiveFirstAidTab('cpr')}
             className={`px-3.5 py-2 rounded-xl transition-all cursor-pointer ${
               activeFirstAidTab === 'cpr'
-                ? 'bg-red-600 text-white shadow-xs'
+                ? 'bg-[#C94B55] text-white shadow-xs'
                 : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
             }`}
           >
@@ -547,7 +547,7 @@ export const EmergencySOSPage = () => {
             onClick={() => setActiveFirstAidTab('bleeding')}
             className={`px-3.5 py-2 rounded-xl transition-all cursor-pointer ${
               activeFirstAidTab === 'bleeding'
-                ? 'bg-red-600 text-white shadow-xs'
+                ? 'bg-[#C94B55] text-white shadow-xs'
                 : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
             }`}
           >
@@ -557,7 +557,7 @@ export const EmergencySOSPage = () => {
             onClick={() => setActiveFirstAidTab('choking')}
             className={`px-3.5 py-2 rounded-xl transition-all cursor-pointer ${
               activeFirstAidTab === 'choking'
-                ? 'bg-red-600 text-white shadow-xs'
+                ? 'bg-[#C94B55] text-white shadow-xs'
                 : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
             }`}
           >
@@ -567,7 +567,7 @@ export const EmergencySOSPage = () => {
             onClick={() => setActiveFirstAidTab('heart')}
             className={`px-3.5 py-2 rounded-xl transition-all cursor-pointer ${
               activeFirstAidTab === 'heart'
-                ? 'bg-red-600 text-white shadow-xs'
+                ? 'bg-[#C94B55] text-white shadow-xs'
                 : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
             }`}
           >
@@ -577,7 +577,7 @@ export const EmergencySOSPage = () => {
             onClick={() => setActiveFirstAidTab('seizure')}
             className={`px-3.5 py-2 rounded-xl transition-all cursor-pointer ${
               activeFirstAidTab === 'seizure'
-                ? 'bg-red-600 text-white shadow-xs'
+                ? 'bg-[#C94B55] text-white shadow-xs'
                 : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
             }`}
           >
@@ -704,14 +704,14 @@ export const EmergencySOSPage = () => {
               <div className="flex items-center gap-2">
                 <a
                   href={`tel:${contact.phone}`}
-                  className="px-3.5 py-1.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold cursor-pointer shadow-xs flex items-center gap-1.5"
+                  className="px-3.5 py-1.5 rounded-xl bg-[#C94B55] hover:bg-[#B33D46] text-white text-xs font-bold cursor-pointer shadow-xs flex items-center gap-1.5 border border-[#A83D49]"
                 >
                   <PhoneCall className="w-3.5 h-3.5" /> Call
                 </a>
                 {!contact.isPrimary && (
                   <button
                     onClick={() => handleDeleteContact(contact.id || contact._id)}
-                    className="p-1.5 rounded-xl text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 cursor-pointer transition-colors"
+                    className="p-1.5 rounded-xl text-[#C94B55] hover:bg-[#FDF2F4] dark:hover:bg-[#3A2028] cursor-pointer transition-colors"
                     title="Remove Contact"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -838,7 +838,7 @@ export const EmergencySOSPage = () => {
               variant="primary"
               size="sm"
               onClick={handleSaveContact}
-              className="bg-red-600 hover:bg-red-700 text-xs font-bold rounded-xl cursor-pointer text-white"
+              className="bg-[#C94B55] hover:bg-[#B33D46] text-xs font-bold rounded-xl cursor-pointer text-white border border-[#A83D49]"
             >
               Save Contact
             </Button>

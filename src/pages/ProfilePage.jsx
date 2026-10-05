@@ -164,7 +164,7 @@ export const ProfilePage = () => {
           <div>
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-[#66729F] dark:bg-[#9DA8D0] animate-pulse" />
-              <span className="text-xs text-[#66729F] dark:text-[#9DA8D0] font-bold uppercase tracking-wider">Patient Identity Baseline</span>
+              <span className="text-[13px] text-[#66729F] dark:text-[#9DA8D0] font-bold uppercase tracking-wider">Patient Identity Baseline</span>
             </div>
             <h1 className="text-2.5xl font-extrabold text-[#0F172A] dark:text-[#F5F7FA] tracking-tight">
               {t('personalHealthProfile')}
@@ -176,12 +176,12 @@ export const ProfilePage = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="px-3 py-1.5 rounded-full bg-[#EEF1FA] dark:bg-[#2C3146] text-[#66729F] dark:text-[#9DA8D0] text-xs font-bold border border-[#D9DDEC] dark:border-[#313750] shrink-0 flex items-center gap-1.5">
+          <span className="px-3 py-1.5 rounded-full bg-[#EEF1FA] dark:bg-[#2C3146] text-[#66729F] dark:text-[#9DA8D0] text-[13px] font-bold border border-[#D9DDEC] dark:border-[#313750] shrink-0 flex items-center gap-1.5">
             <ShieldCheck className="w-4 h-4 text-[#66729F] dark:text-[#9DA8D0]" /> {t('authenticatedSession')}
           </span>
           <button
             onClick={handleSaveProfile}
-            className="px-4 py-2 rounded-xl bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-white dark:text-[#172033] font-extrabold text-xs flex items-center gap-1.5 shadow-md cursor-pointer transition-all shrink-0"
+            className="px-4 py-2 rounded-xl bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-white dark:text-[#172033] font-extrabold text-[13px] flex items-center gap-1.5 shadow-md cursor-pointer transition-all shrink-0"
           >
             <Save className="w-3.5 h-3.5 text-white dark:text-[#172033]" />
             <span>{t('save')}</span>
@@ -195,13 +195,13 @@ export const ProfilePage = () => {
         <Card className="p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs space-y-4">
           <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
             <User className="w-5 h-5 text-[#66729F] dark:text-[#9DA8D0]" />
-            <h3 className="text-base font-extrabold text-[#0F172A]">{t('personalInformation')}</h3>
+            <h3 className="text-base font-extrabold text-[#0F172A] dark:text-[#F5F7FA]">{t('personalInformation')}</h3>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
             
             <div className="med-form-group">
-              <label htmlFor="name" className="block text-xs font-bold text-[#0F172A] mb-1.5">{t('fullName')}</label>
+              <label htmlFor="name" className="block text-[13px] font-bold text-[#0F172A] dark:text-[#F5F7FA] mb-1.5">{t('fullName')}</label>
               <input
                 id="name"
                 type="text"
@@ -214,7 +214,7 @@ export const ProfilePage = () => {
             </div>
 
             <div className="med-form-group">
-              <label htmlFor="phone" className="block text-xs font-bold text-[#0F172A] mb-1.5">{t('phoneNumber')}</label>
+              <label htmlFor="phone" className="block text-[13px] font-bold text-[#0F172A] dark:text-[#F5F7FA] mb-1.5">{t('phoneNumber')}</label>
               <input
                 id="phone"
                 type="tel"
@@ -227,7 +227,7 @@ export const ProfilePage = () => {
             </div>
 
             <div className="med-form-group">
-              <label htmlFor="dob" className="block text-xs font-bold text-[#0F172A] mb-1.5">{t('dateOfBirth')}</label>
+              <label htmlFor="dob" className="block text-[13px] font-bold text-[#0F172A] dark:text-[#F5F7FA] mb-1.5">{t('dateOfBirth')}</label>
               <input
                 id="dob"
                 type="date"
@@ -240,14 +240,14 @@ export const ProfilePage = () => {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="med-form-group">
-                <label className="block text-xs font-bold text-[#0F172A] mb-1.5">{t('age')}</label>
+                <label className="block text-[13px] font-bold text-[#0F172A] dark:text-[#F5F7FA] mb-1.5">{t('age')}</label>
                 <div className={`med-input bg-slate-50 font-bold text-xs flex items-center ${age ? 'text-slate-800' : 'text-slate-400 font-normal'}`}>
                   {age ? `${age} ${language === 'HI' ? 'वर्ष' : language === 'GU' ? 'વર્ષ' : 'years old'}` : '--'}
                 </div>
               </div>
 
               <div className="med-form-group">
-                <label htmlFor="gender" className="block text-xs font-bold text-[#0F172A] mb-1.5">{t('gender')}</label>
+                <label htmlFor="gender" className="block text-[13px] font-bold text-[#0F172A] dark:text-[#F5F7FA] mb-1.5">{t('gender')}</label>
                 <select
                   id="gender"
                   name="gender"
@@ -277,7 +277,7 @@ export const ProfilePage = () => {
             
             {/* Height Field */}
             <div className="med-form-group">
-              <label htmlFor="height" className="block text-xs font-bold text-[#0F172A] mb-1.5">{t('height')}</label>
+              <label htmlFor="height" className="block text-[13px] font-bold text-[#0F172A] dark:text-[#F5F7FA] mb-1.5">{t('height')}</label>
               <div className="unit-input-group">
                 <input
                   id="height"
@@ -301,7 +301,7 @@ export const ProfilePage = () => {
 
             {/* Weight Field */}
             <div className="med-form-group">
-              <label htmlFor="weight" className="block text-xs font-bold text-[#0F172A] mb-1.5">{t('weight')}</label>
+              <label htmlFor="weight" className="block text-[13px] font-bold text-[#0F172A] dark:text-[#F5F7FA] mb-1.5">{t('weight')}</label>
               <div className="unit-input-group">
                 <input
                   id="weight"
@@ -325,7 +325,7 @@ export const ProfilePage = () => {
 
             {/* Blood Group Field */}
             <div className="med-form-group">
-              <label htmlFor="bloodGroup" className="block text-xs font-bold text-[#0F172A] mb-1.5">{t('bloodGroup')}</label>
+              <label htmlFor="bloodGroup" className="block text-[13px] font-bold text-[#0F172A] dark:text-[#F5F7FA] mb-1.5">{t('bloodGroup')}</label>
               <select
                 id="bloodGroup"
                 name="bloodGroup"
@@ -348,7 +348,7 @@ export const ProfilePage = () => {
 
             {/* Primary Physician Field */}
             <div className="med-form-group">
-              <label htmlFor="primaryPhysician" className="block text-xs font-bold text-[#0F172A] mb-1.5">{t('primaryPhysician')}</label>
+              <label htmlFor="primaryPhysician" className="block text-[13px] font-bold text-[#0F172A] dark:text-[#F5F7FA] mb-1.5">{t('primaryPhysician')}</label>
               <input
                 id="primaryPhysician"
                 type="text"
@@ -374,7 +374,7 @@ export const ProfilePage = () => {
               type="button"
               onClick={handleUseCurrentLocation}
               disabled={locLoading}
-              className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#25293C] hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-[#F5F7FA] text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs self-start sm:self-auto transition-colors"
+              className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#25293C] hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-[#F5F7FA] text-[13px] font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs self-start sm:self-auto transition-colors"
             >
               <Compass className={`w-3.5 h-3.5 text-[#66729F] dark:text-[#9DA8D0] ${locLoading ? 'animate-spin' : ''}`} />
               <span>{locLoading ? t('locating') : t('useCurrentLocation')}</span>
@@ -383,7 +383,7 @@ export const ProfilePage = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
             <div className="med-form-group">
-              <label htmlFor="city" className="block text-xs font-bold text-[#0F172A] mb-1.5">{t('city')}</label>
+              <label htmlFor="city" className="block text-[13px] font-bold text-[#0F172A] dark:text-[#F5F7FA] mb-1.5">{t('city')}</label>
               <input
                 id="city"
                 type="text"
@@ -396,7 +396,7 @@ export const ProfilePage = () => {
             </div>
 
             <div className="med-form-group">
-              <label htmlFor="state" className="block text-xs font-bold text-[#0F172A] mb-1.5">{t('state')}</label>
+              <label htmlFor="state" className="block text-[13px] font-bold text-[#0F172A] dark:text-[#F5F7FA] mb-1.5">{t('state')}</label>
               <input
                 id="state"
                 type="text"
@@ -409,7 +409,7 @@ export const ProfilePage = () => {
             </div>
 
             <div className="med-form-group">
-              <label htmlFor="country" className="block text-xs font-bold text-[#0F172A] mb-1.5">{t('country')}</label>
+              <label htmlFor="country" className="block text-[13px] font-bold text-[#0F172A] dark:text-[#F5F7FA] mb-1.5">{t('country')}</label>
               <input
                 id="country"
                 type="text"
@@ -424,15 +424,15 @@ export const ProfilePage = () => {
         </Card>
 
         {/* 4. Emergency Medical Notes & Allergies */}
-        <Card className="p-6 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-4">
-          <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-            <Siren className="w-5 h-5 text-rose-600" />
-            <h3 className="text-base font-extrabold text-[#0F172A]">{t('emergencyMedicalNotes')}</h3>
+        <Card className="p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs space-y-4">
+          <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+            <Siren className="w-5 h-5 text-[#C94B55]" />
+            <h3 className="text-base font-extrabold text-[#0F172A] dark:text-[#F5F7FA]">{t('emergencyMedicalNotes')}</h3>
           </div>
 
           <div className="space-y-4 text-xs">
             <div className="med-form-group">
-              <label htmlFor="allergies" className="block text-xs font-bold text-[#0F172A] mb-1.5">{t('knownAllergies')}</label>
+              <label htmlFor="allergies" className="block text-[13px] font-bold text-[#0F172A] dark:text-[#F5F7FA] mb-1.5">{t('knownAllergies')}</label>
               <textarea
                 id="allergies"
                 name="allergies"
@@ -445,7 +445,7 @@ export const ProfilePage = () => {
             </div>
 
             <div className="med-form-group">
-              <label htmlFor="existingConditions" className="block text-xs font-bold text-[#0F172A] mb-1.5">{t('existingConditions')}</label>
+              <label htmlFor="existingConditions" className="block text-[13px] font-bold text-[#0F172A] dark:text-[#F5F7FA] mb-1.5">{t('existingConditions')}</label>
               <textarea
                 id="existingConditions"
                 name="existingConditions"
@@ -458,7 +458,7 @@ export const ProfilePage = () => {
             </div>
 
             <div className="med-form-group">
-              <label htmlFor="emergencyNotes" className="block text-xs font-bold text-[#0F172A] mb-1.5">{t('emergencyNotes')}</label>
+              <label htmlFor="emergencyNotes" className="block text-[13px] font-bold text-[#0F172A] dark:text-[#F5F7FA] mb-1.5">{t('emergencyNotes')}</label>
               <textarea
                 id="emergencyNotes"
                 name="emergencyNotes"

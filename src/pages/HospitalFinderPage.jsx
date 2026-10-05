@@ -400,7 +400,7 @@ export const HospitalFinderPage = () => {
         const isEmergency = fac.emergencyConfirmed;
         const facIcon = L.divIcon({
           className: 'custom-fac-marker',
-          html: `<div style="background-color: ${isEmergency ? '#DC2626' : '#66729F'}; width: 14px; height: 14px; border-radius: 50%; border: 2px solid #FFFFFF; box-shadow: 0 2px 6px rgba(0,0,0,0.3);"></div>`,
+          html: `<div style="background-color: ${isEmergency ? '#C94B55' : '#66729F'}; width: 14px; height: 14px; border-radius: 50%; border: 2px solid #FFFFFF; box-shadow: 0 2px 6px rgba(0,0,0,0.3);"></div>`,
           iconSize: [14, 14],
           iconAnchor: [7, 7]
         });
@@ -612,10 +612,10 @@ export const HospitalFinderPage = () => {
                     className={`px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer border ${
                       isSelected
                         ? isEmergency 
-                          ? 'bg-rose-600 text-white border-rose-700 shadow-xs'
+                          ? 'bg-[#C94B55] text-white border-[#A83D49] shadow-xs'
                           : 'bg-[#0F172A] text-white border-slate-800 shadow-xs'
                         : isEmergency
-                        ? 'bg-rose-50 text-rose-800 border-rose-200 hover:bg-rose-100'
+                        ? 'bg-[#FDF2F4] text-[#8E2C36] border-[#F0B8BF] hover:bg-[#F9E2E5]'
                         : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
                     }`}
                   >
@@ -655,7 +655,7 @@ export const HospitalFinderPage = () => {
               {/* Error State (Zero Fake Data) */}
               {!loadingFacilities && apiError && (
                 <Card className="p-8 text-center bg-white border border-slate-200 rounded-2xl space-y-4 shadow-xs">
-                  <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto border border-rose-200">
+                  <div className="w-12 h-12 rounded-2xl bg-[#FDF2F4] text-[#C94B55] flex items-center justify-center mx-auto border border-[#F0B8BF]">
                     <AlertTriangle className="w-6 h-6" />
                   </div>
                   <div className="space-y-1.5 max-w-md mx-auto">
@@ -723,29 +723,29 @@ export const HospitalFinderPage = () => {
                   <div className="flex justify-between items-start gap-3">
                     <div>
                       <h3 className="text-base font-extrabold text-[#0F172A] dark:text-[#F5F7FA]">{fac.name}</h3>
-                      <p className="text-xs text-[#66729F] dark:text-[#9DA8D0] font-bold mt-0.5">{fac.type}</p>
+                      <p className="text-[13px] text-[#66729F] dark:text-[#9DA8D0] font-bold mt-0.5">{fac.type}</p>
                     </div>
 
                     {/* Open/Closed status — ONLY displayed if API provides it */}
                     {fac.openStatus ? (
-                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-xs font-bold border border-emerald-200 shrink-0">
+                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-[13px] font-bold border border-emerald-200 shrink-0">
                         {fac.openStatus}
                       </span>
                     ) : fac.emergencyConfirmed ? (
-                      <span className="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-800 text-xs font-bold border border-rose-200 shrink-0">
+                      <span className="px-2.5 py-0.5 rounded-full bg-[#FDF2F4] dark:bg-[#3A2028] text-[#8E2C36] dark:text-[#F3C6CB] text-[13px] font-bold border border-[#F0B8BF] dark:border-[#A83D49] shrink-0">
                         24/7 Emergency Confirmed
                       </span>
                     ) : null}
                   </div>
 
                   {/* Real Address from API */}
-                  <p className="text-xs text-slate-600 flex items-start gap-1.5 font-normal">
+                  <p className="text-[13px] text-slate-600 dark:text-[#C8D0E0] flex items-start gap-1.5 font-normal">
                     <MapPin className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" /> 
                     <span>{fac.address}</span>
                   </p>
 
-                  <div className="flex items-center justify-between text-xs pt-2.5 border-t border-slate-100 text-slate-600 font-medium flex-wrap gap-2">
-                    <span className="flex items-center gap-1 font-bold text-[#0F172A]">
+                  <div className="flex items-center justify-between text-[13px] pt-2.5 border-t border-slate-100 dark:border-slate-800 text-slate-600 dark:text-[#C8D0E0] font-medium flex-wrap gap-2">
+                    <span className="flex items-center gap-1 font-bold text-[#0F172A] dark:text-[#F5F7FA]">
                       <Compass className="w-3.5 h-3.5 text-[#66729F] dark:text-[#9DA8D0]" /> {fac.distanceKm} km away
                     </span>
 

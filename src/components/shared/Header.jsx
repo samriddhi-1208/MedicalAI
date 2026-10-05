@@ -152,10 +152,10 @@ export const Header = ({ collapsed }) => {
         {/* Emergency SOS Button */}
         <button
           onClick={() => navigate('/app/sos')}
-          className="med-btn med-btn-emergency text-xs py-1 px-2.5 sm:px-3.5 font-bold shrink-0 cursor-pointer rounded-lg flex items-center gap-1"
+          className="med-btn med-btn-emergency py-1.5 px-3 sm:px-3.5 font-bold shrink-0 cursor-pointer rounded-xl flex items-center gap-1.5 shadow-xs"
         >
-          <Siren className="w-3.5 h-3.5" /> 
-          <span className="inline text-[11px] sm:text-xs">
+          <Siren className="w-4 h-4 text-white" /> 
+          <span className="inline text-xs sm:text-[13px] font-bold">
             <span className="sm:hidden">SOS</span>
             <span className="hidden sm:inline">{t('emergencySOS')}</span>
           </span>

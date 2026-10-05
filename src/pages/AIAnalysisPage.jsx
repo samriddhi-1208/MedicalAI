@@ -200,34 +200,34 @@ export const AIAnalysisPage = () => {
 
       {/* Patient Information Banner */}
       <Card className="p-5 bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs space-y-3">
-        <h3 className="text-xs font-bold text-[#66729F] dark:text-[#9DA8D0] uppercase tracking-wider flex items-center gap-2">
+        <h3 className="text-[13px] font-bold text-[#66729F] dark:text-[#9DA8D0] uppercase tracking-wider flex items-center gap-2">
           <User className="w-4 h-4 text-[#66729F] dark:text-[#9DA8D0]" /> {t('patientIdentification')}
         </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs p-3.5 rounded-xl bg-slate-50 dark:bg-[#151824] border border-slate-200/80 dark:border-slate-800">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-[13px] p-3.5 rounded-xl bg-slate-50 dark:bg-[#151824] border border-slate-200/80 dark:border-slate-800">
           <div>
-            <span className="text-slate-500 dark:text-[#C8D0E0] block">{t('patientName')} (in Report)</span>
+            <span className="text-slate-500 dark:text-[#C8D0E0] block text-[13px]">{t('patientName')} (in Report)</span>
             <strong className="text-[#0F172A] dark:text-[#F5F7FA] font-black text-sm">
               {selectedReport.patientName || selectedReport.patient_name || 'Unspecified'}
             </strong>
           </div>
           <div className="min-w-0">
-            <span className="text-slate-500 dark:text-[#C8D0E0] block">{t('reportFile')}</span>
+            <span className="text-slate-500 dark:text-[#C8D0E0] block text-[13px]">{t('reportFile')}</span>
             <strong className="text-slate-800 dark:text-[#F5F7FA] font-bold block truncate max-w-full" title={selectedReport.file_name || selectedReport.fileName}>
               {selectedReport.file_name || selectedReport.fileName || 'Report.pdf'}
             </strong>
           </div>
           <div>
-            <span className="text-slate-500 dark:text-[#C8D0E0] block">{t('reportDate')}</span>
+            <span className="text-slate-500 dark:text-[#C8D0E0] block text-[13px]">{t('reportDate')}</span>
             <strong className="text-slate-800 dark:text-[#F5F7FA] font-bold">
               {selectedReport.reportDate || selectedReport.date || selectedReport.report_date || 'N/A'}
             </strong>
             {selectedReport.uploadedAt && selectedReport.uploadedAt !== (selectedReport.reportDate || selectedReport.date) && (
-              <span className="text-[10px] text-slate-400 dark:text-slate-500 block font-normal">Uploaded: {selectedReport.uploadedAt}</span>
+              <span className="text-xs text-slate-400 dark:text-slate-500 block font-normal">Uploaded: {selectedReport.uploadedAt}</span>
             )}
           </div>
           <div>
-            <span className="text-slate-500 dark:text-[#C8D0E0] block">{t('extractionConfidence')}</span>
-            <strong className={`font-bold ${biomarkers.length + vitals.length + medications.length > 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+            <span className="text-slate-500 dark:text-[#C8D0E0] block text-[13px]">{t('extractionConfidence')}</span>
+            <strong className={`font-bold ${biomarkers.length + vitals.length + medications.length > 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-[#C94B55] dark:text-[#F3C6CB]'}`}>
               {selectedReport.ocrConfidence || (biomarkers.length + vitals.length + medications.length > 0 ? '98.5% (High Precision)' : 'Extraction Unsuccessful')}
             </strong>
           </div>
@@ -298,9 +298,9 @@ export const AIAnalysisPage = () => {
               <div key={idx} className={`p-4 rounded-xl border ${bgStyle} space-y-2 transition-all hover:shadow-xs`}>
                 <div className="flex items-center gap-2">
                   <span className="text-base">{icon}</span>
-                  <h4 className={`text-xs font-black uppercase tracking-wider ${titleColor}`}>{title}</h4>
+                  <h4 className={`text-[13px] font-black uppercase tracking-wider ${titleColor}`}>{title}</h4>
                 </div>
-                <p className="text-xs text-slate-700 dark:text-[#C8D0E0] font-normal leading-relaxed">
+                <p className="text-[13px] text-slate-700 dark:text-[#C8D0E0] font-normal leading-relaxed">
                   {cleanText}
                 </p>
               </div>
@@ -324,7 +324,7 @@ export const AIAnalysisPage = () => {
               <Pill className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-xs text-teal-800 dark:text-[#2DD4BF] font-bold block">{t('prescribedMedications')}</span>
+              <span className="text-[13px] text-teal-800 dark:text-[#2DD4BF] font-bold block">{t('prescribedMedications')}</span>
               <strong className="text-lg font-black text-[#0F172A] dark:text-[#F5F7FA]">{medications.length} {t('dosesIdentified')}</strong>
             </div>
           </div>
@@ -344,7 +344,7 @@ export const AIAnalysisPage = () => {
               <Activity className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-xs text-sky-800 dark:text-sky-300 font-bold block">{t('labBiomarkers')}</span>
+              <span className="text-[13px] text-sky-800 dark:text-sky-300 font-bold block">{t('labBiomarkers')}</span>
               <strong className="text-lg font-black text-[#0F172A] dark:text-[#F5F7FA]">{biomarkers.length} {t('parametersParsed')}</strong>
             </div>
           </div>
@@ -364,7 +364,7 @@ export const AIAnalysisPage = () => {
               <HeartPulse className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-xs text-indigo-800 dark:text-indigo-300 font-bold block">{t('vitalSigns')}</span>
+              <span className="text-[13px] text-indigo-800 dark:text-indigo-300 font-bold block">{t('vitalSigns')}</span>
               <strong className="text-lg font-black text-[#0F172A] dark:text-[#F5F7FA]">{vitals.length} {t('vitalsRecorded')}</strong>
             </div>
           </div>
@@ -514,8 +514,8 @@ export const AIAnalysisPage = () => {
                       <p className="text-slate-500 dark:text-[#C8D0E0] font-medium mt-0.5">Category: {bm.category || 'Clinical Diagnostic'}</p>
                     </div>
 
-                    <span className={`px-2.5 py-1 rounded-full font-extrabold text-xs shrink-0 flex items-center gap-1 ${
-                      isNormal ? 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300' : 'bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300'
+                    <span className={`px-2.5 py-1 rounded-full font-extrabold text-[13px] shrink-0 flex items-center gap-1 ${
+                      isNormal ? 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300' : 'bg-rose-100 dark:bg-[#3A2028] text-rose-800 dark:text-[#F3C6CB] border border-[#A83D49]/30'
                     }`}>
                       <span>{bm.statusSymbol || (isNormal ? '✓' : '▲')}</span>
                       <span>{bm.status || 'Normal'}</span>
@@ -524,15 +524,15 @@ export const AIAnalysisPage = () => {
 
                   <div className="flex items-baseline justify-between p-3 rounded-xl bg-slate-50 dark:bg-[#151824] border border-slate-200 dark:border-slate-800">
                     <div>
-                      <span className="text-xs font-bold text-slate-500 dark:text-[#C8D0E0] block">Measured Value</span>
+                      <span className="text-[13px] font-bold text-slate-500 dark:text-[#C8D0E0] block">Measured Value</span>
                       <span className="text-base sm:text-lg font-black text-[#0F172A] dark:text-[#F5F7FA]">
-                        {bm.value} <span className="text-xs font-bold text-slate-600 dark:text-[#C8D0E0]">{bm.unit}</span>
+                        {bm.value} <span className="text-[13px] font-bold text-slate-600 dark:text-[#C8D0E0]">{bm.unit}</span>
                       </span>
                     </div>
 
                     <div className="text-right">
-                      <span className="text-xs font-bold text-slate-500 dark:text-[#C8D0E0] block">Reference Range</span>
-                      <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                      <span className="text-[13px] font-bold text-slate-500 dark:text-[#C8D0E0] block">Reference Range</span>
+                      <span className="text-[13px] font-bold text-slate-700 dark:text-slate-300">
                         {String(bm.refRange || bm.referenceRange || bm.reference_range || '').includes('000 - 11') ? '4,000 – 11,000' : (bm.refRange || bm.referenceRange || bm.reference_range || 'N/A')}
                       </span>
                     </div>
@@ -540,10 +540,10 @@ export const AIAnalysisPage = () => {
 
                   {/* PLAIN LANGUAGE EXPLANATION BOX */}
                   <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#151824] border border-slate-200 dark:border-slate-800 text-xs text-slate-800 dark:text-[#F5F7FA] font-medium space-y-1">
-                    <div className="flex items-center gap-1.5 text-[#66729F] dark:text-[#9DA8D0] font-bold text-[11px] uppercase tracking-wider">
+                    <div className="flex items-center gap-1.5 text-[#66729F] dark:text-[#9DA8D0] font-bold text-xs uppercase tracking-wider">
                       <Sparkles className="w-3.5 h-3.5 text-[#66729F] dark:text-[#9DA8D0]" /> What this means for you:
                     </div>
-                    <p className="text-slate-600 dark:text-[#C8D0E0] leading-relaxed text-[11px]">
+                    <p className="text-slate-600 dark:text-[#C8D0E0] leading-relaxed text-xs">
                       {bm.easyExplanation || getEasyBiomarkerExplanation(bm.name || bm.biomarker_name, bm.status || 'Normal', bm.value, bm.unit)}
                     </p>
                   </div>

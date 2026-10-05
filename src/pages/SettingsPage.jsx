@@ -100,30 +100,30 @@ export const SettingsPage = () => {
     <div className="space-y-6 pb-12 font-sans antialiased max-w-6xl mx-auto">
       
       {/* Settings Header */}
-      <div className="border-b border-slate-200 pb-4">
+      <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-[#1A4B84] animate-pulse" />
-          <span className="text-xs text-[#1A4B84] font-bold uppercase tracking-wider">
+          <span className="w-2 h-2 rounded-full bg-[#66729F] dark:bg-[#7C87B8] animate-pulse" />
+          <span className="text-[13px] text-[#66729F] dark:text-[#9DA8D0] font-bold uppercase tracking-wider">
             {language === 'HI' ? 'एप्लिकेशन कॉन्फ़िगरेशन' : language === 'GU' ? 'એપ્લિકેશન કોન્ફિગરેશન' : 'APPLICATION CONFIGURATION'}
           </span>
         </div>
-        <h1 className="text-2.5xl font-extrabold text-[#1A4B84] tracking-tight mt-0.5">
+        <h1 className="text-2.5xl font-extrabold text-[#0F172A] dark:text-[#F5F7FA] tracking-tight mt-0.5">
           {t('applicationSettings')}
         </h1>
-        <p className="text-xs text-slate-500 font-normal">
+        <p className="text-[13px] text-slate-500 dark:text-[#C8D0E0] font-normal">
           {t('settingsSubtitle')}
         </p>
       </div>
 
       {/* Language Selector Banner */}
-      <Card className="p-4 bg-white border border-slate-200 rounded-2xl shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <Card className="p-4 bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#EBF6F8] text-[#2D90A6] flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-[#EEF1FA] dark:bg-[#2C3146] text-[#66729F] dark:text-[#9DA8D0] flex items-center justify-center shrink-0">
             <Globe className="w-5 h-5" />
           </div>
           <div>
-            <h4 className="font-extrabold text-sm text-[#1A4B84]">{t('languageSelection')}</h4>
-            <p className="text-xs text-slate-500 font-normal">{t('selectAppLanguage')}</p>
+            <h4 className="font-extrabold text-sm text-[#0F172A] dark:text-[#F5F7FA]">{t('languageSelection')}</h4>
+            <p className="text-xs text-slate-500 dark:text-[#C8D0E0] font-normal">{t('selectAppLanguage')}</p>
           </div>
         </div>
 
@@ -133,10 +133,10 @@ export const SettingsPage = () => {
               setLanguage('EN');
               toast.success("Switched to English");
             }}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`px-4 py-2 rounded-xl text-[13px] font-bold transition-all cursor-pointer ${
               language === 'EN'
-                ? 'bg-[#1A4B84] text-white shadow-2xs'
-                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                ? 'bg-[#66729F] dark:bg-[#7C87B8] text-white dark:text-[#172033] shadow-2xs'
+                : 'bg-slate-100 dark:bg-[#25293C] text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
             {t('english')}
@@ -147,10 +147,10 @@ export const SettingsPage = () => {
               setLanguage('HI');
               toast.success("भाषा बदलकर हिंदी की गई");
             }}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`px-4 py-2 rounded-xl text-[13px] font-bold transition-all cursor-pointer ${
               language === 'HI'
-                ? 'bg-[#1A4B84] text-white shadow-2xs'
-                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                ? 'bg-[#66729F] dark:bg-[#7C87B8] text-white dark:text-[#172033] shadow-2xs'
+                : 'bg-slate-100 dark:bg-[#25293C] text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
             {t('hindi')}
@@ -161,10 +161,10 @@ export const SettingsPage = () => {
               setLanguage('GU');
               toast.success("ભાષા બદલીને ગુજરાતી કરવામાં આવી");
             }}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`px-4 py-2 rounded-xl text-[13px] font-bold transition-all cursor-pointer ${
               language === 'GU'
-                ? 'bg-[#1A4B84] text-white shadow-2xs'
-                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                ? 'bg-[#66729F] dark:bg-[#7C87B8] text-white dark:text-[#172033] shadow-2xs'
+                : 'bg-slate-100 dark:bg-[#25293C] text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
             {t('gujarati')}
@@ -177,7 +177,7 @@ export const SettingsPage = () => {
         
         {/* Secondary Navigation Sidebar (4 cols) */}
         <div className="col-span-4 space-y-1">
-          <Card className="p-3 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-1">
+          <Card className="p-3 bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs space-y-1">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
@@ -185,17 +185,17 @@ export const SettingsPage = () => {
                 <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
-                  className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                  className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-[13px] font-semibold transition-all cursor-pointer ${
                     isActive 
-                      ? 'bg-[#1A4B84] text-white shadow-2xs' 
-                      : 'text-slate-700 hover:bg-slate-100'
+                      ? 'bg-[#66729F] dark:bg-[#7C87B8] text-white dark:text-[#172033] shadow-2xs' 
+                      : 'text-slate-700 dark:text-[#C8D0E0] hover:bg-slate-100 dark:hover:bg-[#25293C]'
                   }`}
                 >
                   <span className="flex items-center gap-2.5">
-                    <Icon className={`w-4 h-4 ${isActive ? 'text-[#2D90A6]' : 'text-slate-500'}`} />
+                    <Icon className={`w-4 h-4 ${isActive ? 'text-white dark:text-[#172033]' : 'text-slate-500 dark:text-slate-400'}`} />
                     <span>{item.label}</span>
                   </span>
-                  <ChevronRight className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                  <ChevronRight className={`w-3.5 h-3.5 ${isActive ? 'text-white dark:text-[#172033]' : 'text-slate-400'}`} />
                 </button>
               );
             })}
@@ -204,58 +204,58 @@ export const SettingsPage = () => {
 
         {/* Settings Content Active Tab (8 cols) */}
         <div className="col-span-8">
-          <Card className="p-6 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-6">
+          <Card className="p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs space-y-6">
             
             {/* Account Settings Tab */}
             {activeTab === 'account' && (
               <div className="space-y-5">
-                <div className="border-b border-slate-100 pb-3">
-                  <h3 className="text-base font-extrabold text-[#1A4B84]">{t('accountSettings')}</h3>
-                  <p className="text-xs text-slate-500 font-normal">{t('manageAccountSubtitle')}</p>
+                <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
+                  <h3 className="text-base font-extrabold text-[#0F172A] dark:text-[#F5F7FA]">{t('accountSettings')}</h3>
+                  <p className="text-[13px] text-slate-500 dark:text-[#C8D0E0] font-normal">{t('manageAccountSubtitle')}</p>
                 </div>
 
                 <div className="space-y-3">
                   <Link
                     to="/app/profile"
-                    className="p-4 rounded-xl border border-slate-200 hover:border-[#1A4B84] bg-slate-50/60 flex items-center justify-between transition-all group"
+                    className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-[#66729F] bg-slate-50/60 dark:bg-[#151824] flex items-center justify-between transition-all group"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-[#1A4B84] text-white flex items-center justify-center font-bold">
-                        <User className="w-5 h-5 text-[#2D90A6]" />
+                      <div className="w-10 h-10 rounded-xl bg-[#66729F] dark:bg-[#7C87B8] text-white dark:text-[#172033] flex items-center justify-center font-bold">
+                        <User className="w-5 h-5" />
                       </div>
                       <div>
-                        <h4 className="font-extrabold text-sm text-[#1A4B84] group-hover:text-[#2D90A6]">{t('personalHealthProfile')}</h4>
-                        <p className="text-xs text-slate-500 font-medium">{t('personalHealthSubtitle')}</p>
+                        <h4 className="font-extrabold text-sm text-[#0F172A] dark:text-[#F5F7FA] group-hover:text-[#66729F] dark:group-hover:text-[#9DA8D0]">{t('personalHealthProfile')}</h4>
+                        <p className="text-xs text-slate-500 dark:text-[#C8D0E0] font-medium">{t('personalHealthSubtitle')}</p>
                       </div>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#1A4B84]" />
+                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#66729F]" />
                   </Link>
 
-                  <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/60 flex items-center justify-between">
+                  <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-[#151824] flex items-center justify-between">
                     <div>
-                      <h4 className="font-extrabold text-sm text-[#1A4B84]">{t('emailPhone')}</h4>
-                      <p className="text-xs text-slate-500 font-medium">{userProfile?.email || 'patient@example.com'}</p>
+                      <h4 className="font-extrabold text-sm text-[#0F172A] dark:text-[#F5F7FA]">{t('emailPhone')}</h4>
+                      <p className="text-xs text-slate-500 dark:text-[#C8D0E0] font-medium">{userProfile?.email || 'patient@example.com'}</p>
                     </div>
                     <Button
                       variant="outline"
                       size="sm"
-                      className="rounded-xl text-xs font-semibold border-slate-200 cursor-pointer"
+                      className="rounded-xl text-[13px] font-semibold border-slate-200 dark:border-slate-700 cursor-pointer"
                       onClick={() => toast.success("Email & phone management opened")}
                     >
                       {t('update')}
                     </Button>
                   </div>
 
-                  <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/60 flex items-center justify-between">
+                  <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-[#151824] flex items-center justify-between">
                     <div>
-                      <h4 className="font-extrabold text-sm text-[#1A4B84]">{t('changePassword')}</h4>
-                      <p className="text-xs text-slate-500 font-medium">Update your account authentication password</p>
+                      <h4 className="font-extrabold text-sm text-[#0F172A] dark:text-[#F5F7FA]">{t('changePassword')}</h4>
+                      <p className="text-xs text-slate-500 dark:text-[#C8D0E0] font-medium">Update your account authentication password</p>
                     </div>
                     <Button
                       variant="outline"
                       size="sm"
                       icon={Lock}
-                      className="rounded-xl text-xs font-semibold border-slate-200 cursor-pointer"
+                      className="rounded-xl text-[13px] font-semibold border-slate-200 dark:border-slate-700 cursor-pointer"
                       onClick={() => toast.success("Password update link sent to your email")}
                     >
                       {t('change')}
@@ -268,21 +268,21 @@ export const SettingsPage = () => {
             {/* Notifications Settings Tab */}
             {activeTab === 'notifications' && (
               <div className="space-y-5">
-                <div className="border-b border-slate-100 pb-3">
-                  <h3 className="text-base font-extrabold text-[#1A4B84]">{t('notifications')}</h3>
-                  <p className="text-xs text-slate-500 font-normal">Configure medication reminders and clinical alert notifications</p>
+                <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
+                  <h3 className="text-base font-extrabold text-[#0F172A] dark:text-[#F5F7FA]">{t('notifications')}</h3>
+                  <p className="text-[13px] text-slate-500 dark:text-[#C8D0E0] font-normal">Configure medication reminders and clinical alert notifications</p>
                 </div>
 
                 <div className="space-y-4 text-xs">
-                  <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                  <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 dark:bg-[#151824] border border-slate-200 dark:border-slate-800">
                     <div>
-                      <h4 className="font-extrabold text-sm text-[#1A4B84]">Medication Reminders</h4>
-                      <p className="text-slate-500 font-normal">Receive push reminders for upcoming medication doses</p>
+                      <h4 className="font-extrabold text-sm text-[#0F172A] dark:text-[#F5F7FA]">Medication Reminders</h4>
+                      <p className="text-slate-500 dark:text-[#C8D0E0] font-normal text-xs">Receive push reminders for upcoming medication doses</p>
                     </div>
                     <button
                       onClick={() => toggleNotif('medReminders')}
                       className={`w-12 h-6 rounded-full transition-colors p-1 cursor-pointer ${
-                        notifications.medReminders ? 'bg-[#1A4B84]' : 'bg-slate-300'
+                        notifications.medReminders ? 'bg-[#66729F] dark:bg-[#7C87B8]' : 'bg-slate-300 dark:bg-slate-700'
                       }`}
                     >
                       <div className={`w-4 h-4 rounded-full bg-white transition-transform ${
@@ -291,12 +291,12 @@ export const SettingsPage = () => {
                     </button>
                   </div>
 
-                  <div className="flex items-center justify-between p-3.5 rounded-xl bg-[#DC2626]/10 border border-rose-200">
+                  <div className="flex items-center justify-between p-3.5 rounded-xl bg-[#FDF2F4] dark:bg-[#3A2028] border border-[#F0B8BF] dark:border-[#A83D49]">
                     <div>
-                      <h4 className="font-extrabold text-sm text-rose-900">Emergency Notifications</h4>
-                      <p className="text-rose-700 font-medium">Critical safety and 108 emergency notification channel</p>
+                      <h4 className="font-extrabold text-sm text-[#C94B55] dark:text-[#F3C6CB]">Emergency Notifications</h4>
+                      <p className="text-[#A83D49] dark:text-[#F3C6CB]/80 font-medium text-xs">Critical safety and 108 emergency notification channel</p>
                     </div>
-                    <span className="px-3 py-1 rounded-full bg-[#DC2626] text-white font-extrabold text-xs">
+                    <span className="px-3 py-1 rounded-full bg-[#C94B55] text-white font-extrabold text-[13px]">
                       ALWAYS ON
                     </span>
                   </div>
@@ -307,22 +307,22 @@ export const SettingsPage = () => {
             {/* Appearance Tab */}
             {activeTab === 'appearance' && (
               <div className="space-y-5">
-                <div className="border-b border-slate-100 pb-3">
-                  <h3 className="text-base font-extrabold text-[#1A4B84]">{t('appearance')}</h3>
-                  <p className="text-xs text-slate-500 font-normal">Customize visual themes and density across MedGuardian AI</p>
+                <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
+                  <h3 className="text-base font-extrabold text-[#0F172A] dark:text-[#F5F7FA]">{t('appearance')}</h3>
+                  <p className="text-[13px] text-slate-500 dark:text-[#C8D0E0] font-normal">Customize visual themes and density across MedGuardian AI</p>
                 </div>
 
                 <div className="space-y-4 text-xs">
-                  <label className="block font-extrabold text-sm text-[#1A4B84]">Application Theme</label>
+                  <label className="block font-extrabold text-sm text-[#0F172A] dark:text-[#F5F7FA]">Application Theme</label>
                   <div className="grid grid-cols-3 gap-3">
                     {['light', 'dark', 'system'].map((th) => (
                       <button
                         key={th}
                         onClick={() => setAppearance(prev => ({ ...prev, theme: th }))}
-                        className={`p-4 rounded-xl border text-center font-bold capitalize transition-all cursor-pointer ${
+                        className={`p-4 rounded-xl border text-center font-bold capitalize transition-all cursor-pointer text-[13px] ${
                           appearance.theme === th
-                            ? 'border-[#1A4B84] bg-slate-100 text-[#1A4B84]'
-                            : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                            ? 'border-[#66729F] dark:border-[#7C87B8] bg-[#EEF1FA] dark:bg-[#25293C] text-[#66729F] dark:text-[#9DA8D0]'
+                            : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-[#1C1F2E] text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#25293C]'
                         }`}
                       >
                         {th}
@@ -336,21 +336,21 @@ export const SettingsPage = () => {
             {/* Privacy & Security Tab */}
             {activeTab === 'privacy' && (
               <div className="space-y-5">
-                <div className="border-b border-slate-100 pb-3">
-                  <h3 className="text-base font-extrabold text-[#1A4B84]">{t('privacySecurity')}</h3>
-                  <p className="text-xs text-slate-500 font-normal">Manage location permissions, session security, and data privacy</p>
+                <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
+                  <h3 className="text-base font-extrabold text-[#0F172A] dark:text-[#F5F7FA]">{t('privacySecurity')}</h3>
+                  <p className="text-[13px] text-slate-500 dark:text-[#C8D0E0] font-normal">Manage location permissions, session security, and data privacy</p>
                 </div>
 
                 <div className="space-y-4 text-xs">
-                  <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                  <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 dark:bg-[#151824] border border-slate-200 dark:border-slate-800">
                     <div>
-                      <h4 className="font-extrabold text-sm text-[#1A4B84]">Browser Location Access</h4>
-                      <p className="text-slate-500 font-normal">Used for finding nearby hospitals and emergency location sharing</p>
+                      <h4 className="font-extrabold text-sm text-[#0F172A] dark:text-[#F5F7FA]">Browser Location Access</h4>
+                      <p className="text-slate-500 dark:text-[#C8D0E0] font-normal text-xs">Used for finding nearby hospitals and emergency location sharing</p>
                     </div>
                     <button
                       onClick={() => togglePrivacy('locationAccess')}
                       className={`w-12 h-6 rounded-full transition-colors p-1 cursor-pointer ${
-                        privacy.locationAccess ? 'bg-[#1A4B84]' : 'bg-slate-300'
+                        privacy.locationAccess ? 'bg-[#66729F] dark:bg-[#7C87B8]' : 'bg-slate-300 dark:bg-slate-700'
                       }`}
                     >
                       <div className={`w-4 h-4 rounded-full bg-white transition-transform ${
@@ -365,21 +365,21 @@ export const SettingsPage = () => {
             {/* AI Preferences Tab */}
             {activeTab === 'ai' && (
               <div className="space-y-5">
-                <div className="border-b border-slate-100 pb-3">
-                  <h3 className="text-base font-extrabold text-[#1A4B84]">{t('aiPreferences')}</h3>
-                  <p className="text-xs text-slate-500 font-normal">Configure MedGuardian AI parsing depth and clinical explanations</p>
+                <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
+                  <h3 className="text-base font-extrabold text-[#0F172A] dark:text-[#F5F7FA]">{t('aiPreferences')}</h3>
+                  <p className="text-[13px] text-slate-500 dark:text-[#C8D0E0] font-normal">Configure MedGuardian AI parsing depth and clinical explanations</p>
                 </div>
 
                 <div className="space-y-4 text-xs">
-                  <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                  <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 dark:bg-[#151824] border border-slate-200 dark:border-slate-800">
                     <div>
-                      <h4 className="font-extrabold text-sm text-[#1A4B84]">Show AI Health Insights</h4>
-                      <p className="text-slate-500 font-normal">Display personalized plain-language health insights on dashboard</p>
+                      <h4 className="font-extrabold text-sm text-[#0F172A] dark:text-[#F5F7FA]">Show AI Health Insights</h4>
+                      <p className="text-slate-500 dark:text-[#C8D0E0] font-normal text-xs">Display personalized plain-language health insights on dashboard</p>
                     </div>
                     <button
                       onClick={() => toggleAi('showInsights')}
                       className={`w-12 h-6 rounded-full transition-colors p-1 cursor-pointer ${
-                        aiPreferences.showInsights ? 'bg-[#1A4B84]' : 'bg-slate-300'
+                        aiPreferences.showInsights ? 'bg-[#66729F] dark:bg-[#7C87B8]' : 'bg-slate-300 dark:bg-slate-700'
                       }`}
                     >
                       <div className={`w-4 h-4 rounded-full bg-white transition-transform ${
@@ -394,24 +394,24 @@ export const SettingsPage = () => {
             {/* Data Management Tab */}
             {activeTab === 'data' && (
               <div className="space-y-5">
-                <div className="border-b border-slate-100 pb-3">
-                  <h3 className="text-base font-extrabold text-[#1A4B84]">{t('dataManagement')}</h3>
-                  <p className="text-xs text-slate-500 font-normal">Download your health records or manage account deletion</p>
+                <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
+                  <h3 className="text-base font-extrabold text-[#0F172A] dark:text-[#F5F7FA]">{t('dataManagement')}</h3>
+                  <p className="text-[13px] text-slate-500 dark:text-[#C8D0E0] font-normal">Download your health records or manage account deletion</p>
                 </div>
 
                 <div className="space-y-3">
                   <button
                     onClick={() => toast.success("Preparing your complete health data package for download...")}
-                    className="w-full p-4 rounded-xl border border-slate-200 hover:border-[#1A4B84] bg-slate-50/60 flex items-center justify-between transition-all cursor-pointer"
+                    className="w-full p-4 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-[#66729F] dark:hover:border-[#7C87B8] bg-slate-50/60 dark:bg-[#151824] flex items-center justify-between transition-all cursor-pointer"
                   >
                     <div className="flex items-center gap-3">
-                      <Download className="w-5 h-5 text-[#2D90A6]" />
+                      <Download className="w-5 h-5 text-[#66729F] dark:text-[#9DA8D0]" />
                       <div className="text-left">
-                        <h4 className="font-extrabold text-sm text-[#1A4B84]">Download My Data</h4>
-                        <p className="text-xs text-slate-500 font-medium">Export all structured health metrics and report JSONs</p>
+                        <h4 className="font-extrabold text-sm text-[#0F172A] dark:text-[#F5F7FA]">Download My Data</h4>
+                        <p className="text-xs text-slate-500 dark:text-[#C8D0E0] font-medium">Export all structured health metrics and report JSONs</p>
                       </div>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-slate-400" />
+                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#66729F]" />
                   </button>
                 </div>
               </div>
@@ -420,14 +420,14 @@ export const SettingsPage = () => {
             {/* Help & About Tabs */}
             {(activeTab === 'help' || activeTab === 'about') && (
               <div className="space-y-5">
-                <div className="border-b border-slate-100 pb-3">
-                  <h3 className="text-base font-extrabold text-[#1A4B84]">{activeTab === 'help' ? t('helpSupport') : t('about')}</h3>
-                  <p className="text-xs text-slate-500 font-normal">Version 1.0.0 • Clinical AI Healthcare Engine</p>
+                <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
+                  <h3 className="text-base font-extrabold text-[#0F172A] dark:text-[#F5F7FA]">{activeTab === 'help' ? t('helpSupport') : t('about')}</h3>
+                  <p className="text-[13px] text-slate-500 dark:text-[#C8D0E0] font-normal">Version 1.0.0 • Clinical AI Healthcare Engine</p>
                 </div>
 
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2 text-xs text-slate-700">
-                  <p><strong>MedGuardian AI Version 1.0.0</strong></p>
-                  <p className="text-slate-500">Designed and built with modern clinical UX standards.</p>
+                <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#151824] border border-slate-200 dark:border-slate-800 space-y-2 text-[13px] text-slate-700 dark:text-[#C8D0E0]">
+                  <p><strong className="text-[#0F172A] dark:text-[#F5F7FA]">MedGuardian AI Version 1.0.0</strong></p>
+                  <p className="text-slate-500 dark:text-[#C8D0E0]">Designed and built with modern clinical UX standards.</p>
                 </div>
               </div>
             )}
@@ -442,14 +442,14 @@ export const SettingsPage = () => {
         
         {/* ACCOUNT */}
         <div className="space-y-2">
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider px-1">{t('account')}</span>
-          <Card className="p-2 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-1">
+          <span className="text-[13px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-1">{t('account')}</span>
+          <Card className="p-2 bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs space-y-1">
             <Link
               to="/app/profile"
-              className="flex items-center justify-between p-3.5 rounded-xl hover:bg-slate-50 text-xs font-extrabold text-[#1A4B84]"
+              className="flex items-center justify-between p-3.5 rounded-xl hover:bg-slate-50 dark:hover:bg-[#25293C] text-[13px] font-extrabold text-[#0F172A] dark:text-[#F5F7FA]"
             >
               <span className="flex items-center gap-3">
-                <User className="w-4.5 h-4.5 text-[#2D90A6]" /> {t('personalHealthProfile')}
+                <User className="w-4.5 h-4.5 text-[#66729F] dark:text-[#9DA8D0]" /> {t('personalHealthProfile')}
               </span>
               <ChevronRight className="w-4 h-4 text-slate-400" />
             </Link>
@@ -458,34 +458,34 @@ export const SettingsPage = () => {
 
         {/* PREFERENCES */}
         <div className="space-y-2">
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider px-1">PREFERENCES</span>
-          <Card className="p-2 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-1">
+          <span className="text-[13px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-1">PREFERENCES</span>
+          <Card className="p-2 bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs space-y-1">
             <button
               onClick={() => setActiveTab('notifications')}
-              className="w-full flex items-center justify-between p-3.5 rounded-xl hover:bg-slate-50 text-xs font-extrabold text-[#1A4B84] cursor-pointer"
+              className="w-full flex items-center justify-between p-3.5 rounded-xl hover:bg-slate-50 dark:hover:bg-[#25293C] text-[13px] font-extrabold text-[#0F172A] dark:text-[#F5F7FA] cursor-pointer"
             >
               <span className="flex items-center gap-3">
-                <Bell className="w-4.5 h-4.5 text-[#2D90A6]" /> {t('notifications')}
+                <Bell className="w-4.5 h-4.5 text-[#66729F] dark:text-[#9DA8D0]" /> {t('notifications')}
               </span>
               <ChevronRight className="w-4 h-4 text-slate-400" />
             </button>
 
             <button
               onClick={() => setActiveTab('appearance')}
-              className="w-full flex items-center justify-between p-3.5 rounded-xl hover:bg-slate-50 text-xs font-extrabold text-[#1A4B84] cursor-pointer"
+              className="w-full flex items-center justify-between p-3.5 rounded-xl hover:bg-slate-50 dark:hover:bg-[#25293C] text-[13px] font-extrabold text-[#0F172A] dark:text-[#F5F7FA] cursor-pointer"
             >
               <span className="flex items-center gap-3">
-                <Sun className="w-4.5 h-4.5 text-[#2D90A6]" /> {t('appearance')}
+                <Sun className="w-4.5 h-4.5 text-[#66729F] dark:text-[#9DA8D0]" /> {t('appearance')}
               </span>
               <ChevronRight className="w-4 h-4 text-slate-400" />
             </button>
 
             <button
               onClick={() => setActiveTab('ai')}
-              className="w-full flex items-center justify-between p-3.5 rounded-xl hover:bg-slate-50 text-xs font-extrabold text-[#1A4B84] cursor-pointer"
+              className="w-full flex items-center justify-between p-3.5 rounded-xl hover:bg-slate-50 dark:hover:bg-[#25293C] text-[13px] font-extrabold text-[#0F172A] dark:text-[#F5F7FA] cursor-pointer"
             >
               <span className="flex items-center gap-3">
-                <Sparkles className="w-4.5 h-4.5 text-[#2D90A6]" /> {t('aiPreferences')}
+                <Sparkles className="w-4.5 h-4.5 text-[#66729F] dark:text-[#9DA8D0]" /> {t('aiPreferences')}
               </span>
               <ChevronRight className="w-4 h-4 text-slate-400" />
             </button>
@@ -494,24 +494,24 @@ export const SettingsPage = () => {
 
         {/* PRIVACY & SECURITY */}
         <div className="space-y-2">
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider px-1">{t('privacySecurity')}</span>
-          <Card className="p-2 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-1">
+          <span className="text-[13px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-1">{t('privacySecurity')}</span>
+          <Card className="p-2 bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs space-y-1">
             <button
               onClick={() => setActiveTab('privacy')}
-              className="w-full flex items-center justify-between p-3.5 rounded-xl hover:bg-slate-50 text-xs font-extrabold text-[#1A4B84] cursor-pointer"
+              className="w-full flex items-center justify-between p-3.5 rounded-xl hover:bg-slate-50 dark:hover:bg-[#25293C] text-[13px] font-extrabold text-[#0F172A] dark:text-[#F5F7FA] cursor-pointer"
             >
               <span className="flex items-center gap-3">
-                <ShieldCheck className="w-4.5 h-4.5 text-[#2D90A6]" /> {t('privacySecurity')}
+                <ShieldCheck className="w-4.5 h-4.5 text-[#66729F] dark:text-[#9DA8D0]" /> {t('privacySecurity')}
               </span>
               <ChevronRight className="w-4 h-4 text-slate-400" />
             </button>
 
             <button
               onClick={() => setActiveTab('data')}
-              className="w-full flex items-center justify-between p-3.5 rounded-xl hover:bg-slate-50 text-xs font-extrabold text-[#1A4B84] cursor-pointer"
+              className="w-full flex items-center justify-between p-3.5 rounded-xl hover:bg-slate-50 dark:hover:bg-[#25293C] text-[13px] font-extrabold text-[#0F172A] dark:text-[#F5F7FA] cursor-pointer"
             >
               <span className="flex items-center gap-3">
-                <Database className="w-4.5 h-4.5 text-[#2D90A6]" /> {t('dataManagement')}
+                <Database className="w-4.5 h-4.5 text-[#66729F] dark:text-[#9DA8D0]" /> {t('dataManagement')}
               </span>
               <ChevronRight className="w-4 h-4 text-slate-400" />
             </button>

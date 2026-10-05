@@ -497,23 +497,23 @@ export const HealthTimelinePage = () => {
             
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 pt-1">
               <div>
-                <span className="text-[11px] font-bold text-slate-400 uppercase block">Lab Biomarkers</span>
+                <span className="text-[13px] font-bold text-slate-300 uppercase block">Lab Biomarkers</span>
                 <span className="text-2xl font-black text-white">{totalLabBiomarkers} Tracked</span>
               </div>
               <div>
-                <span className="text-[11px] font-bold text-slate-400 uppercase block">Optimal / In Range</span>
+                <span className="text-[13px] font-bold text-slate-300 uppercase block">Optimal / In Range</span>
                 <span className="text-2xl font-black text-emerald-400 flex items-center gap-1.5">
                   {totalOptimalCount} <ShieldCheck className="w-5 h-5 text-emerald-400" />
                 </span>
               </div>
               <div>
-                <span className="text-[11px] font-bold text-slate-400 uppercase block">Attention Needed</span>
+                <span className="text-[13px] font-bold text-slate-300 uppercase block">Attention Needed</span>
                 <span className={`text-2xl font-black flex items-center gap-1.5 ${totalAttentionCount > 0 ? 'text-amber-400' : 'text-slate-300'}`}>
                   {totalAttentionCount} {totalAttentionCount > 0 && <AlertTriangle className="w-5 h-5 text-amber-400" />}
                 </span>
               </div>
               <div>
-                <span className="text-[11px] font-bold text-slate-400 uppercase block">Monitoring Mode</span>
+                <span className="text-[13px] font-bold text-slate-300 uppercase block">Monitoring Mode</span>
                 <span className={`text-xl font-black flex items-center gap-1 ${isLongitudinalActive ? 'text-emerald-400' : 'text-[#AEB7D5]'}`}>
                   {isLongitudinalActive ? 'Longitudinal Trend' : 'Clinical Benchmark'} 
                   <Activity className="w-5 h-5 ml-1" />
@@ -547,7 +547,7 @@ export const HealthTimelinePage = () => {
                       <div className="flex items-center bg-slate-100 dark:bg-[#25293C] p-0.5 rounded-xl border border-slate-200 dark:border-slate-700">
                         <button
                           onClick={() => setChartViewMode('longitudinal')}
-                          className={`px-2.5 py-1 text-xs font-bold rounded-lg flex items-center gap-1 transition-all cursor-pointer ${
+                          className={`px-2.5 py-1 text-[13px] font-bold rounded-lg flex items-center gap-1 transition-all cursor-pointer ${
                             shouldShowLongitudinal
                               ? 'bg-white dark:bg-[#1C1F2E] text-[#0F172A] dark:text-white shadow-2xs'
                               : 'text-slate-500 hover:text-slate-800 dark:text-slate-400'
@@ -557,7 +557,7 @@ export const HealthTimelinePage = () => {
                         </button>
                         <button
                           onClick={() => setChartViewMode('benchmark')}
-                          className={`px-2.5 py-1 text-xs font-bold rounded-lg flex items-center gap-1 transition-all cursor-pointer ${
+                          className={`px-2.5 py-1 text-[13px] font-bold rounded-lg flex items-center gap-1 transition-all cursor-pointer ${
                             !shouldShowLongitudinal
                               ? 'bg-white dark:bg-[#1C1F2E] text-[#0F172A] dark:text-white shadow-2xs'
                               : 'text-slate-500 hover:text-slate-800 dark:text-slate-400'
@@ -567,7 +567,7 @@ export const HealthTimelinePage = () => {
                         </button>
                       </div>
                     ) : (
-                      <span className="px-3 py-1 rounded-full bg-[#EEF1FA] dark:bg-[#2C3146] text-[#66729F] dark:text-[#9DA8D0] text-xs font-bold border border-[#D9DDEC] dark:border-[#313750] flex items-center gap-1">
+                      <span className="px-3 py-1 rounded-full bg-[#EEF1FA] dark:bg-[#2C3146] text-[#66729F] dark:text-[#9DA8D0] text-[13px] font-bold border border-[#D9DDEC] dark:border-[#313750] flex items-center gap-1">
                         <LineChartIcon className="w-3.5 h-3.5" /> Clinical Reference Line Plot
                       </span>
                     )}
@@ -581,7 +581,7 @@ export const HealthTimelinePage = () => {
                       <button
                         key={m}
                         onClick={() => setSelectedMetric(m)}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer ${
+                        className={`px-3 py-1.5 rounded-xl text-[13px] font-bold shrink-0 transition-all cursor-pointer ${
                           activeMetricName === m 
                             ? 'bg-[#66729F] dark:bg-[#7C87B8] text-white dark:text-[#172033] shadow-xs' 
                             : 'bg-slate-100 dark:bg-[#25293C] text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-[#2e334a] border border-slate-200/60 dark:border-slate-700/60'
@@ -881,11 +881,11 @@ export const HealthTimelinePage = () => {
                           : 'border-slate-200/90 dark:border-slate-800'
                       }`}
                     >
-                      <div className="flex justify-between items-center text-xs font-bold text-[#0F172A] dark:text-[#F5F7FA]">
+                      <div className="flex justify-between items-center text-[13px] font-bold text-[#0F172A] dark:text-[#F5F7FA]">
                         <span className="truncate max-w-[150px]">{mName}</span>
                         <div className="flex items-center gap-1.5">
                           <span className={`w-2 h-2 rounded-full ${isNormal ? 'bg-emerald-500' : 'bg-amber-500'}`} />
-                          <span className="px-2 py-0.5 text-[10px] font-extrabold rounded-full bg-slate-100 dark:bg-[#25293C] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                          <span className="px-2 py-0.5 text-xs font-extrabold rounded-full bg-slate-100 dark:bg-[#25293C] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
                             {cardDiff}
                           </span>
                         </div>
@@ -895,7 +895,7 @@ export const HealthTimelinePage = () => {
                         <span className="text-xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight">
                           {latest ? latest.value : 'N/A'} <span className="text-xs font-normal text-slate-500 dark:text-slate-400">{latest?.unit}</span>
                         </span>
-                        <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">{latest?.date}</span>
+                        <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">{latest?.date}</span>
                       </div>
 
                       {/* Mini Reference Meter Bar */}

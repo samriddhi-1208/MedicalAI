@@ -54,10 +54,10 @@ export const Navbar = () => {
 
         {/* Desktop Action CTAs */}
         <div className="hidden md:flex items-center gap-3">
-          {/* Zero-Login Emergency SOS Button (Preserved Red for safety) */}
+          {/* Zero-Login Emergency SOS Button (Muted Medical Red) */}
           <Link
             to="/sos"
-            className="py-2 px-3.5 text-xs sm:text-sm font-black rounded-xl bg-red-600 hover:bg-red-700 text-white flex items-center gap-1.5 cursor-pointer shadow-md transition-all transform hover:scale-105 active:scale-95 animate-pulse"
+            className="py-2 px-3.5 text-xs sm:text-sm font-black rounded-xl bg-[#C94B55] hover:bg-[#B33D46] text-white flex items-center gap-1.5 cursor-pointer shadow-md border border-[#A83D49] transition-all transform hover:scale-105 active:scale-95"
           >
             <Siren className="w-4 h-4 text-white" />
             <span>Emergency SOS</span>
@@ -83,7 +83,7 @@ export const Navbar = () => {
         <div className="flex md:hidden items-center gap-2">
           <Link
             to="/sos"
-            className="py-1.5 px-3 text-xs font-black rounded-xl bg-red-600 text-white flex items-center gap-1 shadow-sm animate-pulse"
+            className="py-1.5 px-3 text-xs font-black rounded-xl bg-[#C94B55] text-white flex items-center gap-1 shadow-sm border border-[#A83D49]"
           >
             <Siren className="w-3.5 h-3.5 text-white" />
             <span>SOS</span>
@@ -107,7 +107,7 @@ export const Navbar = () => {
           <Link
             to="/sos"
             onClick={() => setMobileMenuOpen(false)}
-            className="w-full py-3 px-4 font-black text-white bg-red-600 hover:bg-red-700 rounded-xl flex items-center justify-center gap-2 text-center shadow-md animate-pulse"
+            className="w-full py-3 px-4 font-black text-white bg-[#C94B55] hover:bg-[#B33D46] rounded-xl flex items-center justify-center gap-2 text-center shadow-md border border-[#A83D49]"
           >
             <Siren className="w-5 h-5 text-white" />
             <span>🚨 1-Tap Emergency SOS (No Login)</span>

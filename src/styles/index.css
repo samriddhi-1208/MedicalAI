@@ -28,15 +28,22 @@
   --border-color: #D9DDEC;
   --border-color-hover: #C5CBDD;
 
-  /* STATUS & MEDICAL ALERTS */
+  /* STATUS & MEDICAL ALERTS — Muted Professional Medical Palette */
   --status-normal: #4B7D6C;
   --status-normal-bg: #E8F2EE;
   --status-warning: #A67C38;
   --status-warning-bg: #F9F3E8;
-  --status-critical: #B91C1C;
-  --status-critical-bg: #FEE2E2;
+  --status-critical: #C94B55;
+  --status-critical-bg: #FDF2F4;
   --status-info: #66729F;
   --status-info-bg: #EEF1FA;
+
+  /* MUTED EMERGENCY / SOS RED SYSTEM */
+  --emergency-primary: #C94B55;
+  --emergency-primary-hover: #B33D46;
+  --emergency-bg: #FDF2F4;
+  --emergency-border: #A83D49;
+  --emergency-text: #8E2C36;
 
   --focus-ring: 0 0 0 2px #66729F;
 }
@@ -70,10 +77,17 @@
   --status-normal-bg: #1B2D26;
   --status-warning: #D6B86A;
   --status-warning-bg: #322B18;
-  --status-critical: #EF4444;
-  --status-critical-bg: #3D1919;
+  --status-critical: #F3C6CB;
+  --status-critical-bg: #3A2028;
   --status-info: #9DA8D0;
   --status-info-bg: #262B40;
+
+  /* MUTED EMERGENCY / SOS RED SYSTEM IN DARK MODE */
+  --emergency-primary: #C94B55;
+  --emergency-primary-hover: #B33D46;
+  --emergency-bg: #3A2028;
+  --emergency-border: #A83D49;
+  --emergency-text: #F3C6CB;
 
   --focus-ring: 0 0 0 2px #7C87B8;
 }
@@ -482,13 +496,14 @@ p, h1, h2, h3, h4, h5, h6, span, strong, td, th {
 }
 
 .med-btn-emergency {
-  background-color: #D32F2F;
+  background-color: var(--emergency-primary, #C94B55);
   color: #FFFFFF;
   font-weight: 700;
-  animation: sos-pulse 2s infinite;
+  border: 1px solid var(--emergency-border, #A83D49);
+  animation: sos-pulse 2.5s infinite;
 }
 .med-btn-emergency:hover {
-  background-color: #B91C1C;
+  background-color: var(--emergency-primary-hover, #B33D46);
 }
 
 .med-btn-ghost {
@@ -500,15 +515,15 @@ p, h1, h2, h3, h4, h5, h6, span, strong, td, th {
   color: var(--text-main);
 }
 
-/* Accessible Status Badges */
+/* Accessible Status Badges — 13px (0.8125rem) for Improved Legibility */
 .med-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 600;
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  font-weight: 700;
   letter-spacing: 0.01em;
 }
 
@@ -523,10 +538,30 @@ p, h1, h2, h3, h4, h5, h6, span, strong, td, th {
 .med-badge-critical {
   background-color: var(--status-critical-bg);
   color: var(--status-critical);
+  border: 1px solid var(--emergency-border);
 }
 .med-badge-info {
   background-color: var(--status-info-bg);
   color: var(--status-info);
+}
+
+/* Shared Typography Styles for Small Headings & Labels (13–14px) */
+.med-label-sm {
+  font-size: 0.8125rem; /* 13px */
+  font-weight: 700;
+  letter-spacing: 0.015em;
+}
+
+.med-kpi-label {
+  font-size: 0.8125rem; /* 13px */
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.med-meta-text {
+  font-size: 0.8125rem; /* 13px */
+  font-weight: 500;
 }
 
 /* Form Controls & Inputs */
@@ -622,4 +657,61 @@ textarea:focus {
 /* Safe Bottom Padding for Mobile Nav */
 .safe-area-bottom {
   padding-bottom: calc(76px + env(safe-area-inset-bottom));
+}
+
+/* ==========================================================================
+   GLOBAL MUTED EMERGENCY RED ADAPTATION
+   Replaces harsh neon red (#FF0000 / #DC2626) with calm, medical emergency red:
+   Primary: #C94B55 | Dark Bg: #3A2028 | Border: #A83D49 | Dark Text: #F3C6CB
+   ========================================================================== */
+
+html:not(.dark) .bg-red-600,
+html:not(.dark) .bg-rose-600,
+html:not(.dark) .bg-red-700 {
+  background-color: #C94B55 !important;
+}
+
+html:not(.dark) .hover\:bg-red-700:hover,
+html:not(.dark) .hover\:bg-rose-700:hover {
+  background-color: #B33D46 !important;
+}
+
+html:not(.dark) .text-red-600,
+html:not(.dark) .text-rose-600,
+html:not(.dark) .text-red-700 {
+  color: #C94B55 !important;
+}
+
+.dark .bg-red-600,
+.dark .bg-rose-600,
+.dark .bg-red-700 {
+  background-color: #C94B55 !important;
+}
+
+.dark .hover\:bg-red-700:hover,
+.dark .hover\:bg-rose-700:hover {
+  background-color: #B33D46 !important;
+}
+
+.dark .text-red-600,
+.dark .text-rose-600,
+.dark .text-red-500,
+.dark .text-rose-500 {
+  color: #F3C6CB !important;
+}
+
+.dark .bg-red-950,
+.dark .bg-red-950\/40,
+.dark .bg-red-950\/60,
+.dark .bg-rose-950\/40,
+.dark .bg-rose-950\/50,
+.dark .bg-rose-950\/60 {
+  background-color: #3A2028 !important;
+}
+
+.dark .border-red-900,
+.dark .border-rose-900,
+.dark .border-red-800,
+.dark .border-rose-800 {
+  border-color: #A83D49 !important;
 }

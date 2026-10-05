@@ -167,7 +167,7 @@ export const DashboardPage = () => {
               size="sm"
               icon={Upload}
               onClick={() => navigate('/app/upload')}
-              className="bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#52857C] dark:hover:bg-[#45726A] text-xs font-bold rounded-xl cursor-pointer shadow-2xs text-white"
+              className="bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] dark:text-[#172033] text-xs font-bold rounded-xl cursor-pointer shadow-2xs text-white"
             >
               Upload Medical Report
             </Button>
@@ -180,25 +180,25 @@ export const DashboardPage = () => {
         
         {/* Card 1: Reports Count */}
         <Card className="p-5 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs space-y-1">
-          <span className="text-xs font-bold text-slate-500 dark:text-[#C8D0E0] block uppercase tracking-wider">Reports</span>
+          <span className="text-[13px] font-bold text-slate-500 dark:text-[#C8D0E0] block uppercase tracking-wider">Reports</span>
           <div className="flex items-baseline justify-between pt-1">
             <span className="text-2.5xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight">{reportCount}</span>
-            <span className="text-[11px] font-bold text-[#66729F] dark:text-[#9DA8D0]">Saved</span>
+            <span className="text-xs font-bold text-[#66729F] dark:text-[#9DA8D0]">Saved</span>
           </div>
         </Card>
 
         {/* Card 2: Active Medications */}
         <Card className="p-5 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs space-y-1">
-          <span className="text-xs font-bold text-slate-500 dark:text-[#C8D0E0] block uppercase tracking-wider">Active Medications</span>
+          <span className="text-[13px] font-bold text-slate-500 dark:text-[#C8D0E0] block uppercase tracking-wider">Active Medications</span>
           <div className="flex items-baseline justify-between pt-1">
             <span className="text-2.5xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight">{userMedicines.length}</span>
-            <span className="text-[11px] font-bold text-[#66729F] dark:text-[#9DA8D0]">Scheduled</span>
+            <span className="text-xs font-bold text-[#66729F] dark:text-[#9DA8D0]">Scheduled</span>
           </div>
         </Card>
 
         {/* Card 3: Last Report Date */}
         <Card className="p-5 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs space-y-1">
-          <span className="text-xs font-bold text-slate-500 dark:text-[#C8D0E0] block uppercase tracking-wider">Last Report</span>
+          <span className="text-[13px] font-bold text-slate-500 dark:text-[#C8D0E0] block uppercase tracking-wider">Last Report</span>
           <div className="flex items-baseline justify-between pt-1">
             <span className="text-base font-black text-[#0F172A] dark:text-[#F5F7FA] truncate">
               {latestReport ? (latestReport.reportDate || latestReport.date || 'Recent') : 'No reports yet'}
@@ -208,10 +208,10 @@ export const DashboardPage = () => {
 
         {/* Card 4: Tracked Parameters */}
         <Card className="p-5 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs space-y-1">
-          <span className="text-xs font-bold text-slate-500 dark:text-[#C8D0E0] block uppercase tracking-wider">Tracked Parameters</span>
+          <span className="text-[13px] font-bold text-slate-500 dark:text-[#C8D0E0] block uppercase tracking-wider">Tracked Parameters</span>
           <div className="flex items-baseline justify-between pt-1">
             <span className="text-2.5xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight">{totalTrackedParameters}</span>
-            <span className="text-[11px] font-bold text-[#66729F] dark:text-[#9DA8D0]">Extracted</span>
+            <span className="text-xs font-bold text-[#66729F] dark:text-[#9DA8D0]">Extracted</span>
           </div>
         </Card>
 

@@ -176,9 +176,9 @@ export const LandingPage = () => {
 
                 <Link
                   to="/sos"
-                  className="py-3 px-5 text-sm font-bold rounded-xl bg-red-600 hover:bg-red-700 text-white flex items-center gap-2 cursor-pointer shadow-md shadow-red-600/20 transition-all transform hover:scale-105 active:scale-95"
+                  className="py-3 px-5 text-sm font-bold rounded-xl bg-[#C94B55] hover:bg-[#B33D46] text-white flex items-center gap-2 cursor-pointer shadow-md border border-[#A83D49] transition-all transform hover:scale-105 active:scale-95"
                 >
-                  <Siren className="w-4 h-4 text-white animate-pulse" />
+                  <Siren className="w-4 h-4 text-white" />
                   <span>1-Tap Emergency SOS</span>
                 </Link>
 
@@ -436,15 +436,15 @@ export const LandingPage = () => {
               <div className="space-y-5 animate-in fade-in duration-200 text-center">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-4 text-left">
                   <div>
-                    <span className="text-xs text-rose-400 font-bold uppercase tracking-wider block">Emergency SOS Center</span>
+                    <span className="text-xs text-[#F3C6CB] font-bold uppercase tracking-wider block">Emergency SOS Center</span>
                     <h3 className="text-xl font-extrabold text-white">Emergency Assistance</h3>
                   </div>
-                  <Link to="/signup" className="px-3.5 py-1.5 rounded-xl bg-rose-600 text-white text-xs font-bold hover:bg-rose-700 transition-colors">
+                  <Link to="/signup" className="px-3.5 py-1.5 rounded-xl bg-[#C94B55] hover:bg-[#B33D46] text-white text-xs font-bold transition-colors border border-[#A83D49]">
                     Open Emergency SOS →
                   </Link>
                 </div>
 
-                <div className="w-28 h-28 rounded-full bg-rose-600 text-white font-extrabold text-xl shadow-xl shadow-rose-900/50 flex flex-col items-center justify-center mx-auto border-4 border-rose-400 animate-pulse">
+                <div className="w-28 h-28 rounded-full bg-[#C94B55] text-white font-extrabold text-xl shadow-lg flex flex-col items-center justify-center mx-auto border-4 border-[#A83D49]">
                   <span className="text-3xl leading-none">*</span>
                   <span>SOS</span>
                 </div>
