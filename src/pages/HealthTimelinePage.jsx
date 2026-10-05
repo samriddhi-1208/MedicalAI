@@ -919,12 +919,15 @@ export const HealthTimelinePage = () => {
         <Card className="p-6 sm:p-7 space-y-5 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-black text-[#0F172A] dark:text-[#F5F7FA]">{t('recentMedicalReports')}</h3>
-              <p className="text-xs font-normal text-slate-500 dark:text-slate-400">Chronological list of uploaded medical reports and extracted parameters</p>
+              <h3 className="text-lg sm:text-xl font-black text-[#0F172A] dark:text-[#F5F7FA]">{t('recentMedicalReports')}</h3>
+              <p className="text-sm font-medium text-slate-500 dark:text-[#C8D0E0] mt-0.5">Chronological list of uploaded medical reports and extracted parameters</p>
             </div>
+            <span className="hidden sm:inline-flex px-3 py-1 rounded-full bg-[#EEF1FA] dark:bg-[#2C3146] text-[#66729F] dark:text-[#9DA8D0] font-black text-xs border border-[#D9DDEC] dark:border-[#313750]">
+              {chronReports.length} {chronReports.length === 1 ? 'Report' : 'Reports'}
+            </span>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-3.5">
             {chronReports.map((r) => {
               const bCount = (r.biomarkers || r.labResults || []).length;
               const vCount = (r.vitals || []).length;
@@ -932,39 +935,101 @@ export const HealthTimelinePage = () => {
               const totalExtracted = bCount + vCount + mCount;
               const isExtractionSuccess = totalExtracted > 0;
 
+              // Format raw file name (remove file extensions and snake_case underscores)
+              const cleanReportTitle = (r.title || r.file_name || 'Medical Report')
+                .replace(/\.[^/.]+$/, '')
+                .replace(/[-_]+/g, ' ')
+                .trim();
+
+              // Clean MIME type format into friendly badge
+              const rawType = (r.file_type || 'PDF').toLowerCase();
+              const cleanFileType = rawType.includes('pdf')
+                ? 'PDF'
+                : (rawType.includes('image') || rawType.includes('png') || rawType.includes('jpg') || rawType.includes('jpeg'))
+                ? 'IMAGE'
+                : (r.file_type || 'DOC').toUpperCase();
+
+              const reportDate = r.reportDate || r.date || r.report_date || 'Recent';
+
               return (
-                <div key={r.id || r._id} className="p-4 rounded-xl bg-slate-50 dark:bg-[#161926] border border-slate-200/80 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="px-2.5 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 font-extrabold text-[10px]">
-                        {r.file_type || 'PDF'}
-                      </span>
-                      <span className="text-slate-500 dark:text-slate-400 font-mono text-[11px]">{r.reportDate || r.date || r.report_date}</span>
-                      <span className={`px-2 py-0.5 rounded-full font-extrabold text-[10px] ${
-                        isExtractionSuccess ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' : 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300'
-                      }`}>
-                        {isExtractionSuccess ? 'Medical Extraction Completed ✓' : 'Uploaded • Medical Extraction Unsuccessful'}
-                      </span>
+                <div 
+                  key={r.id || r._id} 
+                  className="p-4 sm:p-5 rounded-2xl bg-slate-50/70 dark:bg-[#161926] border border-slate-200/90 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all hover:border-[#66729F]/40 dark:hover:border-[#7C87B8]/40 hover:shadow-xs"
+                >
+                  <div className="flex items-start sm:items-center gap-3.5 min-w-0">
+                    <div className="w-11 h-11 rounded-xl bg-[#EEF1FA] dark:bg-[#2C3146] border border-[#D9DDEC] dark:border-[#313750] flex items-center justify-center shrink-0 mt-0.5 sm:mt-0 shadow-2xs">
+                      <FileText className="w-5 h-5 text-[#66729F] dark:text-[#9DA8D0]" />
                     </div>
-                    <h4 className="text-sm font-black text-[#0F172A] dark:text-[#F5F7FA]">{r.title || r.file_name}</h4>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">
-                      {isExtractionSuccess ? (
-                        <>
-                          <strong className="text-[#0F172A] dark:text-[#F5F7FA] font-extrabold">{bCount} biomarkers</strong> • <strong className="text-[#0F172A] dark:text-[#F5F7FA] font-extrabold">{vCount} vitals</strong> • <strong className="text-[#66729F] dark:text-[#9DA8D0] font-extrabold">{mCount} medications</strong> extracted
-                        </>
-                      ) : (
-                        "0 biomarkers extracted • Document stored in history"
-                      )}
-                    </p>
+
+                    <div className="space-y-1.5 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h4 className="text-base font-bold text-[#0F172A] dark:text-[#F5F7FA] tracking-tight">
+                          {cleanReportTitle}
+                        </h4>
+                        <span className="px-2 py-0.5 rounded-md bg-slate-200/80 dark:bg-slate-700/80 text-slate-700 dark:text-slate-300 font-extrabold text-[10px] tracking-wider uppercase">
+                          {cleanFileType}
+                        </span>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs">
+                        <div className="flex items-center gap-1.5 text-slate-500 dark:text-[#C8D0E0] font-medium">
+                          <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                          <span>{reportDate}</span>
+                        </div>
+                        <span className="text-slate-300 dark:text-slate-700">•</span>
+                        <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[11px] ${
+                          isExtractionSuccess 
+                            ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/60' 
+                            : 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/60'
+                        }`}>
+                          {isExtractionSuccess ? (
+                            <>
+                              <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                              Medical Extraction Completed
+                            </>
+                          ) : (
+                            <>
+                              <AlertTriangle className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                              Medical Extraction Incomplete
+                            </>
+                          )}
+                        </span>
+                      </div>
+
+                      {/* Extracted Parameter Metric Pills */}
+                      <div className="flex flex-wrap items-center gap-2 pt-0.5">
+                        {isExtractionSuccess ? (
+                          <>
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white dark:bg-[#1E2333] border border-slate-200/80 dark:border-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200 shadow-2xs">
+                              <Activity className="w-3.5 h-3.5 text-blue-500" />
+                              <span>{bCount} {bCount === 1 ? 'biomarker' : 'biomarkers'}</span>
+                            </span>
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white dark:bg-[#1E2333] border border-slate-200/80 dark:border-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200 shadow-2xs">
+                              <HeartPulse className="w-3.5 h-3.5 text-teal-500" />
+                              <span>{vCount} {vCount === 1 ? 'vital' : 'vitals'}</span>
+                            </span>
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white dark:bg-[#1E2333] border border-slate-200/80 dark:border-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200 shadow-2xs">
+                              <span className="text-xs">💊</span>
+                              <span>{mCount} {mCount === 1 ? 'medication' : 'medications'}</span>
+                            </span>
+                          </>
+                        ) : (
+                          <span className="text-xs text-slate-500 dark:text-slate-400 font-medium italic">
+                            0 parameters extracted • Document stored in history
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
 
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => navigate('/app/analysis')}
-                    className="text-xs font-bold rounded-xl border-slate-200 dark:border-slate-700 cursor-pointer shrink-0"
+                    className="group px-4 py-2 bg-white dark:bg-[#25293C] hover:bg-slate-100 dark:hover:bg-[#2e334a] text-xs sm:text-sm font-bold text-slate-800 dark:text-[#F5F7FA] rounded-xl border border-slate-200 dark:border-slate-700 shadow-2xs hover:shadow-xs transition-all flex items-center gap-1.5 shrink-0 self-start sm:self-center cursor-pointer"
                   >
-                    View Report
+                    <span>View Report</span>
+                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
                   </Button>
                 </div>
               );
