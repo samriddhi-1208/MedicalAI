@@ -167,13 +167,13 @@ export const MedicineReminderPage = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full min-w-0">
         <div>
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#66729F] dark:bg-[#9DA8D0] animate-pulse" />
-            <span className="text-xs text-[#66729F] dark:text-[#9DA8D0] font-extrabold uppercase tracking-wider">{t('prescriptionScheduleBadge')}</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-[#66729F] dark:bg-[#9DA8D0] animate-pulse" />
+            <span className="text-[13px] text-[#66729F] dark:text-[#9DA8D0] font-black uppercase tracking-wider">{t('prescriptionScheduleBadge')}</span>
           </div>
-          <h1 className="text-2.5xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight mt-0.5 flex items-center gap-2.5">
+          <h1 className="text-2.5xl sm:text-3xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight mt-0.5 flex items-center gap-2.5">
             <Pill className="w-7 h-7 text-[#66729F] dark:text-[#9DA8D0]" /> {t('todaysMedicationSchedule')}
           </h1>
-          <p className="text-xs font-normal text-slate-500 dark:text-[#C8D0E0] mt-0.5">
+          <p className="text-[13px] sm:text-sm font-medium text-slate-500 dark:text-[#C8D0E0] mt-0.5">
             {t('confirmedPrescriptionsSub')}
           </p>
         </div>
@@ -184,7 +184,7 @@ export const MedicineReminderPage = () => {
             size="md"
             icon={Upload}
             onClick={() => navigate('/app/upload')}
-            className="text-xs font-bold rounded-xl border-slate-200 dark:border-slate-700 dark:text-[#F5F7FA] dark:hover:bg-slate-800 cursor-pointer"
+            className="text-[13px] sm:text-sm font-bold rounded-xl border-slate-200 dark:border-slate-700 dark:text-[#F5F7FA] dark:hover:bg-slate-800 cursor-pointer px-4 py-2"
           >
             {t('uploadPrescriptionBtn')}
           </Button>
@@ -193,7 +193,7 @@ export const MedicineReminderPage = () => {
             variant="primary"
             size="md"
             icon={Plus}
-            className="bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] dark:text-[#172033] text-white text-xs font-bold rounded-xl cursor-pointer shadow-2xs"
+            className="bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] dark:text-[#172033] text-white text-[13px] sm:text-sm font-bold rounded-xl cursor-pointer shadow-2xs px-4 py-2"
             onClick={handleOpenAdd}
           >
             {t('addMedicine')}
@@ -205,31 +205,31 @@ export const MedicineReminderPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         
         {/* Adherence Rate Card */}
-        <Card className="p-5 bg-gradient-to-br from-[#0F172A] to-[#1E293B] text-white border border-[#0F172A] flex items-center justify-between rounded-2xl shadow-2xs">
+        <Card className="p-5 sm:p-6 bg-gradient-to-br from-[#0F172A] to-[#1E293B] text-white border border-[#0F172A] flex items-center justify-between rounded-2xl shadow-2xs">
           <div>
-            <p className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">{t('todaysAdherenceRate')}</p>
+            <p className="text-xs font-bold text-slate-300 uppercase tracking-wider">{t('todaysAdherenceRate')}</p>
             {hasMedicines ? (
               <>
-                <p className="text-3.5xl font-black text-white mt-1">{adherencePercent}%</p>
-                <p className="text-xs text-slate-300 font-medium mt-1">{takenCount} {t('of')} {totalCount} {t('dosesLogged')}</p>
+                <p className="text-4xl font-black text-white mt-1">{adherencePercent}%</p>
+                <p className="text-[13px] sm:text-sm text-slate-300 font-medium mt-1">{takenCount} {t('of')} {totalCount} {t('dosesLogged')}</p>
               </>
             ) : (
               <>
                 <p className="text-base font-extrabold text-slate-300 mt-2">{t('noMedsScheduledToday')}</p>
-                <p className="text-xs text-slate-400 font-medium mt-1">{t('uploadPrescriptionToTrack')}</p>
+                <p className="text-[13px] text-slate-400 font-medium mt-1">{t('uploadPrescriptionToTrack')}</p>
               </>
             )}
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-white/10 text-emerald-400 flex items-center justify-center font-bold text-lg border border-white/10 shrink-0">
+          <div className="w-12 h-12 rounded-2xl bg-white/10 text-emerald-400 flex items-center justify-center font-bold text-xl border border-white/10 shrink-0">
             ✓
           </div>
         </Card>
 
         {/* REQUIREMENT 15: REFILL WARNING CARD */}
-        <Card className="p-5 md:col-span-2 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 flex flex-col justify-between rounded-2xl shadow-2xs">
+        <Card className="p-5 sm:p-6 md:col-span-2 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 flex flex-col justify-between rounded-2xl shadow-2xs">
           <div className="flex justify-between items-center">
-            <span className="text-xs font-bold text-[#0F172A] dark:text-[#F5F7FA] flex items-center gap-1.5 uppercase tracking-wider">
-              <AlertCircle className="w-4 h-4 text-amber-600" /> {t('refillWarningThreshold')} ({lowRefills.length})
+            <span className="text-[13px] sm:text-sm font-bold text-[#0F172A] dark:text-[#F5F7FA] flex items-center gap-1.5 uppercase tracking-wider">
+              <AlertCircle className="w-4.5 h-4.5 text-amber-600" /> {t('refillWarningThreshold')} ({lowRefills.length})
             </span>
             <Badge variant={lowRefills.length > 0 ? "warning" : "normal"}>
               {lowRefills.length > 0 ? t('refillAlert') : t('supplyNormal')}
@@ -238,7 +238,7 @@ export const MedicineReminderPage = () => {
 
           {hasMedicines ? (
             lowRefills.length > 0 ? (
-              <div className="space-y-1 mt-2 text-xs">
+              <div className="space-y-1 mt-2 text-[13px] sm:text-sm">
                 {lowRefills.map(m => (
                   <p key={m.id} className="text-slate-700 dark:text-slate-300">
                     ⚠️ <strong className="text-[#0F172A] dark:text-[#F5F7FA]">{m.name}</strong>: Only <span className="text-amber-800 dark:text-amber-300 font-bold">{m.pillsRemaining || m.pills_remaining} doses remaining</span> in supply.
@@ -246,12 +246,12 @@ export const MedicineReminderPage = () => {
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-slate-500 dark:text-[#C8D0E0] font-medium mt-2">
+              <p className="text-[13px] sm:text-sm text-slate-600 dark:text-[#C8D0E0] font-medium mt-2">
                 All active prescription supplies are sufficient.
               </p>
             )
           ) : (
-            <p className="text-xs text-slate-500 dark:text-[#C8D0E0] font-medium mt-2">
+            <p className="text-[13px] sm:text-sm text-slate-500 dark:text-[#C8D0E0] font-medium mt-2">
               {t('noActiveRefillsTracked')}
             </p>
           )}
@@ -302,14 +302,14 @@ export const MedicineReminderPage = () => {
       {hasMedicines && (
         <div className="space-y-4 w-full min-w-0">
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-black text-[#0F172A] dark:text-[#F5F7FA]">Today's Medication Schedule ({totalCount})</h2>
+            <h2 className="text-lg font-black text-[#0F172A] dark:text-[#F5F7FA]">Today's Medication Schedule ({totalCount})</h2>
           </div>
 
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-5 w-full min-w-0">
             {safeMedicines.map((med, idx) => (
               <Card 
                 key={med.id || idx} 
-                className={`p-4 sm:p-5 space-y-3.5 bg-white dark:bg-[#1C1F2E] border rounded-2xl shadow-2xs transition-all w-full min-w-0 flex flex-col justify-between ${
+                className={`p-5 sm:p-6 space-y-4 bg-white dark:bg-[#1C1F2E] border rounded-2xl shadow-2xs transition-all w-full min-w-0 flex flex-col justify-between ${
                   med.isPaused 
                     ? 'border-[#D6B86A]/40 opacity-90 bg-[#D6B86A]/5 dark:bg-[#D6B86A]/10' 
                     : med.taken
@@ -319,16 +319,16 @@ export const MedicineReminderPage = () => {
               >
                 
                 {/* Top Row: Time, Name, Dose, Source Tag, Edit/Delete Actions */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-slate-100 dark:border-slate-800/80 pb-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-slate-100 dark:border-slate-800/80 pb-3.5">
                   <div className="flex items-center gap-2.5 flex-wrap">
-                    <span className="px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-[#25293C] font-black text-[11px] sm:text-xs text-[#0F172A] dark:text-[#F1F3F9] border border-slate-200/80 dark:border-slate-700 flex items-center gap-1.5 shrink-0">
-                      <Clock className="w-3.5 h-3.5 text-[#5F958C] dark:text-[#8BC7B5]" />
+                    <span className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-[#25293C] font-black text-xs sm:text-[13px] text-[#0F172A] dark:text-[#F1F3F9] border border-slate-200/80 dark:border-slate-700 flex items-center gap-1.5 shrink-0">
+                      <Clock className="w-4 h-4 text-[#5F958C] dark:text-[#8BC7B5]" />
                       {med.scheduledTime || med.time || '08:00 AM'}
                     </span>
 
-                    <div className="flex items-center gap-2 flex-wrap min-w-0">
-                      <h3 className="text-sm sm:text-base font-black text-[#0F172A] dark:text-[#F1F3F9] truncate">💊 {med.name}</h3>
-                      <span className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-[#25293C] text-slate-700 dark:text-slate-300 text-[11px] font-bold border border-slate-200 dark:border-slate-700 shrink-0">
+                    <div className="flex items-center gap-2.5 flex-wrap min-w-0">
+                      <h3 className="text-base sm:text-lg font-black text-[#0F172A] dark:text-[#F1F3F9] truncate">💊 {med.name}</h3>
+                      <span className="px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-[#25293C] text-slate-700 dark:text-slate-300 text-xs font-bold border border-slate-200 dark:border-slate-700 shrink-0">
                         {med.dose || med.dosage || '1 tablet'}
                       </span>
                     </div>
@@ -337,14 +337,14 @@ export const MedicineReminderPage = () => {
                   <div className="flex items-center gap-1 shrink-0 self-end sm:self-auto">
                     <button
                       onClick={() => handleOpenEdit(med)}
-                      className="p-1.5 text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                      className="p-2 text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                       title="Edit medication schedule"
                     >
                       <Edit2 className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => deleteMedicine(med.id)}
-                      className="p-1.5 text-slate-400 hover:text-[#DC2626] rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                      className="p-2 text-slate-400 hover:text-[#DC2626] rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
                       title="Delete medication"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -353,29 +353,29 @@ export const MedicineReminderPage = () => {
                 </div>
 
                 {/* Schedule Attribute Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[13px] p-3 rounded-xl bg-slate-50 dark:bg-[#151824] border border-slate-200/80 dark:border-slate-800">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-sm p-3.5 rounded-xl bg-slate-50 dark:bg-[#151824] border border-slate-200/80 dark:border-slate-800">
                   <div>
-                    <span className="text-slate-500 dark:text-slate-400 block text-xs">Frequency</span>
-                    <strong className="text-[#0F172A] dark:text-[#F1F3F9] font-bold truncate block text-[13px]">{med.frequency || 'Once daily'}</strong>
+                    <span className="text-slate-500 dark:text-slate-400 block text-[13px] font-semibold">Frequency</span>
+                    <strong className="text-[#0F172A] dark:text-[#F1F3F9] font-bold truncate block text-sm">{med.frequency || 'Once daily'}</strong>
                   </div>
                   <div>
-                    <span className="text-slate-500 dark:text-slate-400 block text-xs">Meal Relation</span>
-                    <strong className="text-slate-800 dark:text-slate-200 font-bold truncate block text-[13px]">{med.mealRelation || 'After meal'} ({med.mealType || 'Lunch'})</strong>
+                    <span className="text-slate-500 dark:text-slate-400 block text-[13px] font-semibold">Meal Relation</span>
+                    <strong className="text-slate-800 dark:text-slate-200 font-bold truncate block text-sm">{med.mealRelation || 'After meal'} ({med.mealType || 'Lunch'})</strong>
                   </div>
                   <div>
-                    <span className="text-slate-500 dark:text-slate-400 block text-xs">Duration / Supply</span>
-                    <strong className="text-slate-800 dark:text-slate-200 font-bold truncate block text-[13px]">{med.pillsRemaining ?? med.pills_remaining ?? 30} doses left</strong>
+                    <span className="text-slate-500 dark:text-slate-400 block text-[13px] font-semibold">Duration / Supply</span>
+                    <strong className="text-slate-800 dark:text-slate-200 font-bold truncate block text-sm">{med.pillsRemaining ?? med.pills_remaining ?? 30} doses left</strong>
                   </div>
                   <div>
-                    <span className="text-slate-500 dark:text-slate-400 block text-xs">Indication / Purpose</span>
-                    <strong className="text-[#5F958C] dark:text-[#8BC7B5] font-bold truncate block text-[13px]">{med.purpose || 'Prescription'}</strong>
+                    <span className="text-slate-500 dark:text-slate-400 block text-[13px] font-semibold">Indication / Purpose</span>
+                    <strong className="text-[#5F958C] dark:text-[#8BC7B5] font-bold truncate block text-sm">{med.purpose || 'Prescription'}</strong>
                   </div>
                 </div>
 
                 {/* REQUIREMENT 17: MEDICATION SOURCE DISCLOSURE */}
-                <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-medium flex-wrap gap-2">
-                  <span className="inline-flex items-center gap-1 text-slate-600 dark:text-slate-300">
-                    <FileText className="w-3.5 h-3.5 text-[#5F958C] dark:text-[#8BC7B5]" /> Source: <strong className="text-slate-800 dark:text-slate-200 font-bold">{med.sourceTitle || 'Prescription Schedule'}</strong>
+                <div className="flex items-center justify-between text-[13px] sm:text-sm text-slate-500 dark:text-slate-400 font-medium flex-wrap gap-2">
+                  <span className="inline-flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                    <FileText className="w-4 h-4 text-[#5F958C] dark:text-[#8BC7B5]" /> Source: <strong className="text-slate-800 dark:text-slate-200 font-bold">{med.sourceTitle || 'Prescription Schedule'}</strong>
                   </span>
 
                   {med.instructions && (
@@ -386,29 +386,29 @@ export const MedicineReminderPage = () => {
                 </div>
 
                 {/* Actions Row: Status Badge, Pause/Resume, Mark as Taken */}
-                <div className="flex items-center justify-between pt-1 flex-wrap gap-2">
-                  <span className={`px-2.5 py-1 rounded-full text-[13px] font-semibold ${
+                <div className="flex items-center justify-between pt-1.5 flex-wrap gap-2.5">
+                  <span className={`px-3 py-1.5 rounded-full text-sm font-bold ${
                     med.taken 
                       ? 'bg-[#6FA89E]/15 text-[#2D5A52] dark:text-[#9DD3C8] border border-[#6FA89E]/30' 
                       : med.isPaused 
                         ? 'bg-[#D6B86A]/20 text-[#4D3F1E] dark:text-[#E2C785] border border-[#D6B86A]/30' 
-                        : 'bg-slate-100 dark:bg-[#25293C] text-slate-600 dark:text-[#949DB3]'
+                        : 'bg-slate-100 dark:bg-[#25293C] text-slate-700 dark:text-[#949DB3]'
                   }`}>
                     Status: {med.taken ? 'Logged' : med.isPaused ? 'Paused' : 'Upcoming'}
                   </span>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2.5">
                     {/* Secondary Pause/Resume Action — Soft Muted Amber (#D6B86A) */}
                     <button
                       onClick={() => toggleMedicinePause(med.id)}
-                      className={`px-3 py-1.5 rounded-xl font-semibold text-[13px] border transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs ${
+                      className={`px-3.5 py-2 rounded-xl font-bold text-sm border transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs ${
                         med.isPaused 
                           ? 'bg-[#6FA89E]/20 text-[#2D5A52] dark:text-[#A8D5CC] border-[#6FA89E]/40 hover:bg-[#6FA89E]/30' 
                           : 'bg-[#D6B86A] text-[#332D1A] border-[#C5A85D] hover:bg-[#C5A85D]'
                       }`}
                       title={med.isPaused ? "Resume this medication schedule" : "Pause this medication schedule"}
                     >
-                      {med.isPaused ? <PlayCircle className="w-3.5 h-3.5 text-[#2D5A52] dark:text-[#A8D5CC]" /> : <PauseCircle className="w-3.5 h-3.5 text-[#332D1A]" />}
+                      {med.isPaused ? <PlayCircle className="w-4 h-4 text-[#2D5A52] dark:text-[#A8D5CC]" /> : <PauseCircle className="w-4 h-4 text-[#332D1A]" />}
                       <span>{med.isPaused ? 'Resume' : 'Pause'}</span>
                     </button>
 
@@ -416,7 +416,7 @@ export const MedicineReminderPage = () => {
                     <button
                       disabled={med.isPaused}
                       onClick={() => toggleMedicineTaken(med.id)}
-                      className={`px-3.5 py-1.5 rounded-xl text-[13px] font-bold transition-colors cursor-pointer flex items-center gap-1.5 border disabled:opacity-50 disabled:cursor-not-allowed shadow-2xs ${
+                      className={`px-4 py-2 rounded-xl text-sm font-bold transition-colors cursor-pointer flex items-center gap-2 border disabled:opacity-50 disabled:cursor-not-allowed shadow-2xs ${
                         med.taken
                           ? 'bg-[#6FA89E]/15 text-[#2D5A52] dark:text-[#9DD3C8] border-[#6FA89E]/30 hover:bg-[#6FA89E]/25'
                           : 'bg-[#6FA89E] hover:bg-[#5F958C] text-[#0F172A] border-[#5F958C]'
@@ -424,12 +424,12 @@ export const MedicineReminderPage = () => {
                     >
                       {med.taken ? (
                         <>
-                          <Check className="w-3.5 h-3.5 text-[#2D5A52] dark:text-[#9DD3C8]" />
+                          <Check className="w-4 h-4 text-[#2D5A52] dark:text-[#9DD3C8]" />
                           <span>{t('logged')}</span>
                         </>
                       ) : (
                         <>
-                          <Pill className="w-3.5 h-3.5 text-[#0F172A]" />
+                          <Pill className="w-4 h-4 text-[#0F172A]" />
                           <span>{t('markAsTaken')}</span>
                         </>
                       )}
@@ -447,27 +447,27 @@ export const MedicineReminderPage = () => {
       {hasMedicines && (
         <Card className="p-5 sm:p-6 space-y-4 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs w-full min-w-0">
           <div className="flex items-center justify-between">
-            <h3 className="text-base font-black text-[#0F172A] dark:text-[#F5F7FA] flex items-center gap-2">
-              <History className="w-4.5 h-4.5 text-[#66729F] dark:text-[#9DA8D0]" /> Medication History Log
+            <h3 className="text-lg font-black text-[#0F172A] dark:text-[#F5F7FA] flex items-center gap-2">
+              <History className="w-5 h-5 text-[#66729F] dark:text-[#9DA8D0]" /> Medication History Log
             </h3>
-            <span className="text-[13px] font-semibold text-slate-500 dark:text-[#C8D0E0]">
+            <span className="text-sm font-bold text-slate-500 dark:text-[#C8D0E0]">
               {safeMedicines.length} {safeMedicines.length === 1 ? 'entry' : 'entries'}
             </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 text-[13px] w-full min-w-0">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 text-sm w-full min-w-0">
             {safeMedicines.map((m) => (
               <div 
                 key={m.id} 
                 className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#151824] border border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-3 min-w-0"
               >
                 <div className="min-w-0 flex-1">
-                  <p className="font-extrabold text-[13px] text-[#0F172A] dark:text-[#F5F7FA] truncate">{m.name}</p>
-                  <p className="text-slate-500 dark:text-[#C8D0E0] text-xs truncate">
+                  <p className="font-extrabold text-sm text-[#0F172A] dark:text-[#F5F7FA] truncate">{m.name}</p>
+                  <p className="text-slate-500 dark:text-[#C8D0E0] text-[13px] truncate">
                     {m.dose || m.dosage} • {m.scheduledTime || m.time}
                   </p>
                 </div>
-                <span className={`px-2.5 py-1 rounded-full font-bold text-xs shrink-0 ${
+                <span className={`px-2.5 py-1 rounded-full font-bold text-[13px] shrink-0 ${
                   m.taken 
                     ? 'bg-[#6FA89E]/20 text-[#2D5A52] dark:text-[#9DD3C8] border border-[#6FA89E]/30' 
                     : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
