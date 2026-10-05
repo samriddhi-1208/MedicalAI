@@ -381,7 +381,7 @@ export const HealthTimelinePage = () => {
   // Multi-biomarker overview summary stats
   let totalOptimalCount = 0;
   let totalAttentionCount = 0;
-  const overviewList = discoveredBiomarkerNames.map(name => {
+  discoveredBiomarkerNames.forEach(name => {
     const items = biomarkerMap[name] || [];
     const latest = items[items.length - 1];
     const { min, max } = parseReferenceRange(latest?.refRange, latest?.numValue, name);
@@ -392,18 +392,6 @@ export const HealthTimelinePage = () => {
     }
     if (status === 'normal') totalOptimalCount++;
     else totalAttentionCount++;
-
-    return {
-      name,
-      value: latest?.value ?? 'N/A',
-      numValue: latest?.numValue,
-      unit: latest?.unit || '',
-      refMin: min,
-      refMax: max,
-      refRange: latest?.refRange || `${min} - ${max}`,
-      status,
-      date: latest?.date
-    };
   });
 
   // Detail Modal Data
@@ -922,90 +910,6 @@ export const HealthTimelinePage = () => {
             </div>
 
           </div>
-
-          {/* MULTI-BIOMARKER GRAPHICAL OVERVIEW MATRIX */}
-          <Card className="p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs space-y-5">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
-              <div>
-                <h3 className="text-base sm:text-lg font-black text-[#0F172A] dark:text-[#F5F7FA] flex items-center gap-2">
-                  <BarChart3 className="w-5 h-5 text-[#66729F] dark:text-[#9DA8D0]" />
-                  Tracked Lab Biomarkers Comparative Matrix
-                </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                  Graphical overview of all extracted lab parameters relative to standard clinical reference ranges
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 text-xs font-bold border border-emerald-200 dark:border-emerald-800 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> {totalOptimalCount} Normal
-                </span>
-                {totalAttentionCount > 0 && (
-                  <span className="px-2.5 py-1 rounded-full bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 text-xs font-bold border border-amber-200 dark:border-amber-800 flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500" /> {totalAttentionCount} Attention
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {/* Grid of Biomarkers with Graphical Meters */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
-              {overviewList.map((bm) => {
-                const isSelected = activeMetricName === bm.name;
-                const isNormal = bm.status === 'normal';
-
-                return (
-                  <div
-                    key={bm.name}
-                    onClick={() => {
-                      setSelectedMetric(bm.name);
-                      window.scrollTo({ top: 320, behavior: 'smooth' });
-                    }}
-                    className={`p-4 rounded-xl border transition-all cursor-pointer ${
-                      isSelected
-                        ? 'border-[#66729F] dark:border-[#7C87B8] bg-[#EEF1FA]/60 dark:bg-[#2C3146]/50 ring-1 ring-[#66729F] dark:ring-[#7C87B8]'
-                        : 'border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-[#161926] hover:border-slate-300 dark:hover:border-slate-700'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between gap-2 text-xs font-bold">
-                      <span className="text-[#0F172A] dark:text-[#F5F7FA] font-black truncate">{bm.name}</span>
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
-                        isNormal
-                          ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300'
-                          : bm.status === 'high'
-                          ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300'
-                          : 'bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-300'
-                      }`}>
-                        {isNormal ? 'Normal' : bm.status === 'high' ? 'High' : 'Low'}
-                      </span>
-                    </div>
-
-                    <div className="mt-2 flex items-baseline justify-between">
-                      <span className="text-xl font-black text-[#0F172A] dark:text-[#F5F7FA]">
-                        {bm.value} <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">{bm.unit}</span>
-                      </span>
-                      <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Ref: {bm.refRange}</span>
-                    </div>
-
-                    {/* Progress Bar Spectrum */}
-                    {bm.numValue !== null && bm.refMin !== null && bm.refMax !== null && (
-                      <div className="mt-3">
-                        <div className="h-2 w-full rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden flex">
-                          <div 
-                            className={`h-full transition-all duration-300 ${
-                              isNormal ? 'bg-emerald-500' : bm.status === 'high' ? 'bg-amber-500' : 'bg-blue-500'
-                            }`}
-                            style={{ 
-                              width: `${Math.min(100, Math.max(10, ((bm.numValue - bm.refMin) / (bm.refMax - bm.refMin || 1)) * 100))}%` 
-                            }}
-                          />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </Card>
 
         </div>
       )}
