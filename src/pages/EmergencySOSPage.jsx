@@ -297,7 +297,7 @@ export const EmergencySOSPage = () => {
       )}
 
       {/* High-Alert Header Banner - Prominent Medical Red */}
-      <Card className="p-6 bg-[#C94B55] dark:bg-[#A83D49] text-white rounded-2xl shadow-lg border border-[#A83D49] space-y-4">
+      <div className="med-emergency-top-banner p-6 shadow-lg space-y-4">
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-3">
             <div className="p-2.5 bg-white/20 rounded-xl border border-white/30">
@@ -305,9 +305,9 @@ export const EmergencySOSPage = () => {
             </div>
             <div>
               <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2">
-                {t('emergencySOSCenter') || "Emergency Medical SOS"}
+                {t('emergencySOSCenter') || "Emergency Medical SOS Center"}
               </h1>
-              <p className="text-xs sm:text-[13px] text-white/90 font-medium">
+              <p className="text-xs sm:text-[13px] text-white/95 font-medium">
                 Instant Lifesaving Dispatch & National Helplines (24x7 India)
               </p>
             </div>
@@ -316,15 +316,17 @@ export const EmergencySOSPage = () => {
           <div className="flex items-center gap-2">
             <a
               href="tel:108"
-              className="px-4 py-2 rounded-xl bg-white text-[#C94B55] font-black text-xs sm:text-sm hover:bg-white/90 transition-all shadow-md flex items-center gap-2 active:scale-95"
+              className="btn-call-108 px-5 py-2.5 rounded-xl font-black text-xs sm:text-sm transition-all shadow-md flex items-center gap-2 active:scale-95 shrink-0"
             >
-              <PhoneCall className="w-4 h-4 text-[#C94B55] animate-bounce" /> Call 108 Now
+              <PhoneCall className="w-4 h-4 text-[#C94B55] animate-bounce shrink-0" />
+              <span>Call 108 Now</span>
             </a>
             <a
               href="tel:112"
-              className="px-3.5 py-2 rounded-xl bg-white/20 hover:bg-white/30 text-white font-black text-xs sm:text-sm transition-all border border-white/30 flex items-center gap-1.5"
+              className="px-4 py-2.5 rounded-xl bg-black/25 hover:bg-black/35 text-white font-black text-xs sm:text-sm transition-all border border-white/30 flex items-center gap-1.5 shrink-0"
             >
-              <Phone className="w-4 h-4 text-white" /> 112 (All-in-One)
+              <Phone className="w-4 h-4 text-white shrink-0" />
+              <span>112 (All-in-One)</span>
             </a>
           </div>
         </div>
@@ -337,34 +339,34 @@ export const EmergencySOSPage = () => {
         <div className="pt-2 grid grid-cols-2 sm:grid-cols-4 gap-2 text-[13px] font-bold">
           <a
             href="tel:108"
-            className="p-2.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/25 text-white flex items-center justify-between transition-colors"
+            className="helpline-pill p-3 rounded-xl bg-black/20 hover:bg-black/30 border border-white/20 text-white flex items-center justify-between transition-colors shadow-xs"
           >
-            <span>🚑 Ambulance</span>
-            <span className="font-black text-white">108</span>
+            <span className="flex items-center gap-2">🚑 Ambulance</span>
+            <span className="font-black text-base">108</span>
           </a>
           <a
             href="tel:112"
-            className="p-2.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/25 text-white flex items-center justify-between transition-colors"
+            className="helpline-pill p-3 rounded-xl bg-black/20 hover:bg-black/30 border border-white/20 text-white flex items-center justify-between transition-colors shadow-xs"
           >
-            <span>🚨 National ER</span>
-            <span className="font-black text-white">112</span>
+            <span className="flex items-center gap-2">🚨 National ER</span>
+            <span className="font-black text-base">112</span>
           </a>
           <a
             href="tel:102"
-            className="p-2.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/25 text-white flex items-center justify-between transition-colors"
+            className="helpline-pill p-3 rounded-xl bg-black/20 hover:bg-black/30 border border-white/20 text-white flex items-center justify-between transition-colors shadow-xs"
           >
-            <span>👶 Maternity/Ped</span>
-            <span className="font-black text-white">102</span>
+            <span className="flex items-center gap-2">👶 Maternity/Ped</span>
+            <span className="font-black text-base">102</span>
           </a>
           <a
             href="tel:1075"
-            className="p-2.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/25 text-white flex items-center justify-between transition-colors"
+            className="helpline-pill p-3 rounded-xl bg-black/20 hover:bg-black/30 border border-white/20 text-white flex items-center justify-between transition-colors shadow-xs"
           >
-            <span>🩺 Health Helpline</span>
-            <span className="font-black text-white">1075</span>
+            <span className="flex items-center gap-2">🩺 Health Helpline</span>
+            <span className="font-black text-base">1075</span>
           </a>
         </div>
-      </Card>
+      </div>
 
       {/* Real GPS Location & 1-Click Share Bar */}
       <Card className="p-5 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-sm space-y-3">
