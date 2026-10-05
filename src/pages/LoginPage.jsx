@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowRight, Lock, Mail, Activity, Eye, EyeOff, UserCheck } from 'lucide-react';
+import { ArrowRight, Lock, Mail, Activity, Eye, EyeOff, UserCheck, Siren } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
 import { OtpVerificationScreen } from '../components/auth/OtpVerificationScreen';
@@ -57,6 +57,27 @@ export const LoginPage = () => {
   return (
     <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-main)] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 font-sans antialiased">
       
+      {/* Zero-Login Emergency SOS Quick Access Banner */}
+      <div className="sm:mx-auto sm:w-full sm:max-w-md mb-6">
+        <div className="p-3.5 bg-gradient-to-r from-red-600 via-rose-600 to-red-700 text-white rounded-2xl shadow-lg border border-red-400 flex items-center justify-between gap-3 animate-pulse">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 bg-white/20 rounded-xl">
+              <Siren className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <div className="text-[11px] font-black uppercase tracking-wider text-red-100">Medical Emergency?</div>
+              <div className="text-xs font-black text-white">No Login / No Password Needed</div>
+            </div>
+          </div>
+          <Link
+            to="/sos"
+            className="px-3.5 py-2 bg-white text-red-700 hover:bg-red-50 text-xs font-black rounded-xl shadow uppercase tracking-wider transition-all transform hover:scale-105 active:scale-95 shrink-0"
+          >
+            Open SOS Now ⚡
+          </Link>
+        </div>
+      </div>
+
       {/* Brand Header */}
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center space-y-3">
         <Link to="/" className="inline-flex items-center gap-3 transition-transform hover:scale-105">

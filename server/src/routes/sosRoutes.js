@@ -2,18 +2,20 @@ const express = require('express');
 const router = express.Router();
 const sosController = require('../controllers/sosController');
 const authMiddleware = require('../middlewares/authMiddleware');
+const optionalAuthMiddleware = require('../middlewares/optionalAuthMiddleware');
 
-// Support multiple endpoint aliases for 100% route resilience
-router.post('/trigger', authMiddleware, sosController.triggerSOS);
-router.post('/', authMiddleware, sosController.triggerSOS);
-router.post('/sos', authMiddleware, sosController.triggerSOS);
-router.post('/alert', authMiddleware, sosController.triggerSOS);
+// Zero-Login public emergency endpoints (support authenticated users when token present, and bystanders when token absent)
+router.post('/trigger', optionalAuthMiddleware, sosController.triggerSOS);
+router.post('/', optionalAuthMiddleware, sosController.triggerSOS);
+router.post('/sos', optionalAuthMiddleware, sosController.triggerSOS);
+router.post('/alert', optionalAuthMiddleware, sosController.triggerSOS);
 
-// Stand-down / Deactivate / Cancel SOS Alert Endpoints
-router.post('/cancel', authMiddleware, sosController.cancelSOS);
-router.post('/deactivate', authMiddleware, sosController.cancelSOS);
-router.post('/resolve', authMiddleware, sosController.cancelSOS);
+// Stand-down / Deactivate / Cancel SOS Alert Endpoints (allow zero-login cancellation as well)
+router.post('/cancel', optionalAuthMiddleware, sosController.cancelSOS);
+router.post('/deactivate', optionalAuthMiddleware, sosController.cancelSOS);
+router.post('/resolve', optionalAuthMiddleware, sosController.cancelSOS);
 
+// Contact management routes
 router.get('/contacts', authMiddleware, sosController.getContacts);
 router.post('/contacts', authMiddleware, sosController.addContact);
 router.delete('/contacts/:id', authMiddleware, sosController.deleteContact);

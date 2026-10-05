@@ -38,12 +38,19 @@ async function getUserFromReq(req) {
 
 exports.triggerSOS = async (req, res, next) => {
   try {
-    const user = await getUserFromReq(req);
+    let user = await getUserFromReq(req);
+    const isPublicEmergency = !user;
+
     if (!user) {
-      return res.status(401).json({ error: "Authentication required to trigger Emergency SOS." });
+      user = {
+        _id: 'public-emergency-' + Date.now(),
+        id: 'public-emergency-' + Date.now(),
+        full_name: req.body?.callerName || 'Emergency Bystander / Citizen',
+        email: req.body?.callerContact || 'emergency-portal@medguardian.local'
+      };
     }
 
-    const { latitude, longitude, triggerType, notes } = req.body;
+    const { latitude, longitude, triggerType, notes, emergencyContacts: customContacts } = req.body;
 
     // Strict validation: Require real live browser GPS coordinates (NO DEFAULT HARDCODED DELHI COORDINATES)
     if (latitude === undefined || latitude === null || longitude === undefined || longitude === null || isNaN(Number(latitude)) || isNaN(Number(longitude))) {
@@ -51,18 +58,23 @@ exports.triggerSOS = async (req, res, next) => {
     }
 
     let contacts = [];
+    if (Array.isArray(customContacts) && customContacts.length > 0) {
+      contacts = customContacts;
+    }
+
     const sosData = {
       user_id: user._id,
-      trigger_type: triggerType || "Manual SOS Button",
+      trigger_type: triggerType || (isPublicEmergency ? "Public Zero-Login SOS" : "Manual SOS Button"),
       latitude: Number(latitude),
       longitude: Number(longitude),
       status: "DISPATCHED",
-      notes: notes || "Manual High-Intensity Emergency SOS Alert"
+      notes: notes || (isPublicEmergency ? "ZERO-LOGIN PUBLIC EMERGENCY DISPATCH" : "Manual High-Intensity Emergency SOS Alert")
     };
 
     let sosRecord = null;
-    if (mongoose.connection && mongoose.connection.readyState === 1) {
-      contacts = await EmergencyContact.find({ user_id: user._id });
+    if (!isPublicEmergency && mongoose.connection && mongoose.connection.readyState === 1) {
+      const dbContacts = await EmergencyContact.find({ user_id: user._id });
+      if (contacts.length === 0) contacts = dbContacts;
       sosRecord = await SOSEvent.create(sosData);
     } else {
       sosRecord = {
@@ -73,7 +85,7 @@ exports.triggerSOS = async (req, res, next) => {
 
     await sosAlertService.dispatchSOSAlert(user, contacts, { ...req.body, latitude: Number(latitude), longitude: Number(longitude) });
 
-    res.status(201).json({ success: true, sos: sosRecord, contactsNotified: contacts.length });
+    res.status(201).json({ success: true, sos: sosRecord, contactsNotified: contacts.length, isPublicEmergency });
   } catch (error) {
     next(error);
   }
@@ -83,13 +95,15 @@ exports.cancelSOS = async (req, res, next) => {
   try {
     const user = await getUserFromReq(req);
     if (!user) {
-      return res.status(401).json({ error: "Authentication required." });
+      return res.json({ success: true, message: "Emergency SOS standby state restored." });
     }
 
-    await SOSEvent.updateMany(
-      { user_id: user._id, status: "DISPATCHED" },
-      { $set: { status: "CANCELLED", notes: "Emergency SOS cancelled by patient (Stand-down)" } }
-    );
+    if (mongoose.connection && mongoose.connection.readyState === 1) {
+      await SOSEvent.updateMany(
+        { user_id: user._id, status: "DISPATCHED" },
+        { $set: { status: "CANCELLED", notes: "Emergency SOS cancelled by patient (Stand-down)" } }
+      );
+    }
 
     res.json({ success: true, message: "Emergency SOS alert cancelled." });
   } catch (error) {

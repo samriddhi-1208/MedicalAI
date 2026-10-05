@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, Menu, X, Activity } from 'lucide-react';
+import { ArrowRight, Menu, X, Activity, Siren } from 'lucide-react';
 
 export const Navbar = () => {
   const navigate = useNavigate();
@@ -54,6 +54,15 @@ export const Navbar = () => {
 
         {/* Desktop Action CTAs */}
         <div className="hidden md:flex items-center gap-3">
+          {/* Zero-Login Emergency SOS Button */}
+          <Link
+            to="/sos"
+            className="py-2 px-3.5 text-xs sm:text-sm font-black rounded-xl bg-red-600 hover:bg-red-700 text-white flex items-center gap-1.5 cursor-pointer shadow-md transition-all transform hover:scale-105 active:scale-95 animate-pulse"
+          >
+            <Siren className="w-4 h-4 text-white" />
+            <span>Emergency SOS</span>
+          </Link>
+
           <Link 
             to="/login" 
             className="text-sm font-semibold text-slate-700 hover:text-[#0F172A] px-3 py-2 rounded-lg hover:bg-slate-100 transition-colors"
@@ -70,8 +79,16 @@ export const Navbar = () => {
           </Link>
         </div>
 
-        {/* Mobile Hamburger Button */}
+        {/* Mobile Header Actions */}
         <div className="flex md:hidden items-center gap-2">
+          <Link
+            to="/sos"
+            className="py-1.5 px-3 text-xs font-black rounded-xl bg-red-600 text-white flex items-center gap-1 shadow-sm animate-pulse"
+          >
+            <Siren className="w-3.5 h-3.5 text-white" />
+            <span>SOS</span>
+          </Link>
+
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="p-2 rounded-lg text-slate-700 hover:bg-slate-100 transition-colors"
@@ -86,6 +103,16 @@ export const Navbar = () => {
       {/* Mobile Navigation Drawer */}
       {mobileMenuOpen && (
         <div className="md:hidden bg-white border-b border-slate-200 px-4 pt-3 pb-6 space-y-3 font-sans text-sm animate-in fade-in slide-in-from-top-2 duration-150">
+          {/* Emergency SOS Banner in Mobile Menu */}
+          <Link
+            to="/sos"
+            onClick={() => setMobileMenuOpen(false)}
+            className="w-full py-3 px-4 font-black text-white bg-red-600 hover:bg-red-700 rounded-xl flex items-center justify-center gap-2 text-center shadow-md animate-pulse"
+          >
+            <Siren className="w-5 h-5 text-white" />
+            <span>🚨 1-Tap Emergency SOS (No Login)</span>
+          </Link>
+
           <Link 
             to="/" 
             onClick={() => setMobileMenuOpen(false)}
@@ -137,3 +164,4 @@ export const Navbar = () => {
     </header>
   );
 };
+

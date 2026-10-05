@@ -28,6 +28,10 @@ export const AppRoutes = () => {
       {/* Public Marketing Landing */}
       <Route path="/" element={<LandingPage />} />
 
+      {/* Zero-Login Public Emergency SOS Portals (Instant access, no credentials or OTP required) */}
+      <Route path="/sos" element={<EmergencySOSPage />} />
+      <Route path="/emergency" element={<EmergencySOSPage />} />
+
       {/* Auth Routes */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />

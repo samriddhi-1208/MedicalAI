@@ -127,6 +127,20 @@ export const LandingPage = () => {
     <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] font-sans antialiased">
       <Navbar />
 
+      {/* Zero-Login Emergency Announcement Ribbon */}
+      <div className="bg-gradient-to-r from-red-600 via-rose-600 to-red-700 text-white py-2.5 px-4 text-xs font-bold text-center flex items-center justify-center gap-2 flex-wrap shadow-xs">
+        <span className="flex items-center gap-1.5 font-black uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded-full text-[11px]">
+          <Siren className="w-3.5 h-3.5" /> Emergency SOS
+        </span>
+        <span>Facing a medical emergency? Instant 1-tap dispatch, 108 ambulance call & GPS sharing:</span>
+        <Link 
+          to="/sos" 
+          className="underline font-black hover:text-yellow-200 ml-1 inline-flex items-center gap-1"
+        >
+          Open SOS (No Login Needed) &rarr;
+        </Link>
+      </div>
+
       {/* MedGuardian AI Hero Section */}
       <section className="py-16 md:py-24 bg-white border-b border-slate-200 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -159,6 +173,14 @@ export const LandingPage = () => {
                 >
                   Upload Medical Report
                 </Button>
+
+                <Link
+                  to="/sos"
+                  className="py-3 px-5 text-sm font-bold rounded-xl bg-red-600 hover:bg-red-700 text-white flex items-center gap-2 cursor-pointer shadow-md shadow-red-600/20 transition-all transform hover:scale-105 active:scale-95"
+                >
+                  <Siren className="w-4 h-4 text-white animate-pulse" />
+                  <span>1-Tap Emergency SOS</span>
+                </Link>
 
                 <Button
                   variant="secondary"
