@@ -191,10 +191,11 @@ export const HealthDataProvider = ({ children }) => {
             }
           }
 
-          // Parse Medicines
+          // Parse Medicines (Backend or LocalStorage Fallback)
+          let safeMeds = [];
           if (medsRes && medsRes.ok) {
             const mData = await safeParseJson(medsRes);
-            const safeMeds = (Array.isArray(mData) ? mData : []).map(m => ({
+            safeMeds = (Array.isArray(mData) ? mData : []).map(m => ({
               id: m.id || m._id,
               name: m.name,
               dose: m.dose || m.dosage || '1 tablet',
@@ -212,67 +213,98 @@ export const HealthDataProvider = ({ children }) => {
               totalPills: m.total_pills ?? 30,
               pillsRemaining: m.pills_remaining ?? 30,
               isPaused: m.is_paused || false,
-              taken: m.is_taken && isTakenToday(m.last_taken_at || m.lastTakenAt)
+              taken: m.is_taken && isTakenToday(m.last_taken_at || m.lastTakenAt),
+              lastTakenAt: m.last_taken_at || m.lastTakenAt || null
             }));
-
-            const deduplicated = [];
-            const seenNames = new Set();
-            
-            safeMeds.sort((a, b) => {
-              const aHasMg = /\d+\s*(mg|g|mcg|ml)/i.test(a.dose);
-              const bHasMg = /\d+\s*(mg|g|mcg|ml)/i.test(b.dose);
-              if (aHasMg && !bHasMg) return -1;
-              if (!aHasMg && bHasMg) return 1;
-              return 0;
-            });
-
-            safeMeds.forEach(m => {
-              const k = (m.name || '').toLowerCase().trim();
-              if (k && !seenNames.has(k)) {
-                seenNames.add(k);
-                deduplicated.push(m);
+          } else {
+            // Fallback to cached medicines from localStorage
+            const uId = rawUser?.id || userProfile?.id;
+            const cachedMedsRaw = (uId ? localStorage.getItem(`medguardian_medicines_${uId}`) : null) || localStorage.getItem('medguardian_medicines_cache');
+            if (cachedMedsRaw) {
+              try {
+                const parsedMeds = JSON.parse(cachedMedsRaw);
+                if (Array.isArray(parsedMeds)) safeMeds = parsedMeds;
+              } catch (e) {
+                console.warn("[MEDICINES] Error reading cached medicines:", e);
               }
-            });
-
-            // Automatically directly add any medications identified from saved reports
-            if (Array.isArray(finalReports)) {
-              finalReports.forEach(rep => {
-                const repMeds = Array.isArray(rep.extractedMedications) ? rep.extractedMedications : (Array.isArray(rep.medications) ? rep.medications : []);
-                repMeds.forEach(rm => {
-                  const name = (rm.medicineName || rm.name || '').trim();
-                  const k = name.toLowerCase();
-                  if (name && !seenNames.has(k)) {
-                    seenNames.add(k);
-                    deduplicated.push({
-                      id: rm.id || `med-ext-${Date.now()}-${deduplicated.length}`,
-                      name,
-                      dose: rm.dose || rm.strength || '1 tablet',
-                      dosage: rm.dose || rm.strength || '1 tablet',
-                      frequency: rm.frequency || 'Once daily',
-                      scheduledTime: rm.timing || '08:00 AM',
-                      time: rm.timing || '08:00 AM',
-                      timeSlot: 'Morning',
-                      mealRelation: rm.mealRelation || 'After meal',
-                      mealType: rm.mealType || 'Lunch',
-                      delayMinutes: Number(rm.delayMinutes || 30),
-                      durationDays: parseInt(rm.durationDays || rm.duration || 5) || 5,
-                      sourceTitle: rep.title || 'Extracted Prescription',
-                      purpose: rm.genericName ? `Prescribed: ${rm.genericName}` : 'Prescribed Medication',
-                      totalPills: 30,
-                      pillsRemaining: 30,
-                      isPaused: false,
-                      taken: false
-                    });
-                  }
-                });
-              });
-            }
-
-            setMedicines(deduplicated);
-            if (rawUser?.id) {
-              localStorage.setItem(`medguardian_medicines_${rawUser.id}`, JSON.stringify(deduplicated));
             }
           }
+
+          // Existing cached user meds to preserve local taken status for today
+          const uId = rawUser?.id || userProfile?.id;
+          let cachedUserMeds = [];
+          try {
+            const rawCached = (uId ? localStorage.getItem(`medguardian_medicines_${uId}`) : null) || localStorage.getItem('medguardian_medicines_cache');
+            if (rawCached) cachedUserMeds = JSON.parse(rawCached);
+          } catch (e) {}
+
+          const deduplicated = [];
+          const seenNames = new Set();
+          
+          safeMeds.sort((a, b) => {
+            const aHasMg = /\d+\s*(mg|g|mcg|ml)/i.test(a.dose);
+            const bHasMg = /\d+\s*(mg|g|mcg|ml)/i.test(b.dose);
+            if (aHasMg && !bHasMg) return -1;
+            if (!aHasMg && bHasMg) return 1;
+            return 0;
+          });
+
+          safeMeds.forEach(m => {
+            const k = (m.name || '').toLowerCase().trim();
+            if (k && !seenNames.has(k)) {
+              seenNames.add(k);
+              const cachedMatch = cachedUserMeds.find(cm => (cm.name || '').toLowerCase().trim() === k);
+              deduplicated.push({
+                ...m,
+                taken: m.taken || (cachedMatch ? Boolean(cachedMatch.taken && isTakenToday(cachedMatch.lastTakenAt || cachedMatch.last_taken_at)) : false),
+                pillsRemaining: m.pillsRemaining ?? cachedMatch?.pillsRemaining ?? 30,
+                isPaused: m.isPaused ?? cachedMatch?.isPaused ?? false
+              });
+            }
+          });
+
+          // Automatically directly add any medications identified from saved reports
+          if (Array.isArray(finalReports)) {
+            finalReports.forEach(rep => {
+              const repMeds = Array.isArray(rep.extractedMedications) ? rep.extractedMedications : (Array.isArray(rep.medications) ? rep.medications : []);
+              repMeds.forEach(rm => {
+                const name = (rm.medicineName || rm.name || '').trim();
+                const k = name.toLowerCase();
+                if (name && !seenNames.has(k)) {
+                  seenNames.add(k);
+                  const cachedMatch = cachedUserMeds.find(cm => (cm.name || '').toLowerCase().trim() === k);
+                  const stableId = cachedMatch?.id || rm.id || `med-ext-${k.replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`;
+                  deduplicated.push({
+                    id: stableId,
+                    name,
+                    dose: rm.dose || rm.strength || cachedMatch?.dose || '1 tablet',
+                    dosage: rm.dose || rm.strength || cachedMatch?.dosage || '1 tablet',
+                    frequency: rm.frequency || cachedMatch?.frequency || 'Once daily',
+                    scheduledTime: rm.timing || cachedMatch?.scheduledTime || '08:00 AM',
+                    time: rm.timing || cachedMatch?.time || '08:00 AM',
+                    timeSlot: cachedMatch?.timeSlot || 'Morning',
+                    mealRelation: rm.mealRelation || cachedMatch?.mealRelation || 'After meal',
+                    mealType: rm.mealType || cachedMatch?.mealType || 'Lunch',
+                    delayMinutes: Number(rm.delayMinutes || cachedMatch?.delayMinutes || 30),
+                    durationDays: parseInt(rm.durationDays || rm.duration || cachedMatch?.durationDays || 5) || 5,
+                    sourceTitle: rep.title || cachedMatch?.sourceTitle || 'Extracted Prescription',
+                    purpose: rm.genericName ? `Prescribed: ${rm.genericName}` : (cachedMatch?.purpose || 'Prescribed Medication'),
+                    totalPills: cachedMatch?.totalPills || 30,
+                    pillsRemaining: cachedMatch?.pillsRemaining ?? 30,
+                    isPaused: cachedMatch?.isPaused || false,
+                    taken: cachedMatch ? Boolean(cachedMatch.taken && isTakenToday(cachedMatch.lastTakenAt || cachedMatch.last_taken_at)) : false,
+                    lastTakenAt: cachedMatch?.lastTakenAt || cachedMatch?.last_taken_at || null
+                  });
+                }
+              });
+            });
+          }
+
+          setMedicines(deduplicated);
+          if (uId) {
+            localStorage.setItem(`medguardian_medicines_${uId}`, JSON.stringify(deduplicated));
+          }
+          localStorage.setItem('medguardian_medicines_cache', JSON.stringify(deduplicated));
 
           // Parse Emergency Contacts
           let cData = [];
@@ -807,65 +839,167 @@ export const HealthDataProvider = ({ children }) => {
   };
 
   const deleteMedicine = async (medId) => {
-    if (!token) return;
+    const uId = userProfile?.id;
+    setMedicines(prev => {
+      const nextList = prev.filter(m => m.id !== medId);
+      if (uId) localStorage.setItem(`medguardian_medicines_${uId}`, JSON.stringify(nextList));
+      localStorage.setItem('medguardian_medicines_cache', JSON.stringify(nextList));
+      return nextList;
+    });
+    toast.success("Medication deleted.");
+
+    if (!token || String(medId).startsWith('med-ext-') || String(medId).startsWith('med-local-')) return;
     try {
-      const res = await fetch(`${API_BASE}/medicines/${medId}`, {
+      await fetch(`${API_BASE}/medicines/${medId}`, {
         method: 'DELETE',
         headers: getAuthHeaders()
       });
-      if (res.ok) {
-        setMedicines(prev => prev.filter(m => m.id !== medId));
-        toast.success("Medication deleted.");
-      } else {
-        const data = await safeParseJson(res);
-        toast.error(data?.error || "Failed to delete medication.");
-      }
     } catch (e) {
-      console.error("[API] Delete medicine error:", e);
-      toast.error("Network error while deleting medication.");
+      console.warn("[API] Delete medicine sync error:", e);
     }
   };
 
   const toggleMedicinePause = async (medId) => {
-    if (!token) return;
+    const currentMed = medicines.find(m => m.id === medId);
+    if (!currentMed) return;
+
+    const nextPaused = !currentMed.isPaused;
+    const uId = userProfile?.id;
+
+    setMedicines(prev => {
+      const nextList = prev.map(m => m.id === medId ? { ...m, isPaused: nextPaused } : m);
+      if (uId) localStorage.setItem(`medguardian_medicines_${uId}`, JSON.stringify(nextList));
+      localStorage.setItem('medguardian_medicines_cache', JSON.stringify(nextList));
+      return nextList;
+    });
+    toast.success(nextPaused ? "Medication schedule paused." : "Medication schedule resumed.");
+
+    if (!token || String(medId).startsWith('med-ext-') || String(medId).startsWith('med-local-')) return;
     try {
-      const res = await fetch(`${API_BASE}/medicines/${medId}/toggle-pause`, {
+      await fetch(`${API_BASE}/medicines/${medId}/toggle-pause`, {
         method: 'PATCH',
         headers: getAuthHeaders()
       });
-      const data = await safeParseJson(res);
-      if (res.ok && data) {
-        setMedicines(prev => prev.map(m => m.id === medId ? { ...m, isPaused: data.is_paused } : m));
-      } else {
-        toast.error("Failed to toggle medication status.");
-      }
     } catch (e) {
-      console.error("[API] Toggle pause error:", e);
-      toast.error("Network error.");
+      console.warn("[API] Toggle pause sync error:", e);
     }
   };
 
   const toggleMedicineTaken = async (medId) => {
+    // 1. Locate current medicine
+    const currentMed = medicines.find(m => m.id === medId);
+    if (!currentMed) return;
+
+    const nextTaken = !currentMed.taken;
+    const currentPills = currentMed.pillsRemaining ?? currentMed.pills_remaining ?? 30;
+    const nextPillsRemaining = nextTaken ? Math.max(0, currentPills - 1) : currentPills;
+    const nowIso = new Date().toISOString();
+    const uId = userProfile?.id;
+
+    // 2. Optimistic Instant UI Update & LocalStorage Persistence
+    setMedicines(prev => {
+      const nextList = prev.map(m => m.id === medId ? {
+        ...m,
+        taken: nextTaken,
+        is_taken: nextTaken,
+        pillsRemaining: nextPillsRemaining,
+        pills_remaining: nextPillsRemaining,
+        lastTakenAt: nextTaken ? nowIso : null,
+        last_taken_at: nextTaken ? nowIso : null
+      } : m);
+      if (uId) localStorage.setItem(`medguardian_medicines_${uId}`, JSON.stringify(nextList));
+      localStorage.setItem('medguardian_medicines_cache', JSON.stringify(nextList));
+      return nextList;
+    });
+
+    toast.success(nextTaken ? "Medication logged as taken." : "Medication status updated.");
+
+    // 3. Background Sync to Server
     if (!token) return;
+
     try {
-      const res = await fetch(`${API_BASE}/medicines/${medId}/taken`, {
+      let serverId = medId;
+      const isClientSyntheticId = String(medId).startsWith('med-ext-') || String(medId).startsWith('med-local-');
+
+      if (isClientSyntheticId) {
+        // Register this medication on the server so it gets a persistent DB record
+        const addRes = await fetch(`${API_BASE}/medicines`, {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({
+            name: currentMed.name,
+            dose: currentMed.dose || currentMed.dosage || '1 tablet',
+            dosage: currentMed.dose || currentMed.dosage || '1 tablet',
+            frequency: currentMed.frequency || 'Once daily',
+            scheduled_time: currentMed.scheduledTime || currentMed.time || '08:00 AM',
+            time: currentMed.scheduledTime || currentMed.time || '08:00 AM',
+            time_slot: currentMed.timeSlot || 'Morning',
+            meal_relation: currentMed.mealRelation || 'After meal',
+            meal_type: currentMed.mealType || 'Lunch',
+            delay_minutes: currentMed.delayMinutes || 30,
+            duration_days: currentMed.durationDays || 5,
+            source_title: currentMed.sourceTitle || 'Prescription Schedule',
+            purpose: currentMed.purpose || 'Prescribed Medication',
+            totalPills: currentMed.totalPills || 30,
+            pills_remaining: nextPillsRemaining,
+            is_taken: nextTaken,
+            is_paused: currentMed.isPaused || false
+          })
+        }).catch(() => null);
+
+        if (addRes && addRes.ok) {
+          const addData = await safeParseJson(addRes);
+          if (addData && (addData.id || addData._id)) {
+            serverId = addData.id || addData._id;
+            // Update ID mapping in state
+            setMedicines(prev => {
+              const remapped = prev.map(m => m.id === medId ? { ...m, id: serverId } : m);
+              if (uId) localStorage.setItem(`medguardian_medicines_${uId}`, JSON.stringify(remapped));
+              localStorage.setItem('medguardian_medicines_cache', JSON.stringify(remapped));
+              return remapped;
+            });
+          }
+        }
+      }
+
+      // Call taken patch on server
+      const res = await fetch(`${API_BASE}/medicines/${serverId}/taken`, {
         method: 'PATCH',
         headers: getAuthHeaders()
-      });
-      const data = await safeParseJson(res);
-      if (res.ok && data) {
-        setMedicines(prev => prev.map(m => m.id === medId ? {
-          ...m,
-          taken: data.is_taken,
-          pillsRemaining: data.pills_remaining
-        } : m));
-        toast.success(data.is_taken ? "Medication logged as taken." : "Medication status updated.");
-      } else {
-        toast.error("Failed to log medication.");
+      }).catch(() => null);
+
+      if (res && res.ok) {
+        const data = await safeParseJson(res);
+        if (data) {
+          setMedicines(prev => {
+            const synced = prev.map(m => (m.id === serverId || m.id === medId) ? {
+              ...m,
+              id: serverId,
+              taken: data.is_taken,
+              pillsRemaining: data.pills_remaining
+            } : m);
+            if (uId) localStorage.setItem(`medguardian_medicines_${uId}`, JSON.stringify(synced));
+            localStorage.setItem('medguardian_medicines_cache', JSON.stringify(synced));
+            return synced;
+          });
+        }
+      } else if (res && res.status === 404 && !isClientSyntheticId) {
+        // If server had a 404 for an existing ID, re-register on server
+        await fetch(`${API_BASE}/medicines`, {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({
+            name: currentMed.name,
+            dose: currentMed.dose || currentMed.dosage || '1 tablet',
+            frequency: currentMed.frequency || 'Once daily',
+            scheduled_time: currentMed.scheduledTime || currentMed.time || '08:00 AM',
+            is_taken: nextTaken,
+            pills_remaining: nextPillsRemaining
+          })
+        }).catch(() => null);
       }
     } catch (e) {
-      console.error("[API] Toggle taken error:", e);
-      toast.error("Network error.");
+      console.warn("[MEDICINES] Background sync note:", e);
     }
   };
 

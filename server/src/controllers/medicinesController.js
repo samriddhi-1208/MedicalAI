@@ -581,14 +581,44 @@ exports.togglePause = async (req, res, next) => {
     }
 
     // In-memory fallback
-    const cached = inMemoryMedicines.get(String(id));
-    if (!cached || !matchesUser(cached, user)) {
+    let cached = inMemoryMedicines.get(String(id));
+    if (!cached) {
+      const idClean = String(id).toLowerCase();
+      cached = Array.from(inMemoryMedicines.values()).find(
+        m => matchesUser(m, user) && (
+          String(m.id) === String(id) ||
+          String(m._id) === String(id) ||
+          (idClean.includes('med-ext-') && idClean.includes((m.name || '').toLowerCase().trim().replace(/\s+/g, '-')))
+        )
+      );
+    }
+
+    if (!cached) {
+      if (String(id).startsWith('med-ext-') || String(id).startsWith('med-local-')) {
+        const rawName = String(id).replace(/^(med-ext-|med-local-)/, '').replace(/-\d+$/, '').replace(/-/g, ' ').trim() || 'Prescribed Medicine';
+        const formattedName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+        const autoMed = {
+          _id: id,
+          id: id,
+          user_id: String(user._id || user.id),
+          user_email: user.email ? user.email.toLowerCase() : '',
+          name: formattedName,
+          dose: '1 tablet',
+          frequency: 'Once daily',
+          is_paused: true,
+          pills_remaining: 30,
+          created_at: new Date().toISOString()
+        };
+        inMemoryMedicines.set(String(id), autoMed);
+        savePersistentMedicines();
+        return res.json(autoMed);
+      }
       return res.status(404).json({ error: "Medicine reminder not found." });
     }
 
     cached.is_paused = !cached.is_paused;
     cached.updated_at = new Date().toISOString();
-    inMemoryMedicines.set(String(id), cached);
+    inMemoryMedicines.set(String(cached.id || id), cached);
     savePersistentMedicines();
     res.json(cached);
   } catch (error) {
@@ -640,8 +670,39 @@ exports.logTaken = async (req, res, next) => {
     }
 
     // In-memory fallback
-    const cached = inMemoryMedicines.get(String(id));
-    if (!cached || !matchesUser(cached, user)) {
+    let cached = inMemoryMedicines.get(String(id));
+    if (!cached) {
+      const idClean = String(id).toLowerCase();
+      cached = Array.from(inMemoryMedicines.values()).find(
+        m => matchesUser(m, user) && (
+          String(m.id) === String(id) ||
+          String(m._id) === String(id) ||
+          (idClean.includes('med-ext-') && idClean.includes((m.name || '').toLowerCase().trim().replace(/\s+/g, '-')))
+        )
+      );
+    }
+
+    if (!cached) {
+      if (String(id).startsWith('med-ext-') || String(id).startsWith('med-local-')) {
+        const rawName = String(id).replace(/^(med-ext-|med-local-)/, '').replace(/-\d+$/, '').replace(/-/g, ' ').trim() || 'Prescribed Medicine';
+        const formattedName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+        const autoMed = {
+          _id: id,
+          id: id,
+          user_id: String(user._id || user.id),
+          user_email: user.email ? user.email.toLowerCase() : '',
+          name: formattedName,
+          dose: '1 tablet',
+          frequency: 'Once daily',
+          is_taken: true,
+          pills_remaining: 29,
+          last_taken_at: new Date().toISOString(),
+          created_at: new Date().toISOString()
+        };
+        inMemoryMedicines.set(String(id), autoMed);
+        savePersistentMedicines();
+        return res.json(autoMed);
+      }
       return res.status(404).json({ error: "Medicine reminder not found." });
     }
 
@@ -651,7 +712,7 @@ exports.logTaken = async (req, res, next) => {
       cached.last_taken_at = new Date().toISOString();
     }
     cached.updated_at = new Date().toISOString();
-    inMemoryMedicines.set(String(id), cached);
+    inMemoryMedicines.set(String(cached.id || id), cached);
     savePersistentMedicines();
     res.json(cached);
   } catch (error) {
