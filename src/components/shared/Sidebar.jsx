@@ -108,21 +108,21 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
         {!collapsed ? (
           <NavLink
             to="/app/sos"
-            className="flex items-center gap-3 p-3 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-rose-800 dark:text-rose-200 transition-colors animate-sos-pulse"
+            className="flex items-center gap-3 p-3 rounded-xl bg-rose-100/80 hover:bg-rose-200/90 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-900 text-rose-900 dark:text-rose-200 transition-colors shadow-2xs"
           >
-            <Siren className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0" />
+            <Siren className="w-5 h-5 text-rose-700 dark:text-rose-400 shrink-0" />
             <div className="text-left">
-              <p className="text-xs font-bold text-rose-900 dark:text-rose-100">{t('emergencySOS')}</p>
-              <p className="text-[10px] font-medium text-rose-700 dark:text-rose-300">{t('oneClickDispatch')}</p>
+              <p className="text-xs font-black text-rose-950 dark:text-rose-100">{t('emergencySOS')}</p>
+              <p className="text-[10px] font-bold text-rose-800 dark:text-rose-300">{t('oneClickDispatch')}</p>
             </div>
           </NavLink>
         ) : (
           <NavLink
             to="/app/sos"
-            className="flex items-center justify-center p-2.5 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900"
+            className="flex items-center justify-center p-2.5 rounded-xl bg-rose-100 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border border-rose-300 dark:border-rose-900"
             title={t('emergencySOS')}
           >
-            <Siren className="w-5 h-5 text-rose-600 dark:text-rose-400" />
+            <Siren className="w-5 h-5 text-rose-700 dark:text-rose-400" />
           </NavLink>
         )}
       </div>

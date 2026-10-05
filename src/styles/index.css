@@ -2,29 +2,31 @@
 
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  /* LIGHT MODE TOKENS */
-  --bg-primary: #F8F9FA;
+  /* LIGHT MODE TOKENS — High-Contrast Healthcare Palette */
+  --bg-primary: #F8FAFC;
   --bg-surface: #FFFFFF;
-  --bg-surface-subtle: #F1F3F9;
+  --bg-surface-subtle: #F1F5F9;
 
-  --color-primary: #5B648F; /* muted lavender */
-  --color-primary-hover: #485075;
-  --color-primary-light: #EEF0F7;
+  --color-primary: #0D9488; /* medical teal */
+  --color-primary-hover: #0F766E;
+  --color-primary-light: #F0FDFA;
 
-  --color-secondary: #DADCEC; /* soft lavender */
-  --color-secondary-hover: #C5C9E0;
+  --color-secondary: #E2E8F0;
+  --color-secondary-hover: #CBD5E1;
 
-  --color-accent: #B8D9CF; /* sage green */
-  --color-accent-hover: #9ECAFC;
-  --color-accent-dark: #2A6E55; /* accessible dark sage for text */
+  --color-accent: #14B8A6;
+  --color-accent-hover: #0D9488;
+  --color-accent-dark: #0F766E;
 
-  --text-main: #1E202B;
-  --text-muted: #525866;
-  --text-subtle: #717784;
+  --text-main: #0F172A; /* deep bold slate/navy for maximum contrast */
+  --text-muted: #475569; /* clear readable slate-600 */
+  --text-subtle: #64748B; /* distinct slate-500 */
 
-  --border-color: #E2E4ED;
-  --border-color-hover: #C6C9D8;
+  --border-color: #E2E8F0;
+  --border-color-hover: #CBD5E1;
 
   /* STATUS & MEDICAL ALERTS */
   --status-normal: #15803D;
@@ -36,7 +38,7 @@
   --status-info: #1D4ED8;
   --status-info-bg: #DBEAFE;
 
-  --focus-ring: 0 0 0 2px #5B648F;
+  --focus-ring: 0 0 0 2px #0D9488;
 }
 
 .dark {
@@ -74,6 +76,64 @@
   --status-info-bg: #172A46;
 
   --focus-ring: 0 0 0 2px #AAB4E8;
+}
+
+/* ==========================================================================
+   LIGHT MODE HIGH-CONTRAST ACCESSIBILITY SYSTEM
+   Guarantees deep bold slate (#0F172A) headings, readable slate (#475569)
+   subtext, crisp white surfaces, and bold numbers across all pages.
+   ========================================================================== */
+
+html:not(.dark) h1,
+html:not(.dark) h2,
+html:not(.dark) h3,
+html:not(.dark) h4,
+html:not(.dark) h5,
+html:not(.dark) h6 {
+  color: #0F172A;
+}
+
+html:not(.dark) .text-\[\#0F172A\] {
+  color: #0F172A !important;
+}
+
+html:not(.dark) strong {
+  color: #0F172A;
+}
+
+html:not(.dark) label {
+  color: #334155;
+}
+
+html:not(.dark) .text-slate-500 {
+  color: #64748B !important;
+}
+
+html:not(.dark) .text-slate-600 {
+  color: #475569 !important;
+}
+
+html:not(.dark) .text-slate-700 {
+  color: #334155 !important;
+}
+
+html:not(.dark) .text-slate-800,
+html:not(.dark) .text-slate-900 {
+  color: #0F172A !important;
+}
+
+html:not(.dark) .bg-white {
+  background-color: #FFFFFF !important;
+}
+
+html:not(.dark) .bg-slate-50 {
+  background-color: #F8FAFC !important;
+}
+
+html:not(.dark) .border-slate-200,
+html:not(.dark) .border-slate-200\/80,
+html:not(.dark) .border-slate-200\/90 {
+  border-color: #E2E8F0 !important;
 }
 
 /* ==========================================================================
