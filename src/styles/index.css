@@ -142,6 +142,15 @@
   background-color: var(--bg-surface-subtle) !important;
 }
 
+/* Prevent hover states from reverting to blinding light/white backgrounds in dark mode */
+.dark .hover\:bg-slate-50:hover,
+.dark .hover\:bg-slate-100:hover,
+.dark .hover\:bg-slate-200:hover,
+.dark .hover\:bg-white:hover {
+  background-color: var(--bg-surface-subtle) !important;
+  color: #F5F7FA !important;
+}
+
 .dark .border-slate-100,
 .dark .border-slate-200,
 .dark .border-slate-200\/80,

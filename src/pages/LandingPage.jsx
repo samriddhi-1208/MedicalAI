@@ -476,29 +476,29 @@ export const LandingPage = () => {
       </section>
 
       {/* How It Works Section */}
-      <section id="how-it-works" className="py-20 bg-white border-t border-b border-slate-200">
+      <section id="how-it-works" className="py-20 bg-white dark:bg-[#161926] border-t border-b border-slate-200 dark:border-slate-800 transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-14">
           
           <div className="text-center max-w-2xl mx-auto space-y-3">
-            <span className="px-3.5 py-1 rounded-full bg-slate-100 text-slate-800 text-xs font-bold uppercase tracking-wider border border-slate-200">
+            <span className="px-3.5 py-1 rounded-full bg-slate-100 dark:bg-[#25293C] text-slate-800 dark:text-slate-200 text-xs font-bold uppercase tracking-wider border border-slate-200 dark:border-slate-700">
               Simple Workflow
             </span>
-            <h2 className="text-3xl font-extrabold text-[#0F172A] tracking-tight">
+            <h2 className="text-3xl font-extrabold text-[#0F172A] dark:text-[#F5F7FA] tracking-tight">
               How MedGuardian AI Works
             </h2>
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-slate-600 dark:text-[#C8D0E0]">
               Four simple steps from account creation to AI report insights.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {steps.map((s, idx) => (
-              <div key={idx} className="relative p-6 rounded-2xl bg-slate-50 border border-slate-200/90 space-y-3">
-                <div className="text-3xl font-extrabold text-[#0D9488]/40 tracking-tight">
+              <div key={idx} className="relative p-6 rounded-2xl bg-slate-50 dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 space-y-3">
+                <div className="text-3xl font-extrabold text-[#0D9488]/40 dark:text-teal-400/40 tracking-tight">
                   {s.step}
                 </div>
-                <h3 className="text-lg font-bold text-[#0F172A]">{s.title}</h3>
-                <p className="text-xs text-slate-600 leading-relaxed font-normal">{s.description}</p>
+                <h3 className="text-lg font-bold text-[#0F172A] dark:text-[#F5F7FA]">{s.title}</h3>
+                <p className="text-xs text-slate-600 dark:text-[#C8D0E0] leading-relaxed font-normal">{s.description}</p>
               </div>
             ))}
           </div>
@@ -508,7 +508,7 @@ export const LandingPage = () => {
               variant="primary"
               size="md"
               icon={ArrowRight}
-              className="bg-[#0F172A] hover:bg-[#1E293B] py-3.5 px-8 text-sm font-semibold rounded-xl cursor-pointer shadow-md"
+              className="bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#0D9488] dark:hover:bg-[#0f766e] text-white py-3.5 px-8 text-sm font-semibold rounded-xl cursor-pointer shadow-md"
               onClick={() => navigate('/signup')}
             >
               Get Started (Create Account)
@@ -516,7 +516,7 @@ export const LandingPage = () => {
             <Button
               variant="secondary"
               size="md"
-              className="py-3.5 px-8 text-sm font-semibold rounded-xl bg-white border border-slate-300 hover:bg-slate-100 text-[#0F172A] cursor-pointer shadow-2xs"
+              className="py-3.5 px-8 text-sm font-semibold rounded-xl bg-white dark:bg-[#25293C] border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-[#2e334a] text-[#0F172A] dark:text-[#F5F7FA] cursor-pointer shadow-2xs"
               onClick={() => navigate('/login')}
             >
               Already Have An Account? Sign In
@@ -527,33 +527,47 @@ export const LandingPage = () => {
       </section>
 
       {/* FAQ Interactive Accordion Section */}
-      <section id="faq" className="py-20 bg-slate-50">
+      <section id="faq" className="py-20 bg-slate-50 dark:bg-[#12141D] transition-colors">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
           
           <div className="text-center space-y-2">
-            <span className="px-3 py-1 rounded-full bg-slate-200 text-slate-800 text-xs font-bold uppercase tracking-wider">
+            <span className="px-3 py-1 rounded-full bg-slate-200 dark:bg-[#25293C] text-slate-800 dark:text-slate-200 text-xs font-bold uppercase tracking-wider border border-slate-300 dark:border-slate-700">
               FAQ
             </span>
-            <h2 className="text-3xl font-extrabold text-[#0F172A]">Frequently Asked Questions</h2>
-            <p className="text-xs text-slate-600 font-medium">Answers to common questions about report OCR, privacy, and clinical features.</p>
+            <h2 className="text-3xl font-extrabold text-[#0F172A] dark:text-[#F5F7FA]">Frequently Asked Questions</h2>
+            <p className="text-xs text-slate-600 dark:text-[#C8D0E0] font-medium">Answers to common questions about report OCR, privacy, and clinical features.</p>
           </div>
 
           <div className="space-y-3">
             {faqs.map((faq, idx) => (
               <div 
                 key={idx} 
-                className="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-xs transition-all"
+                className={`border rounded-xl overflow-hidden shadow-xs transition-all ${
+                  faqOpen === idx 
+                    ? 'border-[#0D9488]/50 dark:border-[#0D9488]/60 bg-white dark:bg-[#1C1F2E]' 
+                    : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1C1F2E]'
+                }`}
               >
                 <button
                   onClick={() => setFaqOpen(faqOpen === idx ? null : idx)}
-                  className="w-full p-5 text-left font-bold text-sm text-[#0F172A] flex justify-between items-center hover:bg-slate-50 cursor-pointer transition-colors"
+                  className={`w-full p-5 text-left font-bold text-sm flex justify-between items-center cursor-pointer transition-colors ${
+                    faqOpen === idx 
+                      ? 'bg-slate-50/60 dark:bg-[#25293C]/50 text-[#0D9488] dark:text-[#2DD4BF]' 
+                      : 'text-[#0F172A] dark:text-[#F5F7FA] hover:bg-slate-100 dark:hover:bg-[#25293C]'
+                  }`}
                 >
-                  <span>{faq.question}</span>
-                  <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform duration-200 ${faqOpen === idx ? 'rotate-180 text-[#0D9488]' : ''}`} />
+                  <span className={faqOpen === idx ? 'text-[#0D9488] dark:text-[#2DD4BF]' : 'text-[#0F172A] dark:text-[#F5F7FA]'}>
+                    {faq.question}
+                  </span>
+                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 shrink-0 ${
+                    faqOpen === idx 
+                      ? 'rotate-180 text-[#0D9488] dark:text-[#2DD4BF]' 
+                      : 'text-slate-500 dark:text-slate-400'
+                  }`} />
                 </button>
                 
                 {faqOpen === idx && (
-                  <div className="px-5 pb-5 pt-1 text-xs text-slate-600 border-t border-slate-100 leading-relaxed font-normal animate-in fade-in duration-150">
+                  <div className="px-5 pb-5 pt-2 text-xs text-slate-600 dark:text-[#C8D0E0] border-t border-slate-100 dark:border-slate-800/80 leading-relaxed font-normal animate-in fade-in duration-150">
                     {faq.answer}
                   </div>
                 )}
