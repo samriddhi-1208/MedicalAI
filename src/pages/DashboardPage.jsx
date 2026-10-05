@@ -167,7 +167,7 @@ export const DashboardPage = () => {
               size="sm"
               icon={Upload}
               onClick={() => navigate('/app/upload')}
-              className="bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#0D9488] dark:hover:bg-[#0b7a6f] text-xs font-bold rounded-xl cursor-pointer shadow-2xs text-white"
+              className="bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#52857C] dark:hover:bg-[#45726A] text-xs font-bold rounded-xl cursor-pointer shadow-2xs text-white"
             >
               Upload Medical Report
             </Button>

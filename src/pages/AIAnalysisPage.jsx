@@ -453,16 +453,16 @@ export const AIAnalysisPage = () => {
                   {isScheduled ? (
                     <button
                       onClick={() => navigate('/app/medicines')}
-                      className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] flex items-center gap-1.5 cursor-pointer transition-colors shadow-2xs"
+                      className="px-3.5 py-1.5 rounded-xl bg-[#6FA89E]/20 text-[#2D5A52] dark:text-[#9DD3C8] border border-[#6FA89E]/40 font-bold text-[11px] flex items-center gap-1.5 cursor-pointer transition-colors shadow-2xs"
                     >
-                      <Check className="w-3.5 h-3.5" /> In Schedule ✓
+                      <Check className="w-3.5 h-3.5 text-[#2D5A52] dark:text-[#9DD3C8]" /> In Schedule ✓
                     </button>
                   ) : (
                     <button
                       onClick={() => handleAddMedToSchedule(m)}
-                      className="px-3.5 py-1.5 rounded-xl bg-[#0F172A] text-white hover:bg-[#1E293B] font-bold text-[11px] flex items-center gap-1 cursor-pointer transition-colors"
+                      className="px-3.5 py-1.5 rounded-xl bg-[#6FA89E] hover:bg-[#5F958C] text-[#0F172A] font-bold text-[11px] flex items-center gap-1 cursor-pointer transition-colors border border-[#5F958C]/40"
                     >
-                      <Plus className="w-3.5 h-3.5" /> Add to Schedule
+                      <Plus className="w-3.5 h-3.5 text-[#0F172A]" /> Add to Schedule
                     </button>
                   )}
                 </div>

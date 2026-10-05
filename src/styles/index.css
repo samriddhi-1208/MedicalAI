@@ -219,16 +219,43 @@ html:not(.dark) .border-slate-200\/90 {
   border-color: var(--border-color) !important;
 }
 
-/* In dark mode, primary action buttons styled with #0F172A switch to vibrant teal with white text */
-.dark button.bg-\[\#0F172A\],
-.dark .bg-\[\#0F172A\] {
-  background-color: #0D9488 !important;
+/* ==========================================================================
+   MEDGUARDIAN AI — MUTED HEALTHCARE CONTROLS & CALM PALETTES
+   Softer action colors that eliminate loud/"chatak" saturation in both modes
+   ========================================================================== */
+
+/* 1. Mark as Taken Button — Muted Healthcare Teal/Sage */
+[class*="bg-[#6FA89E]"],
+button.bg-\[\#6FA89E\] {
+  background-color: #6FA89E !important;
+  color: #0F172A !important;
+}
+[class*="bg-[#6FA89E]"]:hover,
+button.bg-\[\#6FA89E\]:hover {
+  background-color: #5F958C !important;
+}
+
+/* 2. Pause Button — Soft Muted Amber (Secondary Action) */
+[class*="bg-[#D6B86A]"],
+button.bg-\[\#D6B86A\] {
+  background-color: #D6B86A !important;
+  color: #332D1A !important;
+}
+[class*="bg-[#D6B86A]"]:hover,
+button.bg-\[\#D6B86A\]:hover {
+  background-color: #C5A85D !important;
+}
+
+/* In dark mode, primary action buttons switch to calm, muted healthcare slate-teal */
+.dark button.bg-\[\#0F172A\]:not([class*="bg-[#6FA89E]"]):not([class*="bg-[#D6B86A]"]),
+.dark a.bg-\[\#0F172A\]:not([class*="bg-[#6FA89E]"]):not([class*="bg-[#D6B86A]"]) {
+  background-color: #52857C !important;
   color: #FFFFFF !important;
 }
 
-.dark button.bg-\[\#0F172A\]:hover,
-.dark .bg-\[\#0F172A\]:hover {
-  background-color: #0F766E !important;
+.dark button.bg-\[\#0F172A\]:not([class*="bg-[#6FA89E]"]):not([class*="bg-[#D6B86A]"]):hover,
+.dark a.bg-\[\#0F172A\]:not([class*="bg-[#6FA89E]"]):not([class*="bg-[#D6B86A]"]):hover {
+  background-color: #45726A !important;
 }
 
 /* Global Reset & Typography Defaults */

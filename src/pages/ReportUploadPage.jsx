@@ -348,7 +348,7 @@ export const ReportUploadPage = () => {
           <Button
             onClick={handleUploadAndAnalyze}
             disabled={!selectedFile || uploading}
-            className="w-full py-3.5 bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#0D9488] dark:hover:bg-[#0b7a6f] text-white font-extrabold text-sm rounded-xl shadow-md cursor-pointer flex items-center justify-center gap-2"
+            className="w-full py-3.5 bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#52857C] dark:hover:bg-[#45726A] text-white font-extrabold text-sm rounded-xl shadow-md cursor-pointer flex items-center justify-center gap-2"
           >
             {uploading ? (
               <>

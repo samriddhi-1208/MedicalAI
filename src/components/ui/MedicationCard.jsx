@@ -36,15 +36,15 @@ export const MedicationCard = ({ name, dosage, instructions, time, dateLabel, ta
 
         <button
           onClick={onToggleTaken}
-          className={`min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+          className={`min-h-[42px] px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 border shadow-2xs ${
             taken
-              ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
-              : 'bg-[#1A4B84] text-white hover:bg-[#143A66]'
+              ? 'bg-[#6FA89E]/15 text-[#2D5A52] dark:text-[#9DD3C8] border-[#6FA89E]/30 hover:bg-[#6FA89E]/25'
+              : 'bg-[#6FA89E] hover:bg-[#5F958C] text-[#0F172A] border-[#5F958C]'
           }`}
         >
           {taken ? (
             <>
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" /> {t('logged')}
+              <CheckCircle2 className="w-4 h-4 text-[#2D5A52] dark:text-[#9DD3C8]" /> {t('logged')}
             </>
           ) : (
             t('markAsTaken')
