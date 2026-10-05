@@ -340,31 +340,31 @@ export const AIAnalysisPage = () => {
             return { idx, icon, title, bgStyle, titleColor, cleanText };
           });
 
-          const renderCard = (item, prefix = 'card') => {
+          const renderCard = (item) => {
             if (!item) return null;
             const isOpen = isInsightOpen(item.idx);
 
             return (
               <div 
-                key={`${prefix}-${item.idx}`} 
+                key={item.idx} 
                 className={`rounded-2xl border transition-all ${item.bgStyle} overflow-hidden ${
                   isOpen ? 'shadow-xs ring-1 ring-[#66729F]/30 dark:ring-[#7C87B8]/30' : 'hover:border-slate-300 dark:hover:border-slate-700'
                 }`}
               >
-                {/* Clickable Dropdown Trigger Header for this individual box */}
+                {/* Clickable Dropdown Trigger Header */}
                 <button
                   type="button"
                   onClick={() => toggleInsight(item.idx)}
                   className="w-full p-4.5 sm:p-5 flex items-center justify-between gap-3 text-left cursor-pointer select-none transition-colors hover:bg-black/[0.02] dark:hover:bg-white/[0.02]"
                   aria-expanded={isOpen}
                 >
-                  <div className="flex items-center gap-3 min-w-0">
+                  <div className="flex items-center gap-3.5 min-w-0">
                     <span className="text-xl sm:text-2xl shrink-0">{item.icon}</span>
                     <div className="min-w-0">
-                      <h4 className={`text-sm sm:text-[15px] font-black uppercase tracking-[0.04em] truncate ${item.titleColor}`}>
+                      <h4 className={`text-sm sm:text-base font-black uppercase tracking-[0.04em] truncate ${item.titleColor}`}>
                         {item.title}
                       </h4>
-                      <span className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium">
+                      <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
                         {isOpen ? 'Click to collapse' : 'Click to view insight'}
                       </span>
                     </div>
@@ -379,9 +379,9 @@ export const AIAnalysisPage = () => {
                   </div>
                 </button>
 
-                {/* Dropdown Content for this individual box */}
+                {/* Dropdown Content */}
                 {isOpen && (
-                  <div className="px-5 pb-5 pt-1 border-t border-slate-200/60 dark:border-slate-800/60 animate-in fade-in duration-150">
+                  <div className="px-5 pb-5 sm:px-6 sm:pb-6 pt-1 border-t border-slate-200/60 dark:border-slate-800/60 animate-in fade-in duration-150">
                     <p className="text-[15px] sm:text-base text-slate-700 dark:text-[#C8D0E0] font-normal leading-[1.6] pt-2">
                       {item.cleanText}
                     </p>
@@ -392,23 +392,8 @@ export const AIAnalysisPage = () => {
           };
 
           return (
-            <div className="pt-1">
-              {/* Desktop: 2 Independent Columns to prevent unequal height row-stretch clashes */}
-              <div className="hidden md:grid md:grid-cols-2 gap-4 items-start">
-                <div className="flex flex-col gap-4">
-                  {renderCard(insightItems[0], 'd-left')}
-                  {renderCard(insightItems[2], 'd-left')}
-                </div>
-                <div className="flex flex-col gap-4">
-                  {renderCard(insightItems[1], 'd-right')}
-                  {renderCard(insightItems[3], 'd-right')}
-                </div>
-              </div>
-
-              {/* Mobile: Clean single-column vertical stack */}
-              <div className="flex flex-col gap-4 md:hidden">
-                {insightItems.map(item => renderCard(item, 'm-col'))}
-              </div>
+            <div className="pt-1 space-y-3.5">
+              {insightItems.map(renderCard)}
             </div>
           );
         })()}
