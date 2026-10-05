@@ -11,8 +11,14 @@ export const Button = ({
   disabled = false,
   ...props
 }) => {
-  const base = "med-btn cursor-pointer";
+  const base = "med-btn cursor-pointer inline-flex items-center justify-center gap-2 font-bold transition-all";
   
+  const sizes = {
+    sm: "px-3.5 py-2 text-xs min-h-[36px]",
+    md: "px-4.5 py-2.5 text-sm min-h-[42px]",
+    lg: "px-6 py-3 text-base min-h-[48px]"
+  };
+
   const variants = {
     primary: "med-btn-primary",
     secondary: "med-btn-secondary",
@@ -26,9 +32,11 @@ export const Button = ({
     glass: "med-btn-secondary"
   };
 
+  const sizeClass = (/\bpx-\d|\bpy-\d/.test(className)) ? '' : (sizes[size] || sizes.md);
+
   return (
     <button
-      className={`${base} ${variants[variant] || variants.primary} ${className}`}
+      className={`${base} ${sizeClass} ${variants[variant] || variants.primary} ${className}`.trim()}
       disabled={disabled || loading}
       {...props}
     >

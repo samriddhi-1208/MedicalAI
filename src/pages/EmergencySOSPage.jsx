@@ -369,12 +369,12 @@ export const EmergencySOSPage = () => {
       </div>
 
       {/* Real GPS Location & 1-Click Share Bar */}
-      <Card className="p-5 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-sm space-y-3">
+      <Card className="p-5 sm:p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-sm space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-3">
             <Compass className={`w-5 h-5 shrink-0 ${userCoords ? 'text-emerald-600 animate-spin-slow' : 'text-red-600'}`} />
             <div>
-              <span className="font-extrabold text-[#0F172A] dark:text-white block text-sm">
+              <span className="font-extrabold text-[#0F172A] dark:text-white block text-sm sm:text-base">
                 {language === 'HI' ? 'लाइव GPS स्थिति:' : 'Live GPS Geolocation Status:'}
               </span>
               {loadingLocation ? (
@@ -382,11 +382,11 @@ export const EmergencySOSPage = () => {
                   <RefreshCw className="w-3.5 h-3.5 animate-spin text-teal-600" /> Detecting precise device GPS coordinates...
                 </span>
               ) : userCoords ? (
-                <span className="text-emerald-700 dark:text-emerald-400 font-black mt-0.5 block">
+                <span className="text-emerald-700 dark:text-emerald-400 font-black mt-0.5 block text-sm">
                   ✓ GPS Locked: {userCoords.lat.toFixed(5)}° N, {userCoords.lng.toFixed(5)}° E
                 </span>
               ) : (
-                <span className="text-rose-600 dark:text-rose-400 font-bold mt-0.5 block">{locationError}</span>
+                <span className="text-rose-600 dark:text-rose-400 font-bold mt-0.5 block text-sm">{locationError}</span>
               )}
             </div>
           </div>
@@ -522,9 +522,9 @@ export const EmergencySOSPage = () => {
       {/* Offline First-Aid Emergency Triage Guides */}
       <Card className="p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl space-y-4 shadow-sm">
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 flex-wrap gap-2">
-          <div className="flex items-center gap-2">
-            <LifeBuoy className="w-5 h-5 text-[#C94B55]" />
-            <h3 className="text-base font-black text-[#0F172A] dark:text-white">
+          <div className="flex items-center gap-2.5">
+            <LifeBuoy className="w-5.5 h-5.5 text-[#C94B55]" />
+            <h3 className="text-lg sm:text-xl font-black text-[#0F172A] dark:text-white">
               Offline First-Aid Emergency Guides
             </h3>
           </div>

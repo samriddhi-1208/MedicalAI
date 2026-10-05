@@ -97,33 +97,33 @@ export const SettingsPage = () => {
   ];
 
   return (
-    <div className="space-y-6 pb-12 font-sans antialiased max-w-6xl mx-auto">
+    <div className="space-y-8 pb-12 font-sans antialiased max-w-6xl mx-auto">
       
       {/* Settings Header */}
-      <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
+      <div className="border-b border-slate-200 dark:border-slate-800 pb-5">
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-[#66729F] dark:bg-[#7C87B8] animate-pulse" />
-          <span className="text-[13px] text-[#66729F] dark:text-[#9DA8D0] font-bold uppercase tracking-wider">
+          <span className="w-2.5 h-2.5 rounded-full bg-[#66729F] dark:bg-[#7C87B8] animate-pulse" />
+          <span className="text-xs sm:text-[13px] text-[#66729F] dark:text-[#9DA8D0] font-black uppercase tracking-[0.04em]">
             {language === 'HI' ? 'एप्लिकेशन कॉन्फ़िगरेशन' : language === 'GU' ? 'એપ્લિકેશન કોન્ફિગરેશન' : 'APPLICATION CONFIGURATION'}
           </span>
         </div>
-        <h1 className="text-2.5xl font-extrabold text-[#0F172A] dark:text-[#F5F7FA] tracking-tight mt-0.5">
+        <h1 className="text-2.5xl sm:text-3xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight mt-1">
           {t('applicationSettings')}
         </h1>
-        <p className="text-[13px] text-slate-500 dark:text-[#C8D0E0] font-normal">
+        <p className="text-sm text-slate-500 dark:text-[#C8D0E0] font-medium mt-1.5">
           {t('settingsSubtitle')}
         </p>
       </div>
 
       {/* Language Selector Banner */}
-      <Card className="p-4 bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#EEF1FA] dark:bg-[#2C3146] text-[#66729F] dark:text-[#9DA8D0] flex items-center justify-center shrink-0">
-            <Globe className="w-5 h-5" />
+      <Card className="p-5 sm:p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-xl bg-[#EEF1FA] dark:bg-[#2C3146] text-[#66729F] dark:text-[#9DA8D0] flex items-center justify-center shrink-0">
+            <Globe className="w-5.5 h-5.5" />
           </div>
           <div>
-            <h4 className="font-extrabold text-sm text-[#0F172A] dark:text-[#F5F7FA]">{t('languageSelection')}</h4>
-            <p className="text-xs text-slate-500 dark:text-[#C8D0E0] font-normal">{t('selectAppLanguage')}</p>
+            <h4 className="font-black text-base text-[#0F172A] dark:text-[#F5F7FA]">{t('languageSelection')}</h4>
+            <p className="text-sm text-slate-500 dark:text-[#C8D0E0] font-medium mt-0.5">{t('selectAppLanguage')}</p>
           </div>
         </div>
 
@@ -133,7 +133,7 @@ export const SettingsPage = () => {
               setLanguage('EN');
               toast.success("Switched to English");
             }}
-            className={`px-4 py-2 rounded-xl text-[13px] font-bold transition-all cursor-pointer ${
+            className={`px-4 py-2 rounded-xl text-sm font-bold transition-all cursor-pointer ${
               language === 'EN'
                 ? 'bg-[#66729F] dark:bg-[#7C87B8] text-white dark:text-[#172033] shadow-2xs'
                 : 'bg-slate-100 dark:bg-[#25293C] text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
@@ -147,7 +147,7 @@ export const SettingsPage = () => {
               setLanguage('HI');
               toast.success("भाषा बदलकर हिंदी की गई");
             }}
-            className={`px-4 py-2 rounded-xl text-[13px] font-bold transition-all cursor-pointer ${
+            className={`px-4 py-2 rounded-xl text-sm font-bold transition-all cursor-pointer ${
               language === 'HI'
                 ? 'bg-[#66729F] dark:bg-[#7C87B8] text-white dark:text-[#172033] shadow-2xs'
                 : 'bg-slate-100 dark:bg-[#25293C] text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
@@ -161,7 +161,7 @@ export const SettingsPage = () => {
               setLanguage('GU');
               toast.success("ભાષા બદલીને ગુજરાતી કરવામાં આવી");
             }}
-            className={`px-4 py-2 rounded-xl text-[13px] font-bold transition-all cursor-pointer ${
+            className={`px-4 py-2 rounded-xl text-sm font-bold transition-all cursor-pointer ${
               language === 'GU'
                 ? 'bg-[#66729F] dark:bg-[#7C87B8] text-white dark:text-[#172033] shadow-2xs'
                 : 'bg-slate-100 dark:bg-[#25293C] text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
@@ -185,7 +185,7 @@ export const SettingsPage = () => {
                 <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
-                  className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-[13px] font-semibold transition-all cursor-pointer ${
+                  className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
                     isActive 
                       ? 'bg-[#66729F] dark:bg-[#7C87B8] text-white dark:text-[#172033] shadow-2xs' 
                       : 'text-slate-700 dark:text-[#C8D0E0] hover:bg-slate-100 dark:hover:bg-[#25293C]'
@@ -204,14 +204,14 @@ export const SettingsPage = () => {
 
         {/* Settings Content Active Tab (8 cols) */}
         <div className="col-span-8">
-          <Card className="p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs space-y-6">
+          <Card className="p-5 sm:p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs space-y-6">
             
             {/* Account Settings Tab */}
             {activeTab === 'account' && (
               <div className="space-y-5">
-                <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
-                  <h3 className="text-base font-extrabold text-[#0F172A] dark:text-[#F5F7FA]">{t('accountSettings')}</h3>
-                  <p className="text-[13px] text-slate-500 dark:text-[#C8D0E0] font-normal">{t('manageAccountSubtitle')}</p>
+                <div className="border-b border-slate-100 dark:border-slate-800 pb-3.5">
+                  <h3 className="text-lg sm:text-xl font-black text-[#0F172A] dark:text-[#F5F7FA]">{t('accountSettings')}</h3>
+                  <p className="text-sm text-slate-500 dark:text-[#C8D0E0] font-medium mt-1">{t('manageAccountSubtitle')}</p>
                 </div>
 
                 <div className="space-y-3">

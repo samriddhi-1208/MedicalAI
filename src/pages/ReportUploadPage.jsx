@@ -271,25 +271,25 @@ export const ReportUploadPage = () => {
   };
 
   return (
-    <div className="space-y-6 pb-12 font-sans text-[#0F172A] dark:text-[#F5F7FA] max-w-4xl mx-auto">
+    <div className="space-y-8 pb-12 font-sans text-[#0F172A] dark:text-[#F5F7FA] max-w-4xl mx-auto">
       
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
         <div>
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#66729F] dark:bg-[#9DA8D0] animate-pulse" />
-            <span className="text-xs text-[#66729F] dark:text-[#9DA8D0] font-bold uppercase tracking-wider">AI Medical Intelligence</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-[#66729F] dark:bg-[#9DA8D0] animate-pulse" />
+            <span className="text-xs sm:text-[13px] text-[#66729F] dark:text-[#9DA8D0] font-black uppercase tracking-[0.04em]">AI Medical Intelligence</span>
           </div>
-          <h1 className="text-2.5xl font-extrabold text-[#0F172A] dark:text-[#F5F7FA] tracking-tight">
+          <h1 className="text-2.5xl sm:text-3xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight mt-1">
             {t('uploadMedicalReport')}
           </h1>
-          <p className="text-xs text-slate-500 dark:text-[#C8D0E0] font-normal mt-0.5">
+          <p className="text-sm text-slate-500 dark:text-[#C8D0E0] font-medium mt-1.5">
             {t('uploadSubtitle')}
           </p>
         </div>
       </div>
 
-      <Card className="p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs space-y-6">
+      <Card className="p-5 sm:p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs space-y-6">
         
         {/* Dropzone Container */}
         <div
@@ -297,7 +297,7 @@ export const ReportUploadPage = () => {
           onDragOver={handleDrag}
           onDragLeave={handleDrag}
           onDrop={handleDrop}
-          className={`relative border-2 border-dashed rounded-2xl p-8 text-center transition-all cursor-pointer ${
+          className={`relative border-2 border-dashed rounded-2xl p-8 sm:p-10 text-center transition-all cursor-pointer ${
             dragActive 
               ? 'border-[#66729F] dark:border-[#7C87B8] bg-[#EEF1FA] dark:bg-[#2C3146]' 
               : selectedFile 
@@ -325,17 +325,17 @@ export const ReportUploadPage = () => {
 
             {selectedFile ? (
               <div className="space-y-1">
-                <p className="text-sm font-extrabold text-[#0F172A] dark:text-[#F5F7FA]">{selectedFile.name}</p>
-                <p className="text-xs text-slate-500 dark:text-[#C8D0E0] font-medium">
-                  {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB • Ready for SHA-256 duplicate check & AI parsing
+                <p className="text-base font-black text-[#0F172A] dark:text-[#F5F7FA]">{selectedFile.name}</p>
+                <p className="text-sm text-slate-500 dark:text-[#C8D0E0] font-medium">
+                  {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB • Ready for SHA-256 duplicate check &amp; AI parsing
                 </p>
               </div>
             ) : (
-              <div className="space-y-1">
-                <p className="text-sm font-bold text-[#0F172A] dark:text-[#F5F7FA]">
+              <div className="space-y-1.5">
+                <p className="text-base font-black text-[#0F172A] dark:text-[#F5F7FA]">
                   Drag and drop your medical report here, or <span className="text-[#66729F] dark:text-[#9DA8D0] underline">browse files</span>
                 </p>
-                <p className="text-xs text-slate-500 dark:text-[#C8D0E0] font-normal">
+                <p className="text-sm text-slate-500 dark:text-[#C8D0E0] font-normal leading-[1.6]">
                   Supports PDF, PNG, JPG (Max 15MB). Instant SHA-256 duplicate detection.
                 </p>
               </div>

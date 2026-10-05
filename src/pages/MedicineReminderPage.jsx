@@ -168,23 +168,23 @@ export const MedicineReminderPage = () => {
         <div>
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-[#66729F] dark:bg-[#9DA8D0] animate-pulse" />
-            <span className="text-[13px] text-[#66729F] dark:text-[#9DA8D0] font-black uppercase tracking-wider">{t('prescriptionScheduleBadge')}</span>
+            <span className="text-xs sm:text-[13px] text-[#66729F] dark:text-[#9DA8D0] font-black uppercase tracking-[0.04em]">{t('prescriptionScheduleBadge')}</span>
           </div>
-          <h1 className="text-2.5xl sm:text-3xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight mt-0.5 flex items-center gap-2.5">
+          <h1 className="text-2.5xl sm:text-3xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight mt-1 flex items-center gap-2.5">
             <Pill className="w-7 h-7 text-[#66729F] dark:text-[#9DA8D0]" /> {t('todaysMedicationSchedule')}
           </h1>
-          <p className="text-[13px] sm:text-sm font-medium text-slate-500 dark:text-[#C8D0E0] mt-0.5">
+          <p className="text-sm font-medium text-slate-500 dark:text-[#C8D0E0] mt-1.5">
             {t('confirmedPrescriptionsSub')}
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           <Button
             variant="outline"
             size="md"
             icon={Upload}
             onClick={() => navigate('/app/upload')}
-            className="text-[13px] sm:text-sm font-bold rounded-xl border-slate-200 dark:border-slate-700 dark:text-[#F5F7FA] dark:hover:bg-slate-800 cursor-pointer px-4 py-2"
+            className="text-sm font-bold rounded-xl border-slate-200 dark:border-slate-700 dark:text-[#F5F7FA] dark:hover:bg-slate-800 cursor-pointer px-4 py-2"
           >
             {t('uploadPrescriptionBtn')}
           </Button>
@@ -193,7 +193,7 @@ export const MedicineReminderPage = () => {
             variant="primary"
             size="md"
             icon={Plus}
-            className="bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] dark:text-[#172033] text-white text-[13px] sm:text-sm font-bold rounded-xl cursor-pointer shadow-2xs px-4 py-2"
+            className="bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] dark:text-[#172033] text-white text-sm font-bold rounded-xl cursor-pointer shadow-2xs px-4 py-2"
             onClick={handleOpenAdd}
           >
             {t('addMedicine')}
@@ -207,16 +207,16 @@ export const MedicineReminderPage = () => {
         {/* Adherence Rate Card */}
         <Card className="p-5 sm:p-6 bg-gradient-to-br from-[#0F172A] to-[#1E293B] text-white border border-[#0F172A] flex items-center justify-between rounded-2xl shadow-2xs">
           <div>
-            <p className="text-xs font-bold text-slate-300 uppercase tracking-wider">{t('todaysAdherenceRate')}</p>
+            <p className="text-xs sm:text-[13px] font-bold text-slate-300 uppercase tracking-[0.04em]">{t('todaysAdherenceRate')}</p>
             {hasMedicines ? (
               <>
                 <p className="text-4xl font-black text-white mt-1">{adherencePercent}%</p>
-                <p className="text-[13px] sm:text-sm text-slate-300 font-medium mt-1">{takenCount} {t('of')} {totalCount} {t('dosesLogged')}</p>
+                <p className="text-sm text-slate-300 font-medium mt-1">{takenCount} {t('of')} {totalCount} {t('dosesLogged')}</p>
               </>
             ) : (
               <>
                 <p className="text-base font-extrabold text-slate-300 mt-2">{t('noMedsScheduledToday')}</p>
-                <p className="text-[13px] text-slate-400 font-medium mt-1">{t('uploadPrescriptionToTrack')}</p>
+                <p className="text-sm text-slate-400 font-medium mt-1">{t('uploadPrescriptionToTrack')}</p>
               </>
             )}
           </div>
@@ -228,7 +228,7 @@ export const MedicineReminderPage = () => {
         {/* REQUIREMENT 15: REFILL WARNING CARD */}
         <Card className="p-5 sm:p-6 md:col-span-2 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 flex flex-col justify-between rounded-2xl shadow-2xs">
           <div className="flex justify-between items-center">
-            <span className="text-[13px] sm:text-sm font-bold text-[#0F172A] dark:text-[#F5F7FA] flex items-center gap-1.5 uppercase tracking-wider">
+            <span className="text-sm font-bold text-[#0F172A] dark:text-[#F5F7FA] flex items-center gap-2 uppercase tracking-[0.04em]">
               <AlertCircle className="w-4.5 h-4.5 text-amber-600" /> {t('refillWarningThreshold')} ({lowRefills.length})
             </span>
             <Badge variant={lowRefills.length > 0 ? "warning" : "normal"}>
@@ -238,7 +238,7 @@ export const MedicineReminderPage = () => {
 
           {hasMedicines ? (
             lowRefills.length > 0 ? (
-              <div className="space-y-1 mt-2 text-[13px] sm:text-sm">
+              <div className="space-y-1 mt-2 text-sm">
                 {lowRefills.map(m => (
                   <p key={m.id} className="text-slate-700 dark:text-slate-300">
                     ⚠️ <strong className="text-[#0F172A] dark:text-[#F5F7FA]">{m.name}</strong>: Only <span className="text-amber-800 dark:text-amber-300 font-bold">{m.pillsRemaining || m.pills_remaining} doses remaining</span> in supply.
@@ -246,12 +246,12 @@ export const MedicineReminderPage = () => {
                 ))}
               </div>
             ) : (
-              <p className="text-[13px] sm:text-sm text-slate-600 dark:text-[#C8D0E0] font-medium mt-2">
+              <p className="text-sm text-slate-600 dark:text-[#C8D0E0] font-medium mt-2">
                 All active prescription supplies are sufficient.
               </p>
             )
           ) : (
-            <p className="text-[13px] sm:text-sm text-slate-500 dark:text-[#C8D0E0] font-medium mt-2">
+            <p className="text-sm text-slate-500 dark:text-[#C8D0E0] font-medium mt-2">
               {t('noActiveRefillsTracked')}
             </p>
           )}
@@ -302,7 +302,7 @@ export const MedicineReminderPage = () => {
       {hasMedicines && (
         <div className="space-y-4 w-full min-w-0">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-black text-[#0F172A] dark:text-[#F5F7FA]">Today's Medication Schedule ({totalCount})</h2>
+            <h2 className="text-xl sm:text-[22px] font-black text-[#0F172A] dark:text-[#F5F7FA]">Today's Medication Schedule ({totalCount})</h2>
           </div>
 
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-5 w-full min-w-0">
@@ -447,8 +447,8 @@ export const MedicineReminderPage = () => {
       {hasMedicines && (
         <Card className="p-5 sm:p-6 space-y-4 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs w-full min-w-0">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-black text-[#0F172A] dark:text-[#F5F7FA] flex items-center gap-2">
-              <History className="w-5 h-5 text-[#66729F] dark:text-[#9DA8D0]" /> Medication History Log
+            <h3 className="text-xl sm:text-[22px] font-black text-[#0F172A] dark:text-[#F5F7FA] flex items-center gap-2.5">
+              <History className="w-5.5 h-5.5 text-[#66729F] dark:text-[#9DA8D0]" /> Medication History Log
             </h3>
             <span className="text-sm font-bold text-slate-500 dark:text-[#C8D0E0]">
               {safeMedicines.length} {safeMedicines.length === 1 ? 'entry' : 'entries'}

@@ -72,7 +72,7 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
         </div>
 
         {/* Navigation Section */}
-        <nav className="p-3 space-y-1">
+        <nav className="p-3.5 space-y-1.5">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
@@ -81,17 +81,17 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
               <NavLink
                 key={item.path + item.label}
                 to={item.path}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[14px] font-semibold transition-all ${
                   isActive
-                    ? 'bg-[var(--color-primary)] text-white font-semibold'
+                    ? 'bg-[var(--color-primary)] text-white shadow-xs'
                     : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface-subtle)] hover:text-[var(--text-main)]'
                 }`}
                 title={collapsed ? item.label : undefined}
               >
-                <Icon className={`w-4.5 h-4.5 shrink-0 ${isActive ? 'text-white' : 'text-[var(--text-muted)]'}`} />
+                <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-white' : 'text-[var(--text-muted)]'}`} />
                 {!collapsed && <span className="truncate flex-1">{item.label}</span>}
                 {!collapsed && item.badge && (
-                  <span className={`px-2 py-0.5 text-[11px] font-semibold rounded-md ${
+                  <span className={`px-2 py-0.5 text-xs font-bold rounded-md ${
                     isActive ? 'bg-white/20 text-white' : 'bg-[var(--bg-surface-subtle)] text-[var(--text-muted)] border border-[var(--border-color)]'
                   }`}>
                     {item.badge}

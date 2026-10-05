@@ -418,19 +418,19 @@ export const HealthTimelinePage = () => {
   const shouldShowLongitudinal = activeChartData.length > 1 && (chartViewMode === 'longitudinal' || chartViewMode === 'auto');
 
   return (
-    <div className="space-y-6 pb-12 font-sans antialiased max-w-7xl mx-auto">
+    <div className="space-y-8 pb-12 font-sans antialiased max-w-7xl mx-auto">
       
       {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/90 dark:border-slate-800 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/90 dark:border-slate-800 pb-5">
         <div>
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#66729F] dark:bg-[#9DA8D0] animate-pulse" />
-            <span className="text-xs text-[#66729F] dark:text-[#9DA8D0] font-extrabold uppercase tracking-wider">{t('longitudinalAnalytics')}</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-[#66729F] dark:bg-[#9DA8D0] animate-pulse" />
+            <span className="text-xs sm:text-[13px] text-[#66729F] dark:text-[#9DA8D0] font-black uppercase tracking-[0.04em]">{t('longitudinalAnalytics')}</span>
           </div>
-          <h1 className="text-2.5xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight mt-0.5">
+          <h1 className="text-2.5xl sm:text-3xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight mt-1">
             {t('healthTrends')}
           </h1>
-          <p className="text-xs font-normal text-slate-500 dark:text-[#C8D0E0]">
+          <p className="text-sm font-medium text-slate-500 dark:text-[#C8D0E0] mt-1.5">
             {t('trackBiomarkerProgressions')}
           </p>
         </div>
@@ -441,7 +441,7 @@ export const HealthTimelinePage = () => {
             size="sm"
             icon={Upload}
             onClick={() => navigate('/app/upload')}
-            className="bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-xs font-bold rounded-xl cursor-pointer shadow-2xs self-start sm:self-auto text-white dark:text-[#172033]"
+            className="bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-sm font-bold rounded-xl cursor-pointer shadow-2xs self-start sm:self-auto text-white dark:text-[#172033]"
           >
             {t('uploadAnotherReport')}
           </Button>
@@ -455,11 +455,11 @@ export const HealthTimelinePage = () => {
             <TrendingUp className="w-8 h-8 text-[#66729F] dark:text-[#9DA8D0]" />
           </div>
           
-          <div className="space-y-2 max-w-lg mx-auto">
+          <div className="space-y-2.5 max-w-lg mx-auto">
             <h2 className="text-xl sm:text-2xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight">
               No health trends available yet
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-[#C8D0E0] font-normal leading-relaxed">
+            <p className="text-sm text-slate-500 dark:text-[#C8D0E0] font-normal leading-[1.6]">
               {hasReports 
                 ? "Your uploaded medical reports do not contain measurable health parameters. Please upload a lab report with structured test results to track trends."
                 : "Upload medical reports containing laboratory results to start tracking your health trends over time."}
@@ -472,7 +472,7 @@ export const HealthTimelinePage = () => {
               size="md"
               icon={Upload}
               onClick={() => navigate('/app/upload')}
-              className="bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-white dark:text-[#172033] py-3.5 px-8 text-xs font-bold rounded-xl cursor-pointer shadow-2xs"
+              className="bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-white dark:text-[#172033] py-3.5 px-8 text-sm font-bold rounded-xl cursor-pointer shadow-2xs"
             >
               {t('uploadMedicalReport')}
             </Button>
@@ -482,39 +482,39 @@ export const HealthTimelinePage = () => {
 
       {/* VALID BIOMARKERS POPULATED SECTION */}
       {hasReports && totalParametersCount > 0 && (
-        <div className="space-y-6">
+        <div className="space-y-8">
           
           {/* Top Health Trend Summary */}
-          <Card className="p-6 bg-gradient-to-r from-[#0F172A] to-[#1E293B] text-white rounded-2xl shadow-2xs space-y-3">
+          <Card className="p-5 sm:p-6 bg-gradient-to-r from-[#0F172A] to-[#1E293B] text-white rounded-2xl shadow-2xs space-y-4">
             <div className="flex items-center justify-between flex-wrap gap-2">
-              <div className="flex items-center gap-2 text-xs font-extrabold text-[#66729F] dark:text-[#9DA8D0] uppercase tracking-wider">
-                <Sparkles className="w-4 h-4 text-[#66729F] dark:text-[#9DA8D0]" /> Health Trend &amp; Visual Analytics Summary
+              <div className="flex items-center gap-2.5 text-xs sm:text-[13px] font-black text-[#AEB7D5] uppercase tracking-[0.04em]">
+                <Sparkles className="w-4.5 h-4.5 text-[#AEB7D5]" /> Health Trend &amp; Visual Analytics Summary
               </div>
-              <span className="px-3 py-1 rounded-full bg-white/10 text-white text-xs font-bold border border-white/10">
+              <span className="px-3.5 py-1 rounded-full bg-white/10 text-white text-xs font-bold border border-white/10">
                 {reportCount} Uploaded ({reportsWithMeasurableDataCount} with Data)
               </span>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 pt-1">
               <div>
-                <span className="text-[13px] font-bold text-slate-300 uppercase block">Lab Biomarkers</span>
-                <span className="text-2xl font-black text-white">{totalLabBiomarkers} Tracked</span>
+                <span className="text-[13px] sm:text-sm font-bold text-slate-300 uppercase tracking-[0.04em] block">Lab Biomarkers</span>
+                <span className="text-2xl sm:text-3xl font-black text-white mt-1 block">{totalLabBiomarkers} Tracked</span>
               </div>
               <div>
-                <span className="text-[13px] font-bold text-slate-300 uppercase block">Optimal / In Range</span>
-                <span className="text-2xl font-black text-emerald-400 flex items-center gap-1.5">
+                <span className="text-[13px] sm:text-sm font-bold text-slate-300 uppercase tracking-[0.04em] block">Optimal / In Range</span>
+                <span className="text-2xl sm:text-3xl font-black text-emerald-400 flex items-center gap-1.5 mt-1">
                   {totalOptimalCount} <ShieldCheck className="w-5 h-5 text-emerald-400" />
                 </span>
               </div>
               <div>
-                <span className="text-[13px] font-bold text-slate-300 uppercase block">Attention Needed</span>
-                <span className={`text-2xl font-black flex items-center gap-1.5 ${totalAttentionCount > 0 ? 'text-amber-400' : 'text-slate-300'}`}>
+                <span className="text-[13px] sm:text-sm font-bold text-slate-300 uppercase tracking-[0.04em] block">Attention Needed</span>
+                <span className={`text-2xl sm:text-3xl font-black flex items-center gap-1.5 mt-1 ${totalAttentionCount > 0 ? 'text-amber-400' : 'text-slate-300'}`}>
                   {totalAttentionCount} {totalAttentionCount > 0 && <AlertTriangle className="w-5 h-5 text-amber-400" />}
                 </span>
               </div>
               <div>
-                <span className="text-[13px] font-bold text-slate-300 uppercase block">Monitoring Mode</span>
-                <span className={`text-xl font-black flex items-center gap-1 ${isLongitudinalActive ? 'text-emerald-400' : 'text-[#AEB7D5]'}`}>
+                <span className="text-[13px] sm:text-sm font-bold text-slate-300 uppercase tracking-[0.04em] block">Monitoring Mode</span>
+                <span className={`text-xl sm:text-2xl font-black flex items-center gap-1 mt-1 ${isLongitudinalActive ? 'text-emerald-400' : 'text-[#AEB7D5]'}`}>
                   {isLongitudinalActive ? 'Longitudinal Trend' : 'Clinical Benchmark'} 
                   <Activity className="w-5 h-5 ml-1" />
                 </span>
@@ -526,17 +526,17 @@ export const HealthTimelinePage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
             {/* Chart Area (8 columns) */}
-            <Card className="lg:col-span-8 p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs space-y-4 lg:sticky lg:top-20 lg:self-start">
+            <Card className="lg:col-span-8 p-5 sm:p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs space-y-4 lg:sticky lg:top-20 lg:self-start">
               
               {/* Header Title & Dynamic Biomarker Selection Pill Strip */}
               <div className="space-y-3 border-b border-slate-100 dark:border-slate-800 pb-3">
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <div>
-                    <h3 className="text-base sm:text-lg font-black text-[#0F172A] dark:text-[#F5F7FA] flex items-center gap-2">
-                      <TrendingUp className="w-5 h-5 text-[#66729F] dark:text-[#9DA8D0]" />
+                    <h3 className="text-xl sm:text-[22px] font-black text-[#0F172A] dark:text-[#F5F7FA] flex items-center gap-2.5">
+                      <TrendingUp className="w-5.5 h-5.5 text-[#66729F] dark:text-[#9DA8D0]" />
                       {activeMetricName} Visualization
                     </h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+                    <p className="text-sm text-slate-500 dark:text-[#C8D0E0] font-medium mt-1.5">
                       {activeChartData.length} data point(s) recorded across uploaded reports
                     </p>
                   </div>

@@ -73,23 +73,23 @@ export const Header = ({ collapsed }) => {
       } left-0`}
     >
       {/* Left Title & Workspace Info */}
-      <div className="flex items-center gap-2 min-w-0 flex-1">
+      <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
         <div className="min-w-0">
-          <h1 className="text-xs sm:text-base font-bold text-[var(--text-main)] leading-tight truncate">
+          <h1 className="text-sm sm:text-base font-extrabold text-[var(--text-main)] leading-snug truncate">
             {getPageTitle(location.pathname)}
           </h1>
-          <p className="text-[11px] font-medium text-[var(--text-muted)] hidden md:block truncate mt-0.5">
-            {t('patient')}: <span className="font-semibold text-[var(--text-main)]">{displayName}</span> • {t('clinicalWorkspace')}
+          <p className="text-xs font-medium text-[var(--text-muted)] hidden md:block truncate mt-0.5">
+            {t('patient')}: <span className="font-bold text-[var(--text-main)]">{displayName}</span> • {t('clinicalWorkspace')}
           </p>
         </div>
 
-        <span className="hidden xl:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[var(--bg-surface-subtle)] text-[var(--color-primary)] text-xs font-medium border border-[var(--border-color)]">
-          <ShieldCheck className="w-3.5 h-3.5 text-[var(--color-primary)]" /> {t('authenticatedSession')}
+        <span className="hidden xl:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--bg-surface-subtle)] text-[var(--color-primary)] text-xs font-semibold border border-[var(--border-color)]">
+          <ShieldCheck className="w-3.5 h-3.5 text-[var(--color-primary)] shrink-0" /> {t('authenticatedSession')}
         </span>
       </div>
 
       {/* Right Action Controls */}
-      <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
         
         {/* Language Selector Pill */}
         <div className="flex items-center p-1 rounded-lg bg-[var(--bg-surface-subtle)] border border-[var(--border-color)] gap-1 text-xs">

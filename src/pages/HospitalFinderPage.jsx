@@ -460,15 +460,15 @@ export const HospitalFinderPage = () => {
       
       {/* Medical-AI Cautious Healthcare Guidance */}
       {reportAdvice && (
-        <Card className="p-4 bg-[#EEF1FA]/60 dark:bg-[#2C3146]/50 border border-[#D9DDEC] dark:border-[#313750] rounded-2xl shadow-2xs space-y-2">
+        <Card className="p-5 sm:p-6 bg-[#EEF1FA]/60 dark:bg-[#2C3146]/50 border border-[#D9DDEC] dark:border-[#313750] rounded-2xl shadow-2xs space-y-3">
           <div className="flex items-center justify-between flex-wrap gap-3">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-white dark:bg-[#1C1F2E] text-[#66729F] dark:text-[#9DA8D0] flex items-center justify-center font-bold border border-[#D9DDEC] dark:border-[#313750] shadow-2xs">
-                <Sparkles className="w-4 h-4 text-[#66729F] dark:text-[#9DA8D0]" />
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-white dark:bg-[#1C1F2E] text-[#66729F] dark:text-[#9DA8D0] flex items-center justify-center font-bold border border-[#D9DDEC] dark:border-[#313750] shadow-2xs">
+                <Sparkles className="w-5 h-5 text-[#66729F] dark:text-[#9DA8D0]" />
               </div>
               <div>
-                <h3 className="text-sm font-black text-[#0F172A] dark:text-[#F5F7FA]">Healthcare Navigation Suggestion</h3>
-                <p className="text-xs text-slate-600 dark:text-[#C8D0E0] font-normal">
+                <h3 className="text-base sm:text-lg font-black text-[#0F172A] dark:text-[#F5F7FA]">Healthcare Navigation Suggestion</h3>
+                <p className="text-sm text-slate-600 dark:text-[#C8D0E0] font-normal mt-0.5">
                   Flagged report biomarker: <strong className="text-[#0F172A] dark:text-[#F5F7FA] font-bold">{reportAdvice.biomarker} ({reportAdvice.value})</strong>
                 </p>
               </div>
@@ -476,14 +476,14 @@ export const HospitalFinderPage = () => {
             
             <button
               onClick={() => handleCategoryChange(reportAdvice.suggestedCategory)}
-              className="px-3.5 py-1.5 rounded-xl bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-white dark:text-[#172033] text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-2xs transition-colors"
+              className="px-4 py-2 rounded-xl bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-white dark:text-[#172033] text-sm font-bold flex items-center gap-2 cursor-pointer shadow-2xs transition-colors"
             >
-              <Stethoscope className="w-3.5 h-3.5 text-white dark:text-[#172033]" />
+              <Stethoscope className="w-4 h-4 text-white dark:text-[#172033]" />
               <span>Find Nearby {reportAdvice.suggestedCategory}s</span>
             </button>
           </div>
 
-          <p className="text-xs text-slate-700 dark:text-[#C8D0E0] leading-relaxed font-normal">
+          <p className="text-sm text-slate-700 dark:text-[#C8D0E0] leading-[1.6] font-normal">
             {reportAdvice.recommendation}
           </p>
         </Card>
@@ -491,20 +491,20 @@ export const HospitalFinderPage = () => {
 
       {/* Location Access Prompt UI (Initial Un-Granted / Denied State) */}
       {locationState !== 'granted' && (
-        <Card className="p-8 text-center bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-800 rounded-2xl space-y-5 shadow-xs max-w-2xl mx-auto">
-          <div className="w-14 h-14 rounded-2xl bg-[#EEF1FA] dark:bg-[#2C3146] text-[#66729F] dark:text-[#9DA8D0] flex items-center justify-center mx-auto border border-[#D9DDEC] dark:border-[#313750] shadow-2xs">
-            <Compass className="w-7 h-7" />
+        <Card className="p-8 sm:p-10 text-center bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-800 rounded-2xl space-y-5 shadow-xs max-w-2xl mx-auto">
+          <div className="w-16 h-16 rounded-2xl bg-[#EEF1FA] dark:bg-[#2C3146] text-[#66729F] dark:text-[#9DA8D0] flex items-center justify-center mx-auto border border-[#D9DDEC] dark:border-[#313750] shadow-2xs">
+            <Compass className="w-8 h-8" />
           </div>
 
-          <div className="space-y-2">
-            <h2 className="text-xl font-extrabold text-[#0F172A] dark:text-[#F5F7FA]">{t('findHealthcareNearYou')}</h2>
-            <p className="text-xs text-slate-600 dark:text-[#C8D0E0] font-normal leading-relaxed">
+          <div className="space-y-2.5">
+            <h2 className="text-xl sm:text-2xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight">{t('findHealthcareNearYou')}</h2>
+            <p className="text-sm text-slate-600 dark:text-[#C8D0E0] font-normal leading-[1.6]">
               {t('locationAccessReq')}
             </p>
           </div>
 
           {locationState === 'denied' && (
-            <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-xs text-amber-900 dark:text-amber-200 font-semibold space-y-1">
+            <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-sm text-amber-900 dark:text-amber-200 font-semibold space-y-1">
               <p>⚠️ {t('locationDeniedWarning')}</p>
             </div>
           )}
@@ -516,7 +516,7 @@ export const HospitalFinderPage = () => {
               icon={Compass}
               loading={locationState === 'loading'}
               onClick={handleUseCurrentLocation}
-              className="bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-white dark:text-[#172033] py-3 px-6 text-xs font-semibold rounded-xl w-full sm:w-auto cursor-pointer"
+              className="bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-white dark:text-[#172033] py-3.5 px-7 text-sm font-bold rounded-xl w-full sm:w-auto cursor-pointer"
             >
               {locationState === 'loading' ? t('loadingMedicalData') : t('useCurrentLocation')}
             </Button>
@@ -532,7 +532,7 @@ export const HospitalFinderPage = () => {
                   handleManualSearch();
                 }
               }}
-              className="py-3 px-6 text-xs font-semibold rounded-xl bg-slate-50 dark:bg-[#25293C] border-slate-200 dark:border-slate-700 text-[#0F172A] dark:text-[#F5F7FA] hover:bg-slate-100 dark:hover:bg-slate-800 w-full sm:w-auto cursor-pointer"
+              className="py-3.5 px-7 text-sm font-bold rounded-xl bg-slate-50 dark:bg-[#25293C] border-slate-200 dark:border-slate-700 text-[#0F172A] dark:text-[#F5F7FA] hover:bg-slate-100 dark:hover:bg-slate-800 w-full sm:w-auto cursor-pointer"
             >
               {t('enterLocationManually')}
             </Button>
@@ -544,26 +544,26 @@ export const HospitalFinderPage = () => {
       {locationState === 'granted' && (
         <>
           {/* Top Location & Hotlines Bar */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-white border border-slate-200/90 rounded-2xl shadow-2xs">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-[#EEF1FA] text-[#66729F] flex items-center justify-center font-bold border border-[#D9DDEC] shrink-0">
-                <MapPin className="w-4 h-4 text-[#66729F]" />
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 sm:p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[#EEF1FA] dark:bg-[#2C3146] text-[#66729F] dark:text-[#9DA8D0] flex items-center justify-center font-bold border border-[#D9DDEC] dark:border-[#313750] shrink-0">
+                <MapPin className="w-5 h-5 text-[#66729F] dark:text-[#9DA8D0]" />
               </div>
               <div>
-                <h2 className="text-base font-black text-[#0F172A] tracking-tight">
+                <h2 className="text-lg sm:text-xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight">
                   {t('hospitalFinder247')}
                 </h2>
-                <p className="text-xs text-slate-500 font-medium mt-0.5">
-                  {t('facilitiesNear')} <strong className="text-[#0F172A] font-extrabold">{userCoords?.name?.split(',')[0] || 'Waghodia'}</strong>
+                <p className="text-sm text-slate-500 dark:text-[#C8D0E0] font-medium mt-1">
+                  {t('facilitiesNear')} <strong className="text-[#0F172A] dark:text-[#F5F7FA] font-extrabold">{userCoords?.name?.split(',')[0] || 'Waghodia'}</strong>
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-2.5 flex-wrap">
               <button
                 onClick={handleUseCurrentLocation}
                 disabled={locationState === 'loading'}
-                className="px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200"
+                className="px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition-all cursor-pointer bg-slate-100 dark:bg-[#25293C] text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
               >
                 <Compass className={`w-4 h-4 ${locationState === 'loading' ? 'animate-spin text-[#66729F]' : 'text-[#66729F]'}`} />
                 <span>{locationState === 'loading' ? t('locating') : t('useCurrentLocation')}</span>
@@ -573,7 +573,7 @@ export const HospitalFinderPage = () => {
                 variant="sos" 
                 size="sm" 
                 icon={PhoneCall} 
-                className="py-1.5 px-3.5 text-xs font-bold rounded-xl cursor-pointer"
+                className="py-2 px-4 text-sm font-bold rounded-xl cursor-pointer"
                 onClick={() => {
                   toast.success("Dialing 108 Ambulance Hotline...");
                   window.open("tel:108");
@@ -716,48 +716,48 @@ export const HospitalFinderPage = () => {
                 <Card 
                   key={fac.id}
                   onClick={() => handleFacilityCardClick(fac)}
-                  className={`p-6 space-y-3.5 bg-white dark:bg-[#1C1F2E] border rounded-2xl shadow-xs transition-all cursor-pointer ${
+                  className={`p-5 sm:p-6 space-y-4 bg-white dark:bg-[#1C1F2E] border rounded-2xl shadow-xs transition-all cursor-pointer ${
                     selectedFacilityId === fac.id ? 'border-[#66729F] ring-2 ring-[#66729F]/20 bg-[#EEF1FA]/30 dark:border-[#7C87B8]' : 'border-slate-200 dark:border-slate-800 hover:border-slate-300'
                   }`}
                 >
                   <div className="flex justify-between items-start gap-3">
                     <div>
-                      <h3 className="text-base font-extrabold text-[#0F172A] dark:text-[#F5F7FA]">{fac.name}</h3>
-                      <p className="text-[13px] text-[#66729F] dark:text-[#9DA8D0] font-bold mt-0.5">{fac.type}</p>
+                      <h3 className="text-lg sm:text-xl font-black text-[#0F172A] dark:text-[#F5F7FA]">{fac.name}</h3>
+                      <p className="text-sm text-[#66729F] dark:text-[#9DA8D0] font-bold mt-1">{fac.type}</p>
                     </div>
 
                     {/* Open/Closed status — ONLY displayed if API provides it */}
                     {fac.openStatus ? (
-                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-[13px] font-bold border border-emerald-200 shrink-0">
+                      <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 text-xs sm:text-[13px] font-bold border border-emerald-200 dark:border-emerald-800 shrink-0">
                         {fac.openStatus}
                       </span>
                     ) : fac.emergencyConfirmed ? (
-                      <span className="px-2.5 py-0.5 rounded-full bg-[#FDF2F4] dark:bg-[#3A2028] text-[#8E2C36] dark:text-[#F3C6CB] text-[13px] font-bold border border-[#F0B8BF] dark:border-[#A83D49] shrink-0">
+                      <span className="px-3 py-1 rounded-full bg-[#FDF2F4] dark:bg-[#3A2028] text-[#8E2C36] dark:text-[#F3C6CB] text-xs sm:text-[13px] font-bold border border-[#F0B8BF] dark:border-[#A83D49] shrink-0">
                         24/7 Emergency Confirmed
                       </span>
                     ) : null}
                   </div>
 
                   {/* Real Address from API */}
-                  <p className="text-[13px] text-slate-600 dark:text-[#C8D0E0] flex items-start gap-1.5 font-normal">
-                    <MapPin className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" /> 
+                  <p className="text-sm text-slate-600 dark:text-[#C8D0E0] flex items-start gap-2 font-normal leading-[1.6]">
+                    <MapPin className="w-4.5 h-4.5 text-slate-400 shrink-0 mt-0.5" /> 
                     <span>{fac.address}</span>
                   </p>
 
-                  <div className="flex items-center justify-between text-[13px] pt-2.5 border-t border-slate-100 dark:border-slate-800 text-slate-600 dark:text-[#C8D0E0] font-medium flex-wrap gap-2">
-                    <span className="flex items-center gap-1 font-bold text-[#0F172A] dark:text-[#F5F7FA]">
-                      <Compass className="w-3.5 h-3.5 text-[#66729F] dark:text-[#9DA8D0]" /> {fac.distanceKm} km away
+                  <div className="flex items-center justify-between text-sm pt-3 border-t border-slate-100 dark:border-slate-800 text-slate-600 dark:text-[#C8D0E0] font-medium flex-wrap gap-2.5">
+                    <span className="flex items-center gap-1.5 font-bold text-[#0F172A] dark:text-[#F5F7FA]">
+                      <Compass className="w-4 h-4 text-[#66729F] dark:text-[#9DA8D0]" /> {fac.distanceKm} km away
                     </span>
 
                     {/* Rating — ONLY displayed if API provides it */}
                     {fac.rating && (
                       <span className="flex items-center gap-1 text-amber-600 font-bold">
-                        <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" /> {fac.rating}
+                        <Star className="w-4 h-4 fill-amber-400 text-amber-400" /> {fac.rating}
                       </span>
                     )}
 
                     {/* Phone — Displayed if API provides it, or explicit "Phone unavailable" */}
-                    <span className="text-slate-700 font-medium">
+                    <span className="text-slate-700 dark:text-slate-300 font-medium">
                       {fac.phone ? `📞 ${fac.phone}` : <span className="text-slate-400 italic">Phone unavailable</span>}
                     </span>
                   </div>
