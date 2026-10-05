@@ -6,27 +6,26 @@ const seedDatabase = require('./seed/seedData');
 
 const PORT = process.env.PORT || constants.PORT || 5000;
 
-const startServer = async () => {
-  try {
-    // 1. Connect to MongoDB Atlas
-    await connectDB();
+const startServer = () => {
+  // 1. Immediately bind HTTP server to PORT so backend is responsive without waiting for DB timeouts
+  const server = app.listen(PORT, () => {
+    console.log('\n=============================================================');
+    console.log(`🏥 MedGuardian AI Backend API active on Port ${PORT}`);
+    console.log(`➜ REST API Base: http://localhost:${PORT}/api`);
+    console.log(`➜ Health Status: http://localhost:${PORT}/api/health`);
+    console.log('=============================================================\n');
+  });
 
-    // 2. Seed database if connected and empty
+  // 2. Connect to MongoDB Atlas asynchronously in background
+  connectDB().then(async () => {
     if (require('mongoose').connection && require('mongoose').connection.readyState === 1) {
       await seedDatabase();
     }
-  } catch (err) {
+  }).catch((err) => {
     console.warn('MongoDB Atlas connection note on startup:', err.message || err);
-  } finally {
-    // 3. Always bind HTTP server to PORT so Render service remains 100% online
-    app.listen(PORT, () => {
-      console.log('\n=============================================================');
-      console.log(`🏥 MedGuardian AI Backend API active on Port ${PORT}`);
-      console.log(`➜ REST API Base: http://localhost:${PORT}/api`);
-      console.log(`➜ Health Status: http://localhost:${PORT}/api/health`);
-      console.log('=============================================================\n');
-    });
-  }
+  });
+
+  return server;
 };
 
 startServer();
