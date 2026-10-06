@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 
 export class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -35,7 +35,7 @@ export class ErrorBoundary extends React.Component {
             </div>
             <button
               onClick={this.handleReload}
-              className="w-full py-3 px-6 bg-[#7FAF9A] hover:bg-[#648F7B] text-white font-bold rounded-xl shadow-md transition-all cursor-pointer"
+              className="w-full py-3 px-6 bg-[#54816C] hover:bg-[#3D6352] text-white font-bold rounded-xl shadow-md transition-all cursor-pointer"
             >
               Reload Workspace
             </button>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { 
   MapPin, 
   Phone, 
@@ -386,7 +386,7 @@ export const HospitalFinderPage = () => {
       // User Location Marker
       const userIcon = L.divIcon({
         className: 'custom-user-marker',
-        html: `<div style="background-color: #0F172A; width: 20px; height: 20px; border-radius: 50%; border: 3px solid #7FAF9A; box-shadow: 0 0 12px rgba(127, 175, 154, 0.7);"></div>`,
+        html: `<div style="background-color: #0F172A; width: 20px; height: 20px; border-radius: 50%; border: 3px solid #54816C; box-shadow: 0 0 12px rgba(127, 175, 154, 0.7);"></div>`,
         iconSize: [20, 20],
         iconAnchor: [10, 10]
       });
@@ -400,7 +400,7 @@ export const HospitalFinderPage = () => {
         const isEmergency = fac.emergencyConfirmed;
         const facIcon = L.divIcon({
           className: 'custom-fac-marker',
-          html: `<div style="background-color: ${isEmergency ? '#C94B55' : '#7FAF9A'}; width: 14px; height: 14px; border-radius: 50%; border: 2px solid #FFFFFF; box-shadow: 0 2px 6px rgba(0,0,0,0.3);"></div>`,
+          html: `<div style="background-color: ${isEmergency ? '#C94B55' : '#54816C'}; width: 14px; height: 14px; border-radius: 50%; border: 2px solid #FFFFFF; box-shadow: 0 2px 6px rgba(0,0,0,0.3);"></div>`,
           iconSize: [14, 14],
           iconAnchor: [7, 7]
         });
@@ -411,7 +411,7 @@ export const HospitalFinderPage = () => {
           <div style="font-family: sans-serif; font-size: 12px; max-width: 220px; padding: 2px;">
             <strong style="color: #0F172A; display: block; font-size: 13px;">${fac.name}</strong>
             <span style="color: #475569; display: block; font-size: 11px; margin-top: 2px;">${fac.address}</span>
-            <div style="margin-top: 6px; font-weight: bold; color: #648F7B; font-size: 11px;">
+            <div style="margin-top: 6px; font-weight: bold; color: #3D6352; font-size: 11px;">
               ${fac.distanceKm} km away
             </div>
             <a href="${fac.directionsUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; margin-top: 8px; color: #0F172A; font-weight: bold; font-size: 11px; text-decoration: underline;">
@@ -463,8 +463,8 @@ export const HospitalFinderPage = () => {
         <Card className="p-5 sm:p-6 bg-[#EEF7F1]/60 dark:bg-[#24283A]/50 border border-[#D5E8DC] dark:border-slate-800 rounded-2xl shadow-2xs space-y-3">
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-white dark:bg-[#1C1F2E] text-[#648F7B] dark:text-[#7FAF9A] flex items-center justify-center font-bold border border-[#D5E8DC] dark:border-slate-800 shadow-2xs">
-                <Sparkles className="w-5 h-5 text-[#648F7B] dark:text-[#7FAF9A]" />
+              <div className="w-9 h-9 rounded-xl bg-white dark:bg-[#1C1F2E] text-[#3D6352] dark:text-[#54816C] flex items-center justify-center font-bold border border-[#D5E8DC] dark:border-slate-800 shadow-2xs">
+                <Sparkles className="w-5 h-5 text-[#3D6352] dark:text-[#54816C]" />
               </div>
               <div>
                 <h3 className="text-base sm:text-lg font-black text-[#0F172A] dark:text-[#F5F7FA]">Healthcare Navigation Suggestion</h3>
@@ -476,7 +476,7 @@ export const HospitalFinderPage = () => {
             
             <button
               onClick={() => handleCategoryChange(reportAdvice.suggestedCategory)}
-              className="px-4 py-2 rounded-xl bg-[#7FAF9A] hover:bg-[#648F7B] dark:bg-[#7FAF9A] dark:hover:bg-[#648F7B] text-white dark:text-[#0A0E1A] text-sm font-bold flex items-center gap-2 cursor-pointer shadow-2xs transition-colors"
+              className="px-4 py-2 rounded-xl bg-[#54816C] hover:bg-[#3D6352] dark:bg-[#54816C] dark:hover:bg-[#3D6352] text-white dark:text-[#0A0E1A] text-sm font-bold flex items-center gap-2 cursor-pointer shadow-2xs transition-colors"
             >
               <Stethoscope className="w-4 h-4 text-white dark:text-[#0A0E1A]" />
               <span>Find Nearby {reportAdvice.suggestedCategory}s</span>
@@ -492,7 +492,7 @@ export const HospitalFinderPage = () => {
       {/* Location Access Prompt UI (Initial Un-Granted / Denied State) */}
       {locationState !== 'granted' && (
         <Card className="p-8 sm:p-10 text-center bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-800 rounded-2xl space-y-5 shadow-xs max-w-2xl mx-auto">
-          <div className="w-16 h-16 rounded-2xl bg-[#EEF7F1] dark:bg-[#24283A] text-[#648F7B] dark:text-[#7FAF9A] flex items-center justify-center mx-auto border border-[#D5E8DC] dark:border-slate-800 shadow-2xs">
+          <div className="w-16 h-16 rounded-2xl bg-[#EEF7F1] dark:bg-[#24283A] text-[#3D6352] dark:text-[#54816C] flex items-center justify-center mx-auto border border-[#D5E8DC] dark:border-slate-800 shadow-2xs">
             <Compass className="w-8 h-8" />
           </div>
 
@@ -516,7 +516,7 @@ export const HospitalFinderPage = () => {
               icon={Compass}
               loading={locationState === 'loading'}
               onClick={handleUseCurrentLocation}
-              className="bg-[#7FAF9A] hover:bg-[#648F7B] dark:bg-[#7FAF9A] dark:hover:bg-[#648F7B] text-white dark:text-[#0A0E1A] py-3.5 px-7 text-sm font-bold rounded-xl w-full sm:w-auto cursor-pointer"
+              className="bg-[#54816C] hover:bg-[#3D6352] dark:bg-[#54816C] dark:hover:bg-[#3D6352] text-white dark:text-[#0A0E1A] py-3.5 px-7 text-sm font-bold rounded-xl w-full sm:w-auto cursor-pointer"
             >
               {locationState === 'loading' ? t('loadingMedicalData') : t('useCurrentLocation')}
             </Button>
@@ -546,8 +546,8 @@ export const HospitalFinderPage = () => {
           {/* Top Location & Hotlines Bar */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 sm:p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#EEF7F1] dark:bg-[#24283A] text-[#648F7B] dark:text-[#7FAF9A] flex items-center justify-center font-bold border border-[#D5E8DC] dark:border-slate-800 shrink-0">
-                <MapPin className="w-5 h-5 text-[#648F7B] dark:text-[#7FAF9A]" />
+              <div className="w-10 h-10 rounded-xl bg-[#EEF7F1] dark:bg-[#24283A] text-[#3D6352] dark:text-[#54816C] flex items-center justify-center font-bold border border-[#D5E8DC] dark:border-slate-800 shrink-0">
+                <MapPin className="w-5 h-5 text-[#3D6352] dark:text-[#54816C]" />
               </div>
               <div>
                 <h2 className="text-lg sm:text-xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight">
@@ -565,7 +565,7 @@ export const HospitalFinderPage = () => {
                 disabled={locationState === 'loading'}
                 className="px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition-all cursor-pointer bg-slate-100 dark:bg-[#25293C] text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
               >
-                <Compass className={`w-4 h-4 ${locationState === 'loading' ? 'animate-spin text-[#648F7B]' : 'text-[#648F7B]'}`} />
+                <Compass className={`w-4 h-4 ${locationState === 'loading' ? 'animate-spin text-[#3D6352]' : 'text-[#3D6352]'}`} />
                 <span>{locationState === 'loading' ? t('locating') : t('useCurrentLocation')}</span>
               </button>
 
@@ -717,13 +717,13 @@ export const HospitalFinderPage = () => {
                   key={fac.id}
                   onClick={() => handleFacilityCardClick(fac)}
                   className={`p-5 sm:p-6 space-y-4 bg-white dark:bg-[#1C1F2E] border rounded-2xl shadow-xs transition-all cursor-pointer ${
-                    selectedFacilityId === fac.id ? 'border-[#7FAF9A] ring-2 ring-[#7FAF9A]/20 bg-[#EEF7F1]/30 dark:border-[#7FAF9A]' : 'border-slate-200 dark:border-slate-800 hover:border-slate-300'
+                    selectedFacilityId === fac.id ? 'border-[#54816C] ring-2 ring-[#54816C]/20 bg-[#EEF7F1]/30 dark:border-[#54816C]' : 'border-slate-200 dark:border-slate-800 hover:border-slate-300'
                   }`}
                 >
                   <div className="flex justify-between items-start gap-3">
                     <div>
                       <h3 className="text-lg sm:text-xl font-black text-[#0F172A] dark:text-[#F5F7FA]">{fac.name}</h3>
-                      <p className="text-sm text-[#648F7B] dark:text-[#7FAF9A] font-bold mt-1">{fac.type}</p>
+                      <p className="text-sm text-[#3D6352] dark:text-[#54816C] font-bold mt-1">{fac.type}</p>
                     </div>
 
                     {/* Open/Closed status — ONLY displayed if API provides it */}
@@ -746,7 +746,7 @@ export const HospitalFinderPage = () => {
 
                   <div className="flex items-center justify-between text-sm pt-3 border-t border-slate-100 dark:border-slate-800 text-slate-600 dark:text-[#C8D0E0] font-medium flex-wrap gap-2.5">
                     <span className="flex items-center gap-1.5 font-bold text-[#0F172A] dark:text-[#F5F7FA]">
-                      <Compass className="w-4 h-4 text-[#648F7B] dark:text-[#7FAF9A]" /> {fac.distanceKm} km away
+                      <Compass className="w-4 h-4 text-[#3D6352] dark:text-[#54816C]" /> {fac.distanceKm} km away
                     </span>
 
                     {/* Rating — ONLY displayed if API provides it */}
@@ -790,7 +790,7 @@ export const HospitalFinderPage = () => {
                       onClick={(e) => e.stopPropagation()}
                       className="py-2 px-3.5 text-xs font-semibold rounded-xl bg-slate-50 border border-slate-200 text-[#0F172A] hover:bg-slate-100 flex items-center gap-1.5 transition-colors"
                     >
-                      <Navigation className="w-3.5 h-3.5 text-[#648F7B] dark:text-[#7FAF9A]" />
+                      <Navigation className="w-3.5 h-3.5 text-[#3D6352] dark:text-[#54816C]" />
                       <span>Get Directions</span>
                       <ExternalLink className="w-3 h-3 text-slate-400" />
                     </a>
@@ -818,9 +818,9 @@ export const HospitalFinderPage = () => {
               <Card className="p-4 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-3">
                 <div className="flex items-center justify-between text-xs font-bold text-[#0F172A]">
                   <span className="flex items-center gap-1.5">
-                    <Compass className="w-4 h-4 text-[#648F7B] dark:text-[#7FAF9A]" /> Interactive OpenStreetMap Canvas
+                    <Compass className="w-4 h-4 text-[#3D6352] dark:text-[#54816C]" /> Interactive OpenStreetMap Canvas
                   </span>
-                  <span className="text-[#648F7B] dark:text-[#7FAF9A]">Live Real-Time Tiles</span>
+                  <span className="text-[#3D6352] dark:text-[#54816C]">Live Real-Time Tiles</span>
                 </div>
 
                 {/* Interactive Leaflet Map Canvas */}
@@ -832,8 +832,8 @@ export const HospitalFinderPage = () => {
                 <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1 text-slate-600 font-normal">
                   <span className="font-bold text-[#0F172A] block">Map Legend:</span>
                   <div className="flex items-center gap-4 text-[11px] pt-0.5">
-                    <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-[#0F172A] border border-[#7FAF9A]" /> Your Location</span>
-                    <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-[#7FAF9A]" /> Healthcare Facility</span>
+                    <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-[#0F172A] border border-[#54816C]" /> Your Location</span>
+                    <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-[#54816C]" /> Healthcare Facility</span>
                     <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-rose-600" /> Emergency Hospital</span>
                   </div>
                 </div>
@@ -856,7 +856,7 @@ export const HospitalFinderPage = () => {
               <div className="flex justify-between items-start">
                 <div>
                   <h4 className="font-extrabold text-sm text-[#0F172A]">{selectedFacilityModal.name}</h4>
-                  <p className="text-xs text-[#648F7B] dark:text-[#7FAF9A] font-bold">{selectedFacilityModal.type}</p>
+                  <p className="text-xs text-[#3D6352] dark:text-[#54816C] font-bold">{selectedFacilityModal.type}</p>
                 </div>
                 {selectedFacilityModal.emergencyConfirmed && (
                   <span className="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-800 text-[11px] font-bold border border-rose-200">
@@ -891,7 +891,7 @@ export const HospitalFinderPage = () => {
                   href={selectedFacilityModal.website}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[#648F7B] dark:text-[#7FAF9A] font-bold hover:underline flex items-center gap-1"
+                  className="text-[#3D6352] dark:text-[#54816C] font-bold hover:underline flex items-center gap-1"
                 >
                   Visit Website <Globe className="w-3.5 h-3.5" />
                 </a>
@@ -903,7 +903,7 @@ export const HospitalFinderPage = () => {
                 href={selectedFacilityModal.directionsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="py-2.5 px-5 text-xs font-semibold rounded-xl bg-[#7FAF9A] hover:bg-[#648F7B] dark:bg-[#7FAF9A] dark:hover:bg-[#648F7B] text-white dark:text-[#0A0E1A] flex items-center gap-1.5 transition-colors"
+                className="py-2.5 px-5 text-xs font-semibold rounded-xl bg-[#54816C] hover:bg-[#3D6352] dark:bg-[#54816C] dark:hover:bg-[#3D6352] text-white dark:text-[#0A0E1A] flex items-center gap-1.5 transition-colors"
               >
                 <Navigation className="w-4 h-4 text-white dark:text-[#0A0E1A]" />
                 <span>Get Google Maps Directions</span>

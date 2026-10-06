@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { FileText, ArrowRight, Calendar, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useHealthData } from '../../context/HealthDataContext';
@@ -43,8 +43,8 @@ export const ReportCard = ({ report, title, date, doctorName, labName, status, s
     <div className="med-card card-hover-lift space-y-3 bg-white p-4 border border-slate-200 rounded-2xl shadow-2xs">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#EEF7F1] text-[#648F7B] flex items-center justify-center font-bold shrink-0 border border-[#D5E8DC]">
-            <FileText className="w-5 h-5 text-[#648F7B]" />
+          <div className="w-10 h-10 rounded-xl bg-[#EEF7F1] text-[#3D6352] flex items-center justify-center font-bold shrink-0 border border-[#D5E8DC]">
+            <FileText className="w-5 h-5 text-[#3D6352]" />
           </div>
           <div>
             <h4 className="text-sm font-extrabold text-[#0F172A]">{rTitle}</h4>
@@ -81,7 +81,7 @@ export const ReportCard = ({ report, title, date, doctorName, labName, status, s
 
         <button
           onClick={handleCardClick}
-          className="text-xs font-bold text-[#648F7B] hover:text-[#7FAF9A] hover:underline flex items-center gap-1 cursor-pointer transition-colors"
+          className="text-xs font-bold text-[#3D6352] hover:text-[#54816C] hover:underline flex items-center gap-1 cursor-pointer transition-colors"
         >
           <span>{t('viewAnalysis')}</span>
           <ArrowRight className="w-3.5 h-3.5" />

@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Activity, ShieldCheck, Heart, Sparkles, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -12,10 +12,10 @@ export const Footer = () => {
           <div className="space-y-4">
             <Link to="/" className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-slate-800 flex items-center justify-center border border-slate-700">
-                <Activity className="w-5 h-5 text-[#7FAF9A]" />
+                <Activity className="w-5 h-5 text-[#54816C]" />
               </div>
               <span className="font-extrabold text-lg text-white tracking-tight">
-                MedGuardian<span className="text-[#7FAF9A]"> AI</span>
+                MedGuardian<span className="text-[#54816C]"> AI</span>
               </span>
             </Link>
             <p className="text-xs text-slate-400 leading-relaxed">

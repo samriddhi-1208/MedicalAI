@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowRight, Lock, Mail, Activity, Eye, EyeOff, UserCheck, Siren, Sun, Moon } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -125,8 +125,8 @@ export const LoginPage = () => {
             
             {/* Active Session Info Banner (If already logged in) */}
             {isAuthenticated && userProfile && (
-              <div className="p-4 rounded-xl bg-[#EEF7F1] dark:bg-[#648F7B]/20 border border-[#D5E8DC] dark:border-[#648F7B]/40 text-xs space-y-2.5">
-                <div className="flex items-center gap-2 text-[#648F7B] dark:text-[#7FAF9A] font-bold">
+              <div className="p-4 rounded-xl bg-[#EEF7F1] dark:bg-[#3D6352]/20 border border-[#D5E8DC] dark:border-[#3D6352]/40 text-xs space-y-2.5">
+                <div className="flex items-center gap-2 text-[#3D6352] dark:text-[#54816C] font-bold">
                   <UserCheck className="w-4 h-4 shrink-0" />
                   <span>Currently Signed In</span>
                 </div>

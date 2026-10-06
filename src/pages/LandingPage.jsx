@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
   Shield, 
@@ -30,7 +30,7 @@ import { useHealthData } from '../context/HealthDataContext';
 export const LandingPage = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useHealthData();
-  const [faqOpen, setFaqOpen] = useState(0);
+  const [faqOpen, setFaqOpen] = useState(null);
   const [previewTab, setPreviewTab] = useState('dashboard'); // 'dashboard' | 'trends' | 'sos'
 
   const handleUploadClick = () => {
@@ -151,7 +151,7 @@ export const LandingPage = () => {
               
               <h1 className="text-4xl sm:text-5xl lg:text-5.5xl font-extrabold text-[#0A0E1A] dark:text-[#F5F7FA] tracking-tight leading-[1.15]">
                 Understand Your Health <br className="hidden sm:inline" />
-                <span className="text-[#7FAF9A] dark:text-[#7FAF9A]">with AI Intelligence</span>
+                <span className="text-[#54816C] dark:text-[#54816C]">with AI Intelligence</span>
               </h1>
 
               <p className="text-base sm:text-lg text-[#526078] dark:text-[#C8D0E0] leading-relaxed max-w-2xl font-normal">
@@ -163,7 +163,7 @@ export const LandingPage = () => {
                   variant="primary"
                   size="md"
                   icon={Upload}
-                  className="bg-[#7FAF9A] hover:bg-[#648F7B] dark:bg-[#7FAF9A] dark:hover:bg-[#648F7B] text-white dark:text-[#0A0E1A] py-3.5 px-6 text-sm font-bold rounded-xl shadow-md cursor-pointer"
+                  className="bg-[#54816C] hover:bg-[#3D6352] dark:bg-[#54816C] dark:hover:bg-[#3D6352] text-white dark:text-[#0A0E1A] py-3.5 px-6 text-sm font-bold rounded-xl shadow-md cursor-pointer"
                   onClick={handleUploadClick}
                 >
                   Upload Medical Report
@@ -213,16 +213,16 @@ export const LandingPage = () => {
                 {/* Header Badge */}
                 <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#313750] pb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-[#0A0E1A] dark:bg-[#7FAF9A] text-white dark:text-[#0A0E1A] flex items-center justify-center font-bold">
-                      <BrainCircuit className="w-5 h-5 text-[#7FAF9A] dark:text-[#0A0E1A]" />
+                    <div className="w-10 h-10 rounded-xl bg-[#0A0E1A] dark:bg-[#54816C] text-white dark:text-[#0A0E1A] flex items-center justify-center font-bold">
+                      <BrainCircuit className="w-5 h-5 text-[#54816C] dark:text-[#0A0E1A]" />
                     </div>
                     <div>
                       <h3 className="text-sm font-bold text-[#0A0E1A] dark:text-[#F5F7FA]">MedGuardian AI Clinical Workflow</h3>
                       <p className="text-xs text-slate-500 dark:text-[#C8D0E0] font-medium">Patient Analysis System</p>
                     </div>
                   </div>
-                  <span className="px-2.5 py-1 rounded-full bg-[#EEF7F1] dark:bg-[#2C3146] text-[#648F7B] dark:text-[#90AFA0] text-xs font-bold border border-[#D5E8DC] dark:border-[#3E4564] flex items-center gap-1">
-                    <ShieldCheck className="w-3.5 h-3.5 text-[#648F7B] dark:text-[#7FAF9A]" /> Secure AI Analysis
+                  <span className="px-2.5 py-1 rounded-full bg-[#EEF7F1] dark:bg-[#2C3146] text-[#3D6352] dark:text-[#90AFA0] text-xs font-bold border border-[#D5E8DC] dark:border-[#3E4564] flex items-center gap-1">
+                    <ShieldCheck className="w-3.5 h-3.5 text-[#3D6352] dark:text-[#54816C]" /> Secure AI Analysis
                   </span>
                 </div>
 
@@ -233,7 +233,7 @@ export const LandingPage = () => {
                   <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#2C3146] border border-[#D5E8DC] dark:border-[#313750] flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg bg-white dark:bg-[#24283A] border border-[#D5E8DC] dark:border-[#313750] text-[#0A0E1A] dark:text-[#F5F7FA] flex items-center justify-center font-bold">
-                        <FileText className="w-4 h-4 text-[#648F7B] dark:text-[#7FAF9A]" />
+                        <FileText className="w-4 h-4 text-[#3D6352] dark:text-[#54816C]" />
                       </div>
                       <div>
                         <span className="font-bold text-[#0A0E1A] dark:text-[#F5F7FA] block text-xs">1. Medical Report</span>
@@ -245,32 +245,32 @@ export const LandingPage = () => {
 
                   {/* Flow Arrow */}
                   <div className="flex justify-center text-slate-400">
-                    <ArrowDown className="w-4 h-4 text-[#648F7B] dark:text-[#7FAF9A]" />
+                    <ArrowDown className="w-4 h-4 text-[#3D6352] dark:text-[#54816C]" />
                   </div>
 
                   {/* Step 2: AI Analysis */}
                   <div className="p-3.5 rounded-xl bg-[#172033] dark:bg-[#202434] text-white flex items-center justify-between border border-transparent dark:border-[#313750]">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg bg-slate-800 dark:bg-[#2C3146] text-white flex items-center justify-center font-bold">
-                        <Sparkles className="w-4 h-4 text-[#7FAF9A] dark:text-[#7FAF9A]" />
+                        <Sparkles className="w-4 h-4 text-[#54816C] dark:text-[#54816C]" />
                       </div>
                       <div>
                         <span className="font-bold block text-xs text-white">2. AI Analysis</span>
                         <span className="text-[11px] text-slate-300 dark:text-[#C8D0E0] font-normal">Extracting test names, values & reference bounds</span>
                       </div>
                     </div>
-                    <span className="text-[11px] font-bold text-[#7FAF9A] dark:text-[#7FAF9A]">Report Analyzed</span>
+                    <span className="text-[11px] font-bold text-[#54816C] dark:text-[#54816C]">Report Analyzed</span>
                   </div>
 
                   {/* Flow Arrow */}
                   <div className="flex justify-center text-slate-400">
-                    <ArrowDown className="w-4 h-4 text-[#648F7B] dark:text-[#7FAF9A]" />
+                    <ArrowDown className="w-4 h-4 text-[#3D6352] dark:text-[#54816C]" />
                   </div>
 
                   {/* Step 3: Extracted Health Information */}
                   <div className="p-3.5 rounded-xl bg-[#EEF7F1] dark:bg-[#2C3146] border border-[#D5E8DC] dark:border-[#3E4564] space-y-2 text-[#0A0E1A] dark:text-[#F5F7FA]">
                     <div className="flex items-center justify-between font-bold text-xs text-[#0A0E1A] dark:text-[#F5F7FA]">
-                      <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-[#648F7B] dark:text-[#7FAF9A]" /> 3. AI-Extracted Health Data</span>
+                      <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-[#3D6352] dark:text-[#54816C]" /> 3. AI-Extracted Health Data</span>
                       <span className="text-[10px] bg-[#D5E8DC] dark:bg-[#202434] text-[#0A0E1A] dark:text-[#C9CEE3] px-2 py-0.5 rounded-full font-bold">MedGuardian AI Engine</span>
                     </div>
 
@@ -290,9 +290,9 @@ export const LandingPage = () => {
 
                 <div className="pt-2 flex items-center justify-between text-xs text-slate-500 dark:text-[#C8D0E0] border-t border-slate-100 dark:border-[#313750]">
                   <span className="flex items-center gap-1.5 font-medium">
-                    <Shield className="w-3.5 h-3.5 text-[#648F7B] dark:text-[#7FAF9A]" /> Account-Isolated Patient Records
+                    <Shield className="w-3.5 h-3.5 text-[#3D6352] dark:text-[#54816C]" /> Account-Isolated Patient Records
                   </span>
-                  <Link to="/signup" className="text-[#648F7B] dark:text-[#7FAF9A] font-bold hover:underline">
+                  <Link to="/signup" className="text-[#3D6352] dark:text-[#54816C] font-bold hover:underline">
                     Get Started Free →
                   </Link>
                 </div>
@@ -323,22 +323,22 @@ export const LandingPage = () => {
               onClick={() => setPreviewTab('dashboard')}
               className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer transition-all ${
                 previewTab === 'dashboard'
-                  ? 'bg-[#0A0E1A] dark:bg-[#7FAF9A] text-white dark:text-[#0A0E1A] shadow-xs'
+                  ? 'bg-[#0A0E1A] dark:bg-[#54816C] text-white dark:text-[#0A0E1A] shadow-xs'
                   : 'bg-slate-100 dark:bg-[#2C3146] text-slate-800 dark:text-[#C8D0E0] hover:bg-slate-200 dark:hover:bg-[#353B54]'
               }`}
             >
-              <LayoutDashboard className="w-4 h-4 text-[#7FAF9A] dark:text-[#0A0E1A]" /> Dashboard
+              <LayoutDashboard className="w-4 h-4 text-[#54816C] dark:text-[#0A0E1A]" /> Dashboard
             </button>
 
             <button
               onClick={() => setPreviewTab('trends')}
               className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer transition-all ${
                 previewTab === 'trends'
-                  ? 'bg-[#0A0E1A] dark:bg-[#7FAF9A] text-white dark:text-[#0A0E1A] shadow-xs'
+                  ? 'bg-[#0A0E1A] dark:bg-[#54816C] text-white dark:text-[#0A0E1A] shadow-xs'
                   : 'bg-slate-100 dark:bg-[#2C3146] text-slate-800 dark:text-[#C8D0E0] hover:bg-slate-200 dark:hover:bg-[#353B54]'
               }`}
             >
-              <TrendingUp className="w-4 h-4 text-[#7FAF9A] dark:text-[#0A0E1A]" /> Health Trends & Analytics
+              <TrendingUp className="w-4 h-4 text-[#54816C] dark:text-[#0A0E1A]" /> Health Trends & Analytics
             </button>
 
             <button
@@ -363,22 +363,22 @@ export const LandingPage = () => {
                     <span className="text-sm font-extrabold uppercase tracking-wider block text-[#0A0E1A] dark:text-[#CBD5E1]">Dashboard Preview</span>
                     <h3 className="text-xl font-extrabold text-[#0A0E1A] dark:text-white">Patient Workspace Overview</h3>
                   </div>
-                  <Link to="/signup" className="px-3.5 py-1.5 rounded-xl bg-[#7FAF9A] hover:bg-[#648F7B] text-white text-xs font-bold transition-colors">
+                  <Link to="/signup" className="px-3.5 py-1.5 rounded-xl bg-[#54816C] hover:bg-[#3D6352] text-white text-xs font-bold transition-colors">
                     Try Live Dashboard →
                   </Link>
                 </div>
 
                 <div className="grid grid-cols-3 gap-3">
                   <div className="p-3.5 rounded-xl bg-[#202434] border border-slate-700 text-center space-y-1">
-                    <Upload className="w-5 h-5 text-[#7FAF9A] mx-auto" />
+                    <Upload className="w-5 h-5 text-[#54816C] mx-auto" />
                     <span className="block text-xs font-bold text-slate-200">Upload Report</span>
                   </div>
                   <div className="p-3.5 rounded-xl bg-[#202434] border border-slate-700 text-center space-y-1">
-                    <Building2 className="w-5 h-5 text-[#7FAF9A] mx-auto" />
+                    <Building2 className="w-5 h-5 text-[#54816C] mx-auto" />
                     <span className="block text-xs font-bold text-slate-200">Find Hospital</span>
                   </div>
                   <div className="p-3.5 rounded-xl bg-[#202434] border border-slate-700 text-center space-y-1">
-                    <Pill className="w-5 h-5 text-[#7FAF9A] mx-auto" />
+                    <Pill className="w-5 h-5 text-[#54816C] mx-auto" />
                     <span className="block text-xs font-bold text-slate-200">Medicine</span>
                   </div>
                 </div>
@@ -407,7 +407,7 @@ export const LandingPage = () => {
                     <span className="text-sm font-extrabold uppercase tracking-wider block text-[#0A0E1A] dark:text-[#CBD5E1]">Health Trends & Analytics</span>
                     <h3 className="text-xl font-extrabold text-[#0A0E1A] dark:text-white">Biomarker Longitudinal Progression</h3>
                   </div>
-                  <Link to="/signup" className="px-3.5 py-1.5 rounded-xl bg-[#7FAF9A] hover:bg-[#648F7B] text-white text-xs font-bold transition-colors">
+                  <Link to="/signup" className="px-3.5 py-1.5 rounded-xl bg-[#54816C] hover:bg-[#3D6352] text-white text-xs font-bold transition-colors">
                     View Interactive Trends →
                   </Link>
                 </div>
@@ -415,7 +415,7 @@ export const LandingPage = () => {
                 <div className="p-4 rounded-xl bg-[#202434] border border-slate-700 space-y-2 text-xs">
                   <div className="flex justify-between items-center">
                     <span className="font-bold text-white">Hemoglobin (Hb) Trend Line</span>
-                    <span className="text-[#7FAF9A] font-bold">+1.4 g/dL (6M Gain)</span>
+                    <span className="text-[#54816C] font-bold">+1.4 g/dL (6M Gain)</span>
                   </div>
                   <div className="h-20 bg-[#172033] rounded-lg border border-slate-700 flex items-center justify-center text-slate-200 text-xs font-mono font-medium">
                     📈 [Interactive Line Graph: Jan 12.4 → Aug 13.8 g/dL]
@@ -473,8 +473,8 @@ export const LandingPage = () => {
                   key={idx} 
                   className="p-6 space-y-3 bg-white dark:bg-[#24283A] border border-[#D5E8DC] dark:border-[#313750] rounded-2xl card-hover-lift shadow-xs"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-[#EEF7F1] dark:bg-[#2C3146] text-[#648F7B] dark:text-[#7FAF9A] flex items-center justify-center border border-[#D5E8DC] dark:border-[#313750]">
-                    <Icon className="w-5 h-5 text-[#648F7B] dark:text-[#7FAF9A]" />
+                  <div className="w-10 h-10 rounded-xl bg-[#EEF7F1] dark:bg-[#2C3146] text-[#3D6352] dark:text-[#54816C] flex items-center justify-center border border-[#D5E8DC] dark:border-[#313750]">
+                    <Icon className="w-5 h-5 text-[#3D6352] dark:text-[#54816C]" />
                   </div>
                   <h3 className="text-base font-bold text-[#0A0E1A] dark:text-[#F5F7FA]">{item.title}</h3>
                   <p className="text-xs text-[#526078] dark:text-[#C8D0E0] leading-relaxed font-normal">{item.description}</p>
@@ -502,7 +502,7 @@ export const LandingPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {steps.map((s, idx) => (
               <div key={idx} className="relative p-6 rounded-2xl bg-[#F7F8FC] dark:bg-[#24283A] border border-[#D5E8DC] dark:border-[#313750] space-y-3">
-                <div className="text-3xl font-extrabold text-[#7FAF9A]/50 dark:text-[#7FAF9A]/50 tracking-tight">
+                <div className="text-3xl font-extrabold text-[#54816C]/50 dark:text-[#54816C]/50 tracking-tight">
                   {s.step}
                 </div>
                 <h3 className="text-lg font-bold text-[#0A0E1A] dark:text-[#F5F7FA]">{s.title}</h3>
@@ -516,7 +516,7 @@ export const LandingPage = () => {
               variant="primary"
               size="md"
               icon={ArrowRight}
-              className="bg-[#7FAF9A] hover:bg-[#648F7B] dark:bg-[#7FAF9A] dark:hover:bg-[#648F7B] text-white dark:text-[#0A0E1A] font-bold py-3.5 px-8 text-sm rounded-xl cursor-pointer shadow-md"
+              className="bg-[#54816C] hover:bg-[#3D6352] dark:bg-[#54816C] dark:hover:bg-[#3D6352] text-white dark:text-[#0A0E1A] font-bold py-3.5 px-8 text-sm rounded-xl cursor-pointer shadow-md"
               onClick={() => navigate('/signup')}
             >
               Get Started (Create Account)
@@ -549,7 +549,7 @@ export const LandingPage = () => {
                 key={idx} 
                 className={`border rounded-xl overflow-hidden shadow-xs transition-all ${
                   faqOpen === idx 
-                    ? 'border-[#7FAF9A]/50 dark:border-[#7FAF9A]/60 bg-white dark:bg-[#24283A]' 
+                    ? 'border-[#54816C]/50 dark:border-[#54816C]/60 bg-white dark:bg-[#24283A]' 
                     : 'border-[#D5E8DC] dark:border-[#313750] bg-white dark:bg-[#24283A]'
                 }`}
               >

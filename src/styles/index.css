@@ -1,4 +1,4 @@
-/* MedGuardian AI — Design Tokens & Accessible Healthcare SaaS Theme System */
+﻿/* MedGuardian AI — Design Tokens & Accessible Healthcare SaaS Theme System */
 
 @import "tailwindcss";
 
@@ -10,16 +10,16 @@
   --bg-surface: #FFFFFF;
   --bg-surface-subtle: #EEF7F1;
 
-  --color-primary: #7FAF9A; /* Primary Sage Green */
-  --color-primary-hover: #648F7B; /* Dark Sage Green */
+  --color-primary: #54816C; /* Primary Sage Green */
+  --color-primary-hover: #3D6352; /* Dark Sage Green */
   --color-primary-light: #EEF7F1; /* Light Sage Background */
 
   --color-secondary: #D5E8DC; /* Sage Border */
   --color-secondary-hover: #C1DACB;
 
-  --color-accent: #7FAF9A; /* Primary Sage Green */
-  --color-accent-hover: #648F7B;
-  --color-accent-dark: #648F7B;
+  --color-accent: #54816C; /* Primary Sage Green */
+  --color-accent-hover: #3D6352;
+  --color-accent-dark: #3D6352;
 
   --text-main: #0A0E1A; /* main text: deep rich obsidian dark/black */
   --text-muted: #526078; /* secondary text: calm muted slate */
@@ -35,7 +35,7 @@
   --status-warning-bg: #F9F3E8;
   --status-critical: #C94B55;
   --status-critical-bg: #FDF2F4;
-  --status-info: #7FAF9A;
+  --status-info: #54816C;
   --status-info-bg: #EEF7F1;
 
   /* MUTED EMERGENCY / SOS RED SYSTEM (Strictly preserved RED) */
@@ -45,7 +45,7 @@
   --emergency-border: #A83D49;
   --emergency-text: #8E2C36;
 
-  --focus-ring: 0 0 0 2px #7FAF9A;
+  --focus-ring: 0 0 0 2px #54816C;
 }
 
 .dark {
@@ -54,16 +54,16 @@
   --bg-surface: #24283A;
   --bg-surface-subtle: #2C333E;
 
-  --color-primary: #7FAF9A; /* Primary Sage Green */
-  --color-primary-hover: #648F7B; /* Dark Sage Green */
+  --color-primary: #54816C; /* Primary Sage Green */
+  --color-primary-hover: #3D6352; /* Dark Sage Green */
   --color-primary-light: #1E2824;
 
   --color-secondary: #90AFA0;
   --color-secondary-hover: #A5C4B5;
 
-  --color-accent: #7FAF9A;
+  --color-accent: #54816C;
   --color-accent-hover: #90BFA9;
-  --color-accent-dark: #648F7B;
+  --color-accent-dark: #3D6352;
 
   --text-main: #F5F7FA; /* main text */
   --text-muted: #C8D0E0; /* secondary text */
@@ -79,7 +79,7 @@
   --status-warning-bg: #322B18;
   --status-critical: #F3C6CB;
   --status-critical-bg: #3A2028;
-  --status-info: #7FAF9A;
+  --status-info: #54816C;
   --status-info-bg: #1E2824;
 
   /* MUTED EMERGENCY / SOS RED SYSTEM IN DARK MODE */
@@ -89,7 +89,7 @@
   --emergency-border: #A83D49;
   --emergency-text: #F3C6CB;
 
-  --focus-ring: 0 0 0 2px #7FAF9A;
+  --focus-ring: 0 0 0 2px #54816C;
 }
 
 /* ==========================================================================
@@ -156,14 +156,14 @@ html:not(.dark) .border-slate-200\/90 {
 html:not(.dark) .text-\[\#0D9488\],
 html:not(.dark) .text-teal-600,
 html:not(.dark) .text-teal-700,
-html:not(.dark) .text-\[\#7FAF9A\] {
-  color: #648F7B !important;
+html:not(.dark) .text-\[\#54816C\] {
+  color: #3D6352 !important;
 }
 
 html:not(.dark) .bg-\[\#0D9488\],
 html:not(.dark) .bg-teal-600,
-html:not(.dark) .bg-\[\#7FAF9A\] {
-  background-color: #7FAF9A !important;
+html:not(.dark) .bg-\[\#54816C\] {
+  background-color: #54816C !important;
 }
 
 html:not(.dark) .border-\[\#0D9488\],
@@ -183,7 +183,7 @@ html:not(.dark) .bg-\[\#EEF7F1\] {
 /* ==========================================================================
    DARK MODE HIGH-CONTRAST ACCESSIBILITY SYSTEM
    Guarantees near-white (#F5F7FA) headings, readable soft slate (#C8D0E0)
-   labels/subtext, soft sage green (#7FAF9A) accents, and #24283A card surfaces.
+   labels/subtext, soft sage green (#54816C) accents, and #24283A card surfaces.
    ========================================================================== */
 
 .dark h1,
@@ -232,15 +232,15 @@ html:not(.dark) .bg-\[\#EEF7F1\] {
 .dark .text-teal-600,
 .dark .text-teal-700,
 .dark .text-\[\#2DD4BF\],
-.dark .text-\[\#7FAF9A\] {
-  color: #7FAF9A !important;
+.dark .text-\[\#54816C\] {
+  color: #54816C !important;
 }
 
 .dark .bg-\[\#0D9488\],
 .dark .bg-teal-600,
 .dark .bg-teal-700,
-.dark .bg-\[\#7FAF9A\] {
-  background-color: #7FAF9A !important;
+.dark .bg-\[\#54816C\] {
+  background-color: #54816C !important;
   color: #0A0E1A !important;
 }
 
@@ -320,17 +320,17 @@ button.bg-\[\#D6B86A\]:hover {
   background-color: #C5A85D !important;
 }
 
-/* In dark mode, primary action buttons switch to professional sage green #7FAF9A */
+/* In dark mode, primary action buttons switch to professional sage green #54816C */
 .dark button.bg-\[\#0F172A\]:not([class*="bg-[#6FA89E]"]):not([class*="bg-[#D6B86A]"]):not([class*="bg-red-"]):not([class*="bg-[#DC2626]"]):not([class*="bg-emerald-"]),
 .dark a.bg-\[\#0F172A\]:not([class*="bg-[#6FA89E]"]):not([class*="bg-[#D6B86A]"]):not([class*="bg-red-"]):not([class*="bg-[#DC2626]"]):not([class*="bg-emerald-"]) {
-  background-color: #7FAF9A !important;
+  background-color: #54816C !important;
   color: #0A0E1A !important;
   font-weight: 700 !important;
 }
 
 .dark button.bg-\[\#0F172A\]:not([class*="bg-[#6FA89E]"]):not([class*="bg-[#D6B86A]"]):not([class*="bg-red-"]):hover,
 .dark a.bg-\[\#0F172A\]:not([class*="bg-[#6FA89E]"]):not([class*="bg-[#D6B86A]"]):not([class*="bg-red-"]):hover {
-  background-color: #648F7B !important;
+  background-color: #3D6352 !important;
 }
 
 /* Global Reset & Typography Defaults */

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
   Settings, 
@@ -102,8 +102,8 @@ export const SettingsPage = () => {
       {/* Settings Header */}
       <div className="border-b border-slate-200 dark:border-slate-800 pb-5">
         <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#7FAF9A] dark:bg-[#7FAF9A] animate-pulse" />
-          <span className="text-xs sm:text-[13px] text-[#648F7B] dark:text-[#7FAF9A] font-black uppercase tracking-[0.04em]">
+          <span className="w-2.5 h-2.5 rounded-full bg-[#54816C] dark:bg-[#54816C] animate-pulse" />
+          <span className="text-xs sm:text-[13px] text-[#3D6352] dark:text-[#54816C] font-black uppercase tracking-[0.04em]">
             {language === 'HI' ? 'एप्लिकेशन कॉन्फ़िगरेशन' : language === 'GU' ? 'એપ્લિકેશન કોન્ફિગરેશન' : 'APPLICATION CONFIGURATION'}
           </span>
         </div>
@@ -118,7 +118,7 @@ export const SettingsPage = () => {
       {/* Language Selector Banner */}
       <Card className="p-5 sm:p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl bg-[#EEF7F1] dark:bg-[#24283A] text-[#648F7B] dark:text-[#7FAF9A] flex items-center justify-center shrink-0">
+          <div className="w-11 h-11 rounded-xl bg-[#EEF7F1] dark:bg-[#24283A] text-[#3D6352] dark:text-[#54816C] flex items-center justify-center shrink-0">
             <Globe className="w-5.5 h-5.5" />
           </div>
           <div>
@@ -135,7 +135,7 @@ export const SettingsPage = () => {
             }}
             className={`px-4 py-2 rounded-xl text-sm font-bold transition-all cursor-pointer ${
               language === 'EN'
-                ? 'bg-[#7FAF9A] dark:bg-[#7FAF9A] text-white dark:text-[#0A0E1A] shadow-2xs'
+                ? 'bg-[#54816C] dark:bg-[#54816C] text-white dark:text-[#0A0E1A] shadow-2xs'
                 : 'bg-slate-100 dark:bg-[#25293C] text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
@@ -149,7 +149,7 @@ export const SettingsPage = () => {
             }}
             className={`px-4 py-2 rounded-xl text-sm font-bold transition-all cursor-pointer ${
               language === 'HI'
-                ? 'bg-[#7FAF9A] dark:bg-[#7FAF9A] text-white dark:text-[#0A0E1A] shadow-2xs'
+                ? 'bg-[#54816C] dark:bg-[#54816C] text-white dark:text-[#0A0E1A] shadow-2xs'
                 : 'bg-slate-100 dark:bg-[#25293C] text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
@@ -163,7 +163,7 @@ export const SettingsPage = () => {
             }}
             className={`px-4 py-2 rounded-xl text-sm font-bold transition-all cursor-pointer ${
               language === 'GU'
-                ? 'bg-[#7FAF9A] dark:bg-[#7FAF9A] text-white dark:text-[#0A0E1A] shadow-2xs'
+                ? 'bg-[#54816C] dark:bg-[#54816C] text-white dark:text-[#0A0E1A] shadow-2xs'
                 : 'bg-slate-100 dark:bg-[#25293C] text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
@@ -187,7 +187,7 @@ export const SettingsPage = () => {
                   onClick={() => setActiveTab(item.id)}
                   className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
                     isActive 
-                      ? 'bg-[#7FAF9A] dark:bg-[#7FAF9A] text-white dark:text-[#0A0E1A] shadow-2xs' 
+                      ? 'bg-[#54816C] dark:bg-[#54816C] text-white dark:text-[#0A0E1A] shadow-2xs' 
                       : 'text-slate-700 dark:text-[#C8D0E0] hover:bg-slate-100 dark:hover:bg-[#25293C]'
                   }`}
                 >
@@ -217,18 +217,18 @@ export const SettingsPage = () => {
                 <div className="space-y-3">
                   <Link
                     to="/app/profile"
-                    className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-[#7FAF9A] bg-slate-50/60 dark:bg-[#151824] flex items-center justify-between transition-all group"
+                    className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-[#54816C] bg-slate-50/60 dark:bg-[#151824] flex items-center justify-between transition-all group"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-[#7FAF9A] dark:bg-[#7FAF9A] text-white dark:text-[#0A0E1A] flex items-center justify-center font-bold">
+                      <div className="w-10 h-10 rounded-xl bg-[#54816C] dark:bg-[#54816C] text-white dark:text-[#0A0E1A] flex items-center justify-center font-bold">
                         <User className="w-5 h-5" />
                       </div>
                       <div>
-                        <h4 className="font-extrabold text-sm text-[#0F172A] dark:text-[#F5F7FA] group-hover:text-[#648F7B] dark:group-hover:text-[#7FAF9A]">{t('personalHealthProfile')}</h4>
+                        <h4 className="font-extrabold text-sm text-[#0F172A] dark:text-[#F5F7FA] group-hover:text-[#3D6352] dark:group-hover:text-[#54816C]">{t('personalHealthProfile')}</h4>
                         <p className="text-xs text-slate-500 dark:text-[#C8D0E0] font-medium">{t('personalHealthSubtitle')}</p>
                       </div>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#648F7B]" />
+                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#3D6352]" />
                   </Link>
 
                   <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-[#151824] flex items-center justify-between">
@@ -282,7 +282,7 @@ export const SettingsPage = () => {
                     <button
                       onClick={() => toggleNotif('medReminders')}
                       className={`w-12 h-6 rounded-full transition-colors p-1 cursor-pointer ${
-                        notifications.medReminders ? 'bg-[#7FAF9A] dark:bg-[#7FAF9A]' : 'bg-slate-300 dark:bg-slate-700'
+                        notifications.medReminders ? 'bg-[#54816C] dark:bg-[#54816C]' : 'bg-slate-300 dark:bg-slate-700'
                       }`}
                     >
                       <div className={`w-4 h-4 rounded-full bg-white transition-transform ${
@@ -321,7 +321,7 @@ export const SettingsPage = () => {
                         onClick={() => setAppearance(prev => ({ ...prev, theme: th }))}
                         className={`p-4 rounded-xl border text-center font-bold capitalize transition-all cursor-pointer text-[13px] ${
                           appearance.theme === th
-                            ? 'border-[#7FAF9A] dark:border-[#7FAF9A] bg-[#EEF7F1] dark:bg-[#25293C] text-[#648F7B] dark:text-[#7FAF9A]'
+                            ? 'border-[#54816C] dark:border-[#54816C] bg-[#EEF7F1] dark:bg-[#25293C] text-[#3D6352] dark:text-[#54816C]'
                             : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-[#1C1F2E] text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#25293C]'
                         }`}
                       >
@@ -350,7 +350,7 @@ export const SettingsPage = () => {
                     <button
                       onClick={() => togglePrivacy('locationAccess')}
                       className={`w-12 h-6 rounded-full transition-colors p-1 cursor-pointer ${
-                        privacy.locationAccess ? 'bg-[#7FAF9A] dark:bg-[#7FAF9A]' : 'bg-slate-300 dark:bg-slate-700'
+                        privacy.locationAccess ? 'bg-[#54816C] dark:bg-[#54816C]' : 'bg-slate-300 dark:bg-slate-700'
                       }`}
                     >
                       <div className={`w-4 h-4 rounded-full bg-white transition-transform ${
@@ -379,7 +379,7 @@ export const SettingsPage = () => {
                     <button
                       onClick={() => toggleAi('showInsights')}
                       className={`w-12 h-6 rounded-full transition-colors p-1 cursor-pointer ${
-                        aiPreferences.showInsights ? 'bg-[#7FAF9A] dark:bg-[#7FAF9A]' : 'bg-slate-300 dark:bg-slate-700'
+                        aiPreferences.showInsights ? 'bg-[#54816C] dark:bg-[#54816C]' : 'bg-slate-300 dark:bg-slate-700'
                       }`}
                     >
                       <div className={`w-4 h-4 rounded-full bg-white transition-transform ${
@@ -402,16 +402,16 @@ export const SettingsPage = () => {
                 <div className="space-y-3">
                   <button
                     onClick={() => toast.success("Preparing your complete health data package for download...")}
-                    className="w-full p-4 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-[#7FAF9A] dark:hover:border-[#7FAF9A] bg-slate-50/60 dark:bg-[#151824] flex items-center justify-between transition-all cursor-pointer"
+                    className="w-full p-4 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-[#54816C] dark:hover:border-[#54816C] bg-slate-50/60 dark:bg-[#151824] flex items-center justify-between transition-all cursor-pointer"
                   >
                     <div className="flex items-center gap-3">
-                      <Download className="w-5 h-5 text-[#648F7B] dark:text-[#7FAF9A]" />
+                      <Download className="w-5 h-5 text-[#3D6352] dark:text-[#54816C]" />
                       <div className="text-left">
                         <h4 className="font-extrabold text-sm text-[#0F172A] dark:text-[#F5F7FA]">Download My Data</h4>
                         <p className="text-xs text-slate-500 dark:text-[#C8D0E0] font-medium">Export all structured health metrics and report JSONs</p>
                       </div>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#648F7B]" />
+                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#3D6352]" />
                   </button>
                 </div>
               </div>
@@ -449,7 +449,7 @@ export const SettingsPage = () => {
               className="flex items-center justify-between p-3.5 rounded-xl hover:bg-slate-50 dark:hover:bg-[#25293C] text-[13px] font-extrabold text-[#0F172A] dark:text-[#F5F7FA]"
             >
               <span className="flex items-center gap-3">
-                <User className="w-4.5 h-4.5 text-[#648F7B] dark:text-[#7FAF9A]" /> {t('personalHealthProfile')}
+                <User className="w-4.5 h-4.5 text-[#3D6352] dark:text-[#54816C]" /> {t('personalHealthProfile')}
               </span>
               <ChevronRight className="w-4 h-4 text-slate-400" />
             </Link>
@@ -465,7 +465,7 @@ export const SettingsPage = () => {
               className="w-full flex items-center justify-between p-3.5 rounded-xl hover:bg-slate-50 dark:hover:bg-[#25293C] text-[13px] font-extrabold text-[#0F172A] dark:text-[#F5F7FA] cursor-pointer"
             >
               <span className="flex items-center gap-3">
-                <Bell className="w-4.5 h-4.5 text-[#648F7B] dark:text-[#7FAF9A]" /> {t('notifications')}
+                <Bell className="w-4.5 h-4.5 text-[#3D6352] dark:text-[#54816C]" /> {t('notifications')}
               </span>
               <ChevronRight className="w-4 h-4 text-slate-400" />
             </button>
@@ -475,7 +475,7 @@ export const SettingsPage = () => {
               className="w-full flex items-center justify-between p-3.5 rounded-xl hover:bg-slate-50 dark:hover:bg-[#25293C] text-[13px] font-extrabold text-[#0F172A] dark:text-[#F5F7FA] cursor-pointer"
             >
               <span className="flex items-center gap-3">
-                <Sun className="w-4.5 h-4.5 text-[#648F7B] dark:text-[#7FAF9A]" /> {t('appearance')}
+                <Sun className="w-4.5 h-4.5 text-[#3D6352] dark:text-[#54816C]" /> {t('appearance')}
               </span>
               <ChevronRight className="w-4 h-4 text-slate-400" />
             </button>
@@ -485,7 +485,7 @@ export const SettingsPage = () => {
               className="w-full flex items-center justify-between p-3.5 rounded-xl hover:bg-slate-50 dark:hover:bg-[#25293C] text-[13px] font-extrabold text-[#0F172A] dark:text-[#F5F7FA] cursor-pointer"
             >
               <span className="flex items-center gap-3">
-                <Sparkles className="w-4.5 h-4.5 text-[#648F7B] dark:text-[#7FAF9A]" /> {t('aiPreferences')}
+                <Sparkles className="w-4.5 h-4.5 text-[#3D6352] dark:text-[#54816C]" /> {t('aiPreferences')}
               </span>
               <ChevronRight className="w-4 h-4 text-slate-400" />
             </button>
@@ -501,7 +501,7 @@ export const SettingsPage = () => {
               className="w-full flex items-center justify-between p-3.5 rounded-xl hover:bg-slate-50 dark:hover:bg-[#25293C] text-[13px] font-extrabold text-[#0F172A] dark:text-[#F5F7FA] cursor-pointer"
             >
               <span className="flex items-center gap-3">
-                <ShieldCheck className="w-4.5 h-4.5 text-[#648F7B] dark:text-[#7FAF9A]" /> {t('privacySecurity')}
+                <ShieldCheck className="w-4.5 h-4.5 text-[#3D6352] dark:text-[#54816C]" /> {t('privacySecurity')}
               </span>
               <ChevronRight className="w-4 h-4 text-slate-400" />
             </button>
@@ -511,7 +511,7 @@ export const SettingsPage = () => {
               className="w-full flex items-center justify-between p-3.5 rounded-xl hover:bg-slate-50 dark:hover:bg-[#25293C] text-[13px] font-extrabold text-[#0F172A] dark:text-[#F5F7FA] cursor-pointer"
             >
               <span className="flex items-center gap-3">
-                <Database className="w-4.5 h-4.5 text-[#648F7B] dark:text-[#7FAF9A]" /> {t('dataManagement')}
+                <Database className="w-4.5 h-4.5 text-[#3D6352] dark:text-[#54816C]" /> {t('dataManagement')}
               </span>
               <ChevronRight className="w-4 h-4 text-slate-400" />
             </button>
