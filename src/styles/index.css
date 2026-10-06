@@ -21,7 +21,7 @@
   --color-accent-hover: #9DA8D0;
   --color-accent-dark: #66729F;
 
-  --text-main: #172033; /* main text: calm deep navy/slate */
+  --text-main: #0A0E1A; /* main text: deep rich obsidian dark/black */
   --text-muted: #526078; /* secondary text: calm muted slate */
   --text-subtle: #748299;
 
@@ -104,37 +104,38 @@ html:not(.dark) h3:not([class*="text-white"]):not(.text-white),
 html:not(.dark) h4:not([class*="text-white"]):not(.text-white),
 html:not(.dark) h5:not([class*="text-white"]):not(.text-white),
 html:not(.dark) h6:not([class*="text-white"]):not(.text-white) {
-  color: #172033;
+  color: #0A0E1A;
 }
 
 html:not(.dark) .text-\[\#0F172A\],
-html:not(.dark) .text-\[\#172033\] {
-  color: #172033 !important;
+html:not(.dark) .text-\[\#172033\],
+html:not(.dark) .text-\[\#0A0E1A\] {
+  color: #0A0E1A !important;
 }
 
 html:not(.dark) strong:not([class*="text-white"]):not(.text-white) {
-  color: #172033;
+  color: #0A0E1A;
 }
 
 html:not(.dark) label {
-  color: #24304A;
+  color: #0F172A;
 }
 
 html:not(.dark) .text-slate-500 {
-  color: #526078 !important;
+  color: #475569 !important;
 }
 
 html:not(.dark) .text-slate-600 {
-  color: #526078 !important;
+  color: #334155 !important;
 }
 
 html:not(.dark) .text-slate-700 {
-  color: #334058 !important;
+  color: #1E293B !important;
 }
 
 html:not(.dark) .text-slate-800,
 html:not(.dark) .text-slate-900 {
-  color: #172033 !important;
+  color: #0A0E1A !important;
 }
 
 html:not(.dark) .bg-white {
@@ -234,7 +235,7 @@ html:not(.dark) .bg-teal-50\/90 {
 .dark .bg-teal-600,
 .dark .bg-teal-700 {
   background-color: #7C87B8 !important;
-  color: #172033 !important;
+  color: #0A0E1A !important;
 }
 
 /* Ensure background cards in dark mode adhere to surface tokens #24283A */
@@ -295,7 +296,7 @@ html:not(.dark) .bg-teal-50\/90 {
 [class*="bg-[#6FA89E]"],
 button.bg-\[\#6FA89E\] {
   background-color: #6FA89E !important;
-  color: #172033 !important;
+  color: #0A0E1A !important;
 }
 [class*="bg-[#6FA89E]"]:hover,
 button.bg-\[\#6FA89E\]:hover {
@@ -317,7 +318,7 @@ button.bg-\[\#D6B86A\]:hover {
 .dark button.bg-\[\#0F172A\]:not([class*="bg-[#6FA89E]"]):not([class*="bg-[#D6B86A]"]):not([class*="bg-red-"]):not([class*="bg-[#DC2626]"]):not([class*="bg-emerald-"]),
 .dark a.bg-\[\#0F172A\]:not([class*="bg-[#6FA89E]"]):not([class*="bg-[#D6B86A]"]):not([class*="bg-red-"]):not([class*="bg-[#DC2626]"]):not([class*="bg-emerald-"]) {
   background-color: #7C87B8 !important;
-  color: #172033 !important;
+  color: #0A0E1A !important;
   font-weight: 700 !important;
 }
 

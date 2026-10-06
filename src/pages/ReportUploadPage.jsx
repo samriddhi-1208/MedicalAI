@@ -348,7 +348,7 @@ export const ReportUploadPage = () => {
           <Button
             onClick={handleUploadAndAnalyze}
             disabled={!selectedFile || uploading}
-            className="w-full py-3.5 bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-white dark:text-[#172033] font-extrabold text-sm rounded-xl shadow-md cursor-pointer flex items-center justify-center gap-2"
+            className="w-full py-3.5 bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-white dark:text-[#0A0E1A] font-extrabold text-sm rounded-xl shadow-md cursor-pointer flex items-center justify-center gap-2"
           >
             {uploading ? (
               <>
@@ -357,7 +357,7 @@ export const ReportUploadPage = () => {
               </>
             ) : (
               <>
-                <Sparkles className="w-4 h-4 text-white dark:text-[#172033]" />
+                <Sparkles className="w-4 h-4 text-white dark:text-[#0A0E1A]" />
                 <span>Upload & Run AI Diagnostic Analysis</span>
               </>
             )}
@@ -447,9 +447,9 @@ export const ReportUploadPage = () => {
                 setIsDuplicateModalOpen(false);
                 navigate('/app/analysis');
               }}
-              className="px-5 py-2.5 rounded-lg bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-white dark:text-[#172033] font-extrabold text-xs cursor-pointer shadow-sm flex items-center justify-center gap-1.5"
+              className="px-5 py-2.5 rounded-lg bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-white dark:text-[#0A0E1A] font-extrabold text-xs cursor-pointer shadow-sm flex items-center justify-center gap-1.5"
             >
-              <FileText className="w-4 h-4 text-white dark:text-[#172033]" />
+              <FileText className="w-4 h-4 text-white dark:text-[#0A0E1A]" />
               <span>View Existing Report</span>
             </button>
           </div>

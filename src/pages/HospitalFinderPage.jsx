@@ -516,7 +516,7 @@ export const HospitalFinderPage = () => {
               icon={Compass}
               loading={locationState === 'loading'}
               onClick={handleUseCurrentLocation}
-              className="bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-white dark:text-[#172033] py-3.5 px-7 text-sm font-bold rounded-xl w-full sm:w-auto cursor-pointer"
+              className="bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-white dark:text-[#0A0E1A] py-3.5 px-7 text-sm font-bold rounded-xl w-full sm:w-auto cursor-pointer"
             >
               {locationState === 'loading' ? t('loadingMedicalData') : t('useCurrentLocation')}
             </Button>
@@ -903,9 +903,9 @@ export const HospitalFinderPage = () => {
                 href={selectedFacilityModal.directionsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="py-2.5 px-5 text-xs font-semibold rounded-xl bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-white dark:text-[#172033] flex items-center gap-1.5 transition-colors"
+                className="py-2.5 px-5 text-xs font-semibold rounded-xl bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-white dark:text-[#0A0E1A] flex items-center gap-1.5 transition-colors"
               >
-                <Navigation className="w-4 h-4 text-white dark:text-[#172033]" />
+                <Navigation className="w-4 h-4 text-white dark:text-[#0A0E1A]" />
                 <span>Get Google Maps Directions</span>
               </a>
             </div>

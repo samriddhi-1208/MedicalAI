@@ -187,15 +187,15 @@ export const SettingsPage = () => {
                   onClick={() => setActiveTab(item.id)}
                   className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
                     isActive 
-                      ? 'bg-[#66729F] dark:bg-[#7C87B8] text-white dark:text-[#172033] shadow-2xs' 
+                      ? 'bg-[#66729F] dark:bg-[#7C87B8] text-white dark:text-[#0A0E1A] shadow-2xs' 
                       : 'text-slate-700 dark:text-[#C8D0E0] hover:bg-slate-100 dark:hover:bg-[#25293C]'
                   }`}
                 >
                   <span className="flex items-center gap-2.5">
-                    <Icon className={`w-4 h-4 ${isActive ? 'text-white dark:text-[#172033]' : 'text-slate-500 dark:text-slate-400'}`} />
+                    <Icon className={`w-4 h-4 ${isActive ? 'text-white dark:text-[#0A0E1A]' : 'text-slate-500 dark:text-slate-400'}`} />
                     <span>{item.label}</span>
                   </span>
-                  <ChevronRight className={`w-3.5 h-3.5 ${isActive ? 'text-white dark:text-[#172033]' : 'text-slate-400'}`} />
+                  <ChevronRight className={`w-3.5 h-3.5 ${isActive ? 'text-white dark:text-[#0A0E1A]' : 'text-slate-400'}`} />
                 </button>
               );
             })}

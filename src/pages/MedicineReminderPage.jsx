@@ -193,7 +193,7 @@ export const MedicineReminderPage = () => {
             variant="primary"
             size="md"
             icon={Plus}
-            className="bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] dark:text-[#172033] text-white text-sm font-bold rounded-xl cursor-pointer shadow-2xs px-4 py-2"
+            className="bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] dark:text-[#0A0E1A] text-white text-sm font-bold rounded-xl cursor-pointer shadow-2xs px-4 py-2"
             onClick={handleOpenAdd}
           >
             {t('addMedicine')}
@@ -290,7 +290,7 @@ export const MedicineReminderPage = () => {
               size="md"
               icon={Plus}
               onClick={handleOpenAdd}
-              className="bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] dark:text-[#172033] text-white py-3 px-6 text-xs font-bold rounded-xl cursor-pointer shadow-2xs"
+              className="bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] dark:text-[#0A0E1A] text-white py-3 px-6 text-xs font-bold rounded-xl cursor-pointer shadow-2xs"
             >
               {t('addMedicine')}
             </Button>

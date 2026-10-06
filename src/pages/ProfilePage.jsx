@@ -181,9 +181,9 @@ export const ProfilePage = () => {
           </span>
           <button
             onClick={handleSaveProfile}
-            className="px-5 py-2.5 rounded-xl bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-white dark:text-[#172033] font-black text-sm flex items-center gap-2 shadow-md cursor-pointer transition-all shrink-0"
+            className="px-5 py-2.5 rounded-xl bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-white dark:text-[#0A0E1A] font-black text-sm flex items-center gap-2 shadow-md cursor-pointer transition-all shrink-0"
           >
-            <Save className="w-4 h-4 text-white dark:text-[#172033]" />
+            <Save className="w-4 h-4 text-white dark:text-[#0A0E1A]" />
             <span>{t('save')}</span>
           </button>
         </div>
@@ -479,9 +479,9 @@ export const ProfilePage = () => {
         <div className="flex items-center justify-end gap-3 pt-2">
           <button
             type="submit"
-            className="px-6 py-3 rounded-xl bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-white dark:text-[#172033] font-extrabold text-sm flex items-center gap-2 shadow-md cursor-pointer transition-all"
+            className="px-6 py-3 rounded-xl bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-white dark:text-[#0A0E1A] font-extrabold text-sm flex items-center gap-2 shadow-md cursor-pointer transition-all"
           >
-            <Save className="w-4 h-4 text-white dark:text-[#172033]" />
+            <Save className="w-4 h-4 text-white dark:text-[#0A0E1A]" />
             <span>{t('saveProfileDetails')}</span>
           </button>
         </div>
