@@ -115,7 +115,7 @@ export const DashboardPage = () => {
                 />
                 <button
                   onClick={saveName}
-                  className="px-3 py-1.5 rounded-lg bg-[#54816C] hover:bg-[#3D6352] dark:bg-[#54816C] dark:hover:bg-[#3D6352] text-white dark:text-[#0A0E1A] text-xs font-bold flex items-center gap-1 cursor-pointer"
+                  className="px-3 py-1.5 rounded-lg bg-[#54816C] hover:bg-[#3D6352] dark:bg-[#7FAF9A] dark:hover:bg-[#648F7B] text-white dark:text-[#0A0E1A] text-xs font-bold flex items-center gap-1 cursor-pointer"
                 >
                   <Check className="w-3.5 h-3.5" /> Save
                 </button>
@@ -123,7 +123,7 @@ export const DashboardPage = () => {
             ) : (
               <div className="flex items-center gap-2">
                 <h1 className="text-xl sm:text-2xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight">
-                  {getGreeting()}, <span className="text-[#3D6352] dark:text-[#54816C]">{userDisplayName}</span>
+                  {getGreeting()}, <span className="text-[#3D6352] dark:text-[#7FAF9A]">{userDisplayName}</span>
                 </h1>
                 <button
                   onClick={() => {
@@ -167,7 +167,7 @@ export const DashboardPage = () => {
               size="sm"
               icon={Upload}
               onClick={() => navigate('/app/upload')}
-              className="bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#54816C] dark:hover:bg-[#3D6352] dark:text-[#0A0E1A] text-sm font-bold rounded-xl cursor-pointer shadow-2xs text-white px-4 py-2"
+              className="bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#7FAF9A] dark:hover:bg-[#648F7B] dark:text-[#0A0E1A] text-sm font-bold rounded-xl cursor-pointer shadow-2xs text-white px-4 py-2"
             >
               Upload Medical Report
             </Button>
@@ -183,7 +183,7 @@ export const DashboardPage = () => {
           <span className="text-[13px] sm:text-sm font-extrabold text-slate-500 dark:text-[#C8D0E0] block uppercase tracking-[0.04em]">Reports</span>
           <div className="flex items-baseline justify-between pt-2">
             <span className="text-3xl sm:text-4xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight">{reportCount}</span>
-            <span className="text-sm font-bold text-[#3D6352] dark:text-[#54816C]">Saved</span>
+            <span className="text-sm font-bold text-[#3D6352] dark:text-[#7FAF9A]">Saved</span>
           </div>
         </Card>
 
@@ -192,7 +192,7 @@ export const DashboardPage = () => {
           <span className="text-[13px] sm:text-sm font-extrabold text-slate-500 dark:text-[#C8D0E0] block uppercase tracking-[0.04em]">Active Medications</span>
           <div className="flex items-baseline justify-between pt-2">
             <span className="text-3xl sm:text-4xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight">{userMedicines.length}</span>
-            <span className="text-sm font-bold text-[#3D6352] dark:text-[#54816C]">Scheduled</span>
+            <span className="text-sm font-bold text-[#3D6352] dark:text-[#7FAF9A]">Scheduled</span>
           </div>
         </Card>
 
@@ -203,7 +203,7 @@ export const DashboardPage = () => {
             <span className="text-lg sm:text-xl font-black text-[#0F172A] dark:text-[#F5F7FA] truncate max-w-[70%]">
               {latestReport ? (latestReport.reportDate || latestReport.date || 'Recent') : 'None'}
             </span>
-            <span className="text-sm font-bold text-[#3D6352] dark:text-[#54816C]">
+            <span className="text-sm font-bold text-[#3D6352] dark:text-[#7FAF9A]">
               {latestReport ? 'Verified' : 'Pending'}
             </span>
           </div>
@@ -214,7 +214,7 @@ export const DashboardPage = () => {
           <span className="text-[13px] sm:text-sm font-extrabold text-slate-500 dark:text-[#C8D0E0] block uppercase tracking-[0.04em]">Tracked Parameters</span>
           <div className="flex items-baseline justify-between pt-2">
             <span className="text-3xl sm:text-4xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight">{totalTrackedParameters}</span>
-            <span className="text-sm font-bold text-[#3D6352] dark:text-[#54816C]">Extracted</span>
+            <span className="text-sm font-bold text-[#3D6352] dark:text-[#7FAF9A]">Extracted</span>
           </div>
         </Card>
 
@@ -230,14 +230,14 @@ export const DashboardPage = () => {
           <Card className="p-5 sm:p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <FileText className="w-5 h-5 text-[#3D6352] dark:text-[#54816C]" />
+                <FileText className="w-5 h-5 text-[#3D6352] dark:text-[#7FAF9A]" />
                 <h3 className="text-lg font-black text-[#0F172A] dark:text-[#F5F7FA]">Latest Medical Report</h3>
               </div>
 
               {hasReports && (
                 <button 
                   onClick={() => navigate('/app/analysis')}
-                  className="text-sm font-bold text-[#3D6352] dark:text-[#54816C] hover:underline flex items-center gap-1 cursor-pointer"
+                  className="text-sm font-bold text-[#3D6352] dark:text-[#7FAF9A] hover:underline flex items-center gap-1 cursor-pointer"
                 >
                   View All Reports <ChevronRight className="w-4 h-4" />
                 </button>
@@ -263,7 +263,7 @@ export const DashboardPage = () => {
                   <span className="px-2.5 py-1 rounded-lg bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-700 font-bold text-[#0F172A] dark:text-[#F5F7FA]">
                     {(latestReport.biomarkers || latestReport.labResults || []).length} biomarkers
                   </span>
-                  <span className="px-2.5 py-1 rounded-lg bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-700 font-bold text-[#3D6352] dark:text-[#54816C]">
+                  <span className="px-2.5 py-1 rounded-lg bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-700 font-bold text-[#3D6352] dark:text-[#7FAF9A]">
                     {(latestReport.vitals || []).length} vitals
                   </span>
                   <span className="px-2.5 py-1 rounded-lg bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-700 font-bold text-slate-700 dark:text-slate-300">
@@ -276,7 +276,7 @@ export const DashboardPage = () => {
                     size="sm"
                     variant="primary"
                     onClick={() => navigate('/app/analysis')}
-                    className="bg-[#54816C] hover:bg-[#3D6352] dark:bg-[#54816C] dark:hover:bg-[#3D6352] text-sm font-bold rounded-xl cursor-pointer text-white dark:text-[#0A0E1A] px-4 py-2"
+                    className="bg-[#54816C] hover:bg-[#3D6352] dark:bg-[#7FAF9A] dark:hover:bg-[#648F7B] text-sm font-bold rounded-xl cursor-pointer text-white dark:text-[#0A0E1A] px-4 py-2"
                   >
                     View Analysis <ArrowRight className="w-4 h-4 ml-1" />
                   </Button>
@@ -290,7 +290,7 @@ export const DashboardPage = () => {
                   variant="primary"
                   icon={Upload}
                   onClick={() => navigate('/app/upload')}
-                  className="bg-[#54816C] hover:bg-[#3D6352] dark:bg-[#54816C] dark:hover:bg-[#3D6352] text-sm font-bold rounded-xl cursor-pointer text-white dark:text-[#0A0E1A] px-4 py-2"
+                  className="bg-[#54816C] hover:bg-[#3D6352] dark:bg-[#7FAF9A] dark:hover:bg-[#648F7B] text-sm font-bold rounded-xl cursor-pointer text-white dark:text-[#0A0E1A] px-4 py-2"
                 >
                   Upload Medical Report
                 </Button>
@@ -302,13 +302,13 @@ export const DashboardPage = () => {
           <Card className="p-5 sm:p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <Pill className="w-5 h-5 text-[#3D6352] dark:text-[#54816C]" />
+                <Pill className="w-5 h-5 text-[#3D6352] dark:text-[#7FAF9A]" />
                 <h3 className="text-lg font-black text-[#0F172A] dark:text-[#F5F7FA]">Medication Summary</h3>
               </div>
 
               <button 
                 onClick={() => navigate('/app/medicines')}
-                className="text-sm font-bold text-[#3D6352] dark:text-[#54816C] hover:underline flex items-center gap-1 cursor-pointer"
+                className="text-sm font-bold text-[#3D6352] dark:text-[#7FAF9A] hover:underline flex items-center gap-1 cursor-pointer"
               >
                 View Medicines <ChevronRight className="w-4 h-4" />
               </button>
@@ -318,7 +318,7 @@ export const DashboardPage = () => {
               <div className="space-y-3">
                 <div className="flex items-center justify-between text-xs p-3 rounded-xl bg-[#EEF7F1] dark:bg-[#24283A] border border-[#D5E8DC] dark:border-slate-800">
                   <span className="font-extrabold text-[#172033] dark:text-[#F5F7FA]">{userMedicines.length} Active Medication(s) Scheduled</span>
-                  <span className="font-bold text-[#3D6352] dark:text-[#54816C]">Next dose: {userMedicines[0]?.scheduledTime || userMedicines[0]?.time || '08:00 PM'}</span>
+                  <span className="font-bold text-[#3D6352] dark:text-[#7FAF9A]">Next dose: {userMedicines[0]?.scheduledTime || userMedicines[0]?.time || '08:00 PM'}</span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -328,7 +328,7 @@ export const DashboardPage = () => {
                         <strong className="text-[#0F172A] dark:text-[#F5F7FA] font-black block">{med.name}</strong>
                         <span className="text-slate-500 dark:text-[#C8D0E0] text-[11px]">{med.dose || med.dosage || '1 tablet'} • {med.frequency || 'Daily'}</span>
                       </div>
-                      <span className="text-[#3D6352] dark:text-[#54816C] font-bold text-[11px]">{med.scheduledTime || med.time || '08:00 AM'}</span>
+                      <span className="text-[#3D6352] dark:text-[#7FAF9A] font-bold text-[11px]">{med.scheduledTime || med.time || '08:00 AM'}</span>
                     </div>
                   ))}
                 </div>
@@ -358,13 +358,13 @@ export const DashboardPage = () => {
           <Card className="p-5 sm:p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <TrendingUp className="w-5 h-5 text-[#3D6352] dark:text-[#54816C]" />
+                <TrendingUp className="w-5 h-5 text-[#3D6352] dark:text-[#7FAF9A]" />
                 <h3 className="text-lg font-black text-[#0F172A] dark:text-[#F5F7FA]">Health Trend</h3>
               </div>
 
               <button 
                 onClick={() => navigate('/app/trends')}
-                className="text-sm font-bold text-[#3D6352] dark:text-[#54816C] hover:underline flex items-center gap-1 cursor-pointer"
+                className="text-sm font-bold text-[#3D6352] dark:text-[#7FAF9A] hover:underline flex items-center gap-1 cursor-pointer"
               >
                 View Trends <ChevronRight className="w-4 h-4" />
               </button>
@@ -383,7 +383,7 @@ export const DashboardPage = () => {
                   <span className="text-2.5xl font-black text-[#0F172A] dark:text-[#F5F7FA]">
                     {latestFeaturedReading.value} <span className="text-sm font-medium text-slate-500 dark:text-[#C8D0E0]">{latestFeaturedReading.unit}</span>
                   </span>
-                  <span className="text-xs font-bold text-[#3D6352] dark:text-[#54816C]">{latestFeaturedReading.date || latestReport?.reportDate}</span>
+                  <span className="text-xs font-bold text-[#3D6352] dark:text-[#7FAF9A]">{latestFeaturedReading.date || latestReport?.reportDate}</span>
                 </div>
 
                 <p className="text-xs sm:text-[13px] text-slate-500 dark:text-[#C8D0E0] pt-1 leading-relaxed">
@@ -403,7 +403,7 @@ export const DashboardPage = () => {
           {/* RECENT ACTIVITY FEED */}
           <Card className="p-5 sm:p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs space-y-4">
             <div className="flex items-center gap-2.5 border-b border-slate-100 dark:border-slate-800 pb-3">
-              <Activity className="w-5 h-5 text-[#3D6352] dark:text-[#54816C]" />
+              <Activity className="w-5 h-5 text-[#3D6352] dark:text-[#7FAF9A]" />
               <h3 className="text-lg font-black text-[#0F172A] dark:text-[#F5F7FA]">Recent Activity</h3>
             </div>
 
@@ -411,7 +411,7 @@ export const DashboardPage = () => {
               {hasReports ? (
                 userReports.slice(0, 3).map((r, idx) => (
                   <div key={r.id || idx} className="flex items-start gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                    <div className="w-8 h-8 rounded-lg bg-[#EEF7F1] dark:bg-[#24283A] text-[#3D6352] dark:text-[#54816C] flex items-center justify-center shrink-0 mt-0.5 border border-[#D5E8DC] dark:border-slate-800">
+                    <div className="w-8 h-8 rounded-lg bg-[#EEF7F1] dark:bg-[#24283A] text-[#3D6352] dark:text-[#7FAF9A] flex items-center justify-center shrink-0 mt-0.5 border border-[#D5E8DC] dark:border-slate-800">
                       <FileCheck className="w-4 h-4" />
                     </div>
                     <div className="space-y-0.5 flex-1 min-w-0">
