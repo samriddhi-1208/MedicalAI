@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   User, 
   MapPin, 
@@ -162,11 +162,7 @@ export const ProfilePage = () => {
             {formData.name ? formData.name.charAt(0).toUpperCase() : 'P'}
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#54816C] dark:bg-[#6B9B85] animate-pulse" />
-              <span className="text-xs sm:text-[13px] text-[#3D6352] dark:text-[#6B9B85] font-black uppercase tracking-[0.04em]">Patient Identity Baseline</span>
-            </div>
-            <h1 className="text-2.5xl sm:text-3xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight mt-1">
+            <h1 className="text-2.5xl sm:text-3xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight">
               {t('personalHealthProfile')}
             </h1>
             <p className="text-sm text-slate-500 dark:text-[#C8D0E0] font-medium mt-1.5">

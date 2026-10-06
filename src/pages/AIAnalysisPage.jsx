@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   FileText, 
@@ -164,11 +164,7 @@ export const AIAnalysisPage = () => {
       <div className="space-y-3.5 border-b border-slate-200 dark:border-slate-800 pb-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-xs sm:text-[13px] text-[#3D6352] dark:text-[#6B9B85] font-black uppercase tracking-[0.04em]">{t('statusReportParsed')}</span>
-            </div>
-            <h1 className="text-2.5xl sm:text-3xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight mt-1">
+            <h1 className="text-2.5xl sm:text-3xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight">
               {t('aiDiagnosticAnalysis')}
             </h1>
             <p className="text-sm text-slate-500 dark:text-[#C8D0E0] font-medium mt-2">
