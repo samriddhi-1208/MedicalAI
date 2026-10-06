@@ -83,16 +83,16 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
                 to={item.path}
                 className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[14px] font-semibold transition-all ${
                   isActive
-                    ? 'bg-[var(--color-primary)] text-white shadow-xs'
+                    ? 'bg-[var(--color-primary)] text-white dark:text-[#0A0E1A] font-bold shadow-xs'
                     : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface-subtle)] hover:text-[var(--text-main)]'
                 }`}
                 title={collapsed ? item.label : undefined}
               >
-                <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-white' : 'text-[var(--text-muted)]'}`} />
+                <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-white dark:text-[#0A0E1A]' : 'text-[var(--text-muted)]'}`} />
                 {!collapsed && <span className="truncate flex-1">{item.label}</span>}
                 {!collapsed && item.badge && (
                   <span className={`px-2 py-0.5 text-xs font-bold rounded-md ${
-                    isActive ? 'bg-white/20 text-white' : 'bg-[var(--bg-surface-subtle)] text-[var(--text-muted)] border border-[var(--border-color)]'
+                    isActive ? 'bg-white/20 dark:bg-black/15 text-white dark:text-[#0A0E1A]' : 'bg-[var(--bg-surface-subtle)] text-[var(--text-muted)] border border-[var(--border-color)]'
                   }`}>
                     {item.badge}
                   </span>

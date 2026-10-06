@@ -104,7 +104,7 @@ export const AIAnalysisPage = () => {
               size="md"
               icon={Upload}
               onClick={() => navigate('/app/upload')}
-              className="bg-[#54816C] hover:bg-[#3D6352] dark:bg-[#7FAF9A] dark:hover:bg-[#648F7B] text-white dark:text-[#0A0E1A] py-3 px-8 text-xs font-bold rounded-xl cursor-pointer shadow-2xs"
+              className="bg-[#54816C] hover:bg-[#3D6352] dark:bg-[#91C1AC] dark:hover:bg-[#7FAF9A] text-white dark:text-[#0A0E1A] py-3 px-8 text-xs font-bold rounded-xl cursor-pointer shadow-2xs"
             >
               {t('uploadMedicalReport')}
             </Button>
@@ -166,7 +166,7 @@ export const AIAnalysisPage = () => {
           <div>
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-xs sm:text-[13px] text-[#3D6352] dark:text-[#7FAF9A] font-black uppercase tracking-[0.04em]">{t('statusReportParsed')}</span>
+              <span className="text-xs sm:text-[13px] text-[#3D6352] dark:text-[#91C1AC] font-black uppercase tracking-[0.04em]">{t('statusReportParsed')}</span>
             </div>
             <h1 className="text-2.5xl sm:text-3xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight mt-1">
               {t('aiDiagnosticAnalysis')}
@@ -192,7 +192,7 @@ export const AIAnalysisPage = () => {
               size="sm"
               icon={Upload}
               onClick={() => navigate('/app/upload')}
-              className="bg-[#54816C] hover:bg-[#3D6352] dark:bg-[#7FAF9A] dark:hover:bg-[#648F7B] text-white dark:text-[#0A0E1A] text-sm font-bold rounded-xl cursor-pointer"
+              className="bg-[#54816C] hover:bg-[#3D6352] dark:bg-[#91C1AC] dark:hover:bg-[#7FAF9A] text-white dark:text-[#0A0E1A] text-sm font-bold rounded-xl cursor-pointer"
             >
               {t('uploadNew')}
             </Button>
@@ -203,7 +203,7 @@ export const AIAnalysisPage = () => {
         {userReports.length > 1 && (
           <div className="flex items-center justify-between gap-3 p-3.5 rounded-xl bg-[#EEF7F1] dark:bg-[#24283A] border border-[#D5E8DC] dark:border-slate-800 text-sm">
             <div className="flex items-center gap-2">
-              <FileText className="w-4.5 h-4.5 text-[#3D6352] dark:text-[#7FAF9A] shrink-0" />
+              <FileText className="w-4.5 h-4.5 text-[#3D6352] dark:text-[#91C1AC] shrink-0" />
               <span className="font-extrabold text-sm text-[#0F172A] dark:text-[#F5F7FA]">{t('viewingReport')} ({userReports.length} {t('totalReportsSaved')}):</span>
             </div>
             <select
@@ -226,8 +226,8 @@ export const AIAnalysisPage = () => {
 
       {/* Patient Information Banner */}
       <Card className="p-5 sm:p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs space-y-4">
-        <h3 className="text-sm sm:text-[15px] font-black text-[#3D6352] dark:text-[#7FAF9A] uppercase tracking-[0.04em] flex items-center gap-2.5">
-          <User className="w-5 h-5 text-[#3D6352] dark:text-[#7FAF9A]" /> PATIENT IDENTIFICATION &amp; METADATA
+        <h3 className="text-sm sm:text-[15px] font-black text-[#3D6352] dark:text-[#91C1AC] uppercase tracking-[0.04em] flex items-center gap-2.5">
+          <User className="w-5 h-5 text-[#3D6352] dark:text-[#91C1AC]" /> PATIENT IDENTIFICATION &amp; METADATA
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm p-4.5 rounded-xl bg-slate-50 dark:bg-[#151824] border border-slate-200/80 dark:border-slate-800">
           <div>
@@ -280,12 +280,12 @@ export const AIAnalysisPage = () => {
         <div className="flex items-center justify-between flex-wrap gap-3 pb-1 border-b border-slate-100 dark:border-slate-800/80">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-[#EEF7F1] dark:bg-[#24283A] border border-[#D5E8DC] dark:border-slate-800 flex items-center justify-center shrink-0">
-              <Sparkles className="w-5 h-5 text-[#3D6352] dark:text-[#7FAF9A]" />
+              <Sparkles className="w-5 h-5 text-[#3D6352] dark:text-[#91C1AC]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-xl sm:text-[22px] font-black text-[#0F172A] dark:text-[#F5F7FA]">{t('aiClinicalSummary')}</h2>
-                <span className="hidden sm:inline-flex px-2.5 py-0.5 rounded-full bg-[#EEF7F1] dark:bg-[#24283A] text-[#3D6352] dark:text-[#7FAF9A] font-black text-xs border border-[#D5E8DC] dark:border-slate-800">
+                <span className="hidden sm:inline-flex px-2.5 py-0.5 rounded-full bg-[#EEF7F1] dark:bg-[#24283A] text-[#3D6352] dark:text-[#91C1AC] font-black text-xs border border-[#D5E8DC] dark:border-slate-800">
                   4 Insights
                 </span>
               </div>
@@ -294,8 +294,8 @@ export const AIAnalysisPage = () => {
           </div>
 
           <div className="flex items-center gap-2.5">
-            <span className="hidden md:flex px-3.5 py-1.5 rounded-full bg-[#EEF7F1] dark:bg-[#24283A] text-[#3D6352] dark:text-[#7FAF9A] font-bold text-xs border border-[#D5E8DC] dark:border-slate-800 items-center gap-1.5 shadow-2xs">
-              <span className="w-2 h-2 rounded-full bg-[#54816C] dark:bg-[#7FAF9A] animate-pulse"></span>
+            <span className="hidden md:flex px-3.5 py-1.5 rounded-full bg-[#EEF7F1] dark:bg-[#24283A] text-[#3D6352] dark:text-[#91C1AC] font-bold text-xs border border-[#D5E8DC] dark:border-slate-800 items-center gap-1.5 shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-[#54816C] dark:bg-[#91C1AC] animate-pulse"></span>
               {t('extractedFromDoc')}
             </span>
 
@@ -303,7 +303,7 @@ export const AIAnalysisPage = () => {
             <button
               type="button"
               onClick={toggleAll}
-              className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#EEF7F1] dark:bg-[#24283A] hover:bg-slate-200 dark:hover:bg-slate-700 text-[#3D6352] dark:text-[#7FAF9A] border border-[#D5E8DC] dark:border-slate-800 transition-colors cursor-pointer shadow-2xs"
+              className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#EEF7F1] dark:bg-[#24283A] hover:bg-slate-200 dark:hover:bg-slate-700 text-[#3D6352] dark:text-[#91C1AC] border border-[#D5E8DC] dark:border-slate-800 transition-colors cursor-pointer shadow-2xs"
             >
               {allExpanded ? 'Collapse All' : 'Expand All'}
             </button>
@@ -348,7 +348,7 @@ export const AIAnalysisPage = () => {
               <div 
                 key={item.idx} 
                 className={`rounded-2xl border transition-all ${item.bgStyle} overflow-hidden ${
-                  isOpen ? 'shadow-xs ring-1 ring-[#54816C]/40 dark:ring-[#7FAF9A]/30' : 'hover:border-slate-300 dark:hover:border-slate-700'
+                  isOpen ? 'shadow-xs ring-1 ring-[#54816C]/40 dark:ring-[#91C1AC]/30' : 'hover:border-slate-300 dark:hover:border-slate-700'
                 }`}
               >
                 {/* Clickable Dropdown Trigger Header */}
@@ -468,7 +468,7 @@ export const AIAnalysisPage = () => {
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div>
               <h3 className="text-xl sm:text-[22px] font-black text-[#0F172A] dark:text-[#F5F7FA] flex items-center gap-2.5">
-                <Pill className="w-5.5 h-5.5 text-[#3D6352] dark:text-[#7FAF9A]" />
+                <Pill className="w-5.5 h-5.5 text-[#3D6352] dark:text-[#91C1AC]" />
                 Prescribed Treatment Plan ({medications.length})
               </h3>
               <p className="text-sm text-slate-500 dark:text-[#C8D0E0] font-medium mt-2">
@@ -478,7 +478,7 @@ export const AIAnalysisPage = () => {
 
             <button
               onClick={() => navigate('/app/medicines')}
-              className="text-sm font-bold text-[#3D6352] dark:text-[#7FAF9A] hover:underline flex items-center gap-1.5 cursor-pointer shrink-0"
+              className="text-sm font-bold text-[#3D6352] dark:text-[#91C1AC] hover:underline flex items-center gap-1.5 cursor-pointer shrink-0"
             >
               View Medicine Schedule <ArrowRight className="w-4 h-4" />
             </button>
@@ -502,7 +502,7 @@ export const AIAnalysisPage = () => {
                       <p className="text-xs text-slate-500 dark:text-[#C8D0E0] font-medium mt-0.5">Generic: {m.genericName}</p>
                     )}
                   </div>
-                  <span className="px-3 py-1 rounded-full bg-[#EEF7F1] dark:bg-[#24283A] text-[#3D6352] dark:text-[#7FAF9A] font-black text-xs shrink-0">
+                  <span className="px-3 py-1 rounded-full bg-[#EEF7F1] dark:bg-[#24283A] text-[#3D6352] dark:text-[#91C1AC] font-black text-xs shrink-0">
                     {m.dose || m.strength || '1 tablet'}
                   </span>
                 </div>
@@ -514,7 +514,7 @@ export const AIAnalysisPage = () => {
                   </div>
                   <div>
                     <span className="text-slate-500 dark:text-[#C8D0E0] block text-xs">Timing & Meal</span>
-                    <strong className="text-[#3D6352] dark:text-[#7FAF9A] font-bold block truncate text-sm">{m.mealRelation || 'After meal'} ({m.timing || '08:00 AM'})</strong>
+                    <strong className="text-[#3D6352] dark:text-[#91C1AC] font-bold block truncate text-sm">{m.mealRelation || 'After meal'} ({m.timing || '08:00 AM'})</strong>
                   </div>
                   <div>
                     <span className="text-slate-500 dark:text-[#C8D0E0] block text-xs">Duration</span>
@@ -528,8 +528,8 @@ export const AIAnalysisPage = () => {
 
                 {/* PLAIN LANGUAGE EXPLANATION BOX */}
                 <div className="p-3.5 rounded-xl bg-[#EEF7F1] dark:bg-[#24283A] border border-[#D5E8DC] dark:border-slate-800 text-sm text-[#172033] dark:text-[#F5F7FA] font-medium space-y-1">
-                  <div className="flex items-center gap-1.5 text-[#3D6352] dark:text-[#7FAF9A] font-bold text-xs uppercase tracking-wider">
-                    <Sparkles className="w-3.5 h-3.5 text-[#3D6352] dark:text-[#7FAF9A]" /> What this medicine does (Easy Terms):
+                  <div className="flex items-center gap-1.5 text-[#3D6352] dark:text-[#91C1AC] font-bold text-xs uppercase tracking-wider">
+                    <Sparkles className="w-3.5 h-3.5 text-[#3D6352] dark:text-[#91C1AC]" /> What this medicine does (Easy Terms):
                   </div>
                   <p className="text-slate-700 dark:text-[#C8D0E0] leading-relaxed text-sm">
                     {m.easyExplanation || getEasyMedicineExplanation(m.medicineName || m.name)}
@@ -567,7 +567,7 @@ export const AIAnalysisPage = () => {
       {vitals.length > 0 && (
         <Card id="section-vitals" className="p-5 sm:p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs space-y-4 scroll-mt-6">
           <h3 className="text-xl sm:text-[22px] font-black text-[#0F172A] dark:text-[#F5F7FA] flex items-center gap-2.5">
-            <HeartPulse className="w-5.5 h-5.5 text-[#3D6352] dark:text-[#7FAF9A]" /> Extracted Vital Signs ({vitals.length})
+            <HeartPulse className="w-5.5 h-5.5 text-[#3D6352] dark:text-[#91C1AC]" /> Extracted Vital Signs ({vitals.length})
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
             {vitals.map((v, i) => (
@@ -587,7 +587,7 @@ export const AIAnalysisPage = () => {
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-xl sm:text-[22px] font-black text-[#0F172A] dark:text-[#F5F7FA] flex items-center gap-2.5">
-              <Activity className="w-5.5 h-5.5 text-[#3D6352] dark:text-[#7FAF9A]" />
+              <Activity className="w-5.5 h-5.5 text-[#3D6352] dark:text-[#91C1AC]" />
               Laboratory &amp; Biomarker Analysis ({biomarkers.length})
             </h3>
             <p className="text-sm text-slate-500 dark:text-[#C8D0E0] font-medium mt-1.5">
@@ -638,8 +638,8 @@ export const AIAnalysisPage = () => {
 
                   {/* PLAIN LANGUAGE EXPLANATION BOX */}
                   <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#151824] border border-slate-200 dark:border-slate-800 text-sm text-slate-800 dark:text-[#F5F7FA] font-medium space-y-1">
-                    <div className="flex items-center gap-1.5 text-[#3D6352] dark:text-[#7FAF9A] font-bold text-xs uppercase tracking-wider">
-                      <Sparkles className="w-3.5 h-3.5 text-[#3D6352] dark:text-[#7FAF9A]" /> What this means for you:
+                    <div className="flex items-center gap-1.5 text-[#3D6352] dark:text-[#91C1AC] font-bold text-xs uppercase tracking-wider">
+                      <Sparkles className="w-3.5 h-3.5 text-[#3D6352] dark:text-[#91C1AC]" /> What this means for you:
                     </div>
                     <p className="text-slate-600 dark:text-[#C8D0E0] leading-relaxed text-sm">
                       {bm.easyExplanation || getEasyBiomarkerExplanation(bm.name || bm.biomarker_name, bm.status || 'Normal', bm.value, bm.unit)}

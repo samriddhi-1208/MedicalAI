@@ -186,7 +186,7 @@ export const OtpVerificationScreen = ({ email, onBackToLogin, onVerificationSucc
       {/* Top Header with Icon & Language Toggle */}
       <div className="flex items-start justify-between">
         <div className="w-12 h-12 rounded-2xl bg-[#EEF7F1] dark:bg-[#1E2824] border border-[#D5E8DC] dark:border-[#313750] flex items-center justify-center text-[var(--color-primary)] shadow-xs">
-          <ShieldCheck className="w-6 h-6 text-[#54816C] dark:text-[#7FAF9A]" />
+          <ShieldCheck className="w-6 h-6 text-[#54816C] dark:text-[#91C1AC]" />
         </div>
 
         {/* Trilingual Language Switcher (EN / HI / GU) */}

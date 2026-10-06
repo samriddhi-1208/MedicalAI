@@ -54,16 +54,16 @@
   --bg-surface: #24283A;
   --bg-surface-subtle: #2C333E;
 
-  --color-primary: #7FAF9A; /* Light Sage Green in Dark Mode */
-  --color-primary-hover: #648F7B; /* Darker Sage Green */
+  --color-primary: #91C1AC; /* Light Luminous Sage Green in Dark Mode */
+  --color-primary-hover: #7FAF9A; /* Darker Sage on hover */
   --color-primary-light: #1E2824;
 
   --color-secondary: #90AFA0;
   --color-secondary-hover: #A5C4B5;
 
-  --color-accent: #7FAF9A;
-  --color-accent-hover: #90BFA9;
-  --color-accent-dark: #648F7B;
+  --color-accent: #91C1AC;
+  --color-accent-hover: #A7D1C0;
+  --color-accent-dark: #7FAF9A;
 
   --text-main: #F5F7FA; /* main text */
   --text-muted: #C8D0E0; /* secondary text */
@@ -79,7 +79,7 @@
   --status-warning-bg: #322B18;
   --status-critical: #F3C6CB;
   --status-critical-bg: #3A2028;
-  --status-info: #7FAF9A;
+  --status-info: #91C1AC;
   --status-info-bg: #1E2824;
 
   /* MUTED EMERGENCY / SOS RED SYSTEM IN DARK MODE */
@@ -89,7 +89,7 @@
   --emergency-border: #A83D49;
   --emergency-text: #F3C6CB;
 
-  --focus-ring: 0 0 0 2px #7FAF9A;
+  --focus-ring: 0 0 0 2px #91C1AC;
 }
 
 /* ==========================================================================
@@ -233,16 +233,18 @@ html:not(.dark) .bg-\[\#EEF7F1\] {
 .dark .text-teal-700,
 .dark .text-\[\#2DD4BF\],
 .dark .text-\[\#54816C\],
-.dark .text-\[\#7FAF9A\] {
-  color: #7FAF9A !important;
+.dark .text-\[\#7FAF9A\],
+.dark .text-\[\#91C1AC\] {
+  color: #91C1AC !important;
 }
 
 .dark .bg-\[\#0D9488\],
 .dark .bg-teal-600,
 .dark .bg-teal-700,
 .dark .bg-\[\#54816C\],
-.dark .bg-\[\#7FAF9A\] {
-  background-color: #7FAF9A !important;
+.dark .bg-\[\#7FAF9A\],
+.dark .bg-\[\#91C1AC\] {
+  background-color: #91C1AC !important;
   color: #0A0E1A !important;
 }
 
@@ -322,17 +324,17 @@ button.bg-\[\#D6B86A\]:hover {
   background-color: #C5A85D !important;
 }
 
-/* In dark mode, primary action buttons switch to light sage green #7FAF9A */
+/* In dark mode, primary action buttons switch to light luminous sage green #91C1AC */
 .dark button.bg-\[\#0F172A\]:not([class*="bg-[#6FA89E]"]):not([class*="bg-[#D6B86A]"]):not([class*="bg-red-"]):not([class*="bg-[#DC2626]"]):not([class*="bg-emerald-"]),
 .dark a.bg-\[\#0F172A\]:not([class*="bg-[#6FA89E]"]):not([class*="bg-[#D6B86A]"]):not([class*="bg-red-"]):not([class*="bg-[#DC2626]"]):not([class*="bg-emerald-"]) {
-  background-color: #7FAF9A !important;
+  background-color: #91C1AC !important;
   color: #0A0E1A !important;
   font-weight: 700 !important;
 }
 
 .dark button.bg-\[\#0F172A\]:not([class*="bg-[#6FA89E]"]):not([class*="bg-[#D6B86A]"]):not([class*="bg-red-"]):hover,
 .dark a.bg-\[\#0F172A\]:not([class*="bg-[#6FA89E]"]):not([class*="bg-[#D6B86A]"]):not([class*="bg-red-"]):hover {
-  background-color: #648F7B !important;
+  background-color: #7FAF9A !important;
 }
 
 /* Global Reset & Typography Defaults */
