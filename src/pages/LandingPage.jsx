@@ -368,8 +368,8 @@ export const LandingPage = () => {
               <div className="space-y-5 animate-in fade-in duration-200">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-4">
                   <div>
-                    <span className="text-xs text-[#4F5982] dark:text-[#9DA8D0] font-extrabold uppercase tracking-wider block">Dashboard Preview</span>
-                    <h3 className="text-xl font-extrabold text-white">Patient Workspace Overview</h3>
+                    <span className="text-sm font-extrabold uppercase tracking-wider block text-[#24304A] dark:text-[#CBD5E1]">Dashboard Preview</span>
+                    <h3 className="text-xl font-extrabold text-[#172033] dark:text-white">Patient Workspace Overview</h3>
                   </div>
                   <Link to="/signup" className="px-3.5 py-1.5 rounded-xl bg-[#66729F] hover:bg-[#55608B] text-white text-xs font-bold transition-colors">
                     Try Live Dashboard →
@@ -412,8 +412,8 @@ export const LandingPage = () => {
               <div className="space-y-5 animate-in fade-in duration-200">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-4">
                   <div>
-                    <span className="text-xs text-[#4F5982] dark:text-[#9DA8D0] font-extrabold uppercase tracking-wider block">Health Trends & Analytics</span>
-                    <h3 className="text-xl font-extrabold text-white">Biomarker Longitudinal Progression</h3>
+                    <span className="text-sm font-extrabold uppercase tracking-wider block text-[#24304A] dark:text-[#CBD5E1]">Health Trends & Analytics</span>
+                    <h3 className="text-xl font-extrabold text-[#172033] dark:text-white">Biomarker Longitudinal Progression</h3>
                   </div>
                   <Link to="/signup" className="px-3.5 py-1.5 rounded-xl bg-[#66729F] hover:bg-[#55608B] text-white text-xs font-bold transition-colors">
                     View Interactive Trends →
@@ -436,8 +436,8 @@ export const LandingPage = () => {
               <div className="space-y-5 animate-in fade-in duration-200 text-center">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-4 text-left">
                   <div>
-                    <span className="text-xs text-[#C94B55] dark:text-[#F3C6CB] font-extrabold uppercase tracking-wider block">Emergency SOS Center</span>
-                    <h3 className="text-xl font-extrabold text-white">Emergency Assistance</h3>
+                    <span className="text-sm font-extrabold uppercase tracking-wider block text-[#991B1B] dark:text-[#F3C6CB]">Emergency SOS Center</span>
+                    <h3 className="text-xl font-extrabold text-[#172033] dark:text-white">Emergency Assistance</h3>
                   </div>
                   <Link to="/signup" className="px-3.5 py-1.5 rounded-xl bg-[#C94B55] hover:bg-[#B33D46] text-white text-xs font-bold transition-colors border border-[#A83D49]">
                     Open Emergency SOS →
