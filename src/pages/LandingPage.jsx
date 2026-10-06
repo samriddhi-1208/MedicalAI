@@ -574,22 +574,22 @@ export const LandingPage = () => {
                   onClick={() => setFaqOpen(faqOpen === idx ? null : idx)}
                   className={`w-full p-5 text-left font-bold text-sm flex justify-between items-center cursor-pointer transition-colors ${
                     faqOpen === idx 
-                      ? 'bg-[#EEF1FA]/60 dark:bg-[#2C3146]/50 text-[#66729F] dark:text-[#9DA8D0]' 
+                      ? 'bg-[#EEF1FA]/60 dark:bg-[#2C3146]/50 text-[#0A0E1A] dark:text-[#F5F7FA]' 
                       : 'text-[#0A0E1A] dark:text-[#F5F7FA] hover:bg-[#EEF1FA] dark:hover:bg-[#2C3146]'
                   }`}
                 >
-                  <span className={faqOpen === idx ? 'text-[#66729F] dark:text-[#9DA8D0]' : 'text-[#0A0E1A] dark:text-[#F5F7FA]'}>
+                  <span className="text-[#0A0E1A] dark:text-[#F5F7FA]">
                     {faq.question}
                   </span>
                   <ChevronDown className={`w-4 h-4 transition-transform duration-200 shrink-0 ${
                     faqOpen === idx 
-                      ? 'rotate-180 text-[#66729F] dark:text-[#9DA8D0]' 
-                      : 'text-slate-500 dark:text-slate-400'
+                      ? 'rotate-180 text-[#0A0E1A] dark:text-[#F5F7FA]' 
+                      : 'text-slate-600 dark:text-slate-400'
                   }`} />
                 </button>
                 
                 {faqOpen === idx && (
-                  <div className="px-5 pb-5 pt-2 text-xs text-[#526078] dark:text-[#C8D0E0] border-t border-slate-100 dark:border-[#313750] leading-relaxed font-normal animate-in fade-in duration-150">
+                  <div className="px-5 pb-5 pt-3 text-sm text-[#1E293B] dark:text-[#CBD5E1] border-t border-slate-200 dark:border-[#313750] leading-relaxed font-medium animate-in fade-in duration-150">
                     {faq.answer}
                   </div>
                 )}

@@ -382,7 +382,7 @@ export const AIAnalysisPage = () => {
                 {/* Dropdown Content */}
                 {isOpen && (
                   <div className="px-5 pb-5 sm:px-6 sm:pb-6 pt-1 border-t border-slate-200/60 dark:border-slate-800/60 animate-in fade-in duration-150">
-                    <p className="text-[15px] sm:text-base text-slate-700 dark:text-[#C8D0E0] font-normal leading-[1.6] pt-2">
+                    <p className="text-[15px] sm:text-base text-[#1E293B] dark:text-[#E2E8F0] font-medium leading-[1.6] pt-2">
                       {item.cleanText}
                     </p>
                   </div>
