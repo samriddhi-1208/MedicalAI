@@ -98,12 +98,12 @@
    subtext, crisp white surfaces, and accessible contrast across all pages.
    ========================================================================== */
 
-html:not(.dark) h1,
-html:not(.dark) h2,
-html:not(.dark) h3,
-html:not(.dark) h4,
-html:not(.dark) h5,
-html:not(.dark) h6 {
+html:not(.dark) h1:not([class*="text-white"]):not(.text-white),
+html:not(.dark) h2:not([class*="text-white"]):not(.text-white),
+html:not(.dark) h3:not([class*="text-white"]):not(.text-white),
+html:not(.dark) h4:not([class*="text-white"]):not(.text-white),
+html:not(.dark) h5:not([class*="text-white"]):not(.text-white),
+html:not(.dark) h6:not([class*="text-white"]):not(.text-white) {
   color: #172033;
 }
 
@@ -112,7 +112,7 @@ html:not(.dark) .text-\[\#172033\] {
   color: #172033 !important;
 }
 
-html:not(.dark) strong {
+html:not(.dark) strong:not([class*="text-white"]):not(.text-white) {
   color: #172033;
 }
 

@@ -368,7 +368,7 @@ export const LandingPage = () => {
               <div className="space-y-5 animate-in fade-in duration-200">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-4">
                   <div>
-                    <span className="text-xs text-[#9DA8D0] font-bold uppercase tracking-wider block">Dashboard Preview</span>
+                    <span className="text-xs text-[#4F5982] dark:text-[#9DA8D0] font-extrabold uppercase tracking-wider block">Dashboard Preview</span>
                     <h3 className="text-xl font-extrabold text-white">Patient Workspace Overview</h3>
                   </div>
                   <Link to="/signup" className="px-3.5 py-1.5 rounded-xl bg-[#66729F] hover:bg-[#55608B] text-white text-xs font-bold transition-colors">
@@ -394,15 +394,15 @@ export const LandingPage = () => {
                 <div className="grid grid-cols-3 gap-3 text-xs">
                   <div className="p-3 rounded-xl bg-[#202434] border border-slate-700 space-y-1">
                     <span className="text-slate-300 block text-[11px] font-medium">Blood Pressure</span>
-                    <strong className="text-white text-base font-extrabold block">118/78 <span className="text-[10px] font-normal text-slate-300">mmHg</span></strong>
+                    <strong className="!text-white text-base font-extrabold block" style={{ color: '#FFFFFF' }}>118/78 <span className="text-[10px] font-normal !text-slate-300" style={{ color: '#CBD5E1' }}>mmHg</span></strong>
                   </div>
                   <div className="p-3 rounded-xl bg-[#202434] border border-slate-700 space-y-1">
                     <span className="text-slate-300 block text-[11px] font-medium">Fasting Glucose</span>
-                    <strong className="text-white text-base font-extrabold block">95 <span className="text-[10px] font-normal text-slate-300">mg/dL</span></strong>
+                    <strong className="!text-white text-base font-extrabold block" style={{ color: '#FFFFFF' }}>95 <span className="text-[10px] font-normal !text-slate-300" style={{ color: '#CBD5E1' }}>mg/dL</span></strong>
                   </div>
                   <div className="p-3 rounded-xl bg-[#202434] border border-slate-700 space-y-1">
                     <span className="text-slate-300 block text-[11px] font-medium">Hemoglobin (Hb)</span>
-                    <strong className="text-white text-base font-extrabold block">13.8 <span className="text-[10px] font-normal text-slate-300">g/dL</span></strong>
+                    <strong className="!text-white text-base font-extrabold block" style={{ color: '#FFFFFF' }}>13.8 <span className="text-[10px] font-normal !text-slate-300" style={{ color: '#CBD5E1' }}>g/dL</span></strong>
                   </div>
                 </div>
               </div>
@@ -412,7 +412,7 @@ export const LandingPage = () => {
               <div className="space-y-5 animate-in fade-in duration-200">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-4">
                   <div>
-                    <span className="text-xs text-[#9DA8D0] font-bold uppercase tracking-wider block">Health Trends & Analytics</span>
+                    <span className="text-xs text-[#4F5982] dark:text-[#9DA8D0] font-extrabold uppercase tracking-wider block">Health Trends & Analytics</span>
                     <h3 className="text-xl font-extrabold text-white">Biomarker Longitudinal Progression</h3>
                   </div>
                   <Link to="/signup" className="px-3.5 py-1.5 rounded-xl bg-[#66729F] hover:bg-[#55608B] text-white text-xs font-bold transition-colors">
@@ -436,7 +436,7 @@ export const LandingPage = () => {
               <div className="space-y-5 animate-in fade-in duration-200 text-center">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-4 text-left">
                   <div>
-                    <span className="text-xs text-[#F3C6CB] font-bold uppercase tracking-wider block">Emergency SOS Center</span>
+                    <span className="text-xs text-[#C94B55] dark:text-[#F3C6CB] font-extrabold uppercase tracking-wider block">Emergency SOS Center</span>
                     <h3 className="text-xl font-extrabold text-white">Emergency Assistance</h3>
                   </div>
                   <Link to="/signup" className="px-3.5 py-1.5 rounded-xl bg-[#C94B55] hover:bg-[#B33D46] text-white text-xs font-bold transition-colors border border-[#A83D49]">
