@@ -20,19 +20,19 @@ export const Navbar = () => {
   return (
     <header className={`sticky top-0 z-50 transition-all duration-200 ${
       scrolled 
-        ? 'bg-white/95 dark:bg-[#24283A]/95 backdrop-blur-md border-b border-[#D9DDEC] dark:border-[#313750] shadow-xs' 
-        : 'bg-white dark:bg-[#24283A] border-b border-[#D9DDEC]/60 dark:border-[#313750]'
+        ? 'bg-white/95 dark:bg-[#24283A]/95 backdrop-blur-md border-b border-[#D5E8DC] dark:border-[#313750] shadow-xs' 
+        : 'bg-white dark:bg-[#24283A] border-b border-[#D5E8DC]/60 dark:border-[#313750]'
     }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         
         {/* Brand Logo */}
         <Link to="/" className="flex items-center gap-3 group">
-          <div className="w-9 h-9 rounded-xl bg-[#172033] dark:bg-[#7C87B8] flex items-center justify-center text-white dark:text-[#172033] font-bold shadow-xs transition-colors">
-            <Activity className="w-5 h-5 text-[#AEB7D5] dark:text-[#172033]" />
+          <div className="w-9 h-9 rounded-xl bg-[#0A0E1A] dark:bg-[#7FAF9A] flex items-center justify-center text-white dark:text-[#0A0E1A] font-bold shadow-xs transition-colors">
+            <Activity className="w-5 h-5 text-[#7FAF9A] dark:text-[#0A0E1A]" />
           </div>
           <div className="flex flex-col">
-            <span className="font-extrabold text-lg text-[#172033] dark:text-[#F5F7FA] tracking-tight leading-none">
-              MedGuardian<span className="text-[#66729F] dark:text-[#9DA8D0]"> AI</span>
+            <span className="font-extrabold text-lg text-[#0A0E1A] dark:text-[#F5F7FA] tracking-tight leading-none">
+              MedGuardian<span className="text-[#648F7B] dark:text-[#7FAF9A]"> AI</span>
             </span>
             <span className="text-[10px] text-[#526078] dark:text-[#C8D0E0] font-medium tracking-wide">Clinical Intelligence</span>
           </div>
@@ -40,16 +40,16 @@ export const Navbar = () => {
 
         {/* Desktop Navigation Links */}
         <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-[#526078] dark:text-[#C8D0E0]">
-          <Link to="/" className="hover:text-[#66729F] dark:hover:text-[#9DA8D0] transition-colors">
+          <Link to="/" className="hover:text-[#648F7B] dark:hover:text-[#7FAF9A] transition-colors">
             Home
           </Link>
-          <a href="#features" className="hover:text-[#66729F] dark:hover:text-[#9DA8D0] transition-colors">
+          <a href="#features" className="hover:text-[#648F7B] dark:hover:text-[#7FAF9A] transition-colors">
             Services & Features
           </a>
-          <a href="#how-it-works" className="hover:text-[#66729F] dark:hover:text-[#9DA8D0] transition-colors">
+          <a href="#how-it-works" className="hover:text-[#648F7B] dark:hover:text-[#7FAF9A] transition-colors">
             How It Works
           </a>
-          <a href="#faq" className="hover:text-[#66729F] dark:hover:text-[#9DA8D0] transition-colors">
+          <a href="#faq" className="hover:text-[#648F7B] dark:hover:text-[#7FAF9A] transition-colors">
             FAQ
           </a>
         </nav>
@@ -60,11 +60,11 @@ export const Navbar = () => {
           <button
             type="button"
             onClick={toggleTheme}
-            className="p-2 rounded-xl text-[#526078] dark:text-[#C8D0E0] hover:text-[#172033] dark:hover:text-[#F5F7FA] hover:bg-[#EEF1FA] dark:hover:bg-[#2C3146] border border-[#D9DDEC] dark:border-[#313750] transition-colors cursor-pointer shadow-2xs"
+            className="p-2 rounded-xl text-[#526078] dark:text-[#C8D0E0] hover:text-[#0A0E1A] dark:hover:text-[#F5F7FA] hover:bg-[#EEF7F1] dark:hover:bg-[#2C3146] border border-[#D5E8DC] dark:border-[#313750] transition-colors cursor-pointer shadow-2xs"
             title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
             aria-label="Toggle theme"
           >
-            {theme === 'dark' ? <Sun className="w-4.5 h-4.5 text-amber-400" /> : <Moon className="w-4.5 h-4.5 text-[#66729F]" />}
+            {theme === 'dark' ? <Sun className="w-4.5 h-4.5 text-amber-400" /> : <Moon className="w-4.5 h-4.5 text-[#648F7B]" />}
           </button>
 
           {/* Zero-Login Emergency SOS Button (Muted Medical Red) */}
@@ -78,17 +78,17 @@ export const Navbar = () => {
 
           <Link 
             to="/login" 
-            className="text-sm font-semibold text-[#526078] dark:text-[#C8D0E0] hover:text-[#172033] dark:hover:text-[#F5F7FA] px-3 py-2 rounded-lg hover:bg-[#EEF1FA] dark:hover:bg-[#2C3146] transition-colors"
+            className="text-sm font-semibold text-[#526078] dark:text-[#C8D0E0] hover:text-[#0A0E1A] dark:hover:text-[#F5F7FA] px-3 py-2 rounded-lg hover:bg-[#EEF7F1] dark:hover:bg-[#2C3146] transition-colors"
           >
             Sign In
           </Link>
 
           <Link
             to="/signup"
-            className="py-2 px-4.5 text-xs sm:text-sm font-semibold rounded-xl bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-white dark:text-[#172033] flex items-center gap-2 cursor-pointer shadow-xs transition-all font-bold"
+            className="py-2 px-4.5 text-xs sm:text-sm font-semibold rounded-xl bg-[#7FAF9A] hover:bg-[#648F7B] dark:bg-[#7FAF9A] dark:hover:bg-[#648F7B] text-white dark:text-[#0A0E1A] flex items-center gap-2 cursor-pointer shadow-xs transition-all font-bold"
           >
             <span>Create Account</span> 
-            <ArrowRight className="w-4 h-4 text-white dark:text-[#172033]" />
+            <ArrowRight className="w-4 h-4 text-white dark:text-[#0A0E1A]" />
           </Link>
         </div>
 
@@ -98,11 +98,11 @@ export const Navbar = () => {
           <button
             type="button"
             onClick={toggleTheme}
-            className="p-1.5 rounded-lg text-[#526078] dark:text-[#C8D0E0] hover:bg-[#EEF1FA] dark:hover:bg-[#2C3146] border border-[#D9DDEC] dark:border-[#313750] transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-[#526078] dark:text-[#C8D0E0] hover:bg-[#EEF7F1] dark:hover:bg-[#2C3146] border border-[#D5E8DC] dark:border-[#313750] transition-colors cursor-pointer"
             title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
             aria-label="Toggle theme"
           >
-            {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-[#66729F]" />}
+            {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-[#648F7B]" />}
           </button>
 
           <Link
@@ -115,7 +115,7 @@ export const Navbar = () => {
 
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 rounded-lg text-[#526078] dark:text-[#C8D0E0] hover:bg-[#EEF1FA] dark:hover:bg-[#2C3146] transition-colors"
+            className="p-2 rounded-lg text-[#526078] dark:text-[#C8D0E0] hover:bg-[#EEF7F1] dark:hover:bg-[#2C3146] transition-colors"
             aria-label="Toggle menu"
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -126,7 +126,7 @@ export const Navbar = () => {
 
       {/* Mobile Navigation Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white dark:bg-[#24283A] border-b border-[#D9DDEC] dark:border-[#313750] px-4 pt-3 pb-6 space-y-3 font-sans text-sm animate-in fade-in slide-in-from-top-2 duration-150">
+        <div className="md:hidden bg-white dark:bg-[#24283A] border-b border-[#D5E8DC] dark:border-[#313750] px-4 pt-3 pb-6 space-y-3 font-sans text-sm animate-in fade-in slide-in-from-top-2 duration-150">
           {/* Emergency SOS Banner in Mobile Menu */}
           <Link
             to="/sos"
@@ -140,41 +140,41 @@ export const Navbar = () => {
           <Link 
             to="/" 
             onClick={() => setMobileMenuOpen(false)}
-            className="block px-3 py-2 font-semibold text-[#172033] dark:text-[#F5F7FA] hover:bg-[#EEF1FA] dark:hover:bg-[#2C3146] rounded-lg"
+            className="block px-3 py-2 font-semibold text-[#0A0E1A] dark:text-[#F5F7FA] hover:bg-[#EEF7F1] dark:hover:bg-[#2C3146] rounded-lg"
           >
             Home
           </Link>
           <a 
             href="#features" 
             onClick={() => setMobileMenuOpen(false)}
-            className="block px-3 py-2 font-semibold text-[#172033] dark:text-[#F5F7FA] hover:bg-[#EEF1FA] dark:hover:bg-[#2C3146] rounded-lg"
+            className="block px-3 py-2 font-semibold text-[#0A0E1A] dark:text-[#F5F7FA] hover:bg-[#EEF7F1] dark:hover:bg-[#2C3146] rounded-lg"
           >
             Services & Features
           </a>
           <a 
             href="#how-it-works" 
             onClick={() => setMobileMenuOpen(false)}
-            className="block px-3 py-2 font-semibold text-[#172033] dark:text-[#F5F7FA] hover:bg-[#EEF1FA] dark:hover:bg-[#2C3146] rounded-lg"
+            className="block px-3 py-2 font-semibold text-[#0A0E1A] dark:text-[#F5F7FA] hover:bg-[#EEF7F1] dark:hover:bg-[#2C3146] rounded-lg"
           >
             How It Works
           </a>
           <a 
             href="#faq" 
             onClick={() => setMobileMenuOpen(false)}
-            className="block px-3 py-2 font-semibold text-[#172033] dark:text-[#F5F7FA] hover:bg-[#EEF1FA] dark:hover:bg-[#2C3146] rounded-lg"
+            className="block px-3 py-2 font-semibold text-[#0A0E1A] dark:text-[#F5F7FA] hover:bg-[#EEF7F1] dark:hover:bg-[#2C3146] rounded-lg"
           >
             FAQ
           </a>
 
-          <div className="pt-3 border-t border-[#D9DDEC] dark:border-[#313750] flex flex-col gap-2">
+          <div className="pt-3 border-t border-[#D5E8DC] dark:border-[#313750] flex flex-col gap-2">
             {/* Mobile Theme Toggle Button in Drawer */}
             <button
               type="button"
               onClick={toggleTheme}
-              className="w-full py-2.5 px-3.5 rounded-xl border border-[#D9DDEC] dark:border-[#313750] flex items-center justify-between font-bold text-sm text-[#172033] dark:text-[#F5F7FA] bg-[#EEF1FA]/60 dark:bg-[#2C3146]/60 cursor-pointer"
+              className="w-full py-2.5 px-3.5 rounded-xl border border-[#D5E8DC] dark:border-[#313750] flex items-center justify-between font-bold text-sm text-[#0A0E1A] dark:text-[#F5F7FA] bg-[#EEF7F1]/60 dark:bg-[#2C3146]/60 cursor-pointer"
             >
               <span className="flex items-center gap-2">
-                {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-[#66729F]" />}
+                {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-[#648F7B]" />}
                 <span>{theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}</span>
               </span>
               <span className="text-xs uppercase font-extrabold text-slate-400 dark:text-slate-500">{theme}</span>
@@ -183,17 +183,17 @@ export const Navbar = () => {
             <Link 
               to="/login" 
               onClick={() => setMobileMenuOpen(false)}
-              className="w-full text-center py-2.5 font-semibold text-[#172033] dark:text-[#F5F7FA] border border-[#D9DDEC] dark:border-[#313750] rounded-xl hover:bg-[#EEF1FA] dark:hover:bg-[#2C3146]"
+              className="w-full text-center py-2.5 font-semibold text-[#0A0E1A] dark:text-[#F5F7FA] border border-[#D5E8DC] dark:border-[#313750] rounded-xl hover:bg-[#EEF7F1] dark:hover:bg-[#2C3146]"
             >
               Sign In
             </Link>
             <Link
               to="/signup"
               onClick={() => setMobileMenuOpen(false)}
-              className="w-full py-2.5 font-bold text-white dark:text-[#172033] bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] rounded-xl flex items-center justify-center gap-2 text-center"
+              className="w-full py-2.5 font-bold text-white dark:text-[#0A0E1A] bg-[#7FAF9A] hover:bg-[#648F7B] dark:bg-[#7FAF9A] dark:hover:bg-[#648F7B] rounded-xl flex items-center justify-center gap-2 text-center"
             >
               <span>Create Account</span>
-              <ArrowRight className="w-4 h-4 text-white dark:text-[#172033]" />
+              <ArrowRight className="w-4 h-4 text-white dark:text-[#0A0E1A]" />
             </Link>
           </div>
         </div>

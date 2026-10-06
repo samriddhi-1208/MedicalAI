@@ -167,11 +167,11 @@ export const MedicineReminderPage = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full min-w-0">
         <div>
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#66729F] dark:bg-[#9DA8D0] animate-pulse" />
-            <span className="text-xs sm:text-[13px] text-[#66729F] dark:text-[#9DA8D0] font-black uppercase tracking-[0.04em]">{t('prescriptionScheduleBadge')}</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-[#7FAF9A] dark:bg-[#7FAF9A] animate-pulse" />
+            <span className="text-xs sm:text-[13px] text-[#648F7B] dark:text-[#7FAF9A] font-black uppercase tracking-[0.04em]">{t('prescriptionScheduleBadge')}</span>
           </div>
           <h1 className="text-2.5xl sm:text-3xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight mt-1 flex items-center gap-2.5">
-            <Pill className="w-7 h-7 text-[#66729F] dark:text-[#9DA8D0]" /> {t('todaysMedicationSchedule')}
+            <Pill className="w-7 h-7 text-[#648F7B] dark:text-[#7FAF9A]" /> {t('todaysMedicationSchedule')}
           </h1>
           <p className="text-sm font-medium text-slate-500 dark:text-[#C8D0E0] mt-1.5">
             {t('confirmedPrescriptionsSub')}
@@ -193,7 +193,7 @@ export const MedicineReminderPage = () => {
             variant="primary"
             size="md"
             icon={Plus}
-            className="bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] dark:text-[#0A0E1A] text-white text-sm font-bold rounded-xl cursor-pointer shadow-2xs px-4 py-2"
+            className="bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#7FAF9A] dark:hover:bg-[#648F7B] dark:text-[#0A0E1A] text-white text-sm font-bold rounded-xl cursor-pointer shadow-2xs px-4 py-2"
             onClick={handleOpenAdd}
           >
             {t('addMedicine')}
@@ -261,8 +261,8 @@ export const MedicineReminderPage = () => {
       {/* REQUIREMENT 16: NEW USER EMPTY STATE (0 MEDICATIONS) */}
       {!hasMedicines && (
         <Card className="p-8 sm:p-12 text-center bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs space-y-5 max-w-2xl mx-auto my-6">
-          <div className="w-16 h-16 rounded-2xl bg-[#EEF1FA] dark:bg-[#2C3146] text-[#66729F] dark:text-[#9DA8D0] flex items-center justify-center mx-auto border border-[#D9DDEC] dark:border-[#313750]">
-            <Pill className="w-8 h-8 text-[#66729F] dark:text-[#9DA8D0]" />
+          <div className="w-16 h-16 rounded-2xl bg-[#EEF7F1] dark:bg-[#24283A] text-[#648F7B] dark:text-[#7FAF9A] flex items-center justify-center mx-auto border border-[#D5E8DC] dark:border-slate-800">
+            <Pill className="w-8 h-8 text-[#648F7B] dark:text-[#7FAF9A]" />
           </div>
           
           <div className="space-y-2 max-w-lg mx-auto">
@@ -290,7 +290,7 @@ export const MedicineReminderPage = () => {
               size="md"
               icon={Plus}
               onClick={handleOpenAdd}
-              className="bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] dark:text-[#0A0E1A] text-white py-3 px-6 text-xs font-bold rounded-xl cursor-pointer shadow-2xs"
+              className="bg-[#0F172A] hover:bg-[#1E293B] dark:bg-[#7FAF9A] dark:hover:bg-[#648F7B] dark:text-[#0A0E1A] text-white py-3 px-6 text-xs font-bold rounded-xl cursor-pointer shadow-2xs"
             >
               {t('addMedicine')}
             </Button>
@@ -448,7 +448,7 @@ export const MedicineReminderPage = () => {
         <Card className="p-5 sm:p-6 space-y-4 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs w-full min-w-0">
           <div className="flex items-center justify-between">
             <h3 className="text-xl sm:text-[22px] font-black text-[#0F172A] dark:text-[#F5F7FA] flex items-center gap-2.5">
-              <History className="w-5.5 h-5.5 text-[#66729F] dark:text-[#9DA8D0]" /> Medication History Log
+              <History className="w-5.5 h-5.5 text-[#648F7B] dark:text-[#7FAF9A]" /> Medication History Log
             </h3>
             <span className="text-sm font-bold text-slate-500 dark:text-[#C8D0E0]">
               {safeMedicines.length} {safeMedicines.length === 1 ? 'entry' : 'entries'}

@@ -158,13 +158,13 @@ export const ProfilePage = () => {
       {/* Profile Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-2xl bg-[#0F172A] dark:bg-[#24283A] text-white font-black text-2xl flex items-center justify-center border-2 border-[#66729F] dark:border-[#7C87B8] shadow-md shrink-0">
+          <div className="w-16 h-16 rounded-2xl bg-[#0F172A] dark:bg-[#24283A] text-white font-black text-2xl flex items-center justify-center border-2 border-[#7FAF9A] dark:border-[#7FAF9A] shadow-md shrink-0">
             {formData.name ? formData.name.charAt(0).toUpperCase() : 'P'}
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#66729F] dark:bg-[#9DA8D0] animate-pulse" />
-              <span className="text-xs sm:text-[13px] text-[#66729F] dark:text-[#9DA8D0] font-black uppercase tracking-[0.04em]">Patient Identity Baseline</span>
+              <span className="w-2.5 h-2.5 rounded-full bg-[#7FAF9A] dark:bg-[#7FAF9A] animate-pulse" />
+              <span className="text-xs sm:text-[13px] text-[#648F7B] dark:text-[#7FAF9A] font-black uppercase tracking-[0.04em]">Patient Identity Baseline</span>
             </div>
             <h1 className="text-2.5xl sm:text-3xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight mt-1">
               {t('personalHealthProfile')}
@@ -176,12 +176,12 @@ export const ProfilePage = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="px-3.5 py-1.5 rounded-full bg-[#EEF1FA] dark:bg-[#2C3146] text-[#66729F] dark:text-[#9DA8D0] text-xs sm:text-[13px] font-bold border border-[#D9DDEC] dark:border-[#313750] shrink-0 flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-[#66729F] dark:text-[#9DA8D0]" /> {t('authenticatedSession')}
+          <span className="px-3.5 py-1.5 rounded-full bg-[#EEF7F1] dark:bg-[#24283A] text-[#648F7B] dark:text-[#7FAF9A] text-xs sm:text-[13px] font-bold border border-[#D5E8DC] dark:border-slate-800 shrink-0 flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-[#648F7B] dark:text-[#7FAF9A]" /> {t('authenticatedSession')}
           </span>
           <button
             onClick={handleSaveProfile}
-            className="px-5 py-2.5 rounded-xl bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-white dark:text-[#0A0E1A] font-black text-sm flex items-center gap-2 shadow-md cursor-pointer transition-all shrink-0"
+            className="px-5 py-2.5 rounded-xl bg-[#7FAF9A] hover:bg-[#648F7B] dark:bg-[#7FAF9A] dark:hover:bg-[#648F7B] text-white dark:text-[#0A0E1A] font-black text-sm flex items-center gap-2 shadow-md cursor-pointer transition-all shrink-0"
           >
             <Save className="w-4 h-4 text-white dark:text-[#0A0E1A]" />
             <span>{t('save')}</span>
@@ -194,7 +194,7 @@ export const ProfilePage = () => {
         {/* 1. Personal Information */}
         <Card className="p-5 sm:p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs space-y-5">
           <div className="flex items-center gap-2.5 border-b border-slate-100 dark:border-slate-800 pb-3.5">
-            <User className="w-5.5 h-5.5 text-[#66729F] dark:text-[#9DA8D0]" />
+            <User className="w-5.5 h-5.5 text-[#648F7B] dark:text-[#7FAF9A]" />
             <h3 className="text-lg sm:text-xl font-black text-[#0F172A] dark:text-[#F5F7FA]">{t('personalInformation')}</h3>
           </div>
 
@@ -268,7 +268,7 @@ export const ProfilePage = () => {
         {/* 2. Physical & Health Information */}
         <Card className="p-5 sm:p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs space-y-5">
           <div className="flex items-center gap-2.5 border-b border-slate-100 dark:border-slate-800 pb-3.5">
-            <Heart className="w-5.5 h-5.5 text-[#66729F] dark:text-[#9DA8D0]" />
+            <Heart className="w-5.5 h-5.5 text-[#648F7B] dark:text-[#7FAF9A]" />
             <h3 className="text-lg sm:text-xl font-black text-[#0F172A] dark:text-[#F5F7FA]">{t('physicalHealthBaseline')}</h3>
           </div>
 
@@ -370,7 +370,7 @@ export const ProfilePage = () => {
         <Card className="p-5 sm:p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs space-y-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3.5">
             <div className="flex items-center gap-2.5">
-              <MapPin className="w-5.5 h-5.5 text-[#66729F] dark:text-[#9DA8D0]" />
+              <MapPin className="w-5.5 h-5.5 text-[#648F7B] dark:text-[#7FAF9A]" />
               <h3 className="text-lg sm:text-xl font-black text-[#0F172A] dark:text-[#F5F7FA]">{t('location')}</h3>
             </div>
             <button
@@ -379,7 +379,7 @@ export const ProfilePage = () => {
               disabled={locLoading}
               className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#25293C] hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-[#F5F7FA] text-sm font-bold flex items-center gap-2 cursor-pointer shadow-2xs self-start sm:self-auto transition-colors"
             >
-              <Compass className={`w-4 h-4 text-[#66729F] dark:text-[#9DA8D0] ${locLoading ? 'animate-spin' : ''}`} />
+              <Compass className={`w-4 h-4 text-[#648F7B] dark:text-[#7FAF9A] ${locLoading ? 'animate-spin' : ''}`} />
               <span>{locLoading ? t('locating') : t('useCurrentLocation')}</span>
             </button>
           </div>
@@ -479,7 +479,7 @@ export const ProfilePage = () => {
         <div className="flex items-center justify-end gap-3 pt-2">
           <button
             type="submit"
-            className="px-6 py-3 rounded-xl bg-[#66729F] hover:bg-[#55608B] dark:bg-[#7C87B8] dark:hover:bg-[#8F99C8] text-white dark:text-[#0A0E1A] font-extrabold text-sm flex items-center gap-2 shadow-md cursor-pointer transition-all"
+            className="px-6 py-3 rounded-xl bg-[#7FAF9A] hover:bg-[#648F7B] dark:bg-[#7FAF9A] dark:hover:bg-[#648F7B] text-white dark:text-[#0A0E1A] font-extrabold text-sm flex items-center gap-2 shadow-md cursor-pointer transition-all"
           >
             <Save className="w-4 h-4 text-white dark:text-[#0A0E1A]" />
             <span>{t('saveProfileDetails')}</span>

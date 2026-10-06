@@ -22,7 +22,7 @@ export const MobileNav = () => {
               className={({ isActive }) =>
                 `flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-all ${
                   isActive
-                    ? 'text-[#66729F] dark:text-[#9DA8D0] font-extrabold scale-105'
+                    ? 'text-[#648F7B] dark:text-[#7FAF9A] font-extrabold scale-105'
                     : 'text-[var(--text-muted)] font-medium hover:text-[var(--text-main)]'
                 }`
               }

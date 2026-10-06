@@ -5,28 +5,28 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  /* LIGHT MODE TOKENS — Calm Muted Blue/Lavender Healthcare Palette */
+  /* LIGHT MODE TOKENS — Professional Sage Green Healthcare Palette */
   --bg-primary: #F7F8FC;
   --bg-surface: #FFFFFF;
-  --bg-surface-subtle: #EEF1FA;
+  --bg-surface-subtle: #EEF7F1;
 
-  --color-primary: #66729F; /* primary accent: calm muted blue/lavender */
-  --color-primary-hover: #55608B;
-  --color-primary-light: #EEF1FA;
+  --color-primary: #7FAF9A; /* Primary Sage Green */
+  --color-primary-hover: #648F7B; /* Dark Sage Green */
+  --color-primary-light: #EEF7F1; /* Light Sage Background */
 
-  --color-secondary: #D9DDEC; /* secondary accent */
-  --color-secondary-hover: #C5CBDD;
+  --color-secondary: #D5E8DC; /* Sage Border */
+  --color-secondary-hover: #C1DACB;
 
-  --color-accent: #AEB7D5; /* soft accent / highlight */
-  --color-accent-hover: #9DA8D0;
-  --color-accent-dark: #66729F;
+  --color-accent: #7FAF9A; /* Primary Sage Green */
+  --color-accent-hover: #648F7B;
+  --color-accent-dark: #648F7B;
 
   --text-main: #0A0E1A; /* main text: deep rich obsidian dark/black */
   --text-muted: #526078; /* secondary text: calm muted slate */
   --text-subtle: #748299;
 
-  --border-color: #D9DDEC;
-  --border-color-hover: #C5CBDD;
+  --border-color: #D5E8DC; /* Sage Border */
+  --border-color-hover: #C1DACB;
 
   /* STATUS & MEDICAL ALERTS — Muted Professional Medical Palette */
   --status-normal: #4B7D6C;
@@ -35,35 +35,35 @@
   --status-warning-bg: #F9F3E8;
   --status-critical: #C94B55;
   --status-critical-bg: #FDF2F4;
-  --status-info: #66729F;
-  --status-info-bg: #EEF1FA;
+  --status-info: #7FAF9A;
+  --status-info-bg: #EEF7F1;
 
-  /* MUTED EMERGENCY / SOS RED SYSTEM */
+  /* MUTED EMERGENCY / SOS RED SYSTEM (Strictly preserved RED) */
   --emergency-primary: #C94B55;
   --emergency-primary-hover: #B33D46;
   --emergency-bg: #FDF2F4;
   --emergency-border: #A83D49;
   --emergency-text: #8E2C36;
 
-  --focus-ring: 0 0 0 2px #66729F;
+  --focus-ring: 0 0 0 2px #7FAF9A;
 }
 
 .dark {
-  /* DARK MODE TOKENS — Calm Muted Blue/Lavender Healthcare Palette */
+  /* DARK MODE TOKENS — Professional Sage Green Healthcare Palette */
   --bg-primary: #1B1E2D;
   --bg-surface: #24283A;
-  --bg-surface-subtle: #2C3146;
+  --bg-surface-subtle: #2C333E;
 
-  --color-primary: #7C87B8; /* primary accent: soft blue/lavender */
-  --color-primary-hover: #8F99C8;
-  --color-primary-light: #2C3146;
+  --color-primary: #7FAF9A; /* Primary Sage Green */
+  --color-primary-hover: #648F7B; /* Dark Sage Green */
+  --color-primary-light: #1E2824;
 
-  --color-secondary: #C9CEE3; /* secondary accent */
-  --color-secondary-hover: #DDE1F0;
+  --color-secondary: #90AFA0;
+  --color-secondary-hover: #A5C4B5;
 
-  --color-accent: #9DA8D0; /* soft accent / highlight */
-  --color-accent-hover: #AEB7D5;
-  --color-accent-dark: #7C87B8;
+  --color-accent: #7FAF9A;
+  --color-accent-hover: #90BFA9;
+  --color-accent-dark: #648F7B;
 
   --text-main: #F5F7FA; /* main text */
   --text-muted: #C8D0E0; /* secondary text */
@@ -79,8 +79,8 @@
   --status-warning-bg: #322B18;
   --status-critical: #F3C6CB;
   --status-critical-bg: #3A2028;
-  --status-info: #9DA8D0;
-  --status-info-bg: #262B40;
+  --status-info: #7FAF9A;
+  --status-info-bg: #1E2824;
 
   /* MUTED EMERGENCY / SOS RED SYSTEM IN DARK MODE */
   --emergency-primary: #C94B55;
@@ -89,7 +89,7 @@
   --emergency-border: #A83D49;
   --emergency-text: #F3C6CB;
 
-  --focus-ring: 0 0 0 2px #7C87B8;
+  --focus-ring: 0 0 0 2px #7FAF9A;
 }
 
 /* ==========================================================================
@@ -149,37 +149,41 @@ html:not(.dark) .bg-slate-50 {
 html:not(.dark) .border-slate-200,
 html:not(.dark) .border-slate-200\/80,
 html:not(.dark) .border-slate-200\/90 {
-  border-color: #D9DDEC !important;
+  border-color: #D5E8DC !important;
 }
 
-/* Light mode primary accents (calm muted blue/lavender) */
+/* Light mode primary accents (professional sage green) */
 html:not(.dark) .text-\[\#0D9488\],
 html:not(.dark) .text-teal-600,
-html:not(.dark) .text-teal-700 {
-  color: #66729F !important;
+html:not(.dark) .text-teal-700,
+html:not(.dark) .text-\[\#7FAF9A\] {
+  color: #648F7B !important;
 }
 
 html:not(.dark) .bg-\[\#0D9488\],
-html:not(.dark) .bg-teal-600 {
-  background-color: #66729F !important;
+html:not(.dark) .bg-teal-600,
+html:not(.dark) .bg-\[\#7FAF9A\] {
+  background-color: #7FAF9A !important;
 }
 
 html:not(.dark) .border-\[\#0D9488\],
 html:not(.dark) .border-teal-200,
-html:not(.dark) .border-teal-300 {
-  border-color: #D9DDEC !important;
+html:not(.dark) .border-teal-300,
+html:not(.dark) .border-\[\#D5E8DC\] {
+  border-color: #D5E8DC !important;
 }
 
 html:not(.dark) .bg-teal-50,
 html:not(.dark) .bg-teal-50\/60,
-html:not(.dark) .bg-teal-50\/90 {
-  background-color: #EEF1FA !important;
+html:not(.dark) .bg-teal-50\/90,
+html:not(.dark) .bg-\[\#EEF7F1\] {
+  background-color: #EEF7F1 !important;
 }
 
 /* ==========================================================================
    DARK MODE HIGH-CONTRAST ACCESSIBILITY SYSTEM
    Guarantees near-white (#F5F7FA) headings, readable soft slate (#C8D0E0)
-   labels/subtext, soft lavender/blue (#9DA8D0) accents, and #24283A card surfaces.
+   labels/subtext, soft sage green (#7FAF9A) accents, and #24283A card surfaces.
    ========================================================================== */
 
 .dark h1,
@@ -221,20 +225,22 @@ html:not(.dark) .bg-teal-50\/90 {
   color: #F5F7FA;
 }
 
-/* Soft accessible lavender / muted blue accents on dark backgrounds */
+/* Accessible sage green accents on dark backgrounds */
 .dark .text-\[\#0D9488\],
 .dark .text-teal-400,
 .dark .text-teal-500,
 .dark .text-teal-600,
 .dark .text-teal-700,
-.dark .text-\[\#2DD4BF\] {
-  color: #9DA8D0 !important;
+.dark .text-\[\#2DD4BF\],
+.dark .text-\[\#7FAF9A\] {
+  color: #7FAF9A !important;
 }
 
 .dark .bg-\[\#0D9488\],
 .dark .bg-teal-600,
-.dark .bg-teal-700 {
-  background-color: #7C87B8 !important;
+.dark .bg-teal-700,
+.dark .bg-\[\#7FAF9A\] {
+  background-color: #7FAF9A !important;
   color: #0A0E1A !important;
 }
 
@@ -314,17 +320,17 @@ button.bg-\[\#D6B86A\]:hover {
   background-color: #C5A85D !important;
 }
 
-/* In dark mode, primary action buttons switch to calm, muted lavender/blue #7C87B8 */
+/* In dark mode, primary action buttons switch to professional sage green #7FAF9A */
 .dark button.bg-\[\#0F172A\]:not([class*="bg-[#6FA89E]"]):not([class*="bg-[#D6B86A]"]):not([class*="bg-red-"]):not([class*="bg-[#DC2626]"]):not([class*="bg-emerald-"]),
 .dark a.bg-\[\#0F172A\]:not([class*="bg-[#6FA89E]"]):not([class*="bg-[#D6B86A]"]):not([class*="bg-red-"]):not([class*="bg-[#DC2626]"]):not([class*="bg-emerald-"]) {
-  background-color: #7C87B8 !important;
+  background-color: #7FAF9A !important;
   color: #0A0E1A !important;
   font-weight: 700 !important;
 }
 
 .dark button.bg-\[\#0F172A\]:not([class*="bg-[#6FA89E]"]):not([class*="bg-[#D6B86A]"]):not([class*="bg-red-"]):hover,
 .dark a.bg-\[\#0F172A\]:not([class*="bg-[#6FA89E]"]):not([class*="bg-[#D6B86A]"]):not([class*="bg-red-"]):hover {
-  background-color: #8F99C8 !important;
+  background-color: #648F7B !important;
 }
 
 /* Global Reset & Typography Defaults */

@@ -125,8 +125,8 @@ export const LoginPage = () => {
             
             {/* Active Session Info Banner (If already logged in) */}
             {isAuthenticated && userProfile && (
-              <div className="p-4 rounded-xl bg-[#D9DDEC]/40 dark:bg-[#7C87B8]/20 border border-[#AEB7D5]/40 dark:border-[#7C87B8]/40 text-xs space-y-2.5">
-                <div className="flex items-center gap-2 text-[#66729F] dark:text-[#9DA8D0] font-bold">
+              <div className="p-4 rounded-xl bg-[#EEF7F1] dark:bg-[#648F7B]/20 border border-[#D5E8DC] dark:border-[#648F7B]/40 text-xs space-y-2.5">
+                <div className="flex items-center gap-2 text-[#648F7B] dark:text-[#7FAF9A] font-bold">
                   <UserCheck className="w-4 h-4 shrink-0" />
                   <span>Currently Signed In</span>
                 </div>
