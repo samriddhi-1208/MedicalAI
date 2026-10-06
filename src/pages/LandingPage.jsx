@@ -309,9 +309,6 @@ export const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
           
           <div className="text-center max-w-2xl mx-auto space-y-3">
-            <span className="px-3.5 py-1 rounded-full bg-[#EEF7F1] dark:bg-[#2C3146] text-[#648F7B] dark:text-[#90AFA0] text-xs font-bold uppercase tracking-wider border border-[#D5E8DC] dark:border-[#3E4564]">
-              Platform Feature Preview
-            </span>
             <h2 className="text-3xl font-extrabold text-[#0A0E1A] dark:text-[#F5F7FA] tracking-tight">
               Interactive Patient Portal Preview
             </h2>
@@ -460,9 +457,6 @@ export const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
           
           <div className="text-center max-w-2xl mx-auto space-y-3">
-            <span className="px-3.5 py-1 rounded-full bg-[#EEF7F1] dark:bg-[#2C3146] text-[#648F7B] dark:text-[#90AFA0] text-xs font-bold uppercase tracking-wider border border-[#D5E8DC] dark:border-[#3E4564]">
-              Core Capabilities
-            </span>
             <h2 className="text-3xl font-extrabold text-[#0A0E1A] dark:text-[#F5F7FA] tracking-tight">
               Integrated Healthcare Management Suite
             </h2>
@@ -497,9 +491,6 @@ export const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-14">
           
           <div className="text-center max-w-2xl mx-auto space-y-3">
-            <span className="px-3.5 py-1 rounded-full bg-[#EEF7F1] dark:bg-[#2C3146] text-[#648F7B] dark:text-[#90AFA0] text-xs font-bold uppercase tracking-wider border border-[#D5E8DC] dark:border-[#3E4564]">
-              Simple Workflow
-            </span>
             <h2 className="text-3xl font-extrabold text-[#0A0E1A] dark:text-[#F5F7FA] tracking-tight">
               How MedGuardian AI Works
             </h2>
@@ -548,9 +539,6 @@ export const LandingPage = () => {
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
           
           <div className="text-center space-y-2">
-            <span className="px-3 py-1 rounded-full bg-[#EEF7F1] dark:bg-[#2C3146] text-[#648F7B] dark:text-[#90AFA0] text-xs font-bold uppercase tracking-wider border border-[#D5E8DC] dark:border-[#3E4564]">
-              FAQ
-            </span>
             <h2 className="text-3xl font-extrabold text-[#0A0E1A] dark:text-[#F5F7FA]">Frequently Asked Questions</h2>
             <p className="text-xs text-[#526078] dark:text-[#C8D0E0] font-medium">Answers to common questions about report OCR, privacy, and clinical features.</p>
           </div>
