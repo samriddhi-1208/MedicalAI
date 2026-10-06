@@ -149,11 +149,6 @@ export const LandingPage = () => {
             {/* Hero Left Content */}
             <div className="lg:col-span-7 space-y-6">
               
-              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#EEF1FA] dark:bg-[#2C3146] text-[#66729F] dark:text-[#C9CEE3] text-xs font-semibold border border-[#D9DDEC] dark:border-[#3E4564]">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#66729F] dark:text-[#9DA8D0]" />
-                <span>MedGuardian AI • Clinical Intelligence</span>
-              </div>
-
               <h1 className="text-4xl sm:text-5xl lg:text-5.5xl font-extrabold text-[#0A0E1A] dark:text-[#F5F7FA] tracking-tight leading-[1.15]">
                 Understand Your Health <br className="hidden sm:inline" />
                 <span className="text-[#66729F] dark:text-[#9DA8D0]">with AI Intelligence</span>
