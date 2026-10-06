@@ -27,12 +27,12 @@ export const Navbar = () => {
         
         {/* Brand Logo */}
         <Link to="/" className="flex items-center gap-3 group">
-          <div className="w-9 h-9 rounded-xl bg-[#0A0E1A] dark:bg-[#91C1AC] flex items-center justify-center text-white dark:text-[#0A0E1A] font-bold shadow-xs transition-colors">
+          <div className="w-9 h-9 rounded-xl bg-[#0A0E1A] dark:bg-[#6B9B85] flex items-center justify-center text-white dark:text-[#0A0E1A] font-bold shadow-xs transition-colors">
             <Activity className="w-5 h-5 text-[#54816C] dark:text-[#0A0E1A]" />
           </div>
           <div className="flex flex-col">
             <span className="font-extrabold text-lg text-[#0A0E1A] dark:text-[#F5F7FA] tracking-tight leading-none">
-              MedGuardian<span className="text-[#3D6352] dark:text-[#91C1AC]"> AI</span>
+              MedGuardian<span className="text-[#3D6352] dark:text-[#6B9B85]"> AI</span>
             </span>
             <span className="text-[10px] text-[#526078] dark:text-[#C8D0E0] font-medium tracking-wide">Clinical Intelligence</span>
           </div>
@@ -40,16 +40,16 @@ export const Navbar = () => {
 
         {/* Desktop Navigation Links */}
         <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-[#526078] dark:text-[#C8D0E0]">
-          <Link to="/" className="hover:text-[#3D6352] dark:hover:text-[#91C1AC] transition-colors">
+          <Link to="/" className="hover:text-[#3D6352] dark:hover:text-[#6B9B85] transition-colors">
             Home
           </Link>
-          <a href="#features" className="hover:text-[#3D6352] dark:hover:text-[#91C1AC] transition-colors">
+          <a href="#features" className="hover:text-[#3D6352] dark:hover:text-[#6B9B85] transition-colors">
             Services & Features
           </a>
-          <a href="#how-it-works" className="hover:text-[#3D6352] dark:hover:text-[#91C1AC] transition-colors">
+          <a href="#how-it-works" className="hover:text-[#3D6352] dark:hover:text-[#6B9B85] transition-colors">
             How It Works
           </a>
-          <a href="#faq" className="hover:text-[#3D6352] dark:hover:text-[#91C1AC] transition-colors">
+          <a href="#faq" className="hover:text-[#3D6352] dark:hover:text-[#6B9B85] transition-colors">
             FAQ
           </a>
         </nav>
@@ -85,7 +85,7 @@ export const Navbar = () => {
 
           <Link
             to="/signup"
-            className="py-2 px-4.5 text-xs sm:text-sm font-semibold rounded-xl bg-[#54816C] hover:bg-[#3D6352] dark:bg-[#91C1AC] dark:hover:bg-[#7FAF9A] text-white dark:text-[#0A0E1A] flex items-center gap-2 cursor-pointer shadow-xs transition-all font-bold"
+            className="py-2 px-4.5 text-xs sm:text-sm font-semibold rounded-xl bg-[#54816C] hover:bg-[#3D6352] dark:bg-[#6B9B85] dark:hover:bg-[#568570] text-white dark:text-[#0A0E1A] flex items-center gap-2 cursor-pointer shadow-xs transition-all font-bold"
           >
             <span>Create Account</span> 
             <ArrowRight className="w-4 h-4 text-white dark:text-[#0A0E1A]" />
@@ -190,7 +190,7 @@ export const Navbar = () => {
             <Link
               to="/signup"
               onClick={() => setMobileMenuOpen(false)}
-              className="w-full py-2.5 font-bold text-white dark:text-[#0A0E1A] bg-[#54816C] hover:bg-[#3D6352] dark:bg-[#91C1AC] dark:hover:bg-[#7FAF9A] rounded-xl flex items-center justify-center gap-2 text-center"
+              className="w-full py-2.5 font-bold text-white dark:text-[#0A0E1A] bg-[#54816C] hover:bg-[#3D6352] dark:bg-[#6B9B85] dark:hover:bg-[#568570] rounded-xl flex items-center justify-center gap-2 text-center"
             >
               <span>Create Account</span>
               <ArrowRight className="w-4 h-4 text-white dark:text-[#0A0E1A]" />

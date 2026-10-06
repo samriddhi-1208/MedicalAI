@@ -54,16 +54,16 @@
   --bg-surface: #24283A;
   --bg-surface-subtle: #2C333E;
 
-  --color-primary: #91C1AC; /* Light Luminous Sage Green in Dark Mode */
-  --color-primary-hover: #7FAF9A; /* Darker Sage on hover */
+  --color-primary: #6B9B85; /* Balanced Medium Sage Green in Dark Mode */
+  --color-primary-hover: #568570; /* Darker Sage on hover */
   --color-primary-light: #1E2824;
 
   --color-secondary: #90AFA0;
   --color-secondary-hover: #A5C4B5;
 
-  --color-accent: #91C1AC;
-  --color-accent-hover: #A7D1C0;
-  --color-accent-dark: #7FAF9A;
+  --color-accent: #6B9B85;
+  --color-accent-hover: #7EAE98;
+  --color-accent-dark: #568570;
 
   --text-main: #F5F7FA; /* main text */
   --text-muted: #C8D0E0; /* secondary text */
@@ -79,7 +79,7 @@
   --status-warning-bg: #322B18;
   --status-critical: #F3C6CB;
   --status-critical-bg: #3A2028;
-  --status-info: #91C1AC;
+  --status-info: #6B9B85;
   --status-info-bg: #1E2824;
 
   /* MUTED EMERGENCY / SOS RED SYSTEM IN DARK MODE */
@@ -89,7 +89,7 @@
   --emergency-border: #A83D49;
   --emergency-text: #F3C6CB;
 
-  --focus-ring: 0 0 0 2px #91C1AC;
+  --focus-ring: 0 0 0 2px #6B9B85;
 }
 
 /* ==========================================================================
@@ -225,7 +225,7 @@ html:not(.dark) .bg-\[\#EEF7F1\] {
   color: #F5F7FA;
 }
 
-/* Accessible light sage green accents on dark backgrounds */
+/* Accessible balanced sage green accents on dark backgrounds */
 .dark .text-\[\#0D9488\],
 .dark .text-teal-400,
 .dark .text-teal-500,
@@ -234,8 +234,9 @@ html:not(.dark) .bg-\[\#EEF7F1\] {
 .dark .text-\[\#2DD4BF\],
 .dark .text-\[\#54816C\],
 .dark .text-\[\#7FAF9A\],
-.dark .text-\[\#91C1AC\] {
-  color: #91C1AC !important;
+.dark .text-\[\#91C1AC\],
+.dark .text-\[\#6B9B85\] {
+  color: #6B9B85 !important;
 }
 
 .dark .bg-\[\#0D9488\],
@@ -243,8 +244,9 @@ html:not(.dark) .bg-\[\#EEF7F1\] {
 .dark .bg-teal-700,
 .dark .bg-\[\#54816C\],
 .dark .bg-\[\#7FAF9A\],
-.dark .bg-\[\#91C1AC\] {
-  background-color: #91C1AC !important;
+.dark .bg-\[\#91C1AC\],
+.dark .bg-\[\#6B9B85\] {
+  background-color: #6B9B85 !important;
   color: #0A0E1A !important;
 }
 
@@ -324,17 +326,17 @@ button.bg-\[\#D6B86A\]:hover {
   background-color: #C5A85D !important;
 }
 
-/* In dark mode, primary action buttons switch to light luminous sage green #91C1AC */
+/* In dark mode, primary action buttons switch to balanced sage green #6B9B85 */
 .dark button.bg-\[\#0F172A\]:not([class*="bg-[#6FA89E]"]):not([class*="bg-[#D6B86A]"]):not([class*="bg-red-"]):not([class*="bg-[#DC2626]"]):not([class*="bg-emerald-"]),
 .dark a.bg-\[\#0F172A\]:not([class*="bg-[#6FA89E]"]):not([class*="bg-[#D6B86A]"]):not([class*="bg-red-"]):not([class*="bg-[#DC2626]"]):not([class*="bg-emerald-"]) {
-  background-color: #91C1AC !important;
+  background-color: #6B9B85 !important;
   color: #0A0E1A !important;
   font-weight: 700 !important;
 }
 
 .dark button.bg-\[\#0F172A\]:not([class*="bg-[#6FA89E]"]):not([class*="bg-[#D6B86A]"]):not([class*="bg-red-"]):hover,
 .dark a.bg-\[\#0F172A\]:not([class*="bg-[#6FA89E]"]):not([class*="bg-[#D6B86A]"]):not([class*="bg-red-"]):hover {
-  background-color: #7FAF9A !important;
+  background-color: #568570 !important;
 }
 
 /* Global Reset & Typography Defaults */
