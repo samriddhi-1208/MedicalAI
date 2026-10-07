@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   FileText, 
@@ -15,7 +15,8 @@ import {
   Check,
   ArrowRight,
   Calendar,
-  FileCheck
+  FileCheck,
+  Users
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useHealthData } from '../context/HealthDataContext';
@@ -23,6 +24,7 @@ import { getTranslation } from '../utils/translations';
 import { formatDisplayName } from '../utils/formatters';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
+import { Modal } from '../components/ui/Modal';
 
 export const DashboardPage = () => {
   const navigate = useNavigate();
@@ -31,6 +33,9 @@ export const DashboardPage = () => {
     updateUserProfile, 
     reports, 
     medicines, 
+    emergencyContacts,
+    notifyEmergencyContact,
+    notifyAllEmergencyContacts,
     language 
   } = useHealthData();
 
@@ -57,6 +62,104 @@ export const DashboardPage = () => {
 
   // User-specific medicines array (0% Fake/Fallback Data!)
   const userMedicines = Array.isArray(medicines) ? medicines : [];
+
+  // Emergency Contacts Notification State
+  const [contactToNotify, setContactToNotify] = useState(null);
+  const [showNotifyAllModal, setShowNotifyAllModal] = useState(false);
+  const [isNotifying, setIsNotifying] = useState(false);
+  const [notificationStatus, setNotificationStatus] = useState(null);
+
+  const getContactPriorityBadge = (c) => {
+    if (c.priority) return c.priority;
+    if (c.contactType) return c.contactType;
+    if (c.is_primary || c.isPrimary) return 'Primary Contact';
+    const rel = (c.relation || '').trim();
+    if (rel) {
+      if (/family/i.test(rel)) return 'Family Contact';
+      if (/neighbor/i.test(rel)) return 'Nearby Contact';
+      if (/physician|doctor|hospital/i.test(rel)) return 'Medical Contact';
+      if (/friend/i.test(rel)) return 'Friend Contact';
+      return `${rel} Contact`;
+    }
+    return 'Emergency Contact';
+  };
+
+  const getAvailableCoords = () => {
+    return new Promise((resolve) => {
+      if (typeof navigator === 'undefined' || !navigator.geolocation) {
+        return resolve(null);
+      }
+      navigator.geolocation.getCurrentPosition(
+        (pos) => resolve({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }),
+        () => resolve(null),
+        { enableHighAccuracy: true, timeout: 4000, maximumAge: 60000 }
+      );
+    });
+  };
+
+  const handleConfirmNotifySingle = async () => {
+    if (!contactToNotify) return;
+    setIsNotifying(true);
+    setNotificationStatus(null);
+    try {
+      const coords = await getAvailableCoords();
+      const res = await notifyEmergencyContact(contactToNotify.id || contactToNotify._id, coords);
+      if (res && res.success) {
+        setNotificationStatus({
+          type: 'success',
+          message: 'Emergency contact notified successfully.'
+        });
+      } else {
+        setNotificationStatus({
+          type: 'error',
+          message: res?.error || 'Unable to notify contact. Please try again or contact them directly.'
+        });
+      }
+    } catch {
+      setNotificationStatus({
+        type: 'error',
+        message: 'Unable to notify contact. Please try again or contact them directly.'
+      });
+    } finally {
+      setIsNotifying(false);
+      setContactToNotify(null);
+    }
+  };
+
+  const handleConfirmNotifyAll = async () => {
+    setIsNotifying(true);
+    setNotificationStatus(null);
+    try {
+      const coords = await getAvailableCoords();
+      const res = await notifyAllEmergencyContacts(coords);
+      if (res && res.success) {
+        if (res.partial) {
+          setNotificationStatus({
+            type: 'partial',
+            message: res.message || 'Not all contacts were notified.'
+          });
+        } else {
+          setNotificationStatus({
+            type: 'success',
+            message: 'All emergency contacts have been notified.'
+          });
+        }
+      } else {
+        setNotificationStatus({
+          type: 'error',
+          message: res?.error || 'Unable to notify contact. Please try again or contact them directly.'
+        });
+      }
+    } catch {
+      setNotificationStatus({
+        type: 'error',
+        message: 'Unable to notify contact. Please try again or contact them directly.'
+      });
+    } finally {
+      setIsNotifying(false);
+      setShowNotifyAllModal(false);
+    }
+  };
 
   // Calculate total tracked parameters dynamically across valid reports
   let totalTrackedParameters = 0;
@@ -349,6 +452,111 @@ export const DashboardPage = () => {
             )}
           </Card>
 
+          {/* EMERGENCY CONTACTS CARD */}
+          <Card className="p-5 sm:p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <div className="flex items-center gap-2.5">
+                  <Users className="w-5 h-5 text-[#3D6352] dark:text-[#6B9B85]" />
+                  <h3 className="text-lg font-black text-[#0F172A] dark:text-[#F5F7FA]">Emergency Contacts</h3>
+                </div>
+                <p className="text-xs text-slate-500 dark:text-[#C8D0E0] mt-0.5">
+                  People who can help you during an emergency.
+                </p>
+              </div>
+
+              {emergencyContacts && emergencyContacts.length > 0 && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setShowNotifyAllModal(true)}
+                  disabled={isNotifying}
+                  className="text-xs font-bold rounded-xl border-slate-300 dark:border-slate-700 text-[#3D6352] dark:text-[#6B9B85] hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer shrink-0"
+                >
+                  Notify All Emergency Contacts
+                </Button>
+              )}
+            </div>
+
+            {notificationStatus && (
+              <div
+                className={`p-3.5 rounded-xl border text-xs font-bold flex items-center justify-between gap-2 ${
+                  notificationStatus.type === 'success'
+                    ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300'
+                    : notificationStatus.type === 'partial'
+                    ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300'
+                    : 'bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-800 text-red-800 dark:text-red-300'
+                }`}
+              >
+                <span>{notificationStatus.message}</span>
+                <button
+                  type="button"
+                  onClick={() => setNotificationStatus(null)}
+                  className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-sm font-black cursor-pointer px-1"
+                  aria-label="Dismiss notification"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+
+            {emergencyContacts && emergencyContacts.length > 0 ? (
+              <div className="space-y-2.5">
+                {emergencyContacts.map((contact, idx) => (
+                  <div
+                    key={contact.id || contact._id || idx}
+                    className="p-3.5 sm:p-4 rounded-xl bg-slate-50 dark:bg-[#151824] border border-slate-200/80 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+                  >
+                    <div className="space-y-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <strong className="text-sm font-black text-[#0F172A] dark:text-[#F5F7FA] truncate">
+                          {contact.name}
+                        </strong>
+                        <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#EEF7F1] dark:bg-[#24283A] text-[#3D6352] dark:text-[#6B9B85] border border-[#D5E8DC] dark:border-slate-700">
+                          {getContactPriorityBadge(contact)}
+                        </span>
+                      </div>
+                      <div className="text-xs text-slate-500 dark:text-[#C8D0E0] flex items-center gap-2 flex-wrap">
+                        <span className="font-medium">{contact.relation || 'Emergency Contact'}</span>
+                        <span>•</span>
+                        <span className="font-mono">{contact.phone}</span>
+                        {contact.email && (
+                          <>
+                            <span>•</span>
+                            <span className="truncate max-w-[200px]">{contact.email}</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    <Button
+                      size="sm"
+                      variant="primary"
+                      onClick={() => setContactToNotify(contact)}
+                      disabled={isNotifying}
+                      className="bg-[#54816C] hover:bg-[#3D6352] dark:bg-[#6B9B85] dark:hover:bg-[#568570] text-xs font-bold rounded-xl cursor-pointer text-white dark:text-[#0A0E1A] px-3.5 py-1.5 shrink-0 self-start sm:self-auto"
+                    >
+                      Notify
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="p-6 rounded-xl bg-slate-50 dark:bg-[#151824] border border-slate-200 dark:border-slate-800 text-center space-y-3">
+                <p className="text-xs text-slate-600 dark:text-[#C8D0E0] font-medium">No emergency contacts saved yet.</p>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  icon={Plus}
+                  onClick={() => navigate('/app/emergency')}
+                  className="text-xs font-bold rounded-xl border-slate-300 dark:border-slate-700 dark:text-[#F5F7FA] dark:hover:bg-slate-800 cursor-pointer"
+                >
+                  Add Emergency Contact
+                </Button>
+              </div>
+            )}
+          </Card>
+
         </div>
 
         {/* Right Column (5 cols): Small Trend Preview & Recent Activity */}
@@ -432,6 +640,99 @@ export const DashboardPage = () => {
         </div>
 
       </div>
+
+      {/* CONFIRM NOTIFY SINGLE CONTACT MODAL */}
+      <Modal
+        isOpen={Boolean(contactToNotify)}
+        onClose={() => !isNotifying && setContactToNotify(null)}
+        title="Notify Emergency Contact"
+      >
+        <div className="space-y-4 text-xs font-sans">
+          <p className="text-sm text-slate-700 dark:text-[#C8D0E0]">
+            Are you sure you want to notify <strong>{contactToNotify?.name}</strong>?
+          </p>
+
+          <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#151824] border border-slate-200 dark:border-slate-800 space-y-1.5 text-xs">
+            <div className="flex justify-between">
+              <span className="text-slate-500 dark:text-slate-400">Relationship:</span>
+              <strong className="text-slate-800 dark:text-slate-200">{contactToNotify?.relation || 'Emergency Contact'}</strong>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-500 dark:text-slate-400">Priority / Type:</span>
+              <strong className="text-[#3D6352] dark:text-[#6B9B85]">{contactToNotify ? getContactPriorityBadge(contactToNotify) : ''}</strong>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-500 dark:text-slate-400">Phone:</span>
+              <strong className="text-slate-800 dark:text-slate-200 font-mono">{contactToNotify?.phone}</strong>
+            </div>
+            {contactToNotify?.email && (
+              <div className="flex justify-between">
+                <span className="text-slate-500 dark:text-slate-400">Email:</span>
+                <strong className="text-slate-800 dark:text-slate-200">{contactToNotify.email}</strong>
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center justify-end gap-2.5 pt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setContactToNotify(null)}
+              disabled={isNotifying}
+              className="rounded-xl border-slate-300 dark:border-slate-700 text-xs font-bold cursor-pointer"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleConfirmNotifySingle}
+              disabled={isNotifying}
+              className="bg-[#54816C] hover:bg-[#3D6352] dark:bg-[#6B9B85] dark:hover:bg-[#568570] text-white dark:text-[#0A0E1A] rounded-xl text-xs font-bold cursor-pointer"
+            >
+              {isNotifying ? 'Notifying...' : 'Notify Contact'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* CONFIRM NOTIFY ALL CONTACTS MODAL */}
+      <Modal
+        isOpen={showNotifyAllModal}
+        onClose={() => !isNotifying && setShowNotifyAllModal(false)}
+        title="Notify All Emergency Contacts"
+      >
+        <div className="space-y-4 text-xs font-sans">
+          <p className="text-sm text-slate-700 dark:text-[#C8D0E0]">
+            Are you sure you want to notify all your emergency contacts?
+          </p>
+
+          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            This will send an emergency alert notification to all {emergencyContacts?.length || 0} emergency contacts configured for your profile.
+          </p>
+
+          <div className="flex items-center justify-end gap-2.5 pt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowNotifyAllModal(false)}
+              disabled={isNotifying}
+              className="rounded-xl border-slate-300 dark:border-slate-700 text-xs font-bold cursor-pointer"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleConfirmNotifyAll}
+              disabled={isNotifying}
+              className="bg-[#54816C] hover:bg-[#3D6352] dark:bg-[#6B9B85] dark:hover:bg-[#568570] text-white dark:text-[#0A0E1A] rounded-xl text-xs font-bold cursor-pointer"
+            >
+              {isNotifying ? 'Notifying All...' : 'Notify All'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
 
     </div>
   );

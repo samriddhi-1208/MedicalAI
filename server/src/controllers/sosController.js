@@ -191,3 +191,118 @@ exports.deleteContact = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.notifyContact = async (req, res, next) => {
+  try {
+    const user = await getUserFromReq(req);
+    if (!user) {
+      return res.status(401).json({ error: "Authentication required." });
+    }
+
+    const { id } = req.params;
+    let contact = null;
+
+    if (mongoose.connection && mongoose.connection.readyState === 1) {
+      const query = mongoose.Types.ObjectId.isValid(id) ? { _id: id } : { id: id };
+      contact = await EmergencyContact.findOne({ ...query, user_id: user._id });
+    }
+
+    if (!contact && req.body?.contact) {
+      const c = req.body.contact;
+      if (String(c.id || c._id) === String(id) || !id) {
+        contact = c;
+      }
+    }
+
+    if (!contact) {
+      return res.status(404).json({ error: "Emergency contact not found or access denied." });
+    }
+
+    const { latitude, longitude, message } = req.body || {};
+
+    const dispatchRes = await sosAlertService.dispatchSOSAlert(user, [contact], {
+      triggerType: "Manual Emergency Contact Notification",
+      notes: message || "Direct Emergency Assistance Request from Patient Dashboard",
+      latitude,
+      longitude
+    });
+
+    if (!dispatchRes.success && dispatchRes.failedCount > 0) {
+      return res.status(502).json({
+        success: false,
+        error: "Unable to notify contact. Please try again or contact them directly.",
+        details: dispatchRes
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: "Emergency contact notified successfully.",
+      contact: {
+        id: contact.id || contact._id,
+        name: contact.name,
+        phone: contact.phone
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.notifyAllContacts = async (req, res, next) => {
+  try {
+    const user = await getUserFromReq(req);
+    if (!user) {
+      return res.status(401).json({ error: "Authentication required." });
+    }
+
+    let contacts = [];
+    if (mongoose.connection && mongoose.connection.readyState === 1) {
+      contacts = await EmergencyContact.find({ user_id: user._id });
+    }
+
+    if (contacts.length === 0 && Array.isArray(req.body?.contacts) && req.body.contacts.length > 0) {
+      contacts = req.body.contacts;
+    }
+
+    if (!contacts || contacts.length === 0) {
+      return res.status(400).json({ error: "No emergency contacts found to notify." });
+    }
+
+    const { latitude, longitude, message } = req.body || {};
+
+    const dispatchRes = await sosAlertService.dispatchSOSAlert(user, contacts, {
+      triggerType: "Manual Bulk Emergency Contacts Notification",
+      notes: message || "Direct Emergency Assistance Request to All Contacts from Patient Dashboard",
+      latitude,
+      longitude
+    });
+
+    if (!dispatchRes.success && dispatchRes.contactsNotified === 0) {
+      return res.status(502).json({
+        success: false,
+        error: "Unable to notify contact. Please try again or contact them directly.",
+        details: dispatchRes
+      });
+    }
+
+    if (dispatchRes.failedCount > 0) {
+      return res.json({
+        success: true,
+        partial: true,
+        message: `Notified ${dispatchRes.contactsNotified} contact(s), but ${dispatchRes.failedCount} contact(s) could not be reached.`,
+        contactsNotified: dispatchRes.contactsNotified,
+        failedCount: dispatchRes.failedCount
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: "All emergency contacts have been notified.",
+      contactsNotified: dispatchRes.contactsNotified
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+

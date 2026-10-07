@@ -77,7 +77,15 @@ export const HealthDataProvider = ({ children }) => {
       return [];
     }
   });
-  const [emergencyContacts, setEmergencyContacts] = useState([]);
+
+  const [emergencyContacts, setEmergencyContacts] = useState(() => {
+    try {
+      const saved = localStorage.getItem('medguardian_emergency_contacts_cache');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
   const [notifications, setNotifications] = useState([]);
   const [language, setLanguage] = useState(() => localStorage.getItem('medguardian_lang') || 'EN');
   const [activeReportId, setActiveReportId] = useState(null);
@@ -316,7 +324,18 @@ export const HealthDataProvider = ({ children }) => {
               cData = await safeParseJson(sosRes);
             }
           }
-          setEmergencyContacts(Array.isArray(cData) ? cData : []);
+          const rawContactsList = Array.isArray(cData) ? cData : [];
+          const normalizedContacts = rawContactsList.map(c => ({
+            ...c,
+            id: c.id || c._id,
+            isPrimary: Boolean(c.is_primary ?? c.isPrimary)
+          }));
+          setEmergencyContacts(normalizedContacts);
+          if (normalizedContacts.length > 0) {
+            try {
+              localStorage.setItem('medguardian_emergency_contacts_cache', JSON.stringify(normalizedContacts));
+            } catch {}
+          }
         }
       } catch (err) {
         console.warn("[AUTH] Sync note:", err.message);
@@ -1058,7 +1077,7 @@ export const HealthDataProvider = ({ children }) => {
     }
   };
 
-  const triggerSOS = async (latitude, longitude) => {
+  const triggerSOS = async (latitude, longitude, customContacts) => {
     if (!token) {
       throw new Error("Authentication required to send an SOS.");
     }
@@ -1115,6 +1134,93 @@ export const HealthDataProvider = ({ children }) => {
       contactsNotified: payload.emergencyContacts.length,
       offlineFallback: true
     };
+  };
+
+  const notifyEmergencyContact = async (contactId, coords = null) => {
+    if (!token) {
+      toast.error("Please login to notify emergency contacts.");
+      return { success: false, error: "Authentication required." };
+    }
+
+    const targetContact = emergencyContacts.find(c => (c.id === contactId || c._id === contactId));
+    const payload = {
+      contact: targetContact,
+      latitude: coords?.latitude ?? coords?.lat,
+      longitude: coords?.longitude ?? coords?.lng
+    };
+
+    const endpointList = [
+      `${API_BASE}/emergency/contacts/${contactId}/notify`,
+      `${API_BASE}/sos/contacts/${contactId}/notify`
+    ];
+
+    for (const url of endpointList) {
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(payload)
+        });
+        const data = await safeParseJson(res);
+        if (res.ok && data && data.success) {
+          toast.success("Emergency contact notified successfully.");
+          return data;
+        } else if (data?.error) {
+          toast.error(data.error);
+          return { success: false, error: data.error };
+        }
+      } catch (e) {
+        // Continue trying fallback endpoint
+      }
+    }
+
+    toast.error("Unable to notify contact. Please try again or contact them directly.");
+    return { success: false, error: "Unable to notify contact. Please try again or contact them directly." };
+  };
+
+  const notifyAllEmergencyContacts = async (coords = null) => {
+    if (!token) {
+      toast.error("Please login to notify emergency contacts.");
+      return { success: false, error: "Authentication required." };
+    }
+
+    const payload = {
+      contacts: emergencyContacts,
+      latitude: coords?.latitude ?? coords?.lat,
+      longitude: coords?.longitude ?? coords?.lng
+    };
+
+    const endpointList = [
+      `${API_BASE}/emergency/contacts/notify-all`,
+      `${API_BASE}/sos/contacts/notify-all`
+    ];
+
+    for (const url of endpointList) {
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(payload)
+        });
+        const data = await safeParseJson(res);
+        if (res.ok && data && data.success) {
+          if (data.partial) {
+            toast.error(data.message || "Not all contacts were notified. Please check contact details or call them directly.");
+          } else {
+            toast.success("All emergency contacts have been notified.");
+          }
+          return data;
+        } else if (data?.error) {
+          toast.error(data.error);
+          return { success: false, error: data.error };
+        }
+      } catch (e) {
+        // Continue trying fallback
+      }
+    }
+
+    toast.error("Unable to notify contact. Please try again or contact them directly.");
+    return { success: false, error: "Unable to notify contact. Please try again or contact them directly." };
   };
 
   const cancelSOS = async () => {
@@ -1174,6 +1280,8 @@ export const HealthDataProvider = ({ children }) => {
     toggleMedicineTaken,
     addEmergencyContact,
     deleteEmergencyContact,
+    notifyEmergencyContact,
+    notifyAllEmergencyContacts,
     triggerSOS,
     isAuthenticated: Boolean(token)
   };

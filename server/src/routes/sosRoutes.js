@@ -19,5 +19,7 @@ router.post('/resolve', optionalAuthMiddleware, sosController.cancelSOS);
 router.get('/contacts', authMiddleware, sosController.getContacts);
 router.post('/contacts', authMiddleware, sosController.addContact);
 router.delete('/contacts/:id', authMiddleware, sosController.deleteContact);
+router.post('/contacts/notify-all', authMiddleware, sosController.notifyAllContacts);
+router.post('/contacts/:id/notify', authMiddleware, sosController.notifyContact);
 
 module.exports = router;
