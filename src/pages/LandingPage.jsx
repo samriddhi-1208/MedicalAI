@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
   Shield, 
@@ -126,20 +126,6 @@ export const LandingPage = () => {
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] font-sans antialiased">
       <Navbar />
-
-      {/* Zero-Login Emergency Announcement Ribbon */}
-      <div className="bg-gradient-to-r from-red-600 via-rose-600 to-red-700 text-white py-2.5 px-4 text-xs font-bold text-center flex items-center justify-center gap-2 flex-wrap shadow-xs">
-        <span className="flex items-center gap-1.5 font-black uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded-full text-[11px]">
-          <Siren className="w-3.5 h-3.5" /> Emergency SOS
-        </span>
-        <span>Facing a medical emergency? Instant 1-tap dispatch, 108 ambulance call & GPS sharing:</span>
-        <Link 
-          to="/sos" 
-          className="underline font-black hover:text-yellow-200 ml-1 inline-flex items-center gap-1"
-        >
-          Open SOS (No Login Needed) &rarr;
-        </Link>
-      </div>
 
       {/* MedGuardian AI Hero Section */}
       <section className="py-16 md:py-24 bg-white dark:bg-[#1B1E2D] border-b border-[#D5E8DC] dark:border-[#313750] relative overflow-hidden">
