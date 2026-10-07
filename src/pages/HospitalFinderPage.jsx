@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   MapPin, 
   Phone, 
@@ -491,53 +491,55 @@ export const HospitalFinderPage = () => {
 
       {/* Location Access Prompt UI (Initial Un-Granted / Denied State) */}
       {locationState !== 'granted' && (
-        <Card className="p-8 sm:p-10 text-center bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-800 rounded-2xl space-y-5 shadow-xs max-w-2xl mx-auto">
-          <div className="w-16 h-16 rounded-2xl bg-[#EEF7F1] dark:bg-[#24283A] text-[#3D6352] dark:text-[#6B9B85] flex items-center justify-center mx-auto border border-[#D5E8DC] dark:border-slate-800 shadow-2xs">
-            <Compass className="w-8 h-8" />
-          </div>
-
-          <div className="space-y-2.5">
-            <h2 className="text-xl sm:text-2xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight">{t('findHealthcareNearYou')}</h2>
-            <p className="text-sm text-slate-600 dark:text-[#C8D0E0] font-normal leading-[1.6]">
-              {t('locationAccessReq')}
-            </p>
-          </div>
-
-          {locationState === 'denied' && (
-            <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-sm text-amber-900 dark:text-amber-200 font-semibold space-y-1">
-              <p>⚠️ {t('locationDeniedWarning')}</p>
+        <div className="min-h-[70vh] flex items-center justify-center py-6 px-2">
+          <Card className="p-8 sm:p-10 text-center bg-white dark:bg-[#1C1F2E] border border-slate-200 dark:border-slate-800 rounded-2xl space-y-5 shadow-sm max-w-2xl w-full mx-auto">
+            <div className="w-16 h-16 rounded-2xl bg-[#EEF7F1] dark:bg-[#24283A] text-[#3D6352] dark:text-[#6B9B85] flex items-center justify-center mx-auto border border-[#D5E8DC] dark:border-slate-800 shadow-2xs">
+              <Compass className="w-8 h-8" />
             </div>
-          )}
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-            <Button
-              variant="primary"
-              size="md"
-              icon={Compass}
-              loading={locationState === 'loading'}
-              onClick={handleUseCurrentLocation}
-              className="bg-[#54816C] hover:bg-[#3D6352] dark:bg-[#6B9B85] dark:hover:bg-[#568570] text-white dark:text-[#0A0E1A] py-3.5 px-7 text-sm font-bold rounded-xl w-full sm:w-auto cursor-pointer"
-            >
-              {locationState === 'loading' ? t('loadingMedicalData') : t('useCurrentLocation')}
-            </Button>
+            <div className="space-y-2.5">
+              <h2 className="text-xl sm:text-2xl font-black text-[#0F172A] dark:text-[#F5F7FA] tracking-tight">{t('findHealthcareNearYou')}</h2>
+              <p className="text-sm text-slate-600 dark:text-[#C8D0E0] font-normal leading-[1.6]">
+                {t('locationAccessReq')}
+              </p>
+            </div>
 
-            <Button
-              variant="secondary"
-              size="md"
-              icon={MapPin}
-              onClick={() => {
-                const city = prompt("Enter City Name or Pincode:", manualQuery || "Mumbai");
-                if (city) {
-                  setManualQuery(city);
-                  handleManualSearch();
-                }
-              }}
-              className="py-3.5 px-7 text-sm font-bold rounded-xl bg-slate-50 dark:bg-[#25293C] border-slate-200 dark:border-slate-700 text-[#0F172A] dark:text-[#F5F7FA] hover:bg-slate-100 dark:hover:bg-slate-800 w-full sm:w-auto cursor-pointer"
-            >
-              {t('enterLocationManually')}
-            </Button>
-          </div>
-        </Card>
+            {locationState === 'denied' && (
+              <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-sm text-amber-900 dark:text-amber-200 font-semibold space-y-1">
+                <p>⚠️ {t('locationDeniedWarning')}</p>
+              </div>
+            )}
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+              <Button
+                variant="primary"
+                size="md"
+                icon={Compass}
+                loading={locationState === 'loading'}
+                onClick={handleUseCurrentLocation}
+                className="bg-[#54816C] hover:bg-[#3D6352] dark:bg-[#6B9B85] dark:hover:bg-[#568570] text-white dark:text-[#0A0E1A] py-3.5 px-7 text-sm font-bold rounded-xl w-full sm:w-auto cursor-pointer"
+              >
+                {locationState === 'loading' ? t('loadingMedicalData') : t('useCurrentLocation')}
+              </Button>
+
+              <Button
+                variant="secondary"
+                size="md"
+                icon={MapPin}
+                onClick={() => {
+                  const city = prompt("Enter City Name or Pincode:", manualQuery || "Mumbai");
+                  if (city) {
+                    setManualQuery(city);
+                    handleManualSearch();
+                  }
+                }}
+                className="py-3.5 px-7 text-sm font-bold rounded-xl bg-slate-50 dark:bg-[#25293C] border-slate-200 dark:border-slate-700 text-[#0F172A] dark:text-[#F5F7FA] hover:bg-slate-100 dark:hover:bg-slate-800 w-full sm:w-auto cursor-pointer"
+              >
+                {t('enterLocationManually')}
+              </Button>
+            </div>
+          </Card>
+        </div>
       )}
 
       {/* Active Location Search Bar & Controls (Shown once Location is active) */}
