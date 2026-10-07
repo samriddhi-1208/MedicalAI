@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { 
   Siren, 
@@ -45,6 +45,8 @@ export const EmergencySOSPage = () => {
     deleteEmergencyContact, 
     triggerSOS, 
     cancelSOS, 
+    notifyEmergencyContact,
+    notifyAllEmergencyContacts,
     language,
     isAuthenticated 
   } = useHealthData();
@@ -91,6 +93,50 @@ export const EmergencySOSPage = () => {
   const [contactName, setContactName] = useState('');
   const [contactRelation, setContactRelation] = useState('');
   const [contactPhone, setContactPhone] = useState('');
+
+  // Emergency Contact Notifications State
+  const [contactToNotify, setContactToNotify] = useState(null);
+  const [showNotifyAllModal, setShowNotifyAllModal] = useState(false);
+  const [isNotifyingContact, setIsNotifyingContact] = useState(false);
+
+  const handleConfirmNotifySingle = async () => {
+    if (!contactToNotify) return;
+    setIsNotifyingContact(true);
+    try {
+      const res = await notifyEmergencyContact(contactToNotify.id || contactToNotify._id, userCoords);
+      if (res && res.success) {
+        toast.success("Emergency contact notified successfully.");
+      } else {
+        toast.error(res?.error || "Unable to notify contact. Please try again or contact them directly.");
+      }
+    } catch {
+      toast.error("Unable to notify contact. Please try again or contact them directly.");
+    } finally {
+      setIsNotifyingContact(false);
+      setContactToNotify(null);
+    }
+  };
+
+  const handleConfirmNotifyAll = async () => {
+    setIsNotifyingContact(true);
+    try {
+      const res = await notifyAllEmergencyContacts(userCoords);
+      if (res && res.success) {
+        if (res.partial) {
+          toast.error(res.message || "Not all contacts were notified.");
+        } else {
+          toast.success("All emergency contacts have been notified.");
+        }
+      } else {
+        toast.error(res?.error || "Unable to notify contact. Please try again or contact them directly.");
+      }
+    } catch {
+      toast.error("Unable to notify contact. Please try again or contact them directly.");
+    } finally {
+      setIsNotifyingContact(false);
+      setShowNotifyAllModal(false);
+    }
+  };
 
   const [activeFirstAidTab, setActiveFirstAidTab] = useState('cpr'); // 'cpr' | 'bleeding' | 'choking' | 'heart' | 'seizure'
 
@@ -668,31 +714,45 @@ export const EmergencySOSPage = () => {
 
       {/* Trusted Emergency Contacts */}
       <Card className="p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl space-y-4 shadow-sm">
-        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 flex-wrap gap-2">
           <div className="flex items-center gap-2">
             <Users className="w-5 h-5 text-[#3D6352] dark:text-[#6B9B85]" />
             <h3 className="text-base font-black text-[#0F172A] dark:text-[#F5F7FA]">Designated Emergency Contacts</h3>
           </div>
 
-          <Button
-            variant="outline"
-            size="sm"
-            icon={Plus}
-            onClick={() => {
-              setContactName('');
-              setContactRelation('');
-              setContactPhone('');
-              setShowContactModal(true);
-            }}
-            className="rounded-xl border-slate-200 dark:border-slate-700 text-xs font-bold cursor-pointer dark:text-[#F5F7FA] dark:hover:bg-slate-800"
-          >
-            {t('addContact') || "Add Contact"}
-          </Button>
+          <div className="flex items-center gap-2 flex-wrap">
+            {activeContactsList && activeContactsList.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowNotifyAllModal(true)}
+                disabled={isNotifyingContact}
+                className="rounded-xl border-slate-200 dark:border-slate-700 text-xs font-bold cursor-pointer text-[#3D6352] dark:text-[#6B9B85] hover:bg-slate-50 dark:hover:bg-slate-800"
+              >
+                Notify All Emergency Contacts
+              </Button>
+            )}
+
+            <Button
+              variant="outline"
+              size="sm"
+              icon={Plus}
+              onClick={() => {
+                setContactName('');
+                setContactRelation('');
+                setContactPhone('');
+                setShowContactModal(true);
+              }}
+              className="rounded-xl border-slate-200 dark:border-slate-700 text-xs font-bold cursor-pointer dark:text-[#F5F7FA] dark:hover:bg-slate-800"
+            >
+              {t('addContact') || "Add Contact"}
+            </Button>
+          </div>
         </div>
 
         <div className="space-y-2.5 text-xs">
           {activeContactsList.map((contact) => (
-            <div key={contact.id || contact._id} className="flex items-center justify-between p-4 rounded-xl bg-slate-50 dark:bg-[#151824] border border-slate-200/80 dark:border-slate-800">
+            <div key={contact.id || contact._id} className="flex items-center justify-between p-4 rounded-xl bg-slate-50 dark:bg-[#151824] border border-slate-200/80 dark:border-slate-800 flex-wrap sm:flex-nowrap gap-3">
               <div>
                 <div className="flex items-center gap-2">
                   <h4 className="font-black text-sm text-[#0F172A] dark:text-[#F5F7FA]">{contact.name}</h4>
@@ -703,7 +763,16 @@ export const EmergencySOSPage = () => {
                 <p className="text-slate-500 dark:text-[#C8D0E0] font-medium mt-0.5">{contact.relation} • {contact.phone}</p>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 shrink-0">
+                <Button
+                  size="sm"
+                  variant="primary"
+                  onClick={() => setContactToNotify(contact)}
+                  disabled={isNotifyingContact}
+                  className="bg-[#54816C] hover:bg-[#3D6352] dark:bg-[#6B9B85] dark:hover:bg-[#568570] text-xs font-bold rounded-xl cursor-pointer text-white dark:text-[#0A0E1A] px-3.5 py-1.5"
+                >
+                  Notify
+                </Button>
                 <a
                   href={`tel:${contact.phone}`}
                   className="px-3.5 py-1.5 rounded-xl bg-[#C94B55] hover:bg-[#B33D46] text-white text-xs font-bold cursor-pointer shadow-xs flex items-center gap-1.5 border border-[#A83D49]"
@@ -843,6 +912,95 @@ export const EmergencySOSPage = () => {
               className="bg-[#C94B55] hover:bg-[#B33D46] text-xs font-bold rounded-xl cursor-pointer text-white border border-[#A83D49]"
             >
               Save Contact
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* CONFIRM NOTIFY SINGLE CONTACT MODAL */}
+      <Modal
+        isOpen={Boolean(contactToNotify)}
+        onClose={() => !isNotifyingContact && setContactToNotify(null)}
+        title="Notify Emergency Contact"
+      >
+        <div className="space-y-4 text-xs font-sans">
+          <p className="text-sm text-slate-700 dark:text-[#C8D0E0]">
+            Are you sure you want to notify <strong>{contactToNotify?.name}</strong>?
+          </p>
+
+          <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#151824] border border-slate-200 dark:border-slate-800 space-y-1.5 text-xs">
+            <div className="flex justify-between">
+              <span className="text-slate-500 dark:text-slate-400">Relationship:</span>
+              <strong className="text-slate-800 dark:text-slate-200">{contactToNotify?.relation || 'Emergency Contact'}</strong>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-500 dark:text-slate-400">Phone:</span>
+              <strong className="text-slate-800 dark:text-slate-200 font-mono">{contactToNotify?.phone}</strong>
+            </div>
+            {contactToNotify?.email && (
+              <div className="flex justify-between">
+                <span className="text-slate-500 dark:text-slate-400">Email:</span>
+                <strong className="text-slate-800 dark:text-slate-200">{contactToNotify.email}</strong>
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center justify-end gap-2.5 pt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setContactToNotify(null)}
+              disabled={isNotifyingContact}
+              className="rounded-xl border-slate-300 dark:border-slate-700 text-xs font-bold cursor-pointer"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleConfirmNotifySingle}
+              disabled={isNotifyingContact}
+              className="bg-[#54816C] hover:bg-[#3D6352] dark:bg-[#6B9B85] dark:hover:bg-[#568570] text-white dark:text-[#0A0E1A] rounded-xl text-xs font-bold cursor-pointer"
+            >
+              {isNotifyingContact ? 'Notifying...' : 'Notify Contact'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* CONFIRM NOTIFY ALL CONTACTS MODAL */}
+      <Modal
+        isOpen={showNotifyAllModal}
+        onClose={() => !isNotifyingContact && setShowNotifyAllModal(false)}
+        title="Notify All Emergency Contacts"
+      >
+        <div className="space-y-4 text-xs font-sans">
+          <p className="text-sm text-slate-700 dark:text-[#C8D0E0]">
+            Are you sure you want to notify all your emergency contacts?
+          </p>
+
+          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            This will send an emergency alert notification to all {activeContactsList?.length || 0} designated emergency contacts.
+          </p>
+
+          <div className="flex items-center justify-end gap-2.5 pt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowNotifyAllModal(false)}
+              disabled={isNotifyingContact}
+              className="rounded-xl border-slate-300 dark:border-slate-700 text-xs font-bold cursor-pointer"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleConfirmNotifyAll}
+              disabled={isNotifyingContact}
+              className="bg-[#54816C] hover:bg-[#3D6352] dark:bg-[#6B9B85] dark:hover:bg-[#568570] text-white dark:text-[#0A0E1A] rounded-xl text-xs font-bold cursor-pointer"
+            >
+              {isNotifyingContact ? 'Notifying All...' : 'Notify All'}
             </Button>
           </div>
         </div>
