@@ -201,22 +201,22 @@ export const MedicineReminderPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         
         {/* Adherence Rate Card */}
-        <Card className="p-5 sm:p-6 bg-gradient-to-br from-[#0F172A] to-[#1E293B] text-white border border-[#0F172A] flex items-center justify-between rounded-2xl shadow-2xs">
+        <Card className="p-5 sm:p-6 bg-white dark:bg-[#1C1F2E] border border-slate-200/90 dark:border-slate-800 text-[#0F172A] dark:text-[#F5F7FA] flex items-center justify-between rounded-2xl shadow-2xs">
           <div>
-            <p className="text-xs sm:text-[13px] font-bold text-slate-300 uppercase tracking-[0.04em]">{t('todaysAdherenceRate')}</p>
+            <p className="text-xs sm:text-[13px] font-bold text-slate-500 dark:text-[#C8D0E0] uppercase tracking-[0.04em]">{t('todaysAdherenceRate')}</p>
             {hasMedicines ? (
               <>
-                <p className="text-4xl font-black text-white mt-1">{adherencePercent}%</p>
-                <p className="text-sm text-slate-300 font-medium mt-1">{takenCount} {t('of')} {totalCount} {t('dosesLogged')}</p>
+                <p className="text-4xl font-black text-[#0F172A] dark:text-[#F5F7FA] mt-1">{adherencePercent}%</p>
+                <p className="text-sm text-slate-500 dark:text-[#C8D0E0] font-medium mt-1">{takenCount} {t('of')} {totalCount} {t('dosesLogged')}</p>
               </>
             ) : (
               <>
-                <p className="text-base font-extrabold text-slate-300 mt-2">{t('noMedsScheduledToday')}</p>
-                <p className="text-sm text-slate-400 font-medium mt-1">{t('uploadPrescriptionToTrack')}</p>
+                <p className="text-base font-extrabold text-[#0F172A] dark:text-[#F5F7FA] mt-2">{t('noMedsScheduledToday')}</p>
+                <p className="text-sm text-slate-500 dark:text-[#C8D0E0] font-medium mt-1">{t('uploadPrescriptionToTrack')}</p>
               </>
             )}
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-white/10 text-emerald-400 flex items-center justify-center font-bold text-xl border border-white/10 shrink-0">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-xl border border-emerald-200 dark:border-emerald-800/50 shrink-0">
             ✓
           </div>
         </Card>

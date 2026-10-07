@@ -235,17 +235,17 @@ export const LandingPage = () => {
                   </div>
 
                   {/* Step 2: AI Analysis */}
-                  <div className="p-3.5 rounded-xl bg-[#172033] dark:bg-[#202434] text-white flex items-center justify-between border border-transparent dark:border-[#313750]">
+                  <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#202434] text-[#0A0E1A] dark:text-white flex items-center justify-between border border-[#D5E8DC] dark:border-[#313750]">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-slate-800 dark:bg-[#2C3146] text-white flex items-center justify-center font-bold">
+                      <div className="w-8 h-8 rounded-lg bg-[#EEF7F1] dark:bg-[#2C3146] text-[#54816C] dark:text-[#6B9B85] border border-[#D5E8DC] dark:border-[#313750] flex items-center justify-center font-bold">
                         <Sparkles className="w-4 h-4 text-[#54816C] dark:text-[#6B9B85]" />
                       </div>
                       <div>
-                        <span className="font-bold block text-xs text-white">2. AI Analysis</span>
-                        <span className="text-[11px] text-slate-300 dark:text-[#C8D0E0] font-normal">Extracting test names, values & reference bounds</span>
+                        <span className="font-bold block text-xs text-[#0A0E1A] dark:text-white">2. AI Analysis</span>
+                        <span className="text-[11px] text-slate-500 dark:text-[#C8D0E0] font-normal">Extracting test names, values & reference bounds</span>
                       </div>
                     </div>
-                    <span className="text-[11px] font-bold text-[#54816C] dark:text-[#6B9B85]">Report Analyzed</span>
+                    <span className="text-[11px] font-bold text-[#3D6352] dark:text-[#6B9B85] bg-[#EEF7F1] dark:bg-[#2C3146] px-2 py-0.5 rounded-md border border-[#D5E8DC] dark:border-[#313750]">Report Analyzed</span>
                   </div>
 
                   {/* Flow Arrow */}
@@ -309,22 +309,22 @@ export const LandingPage = () => {
               onClick={() => setPreviewTab('dashboard')}
               className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer transition-all ${
                 previewTab === 'dashboard'
-                  ? 'bg-[#0A0E1A] dark:bg-[#6B9B85] text-white dark:text-[#0A0E1A] shadow-xs'
+                  ? 'bg-[#54816C] dark:bg-[#6B9B85] text-white dark:text-[#0A0E1A] shadow-xs'
                   : 'bg-slate-100 dark:bg-[#2C3146] text-slate-800 dark:text-[#C8D0E0] hover:bg-slate-200 dark:hover:bg-[#353B54]'
               }`}
             >
-              <LayoutDashboard className="w-4 h-4 text-[#54816C] dark:text-[#0A0E1A]" /> Dashboard
+              <LayoutDashboard className={`w-4 h-4 ${previewTab === 'dashboard' ? 'text-white dark:text-[#0A0E1A]' : 'text-[#54816C] dark:text-[#6B9B85]'}`} /> Dashboard
             </button>
 
             <button
               onClick={() => setPreviewTab('trends')}
               className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer transition-all ${
                 previewTab === 'trends'
-                  ? 'bg-[#0A0E1A] dark:bg-[#6B9B85] text-white dark:text-[#0A0E1A] shadow-xs'
+                  ? 'bg-[#54816C] dark:bg-[#6B9B85] text-white dark:text-[#0A0E1A] shadow-xs'
                   : 'bg-slate-100 dark:bg-[#2C3146] text-slate-800 dark:text-[#C8D0E0] hover:bg-slate-200 dark:hover:bg-[#353B54]'
               }`}
             >
-              <TrendingUp className="w-4 h-4 text-[#54816C] dark:text-[#0A0E1A]" /> Health Trends & Analytics
+              <TrendingUp className={`w-4 h-4 ${previewTab === 'trends' ? 'text-white dark:text-[#0A0E1A]' : 'text-[#54816C] dark:text-[#6B9B85]'}`} /> Health Trends & Analytics
             </button>
 
             <button
@@ -340,13 +340,13 @@ export const LandingPage = () => {
           </div>
 
           {/* Feature Showcase Container */}
-          <Card className="p-8 bg-[#0A0E1A] dark:bg-[#202434] text-white rounded-3xl shadow-2xl border border-slate-800 max-w-4xl mx-auto space-y-6">
+          <Card className="p-8 bg-white dark:bg-[#202434] text-[#0A0E1A] dark:text-white rounded-3xl shadow-xl border border-[#D5E8DC] dark:border-slate-800 max-w-4xl mx-auto space-y-6">
             
             {previewTab === 'dashboard' && (
               <div className="space-y-5 animate-in fade-in duration-200">
-                <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+                <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
                   <div>
-                    <span className="text-sm font-extrabold uppercase tracking-wider block text-[#0A0E1A] dark:text-[#CBD5E1]">Dashboard Preview</span>
+                    <span className="text-sm font-extrabold uppercase tracking-wider block text-slate-500 dark:text-[#CBD5E1]">Dashboard Preview</span>
                     <h3 className="text-xl font-extrabold text-[#0A0E1A] dark:text-white">Patient Workspace Overview</h3>
                   </div>
                   <Link to="/signup" className="px-3.5 py-1.5 rounded-xl bg-[#54816C] hover:bg-[#3D6352] text-white text-xs font-bold transition-colors">
@@ -355,32 +355,32 @@ export const LandingPage = () => {
                 </div>
 
                 <div className="grid grid-cols-3 gap-3">
-                  <div className="p-3.5 rounded-xl bg-[#202434] border border-slate-700 text-center space-y-1">
-                    <Upload className="w-5 h-5 text-[#54816C] mx-auto" />
-                    <span className="block text-xs font-bold text-slate-200">Upload Report</span>
+                  <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#151824] border border-[#D5E8DC] dark:border-slate-700 text-center space-y-1">
+                    <Upload className="w-5 h-5 text-[#54816C] dark:text-[#6B9B85] mx-auto" />
+                    <span className="block text-xs font-bold text-[#0A0E1A] dark:text-slate-200">Upload Report</span>
                   </div>
-                  <div className="p-3.5 rounded-xl bg-[#202434] border border-slate-700 text-center space-y-1">
-                    <Building2 className="w-5 h-5 text-[#54816C] mx-auto" />
-                    <span className="block text-xs font-bold text-slate-200">Find Hospital</span>
+                  <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#151824] border border-[#D5E8DC] dark:border-slate-700 text-center space-y-1">
+                    <Building2 className="w-5 h-5 text-[#54816C] dark:text-[#6B9B85] mx-auto" />
+                    <span className="block text-xs font-bold text-[#0A0E1A] dark:text-slate-200">Find Hospital</span>
                   </div>
-                  <div className="p-3.5 rounded-xl bg-[#202434] border border-slate-700 text-center space-y-1">
-                    <Pill className="w-5 h-5 text-[#54816C] mx-auto" />
-                    <span className="block text-xs font-bold text-slate-200">Medicine</span>
+                  <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#151824] border border-[#D5E8DC] dark:border-slate-700 text-center space-y-1">
+                    <Pill className="w-5 h-5 text-[#54816C] dark:text-[#6B9B85] mx-auto" />
+                    <span className="block text-xs font-bold text-[#0A0E1A] dark:text-slate-200">Medicine</span>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-3 gap-3 text-xs">
-                  <div className="p-3 rounded-xl bg-[#202434] border border-slate-700 space-y-1">
-                    <span className="text-slate-300 block text-[11px] font-medium">Blood Pressure</span>
-                    <strong className="!text-white text-base font-extrabold block" style={{ color: '#FFFFFF' }}>118/78 <span className="text-[10px] font-normal !text-slate-300" style={{ color: '#CBD5E1' }}>mmHg</span></strong>
+                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#151824] border border-[#D5E8DC] dark:border-slate-700 space-y-1">
+                    <span className="text-slate-500 dark:text-slate-300 block text-[11px] font-medium">Blood Pressure</span>
+                    <strong className="text-[#0A0E1A] dark:text-white text-base font-extrabold block">118/78 <span className="text-[10px] font-normal text-slate-500 dark:text-slate-300">mmHg</span></strong>
                   </div>
-                  <div className="p-3 rounded-xl bg-[#202434] border border-slate-700 space-y-1">
-                    <span className="text-slate-300 block text-[11px] font-medium">Fasting Glucose</span>
-                    <strong className="!text-white text-base font-extrabold block" style={{ color: '#FFFFFF' }}>95 <span className="text-[10px] font-normal !text-slate-300" style={{ color: '#CBD5E1' }}>mg/dL</span></strong>
+                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#151824] border border-[#D5E8DC] dark:border-slate-700 space-y-1">
+                    <span className="text-slate-500 dark:text-slate-300 block text-[11px] font-medium">Fasting Glucose</span>
+                    <strong className="text-[#0A0E1A] dark:text-white text-base font-extrabold block">95 <span className="text-[10px] font-normal text-slate-500 dark:text-slate-300">mg/dL</span></strong>
                   </div>
-                  <div className="p-3 rounded-xl bg-[#202434] border border-slate-700 space-y-1">
-                    <span className="text-slate-300 block text-[11px] font-medium">Hemoglobin (Hb)</span>
-                    <strong className="!text-white text-base font-extrabold block" style={{ color: '#FFFFFF' }}>13.8 <span className="text-[10px] font-normal !text-slate-300" style={{ color: '#CBD5E1' }}>g/dL</span></strong>
+                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#151824] border border-[#D5E8DC] dark:border-slate-700 space-y-1">
+                    <span className="text-slate-500 dark:text-slate-300 block text-[11px] font-medium">Hemoglobin (Hb)</span>
+                    <strong className="text-[#0A0E1A] dark:text-white text-base font-extrabold block">13.8 <span className="text-[10px] font-normal text-slate-500 dark:text-slate-300">g/dL</span></strong>
                   </div>
                 </div>
               </div>
@@ -388,9 +388,9 @@ export const LandingPage = () => {
 
             {previewTab === 'trends' && (
               <div className="space-y-5 animate-in fade-in duration-200">
-                <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+                <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
                   <div>
-                    <span className="text-sm font-extrabold uppercase tracking-wider block text-[#0A0E1A] dark:text-[#CBD5E1]">Health Trends & Analytics</span>
+                    <span className="text-sm font-extrabold uppercase tracking-wider block text-slate-500 dark:text-[#CBD5E1]">Health Trends & Analytics</span>
                     <h3 className="text-xl font-extrabold text-[#0A0E1A] dark:text-white">Biomarker Longitudinal Progression</h3>
                   </div>
                   <Link to="/signup" className="px-3.5 py-1.5 rounded-xl bg-[#54816C] hover:bg-[#3D6352] text-white text-xs font-bold transition-colors">
@@ -398,12 +398,12 @@ export const LandingPage = () => {
                   </Link>
                 </div>
 
-                <div className="p-4 rounded-xl bg-[#202434] border border-slate-700 space-y-2 text-xs">
+                <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#151824] border border-[#D5E8DC] dark:border-slate-700 space-y-2 text-xs">
                   <div className="flex justify-between items-center">
-                    <span className="font-bold text-white">Hemoglobin (Hb) Trend Line</span>
-                    <span className="text-[#54816C] font-bold">+1.4 g/dL (6M Gain)</span>
+                    <span className="font-bold text-[#0A0E1A] dark:text-white">Hemoglobin (Hb) Trend Line</span>
+                    <span className="text-[#3D6352] dark:text-[#6B9B85] font-bold">+1.4 g/dL (6M Gain)</span>
                   </div>
-                  <div className="h-20 bg-[#172033] rounded-lg border border-slate-700 flex items-center justify-center text-slate-200 text-xs font-mono font-medium">
+                  <div className="h-20 bg-white dark:bg-[#172033] rounded-lg border border-[#D5E8DC] dark:border-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200 text-xs font-mono font-medium">
                     📈 [Interactive Line Graph: Jan 12.4 → Aug 13.8 g/dL]
                   </div>
                 </div>
@@ -412,7 +412,7 @@ export const LandingPage = () => {
 
             {previewTab === 'sos' && (
               <div className="space-y-5 animate-in fade-in duration-200 text-center">
-                <div className="flex items-center justify-between border-b border-slate-800 pb-4 text-left">
+                <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4 text-left">
                   <div>
                     <span className="text-sm font-extrabold uppercase tracking-wider block text-[#991B1B] dark:text-[#F3C6CB]">Emergency SOS Center</span>
                     <h3 className="text-xl font-extrabold text-[#0A0E1A] dark:text-white">Emergency Assistance</h3>
